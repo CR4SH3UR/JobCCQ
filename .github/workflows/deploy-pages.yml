@@ -36,8 +36,11 @@ jobs:
       - name: Installer les dépendances
         run: npm ci
 
-      - name: Générer l'instantané des offres (jobs.json)
-        run: npm run export:static -w @jobccq/api
+      # Un instantané réel est versionné dans le dépôt ; on ne le régénère
+      # (depuis les données de démo) que s'il est absent, pour ne pas écraser
+      # les vraies offres publiées.
+      - name: Générer l'instantané des offres (jobs.json) si absent
+        run: test -f apps/web/public/data/jobs.json || npm run export:static -w @jobccq/api
 
       - name: Construire le site (export statique)
         env:
