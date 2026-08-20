@@ -1,11 +1,12 @@
-import { makeCareersScraper } from "./careers.js";
+import { makeBambooHrScraper } from "./bamboohr.js";
 
 /**
- * Atwill-Morin — page carrières d'entreprise (maçonnerie / restauration).
- * Statut : expérimental (sélecteurs du repli HTML à valider contre le DOM réel).
+ * Atwill-Morin — maçonnerie et restauration de bâtiments.
+ * La page carrières (WordPress) charge ses postes depuis BambooHR ;
+ * on lit le flux JSON public de l'ATS (atwillmorin.bamboohr.com).
  */
-export const atwillMorinScraper = makeCareersScraper({
+export const atwillMorinScraper = makeBambooHrScraper({
   id: "atwill-morin",
   company: "Atwill-Morin",
-  careersUrl: "https://atwill-morin.com/carrieres/",
+  subdomain: "atwillmorin",
 });
