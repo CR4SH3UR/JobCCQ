@@ -8,7 +8,7 @@ name: Déploiement du site sur GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, claude/job-offers-aggregator-ehf65z]
   workflow_dispatch:
 
 permissions:
@@ -44,8 +44,12 @@ jobs:
           NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
         run: npm run build -w @jobccq/web
 
-      - name: Configurer Pages
+      - name: Configurer et activer Pages
         uses: actions/configure-pages@v5
+        with:
+          # Active automatiquement GitHub Pages (source « GitHub Actions »)
+          # via le GITHUB_TOKEN — aucune action manuelle requise.
+          enablement: true
 
       - name: Téléverser l'artéfact du site
         uses: actions/upload-pages-artifact@v3
