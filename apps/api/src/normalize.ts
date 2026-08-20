@@ -73,8 +73,10 @@ export function detectRemote(text: string): Job["remote"] | undefined {
 const CATEGORY_KEYWORDS: Array<[string, RegExp]> = [
   ["ti", /developpeu|développeu|programmeu|logiciel|software|devops|data|donnees|données|analyste (?:d'affaires|programmeur)|architecte (?:logiciel|ti)|infonuagique|cloud|cybersecurit|réseau|reseau|informatique|full ?stack|front[- ]?end|back[- ]?end|qa|scrum|ux|ui designer|intelligence artificielle|machine learning|developer|programmer|information technology|web develop|network|system administrator|sysadmin/i],
   ["genie", /ingenieu|ingénieu|genie|génie|mecanique|mécanique|électrique|electrique|civil|structure|aérospat|aerospat|automatisation|engineer|mechanical|aerospace/i],
-  ["sante", /infirmi|prepose|préposé|beneficiaire|bénéficiaire|medecin|médecin|pharmac|dentaire|physio|ergotherapeu|ergothérapeu|inhalotherapeu|psycholog|travailleu(?:r|se) social|soins|clinique|hospitali|nurse|health care|healthcare|medical|caregiver|orderly|personal support worker/i],
-  ["construction", /electricien|électricien|plombier|charpentier|menuisier|macon|maçon|grutier|chantier|construction|manoeuvre|soudeur|couvreu|ferblantier|arpenteu|estimateu|electrician|plumber|carpenter|welder|roofer|labourer|heavy equipment/i],
+  // « préposé » seul est trop large (préposé à la cour, à l'entretien…) : on
+  // exige le contexte « bénéficiaire »/soins pour rester dans la santé.
+  ["sante", /infirmi|pr[ée]pos[ée]+\s+(?:aux?\s+)?b[ée]n[ée]fic|beneficiaire|bénéficiaire|medecin|médecin|pharmac|dentaire|physio|ergotherapeu|ergothérapeu|inhalotherapeu|psycholog|travailleu(?:r|se) social|soins|clinique|hospitali|nurse|health care|healthcare|medical|caregiver|orderly|personal support worker/i],
+  ["construction", /electricien|électricien|plombier|charpentier|menuisier|macon|maçon|grutier|chantier|construction|manoeuvre|cimentier|signaleur|poseur de tuyau|soudeur|couvreu|ferblantier|arpenteu|estimateu|electrician|plumber|carpenter|welder|roofer|labourer|heavy equipment/i],
   ["finance", /comptab|financ|fiscal|controleu|contrôleu|analyste financier|actuaire|assurance|banque|credit|crédit|paie|verificateu|vérificateu|tresorerie|trésorerie|account(?:ant|ing)|financial|bookkeep|payroll|auditor|banking|investment/i],
   ["admin", /adjoint|secretai|secrétai|réceptionn|receptionn|commis|soutien administratif|bureautique|coordonnateu(?:r|rice) administra|administrative|receptionist|clerk|office assistant|data entry|secretary/i],
   ["vente", /vente|vendeu|conseiller (?:en vente|aux ventes)|representant|représentant|caissier|service (?:à la clientele|a la clientele|client)|commercial(?:e)?\b|\bsales\b|cashier|retail|customer service|account executive/i],
@@ -91,7 +93,8 @@ const CATEGORY_KEYWORDS: Array<[string, RegExp]> = [
 ];
 
 export function inferCategory(title: string, tags: string[] = []): string | undefined {
-  const hay = `${title} ${tags.join(" ")}`;
+  // Normalise les ligatures (œ→oe, æ→ae) : « Manœuvre » doit matcher « manoeuvre ».
+  const hay = `${title} ${tags.join(" ")}`.replace(/œ/gi, "oe").replace(/æ/gi, "ae");
   for (const [cat, re] of CATEGORY_KEYWORDS) if (re.test(hay)) return cat;
   return undefined;
 }

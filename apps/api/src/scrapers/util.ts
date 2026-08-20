@@ -20,6 +20,17 @@ export function cleanText(s?: string | null): string {
   return (s ?? "").replace(/ /g, " ").replace(/\s+/g, " ").trim();
 }
 
+/** « Charpentier(ère) CCQ » → « charpentier-ere-ccq » (pour une URL/ancre stable). */
+export function slugify(text: string): string {
+  return cleanText(text)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+}
+
 /** « exfo-inc » → « Exfo Inc » (repli quand la source n'expose pas le nom). */
 export function deslugify(slug: string): string {
   return slug

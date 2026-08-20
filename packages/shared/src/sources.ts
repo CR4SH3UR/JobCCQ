@@ -127,9 +127,9 @@ export const JOB_SOURCES = [
     region: "QC",
     scope: "Employeur — entrepreneur en construction (page carrières)",
     method: "html",
-    status: "experimental",
+    status: "active",
     language: "fr",
-    notes: "Page carrières d'entreprise (une seule page) : JSON-LD si disponible, sinon repli HTML.",
+    notes: "Page carrières Wix : postes lus depuis le .wixui-repeater (titre, lieu, type, lien).",
   },
   {
     id: "pomerleau",
