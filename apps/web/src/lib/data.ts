@@ -24,7 +24,13 @@ const STATIC = process.env.NEXT_PUBLIC_STATIC_DATA === "1";
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 /** Sources disposant d'un scraper (miroir de apps/api/src/scrapers/registry.ts). */
-const SCRAPER_IDS = new Set(["jobillico", "espresso-jobs", "guichet-emplois"]);
+const SCRAPER_IDS = new Set([
+  "jobillico",
+  "espresso-jobs",
+  "guichet-emplois",
+  "atwill-morin",
+  "hamel-construction",
+]);
 
 export type SourceWithMeta = JobSource & { hasScraper: boolean; jobCount: number };
 
