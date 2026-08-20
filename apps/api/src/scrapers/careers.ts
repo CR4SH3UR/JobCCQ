@@ -17,6 +17,12 @@ export interface CareersScraperConfig {
   id: string;
   company: string;
   careersUrl: string;
+  /**
+   * Motif d'URL identifiant une fiche de poste (ex. /\/emploi-/). Si fourni,
+   * le repli HTML ne retient que les liens correspondants — plus précis que
+   * l'heuristique générique (emploi|poste|carriere|job).
+   */
+  jobPathPattern?: RegExp;
 }
 
 function absolute(href: string, base: string): string {
@@ -115,14 +121,20 @@ function parseHtmlCareers(
   careersUrl: string,
   id: string,
   company: string,
+  jobPathPattern?: RegExp,
 ): RawJob[] {
   const $ = cheerio.load(html);
   const seen = new Set<string>();
   const jobs: RawJob[] = [];
 
-  $('a[href*="carriere"], a[href*="emploi"], a[href*="poste"], a[href*="/job"]').each((_, el) => {
+  const selector = jobPathPattern
+    ? "a[href]"
+    : 'a[href*="carriere"], a[href*="emploi"], a[href*="poste"], a[href*="/job"]';
+
+  $(selector).each((_, el) => {
     const href = $(el).attr("href");
     if (!href) return;
+    if (jobPathPattern && !jobPathPattern.test(href)) return;
     const url = absolute((href.split("#")[0] ?? "").trim(), baseUrl);
     if (sameUrl(url, careersUrl)) return; // ignore la page index elle-même
     if (seen.has(url)) return;
@@ -147,7 +159,14 @@ export function makeCareersScraper(config: CareersScraperConfig): Scraper {
       if (jsonld.length > 0) return jsonld;
       const wix = parseWixRepeaters(html, baseUrl, config.careersUrl, config.id, config.company);
       if (wix.length > 0) return wix;
-      return parseHtmlCareers(html, baseUrl, config.careersUrl, config.id, config.company);
+      return parseHtmlCareers(
+        html,
+        baseUrl,
+        config.careersUrl,
+        config.id,
+        config.company,
+        config.jobPathPattern,
+      );
     },
 
     async scrape(_params: ScrapeParams, ctx: ScrapeContext): Promise<RawJob[]> {
