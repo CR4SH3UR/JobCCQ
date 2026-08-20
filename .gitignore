@@ -19,8 +19,9 @@ apps/mobile/dist/
 *.sqlite3
 apps/api/prisma/*.db
 
-# Instantané généré pour l'export statique (régénéré par le build / la CI)
-apps/web/public/data/jobs.json
+# Instantané pour l'export statique : un instantané RÉEL est versionné
+# (apps/web/public/data/jobs.json) afin que GitHub Pages serve de vraies offres.
+# Régénérer après un scraping : npm run -w @jobccq/api export:static -- --from-db
 
 # Env
 .env
