@@ -1,0 +1,51 @@
+import type { Job } from "@jobccq/shared";
+import { labelForSalaryPeriod } from "@jobccq/shared";
+
+const nf = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 0 });
+
+/** Formate une fourchette salariale, ex. « 55 000 $ – 75 000 $ / an ». */
+export function formatSalary(job: Pick<Job, "salaryMin" | "salaryMax" | "salaryPeriod">): string | null {
+  const { salaryMin, salaryMax, salaryPeriod } = job;
+  if (salaryMin == null && salaryMax == null) return null;
+  const period = labelForSalaryPeriod(salaryPeriod) ?? "";
+  const money = (n: number) => `${nf.format(n)} $`;
+  let amount: string;
+  if (salaryMin != null && salaryMax != null && salaryMin !== salaryMax) {
+    amount = `${money(salaryMin)} – ${money(salaryMax)}`;
+  } else {
+    amount = money((salaryMax ?? salaryMin)!);
+  }
+  return period ? `${amount} ${period}` : amount;
+}
+
+/** Date relative en français, ex. « il y a 3 jours ». */
+export function timeAgo(iso?: string): string | null {
+  if (!iso) return null;
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return null;
+  const diff = Date.now() - t;
+  const days = Math.floor(diff / 86_400_000);
+  if (days <= 0) {
+    const hours = Math.floor(diff / 3_600_000);
+    if (hours <= 0) return "à l'instant";
+    return `il y a ${hours} h`;
+  }
+  if (days === 1) return "hier";
+  if (days < 7) return `il y a ${days} jours`;
+  if (days < 30) return `il y a ${Math.floor(days / 7)} sem.`;
+  return `il y a ${Math.floor(days / 30)} mois`;
+}
+
+/** Concatène des classes conditionnelles. */
+export function cn(...parts: Array<string | false | null | undefined>): string {
+  return parts.filter(Boolean).join(" ");
+}
+
+/** Initiales d'une entreprise (pour l'avatar de repli). */
+export function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("");
+}

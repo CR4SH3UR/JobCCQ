@@ -1,0 +1,33 @@
+{
+  "name": "@jobccq/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "API JobCCQ — scraping, normalisation et recherche d'offres d'emploi",
+  "scripts": {
+    "prisma:generate": "DATABASE_URL=file:./prisma/dev.db prisma generate",
+    "db:push": "DATABASE_URL=file:./prisma/dev.db prisma db push",
+    "db:reset": "DATABASE_URL=file:./prisma/dev.db prisma db push --force-reset --accept-data-loss",
+    "setup": "npm run prisma:generate && npm run db:push",
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "seed": "tsx src/seed.ts",
+    "scrape": "tsx src/scrape.ts",
+    "export:static": "tsx src/export-static.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "@jobccq/shared": "*",
+    "@prisma/client": "^5.22.0",
+    "cheerio": "^1.0.0",
+    "fastify": "^5.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "prisma": "^5.22.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

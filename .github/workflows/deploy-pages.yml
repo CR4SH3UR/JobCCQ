@@ -1,0 +1,64 @@
+name: Déploiement du site sur GitHub Pages
+
+# Déploie le site statique JobCCQ (l'API n'est pas requise : la logique de
+# filtrage tourne dans le navigateur à partir d'un instantané jobs.json).
+#
+# Prérequis (une seule fois) : dans le dépôt, Settings → Pages → Source :
+# « GitHub Actions ». Le site sera publié sur https://<user>.github.io/<repo>/
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Générer l'instantané des offres (jobs.json)
+        run: npm run export:static -w @jobccq/api
+
+      - name: Construire le site (export statique)
+        env:
+          BUILD_STATIC: "1"
+          NEXT_PUBLIC_STATIC_DATA: "1"
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+        run: npm run build -w @jobccq/web
+
+      - name: Configurer Pages
+        uses: actions/configure-pages@v5
+
+      - name: Téléverser l'artéfact du site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Déployer sur GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,24 @@
+{
+  "name": "jobccq",
+  "private": true,
+  "version": "0.1.0",
+  "description": "JobCCQ — Agrégateur d'offres d'emploi Québec/Canada (site + app mobile)",
+  "workspaces": [
+    "packages/*",
+    "apps/api",
+    "apps/web"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @jobccq/api",
+    "dev:web": "npm run dev -w @jobccq/web",
+    "start:mobile": "npm run start --prefix apps/mobile",
+    "seed": "npm run seed -w @jobccq/api",
+    "scrape": "npm run scrape -w @jobccq/api",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "build": "npm run build -w @jobccq/shared && npm run build -w @jobccq/web"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

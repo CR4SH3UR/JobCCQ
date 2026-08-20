@@ -1,0 +1,179 @@
+import type { Job as PrismaJob } from "@prisma/client";
+import {
+  applyQuery,
+  toHiringCompanies,
+  type HiringCompany,
+  type Job,
+  type JobQuery,
+  type JobSearchResult,
+} from "@jobccq/shared";
+import { prisma } from "./db.js";
+
+/** Nombre max d'offres chargées en mémoire pour le filtrage (MVP). */
+const MAX_JOBS = 20_000;
+
+function parseJsonArray(value: string): string[] {
+  try {
+    const v = JSON.parse(value);
+    return Array.isArray(v) ? v : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Convertit une ligne Prisma en offre du contrat partagé. */
+export function rowToJob(row: PrismaJob): Job {
+  return {
+    id: row.id,
+    sourceId: row.sourceId,
+    url: row.url,
+    title: row.title,
+    company: row.company,
+    companyLogoUrl: row.companyLogoUrl ?? undefined,
+    location: row.location ?? undefined,
+    regionId: row.regionId ?? undefined,
+    city: row.city ?? undefined,
+    remote: (row.remote as Job["remote"]) ?? undefined,
+    categoryId: row.categoryId ?? undefined,
+    employmentType: (row.employmentType as Job["employmentType"]) ?? undefined,
+    salaryMin: row.salaryMin ?? undefined,
+    salaryMax: row.salaryMax ?? undefined,
+    salaryPeriod: (row.salaryPeriod as Job["salaryPeriod"]) ?? undefined,
+    currency: row.currency ?? "CAD",
+    description: row.description ?? undefined,
+    tags: parseJsonArray(row.tags),
+    languages: parseJsonArray(row.languages) as Job["languages"],
+    postedAt: row.postedAt?.toISOString(),
+    scrapedAt: row.scrapedAt.toISOString(),
+  };
+}
+
+/** Prépare les champs d'écriture d'une offre (dates + JSON sérialisés). */
+function jobToRow(job: Job) {
+  return {
+    id: job.id,
+    sourceId: job.sourceId,
+    url: job.url,
+    title: job.title,
+    company: job.company,
+    companyLogoUrl: job.companyLogoUrl ?? null,
+    location: job.location ?? null,
+    regionId: job.regionId ?? null,
+    city: job.city ?? null,
+    remote: job.remote ?? null,
+    categoryId: job.categoryId ?? null,
+    employmentType: job.employmentType ?? null,
+    salaryMin: job.salaryMin ?? null,
+    salaryMax: job.salaryMax ?? null,
+    salaryPeriod: job.salaryPeriod ?? null,
+    currency: job.currency ?? "CAD",
+    description: job.description ?? null,
+    tags: JSON.stringify(job.tags ?? []),
+    languages: JSON.stringify(job.languages ?? []),
+    postedAt: job.postedAt ? new Date(job.postedAt) : null,
+    scrapedAt: job.scrapedAt ? new Date(job.scrapedAt) : new Date(),
+  };
+}
+
+export async function getAllJobs(): Promise<Job[]> {
+  const rows = await prisma.job.findMany({ take: MAX_JOBS, orderBy: { postedAt: "desc" } });
+  return rows.map(rowToJob);
+}
+
+/** Recherche + filtres + tri + pagination (logique partagée, en mémoire). */
+export async function searchJobs(query: JobQuery): Promise<JobSearchResult> {
+  const jobs = await getAllJobs();
+  return applyQuery(jobs, query);
+}
+
+export async function getJobById(id: string): Promise<Job | null> {
+  const row = await prisma.job.findUnique({ where: { id } });
+  return row ? rowToJob(row) : null;
+}
+
+/** Vue « Qui recrute » : entreprises agrégées, filtrables par la même requête. */
+export async function getHiringCompanies(
+  query: Partial<JobQuery> = {},
+): Promise<HiringCompany[]> {
+  const jobs = await getAllJobs();
+  const q = { sort: "recent", page: 1, pageSize: MAX_JOBS, ...query } as JobQuery;
+  const filtered = applyQuery(jobs, { ...q, page: 1, pageSize: MAX_JOBS });
+  return toHiringCompanies(filtered.items);
+}
+
+export interface UpsertResult {
+  inserted: number;
+  updated: number;
+}
+
+/** Insère ou met à jour un lot d'offres (dédupliquées par id). */
+export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
+  if (jobs.length === 0) return { inserted: 0, updated: 0 };
+
+  // Déduplication intra-lot par id.
+  const byId = new Map(jobs.map((j) => [j.id, j]));
+  const unique = [...byId.values()];
+
+  const existing = new Set(
+    (
+      await prisma.job.findMany({
+        where: { id: { in: unique.map((j) => j.id) } },
+        select: { id: true },
+      })
+    ).map((r) => r.id),
+  );
+
+  let inserted = 0;
+  let updated = 0;
+  for (const job of unique) {
+    const data = jobToRow(job);
+    await prisma.job.upsert({
+      where: { id: job.id },
+      create: data,
+      // On ne réécrit pas scrapedAt/createdAt à chaque passage inutilement,
+      // mais on rafraîchit le contenu susceptible d'avoir changé.
+      update: {
+        title: data.title,
+        company: data.company,
+        companyLogoUrl: data.companyLogoUrl,
+        location: data.location,
+        regionId: data.regionId,
+        city: data.city,
+        remote: data.remote,
+        categoryId: data.categoryId,
+        employmentType: data.employmentType,
+        salaryMin: data.salaryMin,
+        salaryMax: data.salaryMax,
+        salaryPeriod: data.salaryPeriod,
+        description: data.description,
+        tags: data.tags,
+        languages: data.languages,
+        postedAt: data.postedAt,
+      },
+    });
+    if (existing.has(job.id)) updated += 1;
+    else inserted += 1;
+  }
+  return { inserted, updated };
+}
+
+/** Statistiques globales pour la page d'accueil / le tableau de bord. */
+export async function getStats() {
+  const [total, bySource, byRegion, byCategory, distinctCompanies, lastRuns] = await Promise.all([
+    prisma.job.count(),
+    prisma.job.groupBy({ by: ["sourceId"], _count: true }),
+    prisma.job.groupBy({ by: ["regionId"], _count: true }),
+    prisma.job.groupBy({ by: ["categoryId"], _count: true }),
+    prisma.job.findMany({ distinct: ["company"], select: { company: true } }),
+    prisma.scrapeRun.findMany({ orderBy: { startedAt: "desc" }, take: 10 }),
+  ]);
+
+  return {
+    totalJobs: total,
+    totalCompanies: distinctCompanies.length,
+    bySource: bySource.map((s) => ({ id: s.sourceId, count: s._count })),
+    byRegion: byRegion.map((r) => ({ id: r.regionId ?? "autre", count: r._count })),
+    byCategory: byCategory.map((c) => ({ id: c.categoryId ?? "autre", count: c._count })),
+    recentRuns: lastRuns,
+  };
+}
