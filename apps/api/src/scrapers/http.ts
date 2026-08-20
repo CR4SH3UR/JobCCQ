@@ -16,6 +16,8 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export interface FetchOptions {
   retries?: number;
   timeoutMs?: number;
+  /** User-Agent spécifique (certains ATS bloquent les UA « bot » identifiables). */
+  userAgent?: string;
 }
 
 /**
@@ -24,7 +26,7 @@ export interface FetchOptions {
  * avec backoff exponentiel sur 429 / 5xx / erreurs réseau.
  */
 export async function fetchHtml(url: string, opts: FetchOptions = {}): Promise<string> {
-  const { retries = 2, timeoutMs = 20_000 } = opts;
+  const { retries = 2, timeoutMs = 20_000, userAgent = env.USER_AGENT } = opts;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     await throttle();
@@ -35,7 +37,7 @@ export async function fetchHtml(url: string, opts: FetchOptions = {}): Promise<s
         signal: controller.signal,
         redirect: "follow",
         headers: {
-          "User-Agent": env.USER_AGENT,
+          "User-Agent": userAgent,
           Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
           "Accept-Language": "fr-CA,fr;q=0.9,en;q=0.6",
         },
@@ -63,5 +65,5 @@ export async function fetchHtml(url: string, opts: FetchOptions = {}): Promise<s
 
 /** Contexte de scraping par défaut (réseau réel). */
 export function createHttpContext(log: (m: string) => void = () => {}): ScrapeContext {
-  return { fetchHtml: (url) => fetchHtml(url), log };
+  return { fetchHtml: (url, opts) => fetchHtml(url, opts), log };
 }

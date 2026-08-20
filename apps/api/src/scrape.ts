@@ -2,8 +2,7 @@
  * CLI de scraping.
  *
  *   npm run scrape                       # toutes les sources branchées
- *   npm run scrape -- jobillico          # une source précise
- *   npm run scrape -- jobillico "développeur" "Montréal"
+ *   npm run scrape -- pomerleau          # une source précise
  *
  * ⚠️  Nécessite un accès réseau aux sites d'emploi (bloqué dans certains
  *     environnements restreints — voir le README). Utilise `npm run seed`

@@ -10,8 +10,11 @@ export interface ScrapeParams {
 }
 
 export interface ScrapeContext {
-  /** Récupère le HTML d'une URL (avec User-Agent, throttling et retry). */
-  fetchHtml(url: string): Promise<string>;
+  /**
+   * Récupère le HTML d'une URL (avec User-Agent, throttling et retry).
+   * `opts.userAgent` permet de forcer un UA (certains ATS bloquent les UA bot).
+   */
+  fetchHtml(url: string, opts?: { userAgent?: string }): Promise<string>;
   log(message: string): void;
 }
 

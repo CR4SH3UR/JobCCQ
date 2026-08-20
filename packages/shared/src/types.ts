@@ -7,7 +7,7 @@ import { z } from "zod";
 export const JobSchema = z.object({
   /** Identifiant stable (hash de source + url/titre + entreprise). */
   id: z.string(),
-  /** Identifiant de la source (voir sources.ts), ex. "jobillico". */
+  /** Identifiant de la source (voir sources.ts), ex. "pomerleau". */
   sourceId: z.string(),
   /** URL de l'offre originale. */
   url: z.string().url(),
