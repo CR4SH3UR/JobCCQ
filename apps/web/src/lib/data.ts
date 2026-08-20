@@ -49,7 +49,13 @@ export interface Stats {
 let snapshotCache: Promise<Job[]> | null = null;
 function loadSnapshot(): Promise<Job[]> {
   if (!snapshotCache) {
-    snapshotCache = fetch(`${BASE_PATH}/data/jobs.json`, { cache: "force-cache" })
+    // `no-cache` = on revalide l'instantané auprès du serveur (ETag) à chaque
+    // chargement. Sans ça, `force-cache` fige la première version vue par le
+    // navigateur : après une mise à jour des offres, un visiteur de retour
+    // continuait de voir l'ancien jeu de données (ex. les 72 offres de démo).
+    // La réponse reste servie depuis le cache tant que l'ETag n'a pas changé
+    // (304), donc l'impact réseau est minime.
+    snapshotCache = fetch(`${BASE_PATH}/data/jobs.json`, { cache: "no-cache" })
       .then((r) => {
         if (!r.ok) throw new Error(`Instantané introuvable (HTTP ${r.status})`);
         return r.json() as Promise<Job[]>;
