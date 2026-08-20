@@ -7,7 +7,12 @@
 - 🧩 **Répertoire de sources** extensible : chaque site d'emploi est une entrée du catalogue ; on branche les scrapers un par un.
 - 📱 **Site web (Next.js) + app mobile (Expo)** partageant la même API et les mêmes types.
 
-> État : **MVP fonctionnel**. Le produit tourne de bout en bout grâce à un jeu de données de démonstration réaliste (72 offres québécoises). Le scraping live est prêt à être activé hors des environnements à réseau restreint.
+> État : **MVP fonctionnel avec scraping live**. Trois sources sont validées et
+> branchées — **Jobillico** (fiches JSON-LD), le **Guichet-Emplois** (Job Bank) et
+> **Espresso-Jobs** — et ramènent de vraies offres Québec / Canada. Un jeu de
+> données de démonstration (72 offres) reste le repli hors ligne / CI. Les pages
+> carrières d'employeurs (Atwill-Morin, Hamel, Pomerleau) sont rendues en JS /
+> protégées et nécessitent encore un rendu headless.
 
 ---
 
@@ -167,7 +172,8 @@ Pour régénérer l'instantané à partir de la vraie base (après un scraping) 
 
 ## Feuille de route
 
-- [ ] Valider les scrapers `experimental` contre les vrais sites (sélecteurs / patrons d'URL)
+- [x] Valider Jobillico, Guichet-Emplois et Espresso-Jobs contre les vrais sites (faits)
+- [ ] Valider les scrapers `experimental` restants (Jobboom, etc.)
 - [ ] Scrapers `headless` (Playwright) pour Indeed / Talent.com / LinkedIn
 - [ ] Planification du scraping (cron) + déduplication inter-sources plus fine
 - [ ] Alertes courriel / notifications push mobiles sur nouvelles offres

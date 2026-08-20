@@ -2,79 +2,108 @@ import * as cheerio from "cheerio";
 import type { RawJob } from "@jobccq/shared";
 import type { Scraper, ScrapeContext, ScrapeParams } from "./types.js";
 import { extractJsonLdJobs } from "./jsonld.js";
+import { absolute, cleanText, deslugify } from "./util.js";
 
 const BASE = "https://www.jobillico.com";
 const SOURCE_ID = "jobillico";
 
-function absolute(href: string): string {
-  if (href.startsWith("http")) return href;
-  return `${BASE}${href.startsWith("/") ? "" : "/"}${href}`;
+/** Nombre max de fiches détaillées récupérées par exécution (politesse). */
+const DETAIL_CAP = Number(process.env.JOBILLICO_DETAIL_CAP ?? 30);
+
+interface Listed {
+  url: string;
+  title: string;
+  company: string;
+}
+
+/** Retire les paramètres de suivi d'une URL de fiche (id stable). */
+function cleanJobUrl(raw: string): string {
+  const abs = absolute(BASE, raw);
+  const q = abs.indexOf("?");
+  return q === -1 ? abs : abs.slice(0, q);
+}
+
+/** Déduit l'entreprise depuis le slug d'URL `/job-offer/<entreprise>/<poste>/<id>`. */
+function companyFromUrl(url: string): string {
+  const m = url.match(/\/job-offer\/([^/]+)\//i);
+  return m ? deslugify(decodeURIComponent(m[1]!)) : "";
 }
 
 /**
- * Repli HTML : on parcourt les liens vers les fiches d'offres et on remonte
- * la carte pour en extraire l'entreprise et la localisation.
- * (Sélecteurs indicatifs — à ajuster contre le DOM réel de Jobillico.)
+ * Parse la page de résultats : Jobillico expose un JSON-LD `ItemList`
+ * dont chaque `ListItem` porte l'URL et le titre d'une offre.
+ * Repli : les ancres `/job-offer/…` présentes dans le HTML.
  */
-function parseHtmlCards(html: string): RawJob[] {
+export function parseSearchList(html: string): Listed[] {
   const $ = cheerio.load(html);
-  const seen = new Set<string>();
-  const jobs: RawJob[] = [];
+  const out = new Map<string, Listed>();
 
-  $('a[href*="/offre-emploi/"]').each((_, el) => {
-    const href = $(el).attr("href");
-    if (!href) return;
-    const url = absolute(href.split("?")[0]!);
-    if (seen.has(url)) return;
-
-    const title = $(el).text().trim() || $(el).attr("title")?.trim() || "";
-    if (!title || title.length < 3) return;
-
-    // La carte est un ancêtre proche du lien.
-    const card = $(el).closest("article, li, .job, .jobEntry, .search-result, [class*='job']");
-    const company =
-      card.find("[class*='company'], [class*='entreprise'], [itemprop='hiringOrganization']").first().text().trim() ||
-      card.find("h3, h4").eq(1).text().trim();
-    const location = card
-      .find("[class*='location'], [class*='lieu'], [class*='ville'], [itemprop='jobLocation']")
-      .first()
-      .text()
-      .trim();
-
-    if (!company) return; // sans entreprise, la carte est probablement du bruit
-
-    seen.add(url);
-    jobs.push({
-      sourceId: SOURCE_ID,
-      url,
-      title,
-      company,
-      location: location || undefined,
-      tags: [],
-    });
+  $('script[type="application/ld+json"]').each((_, el) => {
+    const raw = $(el).contents().text();
+    if (!raw.includes("ItemList") && !raw.includes("ListItem")) return;
+    let data: unknown;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      return;
+    }
+    const lists = Array.isArray(data) ? data : [data];
+    for (const node of lists as Array<Record<string, unknown>>) {
+      const items = node?.itemListElement;
+      if (!Array.isArray(items)) continue;
+      for (const it of items as Array<Record<string, unknown>>) {
+        const href = typeof it.url === "string" ? it.url : undefined;
+        if (!href || !/\/job-offer\//i.test(href)) continue;
+        const url = cleanJobUrl(href);
+        const title = cleanText(typeof it.name === "string" ? it.name : "");
+        if (!title) continue;
+        out.set(url, { url, title, company: companyFromUrl(url) });
+      }
+    }
   });
 
-  return jobs;
+  if (out.size === 0) {
+    $('a[href*="/job-offer/"]').each((_, el) => {
+      const href = $(el).attr("href");
+      if (!href) return;
+      const url = cleanJobUrl(href);
+      const title = cleanText($(el).text()) || cleanText($(el).attr("title"));
+      if (!title || title.length < 3 || out.has(url)) return;
+      out.set(url, { url, title, company: companyFromUrl(url) });
+    });
+  }
+
+  return [...out.values()];
 }
 
 export const jobillicoScraper: Scraper = {
   id: SOURCE_ID,
 
+  /**
+   * Sur une fiche : le JSON-LD `JobPosting` (fiable). Sur une page de
+   * résultats : l'`ItemList` converti en offres « superficielles ».
+   */
   parseList(html: string, baseUrl: string): RawJob[] {
-    // 1) JSON-LD (le plus fiable), 2) repli sur les cartes HTML.
-    const jsonld = extractJsonLdJobs(html, SOURCE_ID, baseUrl);
-    if (jsonld.length > 0) return jsonld;
-    return parseHtmlCards(html);
+    const jobs = extractJsonLdJobs(html, SOURCE_ID, baseUrl);
+    if (jobs.length > 0) return jobs;
+    return parseSearchList(html).map((l) => ({
+      sourceId: SOURCE_ID,
+      url: l.url,
+      title: l.title,
+      company: l.company || "Entreprise non précisée",
+      tags: [],
+    }));
   },
 
   async scrape(params: ScrapeParams, ctx: ScrapeContext): Promise<RawJob[]> {
     const maxPages = params.maxPages ?? 3;
     const kw = params.query ? encodeURIComponent(params.query) : "";
-    const loc = params.location ? encodeURIComponent(params.location) : "";
-    const all = new Map<string, RawJob>();
+    const loc = params.location ? `/${encodeURIComponent(params.location.toLowerCase())}` : "";
 
+    // 1) Collecte des liens d'offres depuis l'ItemList des pages de résultats.
+    const listed = new Map<string, Listed>();
     for (let page = 1; page <= maxPages; page++) {
-      const url = `${BASE}/fr/recherche-emploi?skwd=${kw}&sloc=${loc}&page=${page}`;
+      const url = `${BASE}/search-jobs${loc}?skwd=${kw}&page=${page}`;
       ctx.log(`Jobillico — page ${page} : ${url}`);
       let html: string;
       try {
@@ -83,12 +112,41 @@ export const jobillicoScraper: Scraper = {
         ctx.log(`Jobillico — arrêt page ${page} : ${(err as Error).message}`);
         break;
       }
-      const found = this.parseList!(html, url);
-      ctx.log(`Jobillico — ${found.length} offres sur la page ${page}`);
-      if (found.length === 0) break; // plus de résultats
-      for (const job of found) all.set(job.url, job);
+      const items = parseSearchList(html);
+      ctx.log(`Jobillico — ${items.length} offres listées sur la page ${page}`);
+      if (items.length === 0) break;
+      let fresh = 0;
+      for (const it of items) if (!listed.has(it.url)) (listed.set(it.url, it), fresh++);
+      if (fresh === 0) break; // page identique → fin de pagination
     }
 
-    return [...all.values()];
+    // 2) Enrichissement : on récupère les fiches (JSON-LD JobPosting) jusqu'au plafond.
+    const results: RawJob[] = [];
+    let fetched = 0;
+    for (const l of listed.values()) {
+      const shallow: RawJob = {
+        sourceId: SOURCE_ID,
+        url: l.url,
+        title: l.title,
+        company: l.company || "Entreprise non précisée",
+        tags: [],
+      };
+      if (fetched >= DETAIL_CAP) {
+        results.push(shallow);
+        continue;
+      }
+      fetched++;
+      try {
+        const detailHtml = await ctx.fetchHtml(l.url);
+        const detail = extractJsonLdJobs(detailHtml, SOURCE_ID, l.url);
+        results.push(detail[0] ? { ...detail[0], url: l.url } : shallow);
+      } catch (err) {
+        ctx.log(`Jobillico — fiche ignorée (${(err as Error).message})`);
+        results.push(shallow);
+      }
+    }
+
+    ctx.log(`Jobillico — ${results.length} offres (${fetched} fiches détaillées)`);
+    return results;
   },
 };

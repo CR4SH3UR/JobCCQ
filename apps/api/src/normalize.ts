@@ -40,11 +40,23 @@ const CITY_TO_REGION: Array<[RegExp, string]> = [
 
 const REMOTE_HINT = /télétravail|teletravail|à distance|a distance|remote|hybride/i;
 
+/** Provinces/territoires hors Québec : abréviations (après virgule/parenthèse) et noms. */
+const NON_QC_PROVINCE =
+  /[,(]\s*(?:ab|bc|on|mb|sk|ns|nb|nl|pe|pei|nt|yt|nu)\b|\b(?:ontario|alberta|manitoba|saskatchewan|british columbia|colombie-britannique|nova scotia|nouvelle-[ée]cosse|new brunswick|nouveau-brunswick|newfoundland|terre-neuve|prince edward|[îi]le-du-prince|northwest territories|yukon|nunavut|toronto|ottawa|vancouver|calgary|edmonton|winnipeg|halifax|regina|saskatoon|mississauga|hamilton|london|windsor|kitchener)\b/i;
+
+const QC_HINT = /[,(]\s*qc\b|qu[ée]bec/i;
+
 export function detectRegion(location?: string): string | undefined {
   if (!location) return undefined;
-  for (const [re, region] of CITY_TO_REGION) if (re.test(location)) return region;
+  // La ville précède la virgule/parenthèse ; la province suit. On matche les
+  // villes sur cette partie pour éviter que la province « Québec » ne soit
+  // confondue avec la ville de Québec (Capitale-Nationale).
+  const city = location.split(/[,(]/)[0]!.trim() || location;
+  for (const [re, region] of CITY_TO_REGION) if (re.test(city)) return region;
   if (/télétravail|teletravail|à distance|a distance|remote/i.test(location)) return "teletravail";
-  if (/canada|ontario|toronto|ottawa|alberta|colombie/i.test(location)) return "canada-autre";
+  if (NON_QC_PROVINCE.test(location) || /\bcanada\b/i.test(location)) return "canada-autre";
+  // Québec confirmé mais ville hors référentiel : bucket « non précisé ».
+  if (QC_HINT.test(location)) return "autre";
   return undefined;
 }
 
@@ -59,23 +71,23 @@ export function detectRemote(text: string): Job["remote"] | undefined {
 // --- Inférence du domaine à partir du titre --------------------------------
 
 const CATEGORY_KEYWORDS: Array<[string, RegExp]> = [
-  ["ti", /developpeu|développeu|programmeu|logiciel|software|devops|data|donnees|données|analyste (?:d'affaires|programmeur)|architecte (?:logiciel|ti)|infonuagique|cloud|cybersecurit|réseau|reseau|informatique|full ?stack|frontend|backend|qa|test|scrum|ux|ui designer|intelligence artificielle|machine learning/i],
-  ["genie", /ingenieu|ingénieu|genie|génie|mecanique|mécanique|électrique|electrique|civil|structure|aérospat|aerospat|automatisation/i],
-  ["sante", /infirmi|prepose|préposé|beneficiaire|bénéficiaire|medecin|médecin|pharmac|dentaire|physio|ergotherapeu|ergothérapeu|inhalotherapeu|psycholog|travailleu(?:r|se) social|soins|clinique|hospitali/i],
-  ["construction", /electricien|électricien|plombier|charpentier|menuisier|macon|maçon|grutier|chantier|construction|manoeuvre|soudeur|couvreu|ferblantier|arpenteu|estimateu/i],
-  ["finance", /comptab|financ|fiscal|controleu|contrôleu|analyste financier|actuaire|assurance|banque|credit|crédit|paie|verificateu|vérificateu|tresorerie|trésorerie/i],
-  ["admin", /adjoint|secretai|secrétai|réceptionn|receptionn|commis|soutien administratif|bureautique|coordonnateu(?:r|rice) administra/i],
-  ["vente", /vente|vendeu|conseiller (?:en vente|aux ventes)|representant|représentant|caissier|service (?:à la clientele|a la clientele|client)|commercial(?:e)?\b/i],
-  ["marketing", /marketing|communication|redacteu|rédacteu|contenu|médias sociaux|medias sociaux|publicit|relations publiques|growth|seo/i],
-  ["rh", /ressources humaines|recruteu|talent|conseiller rh|paie et avantages|dotation/i],
-  ["education", /enseignant|professeu|educateu|éducateu|formateu|pedagog|pédagog|scolaire|garderie|cpe|orthopedagog/i],
-  ["juridique", /avocat|juriste|notaire|parajuriste|juridique|technicien juridique/i],
-  ["logistique", /logistique|entrepot|entrepôt|cariste|chauffeu|camionneu|livreu|approvisionn|chaine (?:d'approvisionnement|logistique)|magasinier|repartiteu|répartiteu|transport/i],
-  ["production", /operateu|opérateu|production|assembleu|manutention|usine|manufactur|journalier|controle qualite|contrôle qualité|machiniste/i],
-  ["restauration", /cuisinier|chef|serveu|barista|plongeu|restauration|hotel|hôtel|tourism|préposé (?:à l'accueil)|aide-cuisinier|gerant de restaurant/i],
-  ["arts", /designer|graphiste|artiste|photograph|videast|vidéast|monteu|createu|créateu|illustrateu|musique|scenograph/i],
-  ["science", /chercheu|scientifique|laboratoire|biolog|chimist|technicien de laboratoire|recherche et developpement|r&d|microbiolog/i],
-  ["direction", /directeu|directrice|vice-president|vice-président|chef de (?:service|departement|département)|gestionnaire|president|président|pdg|dg\b|chef d'equipe|chef d'équipe/i],
+  ["ti", /developpeu|développeu|programmeu|logiciel|software|devops|data|donnees|données|analyste (?:d'affaires|programmeur)|architecte (?:logiciel|ti)|infonuagique|cloud|cybersecurit|réseau|reseau|informatique|full ?stack|front[- ]?end|back[- ]?end|qa|scrum|ux|ui designer|intelligence artificielle|machine learning|developer|programmer|information technology|web develop|network|system administrator|sysadmin/i],
+  ["genie", /ingenieu|ingénieu|genie|génie|mecanique|mécanique|électrique|electrique|civil|structure|aérospat|aerospat|automatisation|engineer|mechanical|aerospace/i],
+  ["sante", /infirmi|prepose|préposé|beneficiaire|bénéficiaire|medecin|médecin|pharmac|dentaire|physio|ergotherapeu|ergothérapeu|inhalotherapeu|psycholog|travailleu(?:r|se) social|soins|clinique|hospitali|nurse|health care|healthcare|medical|caregiver|orderly|personal support worker/i],
+  ["construction", /electricien|électricien|plombier|charpentier|menuisier|macon|maçon|grutier|chantier|construction|manoeuvre|soudeur|couvreu|ferblantier|arpenteu|estimateu|electrician|plumber|carpenter|welder|roofer|labourer|heavy equipment/i],
+  ["finance", /comptab|financ|fiscal|controleu|contrôleu|analyste financier|actuaire|assurance|banque|credit|crédit|paie|verificateu|vérificateu|tresorerie|trésorerie|account(?:ant|ing)|financial|bookkeep|payroll|auditor|banking|investment/i],
+  ["admin", /adjoint|secretai|secrétai|réceptionn|receptionn|commis|soutien administratif|bureautique|coordonnateu(?:r|rice) administra|administrative|receptionist|clerk|office assistant|data entry|secretary/i],
+  ["vente", /vente|vendeu|conseiller (?:en vente|aux ventes)|representant|représentant|caissier|service (?:à la clientele|a la clientele|client)|commercial(?:e)?\b|\bsales\b|cashier|retail|customer service|account executive/i],
+  ["marketing", /marketing|communication|redacteu|rédacteu|contenu|médias sociaux|medias sociaux|publicit|relations publiques|growth|seo|social media|copywriter|content (?:writer|creator)/i],
+  ["rh", /ressources humaines|recruteu|talent|conseiller rh|paie et avantages|dotation|human resources|recruiter|\bhr\b/i],
+  ["education", /enseignant|professeu|educateu|éducateu|formateu|pedagog|pédagog|scolaire|garderie|cpe|orthopedagog|teacher|professor|educator|instructor|\btutor\b|early childhood/i],
+  ["juridique", /avocat|juriste|notaire|parajuriste|juridique|technicien juridique|lawyer|paralegal|\blegal\b|attorney|notary/i],
+  ["logistique", /logistique|entrepot|entrepôt|cariste|chauffeu|camionneu|livreu|approvisionn|chaine (?:d'approvisionnement|logistique)|magasinier|repartiteu|répartiteu|transport|\bdriver\b|warehouse|truck|delivery|logistics|forklift|dispatcher|courier/i],
+  ["production", /operateu|opérateu|production|assembleu|manutention|usine|manufactur|journalier|controle qualite|contrôle qualité|machiniste|operator|assembler|mechanic|mécanicien|millwright|maintenance|boucher|bouchère|butcher/i],
+  ["restauration", /cuisinier|chef|serveu|barista|plongeu|restauration|hotel|hôtel|tourism|préposé (?:à l'accueil)|aide-cuisinier|gerant de restaurant|\bcook\b|server|waiter|waitress|dishwasher|hospitality|restaurant|food service|kitchen|boulanger|boulangère|p[âa]tissier|p[âa]tissière|baker|pastry/i],
+  ["arts", /designer|graphiste|artiste|photograph|videast|vidéast|monteu|createu|créateu|illustrateu|musique|scenograph|graphic|artist|videographer|illustrator/i],
+  ["science", /chercheu|scientifique|laboratoire|biolog|chimist|technicien de laboratoire|recherche et developpement|r&d|microbiolog|research(?:er)?|scientist|laboratory|chemist|lab technician/i],
+  ["direction", /directeu|directrice|vice-president|vice-président|chef de (?:service|departement|département)|gestionnaire|president|président|pdg|dg\b|chef d'equipe|chef d'équipe|\bmanager\b|\bdirector\b|supervisor|management trainee|team lead|\bchief\b|head of|executive/i],
 ];
 
 export function inferCategory(title: string, tags: string[] = []): string | undefined {

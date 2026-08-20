@@ -64,9 +64,9 @@ export const JOB_SOURCES = [
     region: "CA",
     scope: "Portail gouvernemental fédéral — offres partout au Canada",
     method: "html",
-    status: "experimental",
+    status: "active",
     language: "bilingue",
-    notes: "Flux structuré disponible; couverture nationale, filtrable par province.",
+    notes: "Résultats /jobsearch/jobsearch (cartes a.resultJobItem); couverture nationale, filtrable par lieu.",
   },
   {
     id: "quebec-emploi",
@@ -85,8 +85,9 @@ export const JOB_SOURCES = [
     region: "QC",
     scope: "Spécialisé technologies / TI au Québec",
     method: "html",
-    status: "experimental",
+    status: "active",
     language: "fr",
+    notes: "Liste /emploi rendue côté serveur (cartes .job-card avec data-* : ville, salaire).",
   },
   {
     id: "isarta",
