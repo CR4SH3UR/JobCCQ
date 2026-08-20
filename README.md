@@ -7,12 +7,15 @@
 - 🧩 **Répertoire de sources** extensible : chaque portail carrières est une entrée du catalogue ; on branche les scrapers un par un.
 - 📱 **Site web (Next.js) + app mobile (Expo)** partageant la même API et les mêmes types.
 
-> État : **scraping live, ciblé construction**. Six employeurs sont branchés et
-> ramènent de vraies offres via leur portail carrières : **Pomerleau** (Avature),
-> **EBC** (RSS WordPress), **Les Excavations Lafontaine** (Zoho Recruit),
-> **Atwill-Morin** (BambooHR), **Hamel Construction** (Wix) et **LEQEL** (liens
-> HTML). Chaque type de portail a un scraper réutilisable, donc un nouvel
-> employeur s'ajoute en une ligne de config.
+> État : **scraping live, ciblé construction**. Une douzaine d'employeurs sont
+> branchés et ramènent de vraies offres via leur portail carrières, selon la
+> plateforme : **Avature** (Pomerleau), **BambooHR** (Atwill-Morin), **Zoho
+> Recruit** (Lafontaine, Béluga), **RSS WordPress** (EBC), **page employeur
+> Jobillico** (Construction & Pavage Portneuf, Côté et fils), **Wix / WordPress**
+> (Hamel, JM Demers, JC Drolet, Lefrançois, LEQEL). Chaque type de portail a un
+> scraper réutilisable, donc un nouvel employeur s'ajoute en une ligne de config.
+> Quelques sites restent hors de portée d'un simple `fetch` (protection
+> anti-robot type Cloudflare) et demanderaient un rendu headless.
 
 ---
 

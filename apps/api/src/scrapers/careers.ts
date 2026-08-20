@@ -75,8 +75,10 @@ function parseWixRepeaters(
             .filter(Boolean),
         ),
       ];
-      // Une offre : un titre + au moins un autre bloc, dont un type de poste.
-      if (texts.length < 2 || !texts.some((t) => JOB_TYPE_RE.test(t))) return;
+      // Une offre = un item « titre + lieu + type » (peu de blocs). Un item qui
+      // contient une longue liste d'intitulés n'est PAS une offre unique : on le
+      // laisse au repli « titres ».
+      if (texts.length < 2 || texts.length > 5 || !texts.some((t) => JOB_TYPE_RE.test(t))) return;
 
       const title = texts[0]!;
       if (title.length < 3 || title.length > 140) return;
@@ -150,6 +152,44 @@ function parseHtmlCareers(
   return jobs;
 }
 
+/**
+ * Mots qui identifient un **titre de poste de la construction** dans un simple
+ * intitulé (h2/h3…). Dernier repli pour les petites pages carrières
+ * (Wix/WordPress) qui listent les postes en titres, sans données structurées,
+ * lien ni type par poste.
+ */
+const JOB_TITLE_HINT =
+  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|coordonnateur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|pav(?:age|eur)|briqueteur|ma[çc]on|terrassement|excavation|b[ée]ton|aqueduc|voirie|drainage|foreman/i;
+
+const SECTION_LABEL =
+  /postes?\s+(?:disponibles|ouverts)|nos emplois|offres? d'emploi|postulez|candidature|pourquoi|avantages/i;
+
+/** Repli « titres » : chaque intitulé qui ressemble à un poste devient une offre. */
+function parseHeadingJobs(html: string, careersUrl: string, id: string, company: string): RawJob[] {
+  const $ = cheerio.load(html);
+  const out = new Map<string, RawJob>();
+  const base = careersUrl.replace(/\/+$/, "");
+
+  const add = (title: string) => {
+    const t = cleanText(title.replace(/^[-–—•*\s]+/, ""));
+    if (t.length < 4 || t.length > 110) return;
+    if (!JOB_TITLE_HINT.test(t) || SECTION_LABEL.test(t)) return;
+    const url = `${base}#${slugify(t)}`;
+    if (!out.has(url)) out.set(url, { sourceId: id, url, title: t, company, tags: [] });
+  };
+
+  $("h1,h2,h3,h4,h5").each((_, el) => {
+    const raw = cleanText($(el).text());
+    if (raw.length < 4) return;
+    // Certaines pages listent plusieurs postes dans un même intitulé
+    // (« - Contremaître - Charpentier - Manœuvre »). On sépare ces énumérations.
+    const parts = raw.split(/\s+[-–—•|]\s+/).filter(Boolean);
+    if (parts.length > 1) parts.forEach(add);
+    else add(raw);
+  });
+  return [...out.values()];
+}
+
 export function makeCareersScraper(config: CareersScraperConfig): Scraper {
   return {
     id: config.id,
@@ -159,6 +199,21 @@ export function makeCareersScraper(config: CareersScraperConfig): Scraper {
       if (jsonld.length > 0) return jsonld;
       const wix = parseWixRepeaters(html, baseUrl, config.careersUrl, config.id, config.company);
       if (wix.length > 0) return wix;
+      // Si la source expose un motif de lien de poste (ex. /emploi-…), on le
+      // privilégie (vraies URLs de fiches). Sinon on lit les titres.
+      if (config.jobPathPattern) {
+        const links = parseHtmlCareers(
+          html,
+          baseUrl,
+          config.careersUrl,
+          config.id,
+          config.company,
+          config.jobPathPattern,
+        );
+        if (links.length > 0) return links;
+      }
+      const heads = parseHeadingJobs(html, config.careersUrl, config.id, config.company);
+      if (heads.length > 0) return heads;
       return parseHtmlCareers(
         html,
         baseUrl,
