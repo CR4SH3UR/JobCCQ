@@ -143,6 +143,17 @@ export const JOB_SOURCES = [
     notes: "Portail carrières (ATS) : JSON-LD/liens exploités si présents; un rendu headless (Playwright) ou l'API de l'ATS peut être requis.",
   },
   {
+    id: "lafontaine",
+    name: "Les Excavations Lafontaine",
+    homepage: "https://lafontaineinc.zohorecruit.com/jobs/Careers",
+    region: "QC",
+    scope: "Employeur — génie civil et construction (portail Zoho Recruit)",
+    method: "rss",
+    status: "active",
+    language: "fr",
+    notes: "Portail carrières Zoho Recruit : offres lues via le flux RSS /jobs/Careers/rss.",
+  },
+  {
     id: "recrutement-sante",
     name: "Recrutement Santé Québec",
     homepage: "https://www.recrutementsantequebec.ca",
