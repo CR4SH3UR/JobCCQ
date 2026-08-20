@@ -1,0 +1,36 @@
+# Dépendances
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native (générés par prebuild / EAS)
+ios/
+android/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+
+# Variables d'environnement locales (ne pas committer de vraies valeurs)
+.env
+.env.local
+
+# TypeScript
+*.tsbuildinfo

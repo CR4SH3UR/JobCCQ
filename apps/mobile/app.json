@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "JobCCQ",
+    "slug": "jobccq",
+    "scheme": "jobccq",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "plugins": ["expo-router"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jobccq.mobile"
+    },
+    "android": {
+      "package": "com.jobccq.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#1f45eb"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      }
+    }
+  }
+}
