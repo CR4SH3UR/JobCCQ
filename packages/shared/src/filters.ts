@@ -24,6 +24,10 @@ import { sourceName } from "./sources.js";
 const norm = (s: string): string =>
   s
     .toLowerCase()
+    // Ligatures : « manœuvre » ↔ « manoeuvre », « et cætera » ↔ « et caetera ».
+    // (NFD ne décompose pas œ/æ, ce sont des lettres à part entière.)
+    .replace(/œ/g, "oe")
+    .replace(/æ/g, "ae")
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, ""); // enlève les accents pour une recherche tolérante
 
