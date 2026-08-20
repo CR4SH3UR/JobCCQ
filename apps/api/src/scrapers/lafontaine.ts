@@ -7,5 +7,5 @@ import { makeZohoRecruitScraper } from "./zoho-recruit.js";
 export const lafontaineScraper = makeZohoRecruitScraper({
   id: "lafontaine",
   company: "Lafontaine",
-  rssUrl: "https://lafontaineinc.zohorecruit.com/jobs/Careers/rss",
+  careersUrl: "https://lafontaineinc.zohorecruit.com/jobs/Careers",
 });

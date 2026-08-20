@@ -5,6 +5,13 @@ import { pomerleauScraper } from "./pomerleau.js";
 import { lafontaineScraper } from "./lafontaine.js";
 import { ebcScraper } from "./ebc.js";
 import { leqelScraper } from "./leqel.js";
+import { belugaScraper } from "./beluga.js";
+import { jmDemersScraper } from "./jmdemers.js";
+import { portneufScraper } from "./portneuf.js";
+import { coteEtFilsScraper } from "./cote-et-fils.js";
+import { lefrancoisScraper } from "./lefrancois.js";
+import { jcDroletScraper } from "./jcdrolet.js";
+import { refrabecScraper } from "./refrabec.js";
 
 /**
  * Registre des scrapers branchés. La clé correspond à l'`id` de la source
@@ -19,6 +26,13 @@ export const SCRAPERS: Record<string, Scraper> = {
   [lafontaineScraper.id]: lafontaineScraper,
   [ebcScraper.id]: ebcScraper,
   [leqelScraper.id]: leqelScraper,
+  [belugaScraper.id]: belugaScraper,
+  [jmDemersScraper.id]: jmDemersScraper,
+  [portneufScraper.id]: portneufScraper,
+  [coteEtFilsScraper.id]: coteEtFilsScraper,
+  [lefrancoisScraper.id]: lefrancoisScraper,
+  [jcDroletScraper.id]: jcDroletScraper,
+  [refrabecScraper.id]: refrabecScraper,
 };
 
 export function getScraper(id: string): Scraper | undefined {

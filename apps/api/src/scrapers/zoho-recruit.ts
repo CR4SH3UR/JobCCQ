@@ -2,20 +2,21 @@ import * as cheerio from "cheerio";
 import type { RawJob } from "@jobccq/shared";
 import type { Scraper, ScrapeContext, ScrapeParams } from "./types.js";
 import { htmlToText } from "./jsonld.js";
-import { cleanText } from "./util.js";
+import { cleanText, mapEmploymentType, slugify } from "./util.js";
 
 /**
  * Scraper générique pour un portail carrières **Zoho Recruit**.
  *
- * La page `…/jobs/<Page>` est une application JS (les offres ne sont pas dans
- * le HTML), mais Zoho expose un **flux RSS** `…/jobs/<Page>/rss` qui liste les
- * postes publiés avec titre, lien, lieu et catégorie. On s'appuie dessus.
+ * La page `…/jobs/<Page>` est une application JS. Deux voies d'accès aux offres :
+ *  1. le **flux RSS** `…/jobs/<Page>/rss` (titre, lien, lieu, catégorie) ;
+ *  2. si le flux est désactivé, le **JSON embarqué** dans la page carrières
+ *     (`input#jobs`), qui contient tous les champs de chaque poste.
  */
 export interface ZohoRecruitConfig {
   id: string;
   company: string;
-  /** URL du flux RSS carrières, ex. https://x.zohorecruit.com/jobs/Careers/rss */
-  rssUrl: string;
+  /** URL de la page carrières, ex. https://x.zohorecruit.com/jobs/Careers */
+  careersUrl: string;
 }
 
 /** Normalise l'URL d'une offre (encodage des accents, sans paramètres de suivi). */
@@ -46,7 +47,6 @@ export function parseZohoRss(xml: string, id: string, company: string): RawJob[]
     );
     const category = cleanText(rawDesc.match(/Cat[ée]gorie\s*:\s*(.*?)\s*<br/i)?.[1] ?? "");
 
-    // Corps de l'annonce : le bloc #spandesc si présent, sinon tout le texte.
     const $desc = cheerio.load(`<div>${rawDesc}</div>`);
     const bodyHtml = $desc("#spandesc").html() ?? "";
     const description = htmlToText(bodyHtml || rawDesc);
@@ -58,7 +58,6 @@ export function parseZohoRss(xml: string, id: string, company: string): RawJob[]
       company,
       location: location || undefined,
       description,
-      // La catégorie Zoho aide le classement par domaine (via les tags).
       tags: category ? [category] : [],
     });
   });
@@ -66,24 +65,101 @@ export function parseZohoRss(xml: string, id: string, company: string): RawJob[]
   return jobs;
 }
 
+/**
+ * Repli : la page carrières embarque la liste des postes en JSON dans un champ
+ * caché (`input#jobs`, sinon tout input dont la valeur est un tableau JSON
+ * contenant `Posting_Title`). Utilisé quand le flux RSS est désactivé.
+ */
+export function parseZohoCareersJson(
+  html: string,
+  id: string,
+  company: string,
+  careersUrl: string,
+): RawJob[] {
+  const $ = cheerio.load(html);
+  let raw = $("input#jobs").attr("value");
+  if (!raw) {
+    $("input[value]").each((_, el) => {
+      if (raw) return;
+      const v = $(el).attr("value");
+      if (v && v.trimStart().startsWith("[") && v.includes("Posting_Title")) raw = v;
+    });
+  }
+  if (!raw) return [];
+
+  let records: Array<Record<string, unknown>>;
+  try {
+    const parsed = JSON.parse(raw);
+    records = Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+
+  const base = careersUrl.replace(/\/+$/, "");
+
+  const jobs: RawJob[] = [];
+  for (const r of records) {
+    const title = cleanText(String(r.Posting_Title ?? ""));
+    const jobId = cleanText(String(r.id ?? ""));
+    if (!title || !jobId) continue;
+
+    const location =
+      [r.City, r.State].map((v) => cleanText(String(v ?? ""))).filter(Boolean).join(", ") ||
+      undefined;
+    const industry = cleanText(String(r.Industry ?? ""));
+    const date = cleanText(String(r.Date_Opened ?? ""));
+
+    jobs.push({
+      sourceId: id,
+      url: `${base}/${jobId}/${slugify(title)}`,
+      title,
+      company,
+      location,
+      remote: r.Remote_Job === true ? "teletravail" : undefined,
+      employmentType: mapEmploymentType(String(r.Job_Type ?? "")),
+      description: htmlToText(String(r.Job_Description ?? "")),
+      postedAt: date || undefined,
+      tags: industry ? [industry] : [],
+    });
+  }
+  return jobs;
+}
+
 export function makeZohoRecruitScraper(config: ZohoRecruitConfig): Scraper {
+  const base = config.careersUrl.replace(/\/+$/, "");
+  const rssUrl = `${base}/rss`;
   return {
     id: config.id,
     parseList(html: string): RawJob[] {
-      return parseZohoRss(html, config.id, config.company);
+      // RSS (XML) si c'est un flux, sinon JSON embarqué de la page carrières.
+      if (html.trimStart().startsWith("<?xml") || html.includes("<item>")) {
+        return parseZohoRss(html, config.id, config.company);
+      }
+      return parseZohoCareersJson(html, config.id, config.company, config.careersUrl);
     },
     async scrape(_params: ScrapeParams, ctx: ScrapeContext): Promise<RawJob[]> {
-      ctx.log(`${config.id} — flux RSS : ${config.rssUrl}`);
-      let xml: string;
+      // 1) Flux RSS (le plus propre).
       try {
-        xml = await ctx.fetchHtml(config.rssUrl);
+        const xml = await ctx.fetchHtml(rssUrl);
+        const rss = parseZohoRss(xml, config.id, config.company);
+        if (rss.length > 0) {
+          ctx.log(`${config.id} — ${rss.length} poste(s) via RSS`);
+          return rss;
+        }
+        ctx.log(`${config.id} — RSS vide/désactivé, repli sur le JSON de la page carrières`);
+      } catch (err) {
+        ctx.log(`${config.id} — RSS indisponible (${(err as Error).message}), repli JSON`);
+      }
+      // 2) JSON embarqué de la page carrières.
+      try {
+        const html = await ctx.fetchHtml(config.careersUrl);
+        const jobs = parseZohoCareersJson(html, config.id, config.company, config.careersUrl);
+        ctx.log(`${config.id} — ${jobs.length} poste(s) via JSON embarqué`);
+        return jobs;
       } catch (err) {
         ctx.log(`${config.id} — échec : ${(err as Error).message}`);
         return [];
       }
-      const jobs = parseZohoRss(xml, config.id, config.company);
-      ctx.log(`${config.id} — ${jobs.length} poste(s) trouvé(s)`);
-      return jobs;
     },
   };
 }

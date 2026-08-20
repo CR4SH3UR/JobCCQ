@@ -29,8 +29,15 @@ const SCRAPER_IDS = new Set([
   "hamel-construction",
   "pomerleau",
   "lafontaine",
+  "beluga",
+  "jmdemers",
   "ebc",
   "leqel",
+  "portneuf",
+  "cote-et-fils",
+  "jcdrolet",
+  "lefrancois",
+  "refrabec",
 ]);
 
 export type SourceWithMeta = JobSource & { hasScraper: boolean; jobCount: number };
