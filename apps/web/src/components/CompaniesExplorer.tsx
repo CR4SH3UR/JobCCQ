@@ -38,7 +38,6 @@ export function CompaniesExplorer() {
         company: dcompany || undefined,
         regions: region ? [region] : undefined,
         categories: category ? [category] : undefined,
-        pageSize: 100_000,
       }),
     [dcompany, region, category],
   );

@@ -15,7 +15,7 @@ export function HomeView() {
   const [offline, setOffline] = useState(false);
 
   useEffect(() => {
-    Promise.all([getStats(), searchCompanies(buildQuery({ pageSize: 100_000 }))])
+    Promise.all([getStats(), searchCompanies(buildQuery({}))])
       .then(([s, c]) => {
         setStats(s);
         setCompanies(c.companies.slice(0, 8));
