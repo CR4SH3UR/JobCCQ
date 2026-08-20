@@ -1,10 +1,14 @@
 name: Déploiement du site sur GitHub Pages
 
-# Déploie le site statique JobCCQ (l'API n'est pas requise : la logique de
-# filtrage tourne dans le navigateur à partir d'un instantané jobs.json).
+# Construit le site statique JobCCQ (l'API n'est pas requise : la logique de
+# filtrage tourne dans le navigateur à partir d'un instantané jobs.json) puis
+# le publie sur la branche `gh-pages`.
 #
-# Prérequis (une seule fois) : dans le dépôt, Settings → Pages → Source :
-# « GitHub Actions ». Le site sera publié sur https://<user>.github.io/<repo>/
+# GitHub n'autorise pas le jeton des Actions à *activer* Pages tout seul ; cette
+# approche par branche évite ce blocage. Le site sera servi sur
+# https://<utilisateur>.github.io/<repo>/ dès que Pages est activé.
+# Si ce n'est pas déjà fait : Settings → Pages → Source :
+#   « Deploy from a branch » → branche « gh-pages » / dossier « / (root) ».
 
 on:
   push:
@@ -12,16 +16,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
-  group: pages
+  group: deploy-pages
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -44,25 +46,16 @@ jobs:
           NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
         run: npm run build -w @jobccq/web
 
-      - name: Configurer et activer Pages
-        uses: actions/configure-pages@v5
-        with:
-          # Active automatiquement GitHub Pages (source « GitHub Actions »)
-          # via le GITHUB_TOKEN — aucune action manuelle requise.
-          enablement: true
-
-      - name: Téléverser l'artéfact du site
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: apps/web/out
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Déployer sur GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Publier sur la branche gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd apps/web/out
+          touch .nojekyll
+          git init -q
+          git checkout -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "Déploiement du site — ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
