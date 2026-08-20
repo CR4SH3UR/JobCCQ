@@ -4,6 +4,7 @@ import { espressoJobsScraper } from "./espresso-jobs.js";
 import { guichetEmploisScraper } from "./guichet-emplois.js";
 import { atwillMorinScraper } from "./atwill-morin.js";
 import { hamelConstructionScraper } from "./hamel-construction.js";
+import { pomerleauScraper } from "./pomerleau.js";
 
 /**
  * Registre des scrapers branchés. La clé correspond à l'`id` de la source
@@ -17,6 +18,7 @@ export const SCRAPERS: Record<string, Scraper> = {
   [guichetEmploisScraper.id]: guichetEmploisScraper,
   [atwillMorinScraper.id]: atwillMorinScraper,
   [hamelConstructionScraper.id]: hamelConstructionScraper,
+  [pomerleauScraper.id]: pomerleauScraper,
 };
 
 export function getScraper(id: string): Scraper | undefined {

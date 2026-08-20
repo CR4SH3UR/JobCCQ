@@ -131,6 +131,17 @@ export const JOB_SOURCES = [
     notes: "Page carrières d'entreprise (une seule page) : JSON-LD si disponible, sinon repli HTML.",
   },
   {
+    id: "pomerleau",
+    name: "Pomerleau",
+    homepage: "https://careers.pomerleau.ca",
+    region: "QC",
+    scope: "Employeur — grand entrepreneur en construction (portail carrières / ATS)",
+    method: "headless",
+    status: "experimental",
+    language: "bilingue",
+    notes: "Portail carrières (ATS) : JSON-LD/liens exploités si présents; un rendu headless (Playwright) ou l'API de l'ATS peut être requis.",
+  },
+  {
     id: "recrutement-sante",
     name: "Recrutement Santé Québec",
     homepage: "https://www.recrutementsantequebec.ca",
