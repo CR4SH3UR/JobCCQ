@@ -1,0 +1,60 @@
+// Schéma de base de données JobCCQ (SQLite pour le développement).
+// Passer à PostgreSQL en production : changer `provider` et DATABASE_URL.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Une offre d'emploi normalisée, provenant de n'importe quelle source.
+model Job {
+  id             String    @id
+  sourceId       String
+  url            String    @unique
+  title          String
+  company        String
+  companyLogoUrl String?
+  location       String?
+  regionId       String?
+  city           String?
+  remote         String?
+  categoryId     String?
+  employmentType String?
+  salaryMin      Float?
+  salaryMax      Float?
+  salaryPeriod   String?
+  currency       String?   @default("CAD")
+  description    String?
+  // SQLite n'a pas de type tableau : on stocke du JSON sérialisé.
+  tags           String    @default("[]")
+  languages      String    @default("[]")
+  postedAt       DateTime?
+  scrapedAt      DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([company])
+  @@index([regionId])
+  @@index([categoryId])
+  @@index([sourceId])
+  @@index([postedAt])
+}
+
+/// Journal d'une exécution de scraping (pour le suivi et le monitoring).
+model ScrapeRun {
+  id         Int       @id @default(autoincrement())
+  sourceId   String
+  status     String    @default("running") // running | success | error
+  found      Int       @default(0)
+  inserted   Int       @default(0)
+  updated    Int       @default(0)
+  error      String?
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  @@index([sourceId])
+}
