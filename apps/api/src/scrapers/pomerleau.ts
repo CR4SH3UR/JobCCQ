@@ -1,13 +1,14 @@
-import { makeCareersScraper } from "./careers.js";
+import { makeAvatureScraper } from "./avature.js";
 
 /**
- * Pomerleau — portail carrières (ATS) sur un sous-domaine dédié.
- * Statut : expérimental. Les offres d'un ATS sont souvent chargées en
- * JavaScript : ce scraper tente d'abord le JSON-LD puis les liens HTML, mais
- * un rendu headless (Playwright) ou l'API de l'ATS peut s'avérer nécessaire.
+ * Pomerleau — grand entrepreneur en construction / génie civil.
+ * Portail carrières Avature (jobs.pomerleau.ca) ; les offres sont lues via le
+ * endpoint SearchJobs, paginé par `jobOffset`. Plafonné (portail national
+ * volumineux) — ajustable via AVATURE_MAX_JOBS.
  */
-export const pomerleauScraper = makeCareersScraper({
+export const pomerleauScraper = makeAvatureScraper({
   id: "pomerleau",
   company: "Pomerleau",
-  careersUrl: "https://careers.pomerleau.ca",
+  searchUrl: "https://jobs.pomerleau.ca/fr_CA/Jobs/SearchJobs",
+  maxJobs: 60,
 });

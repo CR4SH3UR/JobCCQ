@@ -1,18 +1,18 @@
 # JobCCQ
 
-**Agrégateur d'offres d'emploi du Québec et du Canada** — un site web et une app mobile qui vont chercher, sur plusieurs sources, **quelles entreprises recrutent et pour quels postes**, avec une recherche et un tri puissants.
+**Agrégateur d'offres d'emploi en construction et génie civil au Québec** — un site web et une app mobile qui vont chercher, directement chez les **employeurs de la construction**, **quels postes sont ouverts et où**, avec une recherche et un tri puissants.
 
 - 🔎 **Recherche & filtres** : par mot-clé, région (les 17 régions du Québec), domaine, type de poste, mode de travail (présentiel / hybride / télétravail), salaire, date, langue et source.
-- 🏢 **Qui recrute** : les entreprises qui embauchent, classées par nombre de postes ouverts.
-- 🧩 **Répertoire de sources** extensible : chaque site d'emploi est une entrée du catalogue ; on branche les scrapers un par un.
+- 🏢 **Qui recrute** : les entrepreneurs qui embauchent, classés par nombre de postes ouverts.
+- 🧩 **Répertoire de sources** extensible : chaque portail carrières est une entrée du catalogue ; on branche les scrapers un par un.
 - 📱 **Site web (Next.js) + app mobile (Expo)** partageant la même API et les mêmes types.
 
-> État : **MVP fonctionnel avec scraping live**. Trois sources sont validées et
-> branchées — **Jobillico** (fiches JSON-LD), le **Guichet-Emplois** (Job Bank) et
-> **Espresso-Jobs** — et ramènent de vraies offres Québec / Canada. Un jeu de
-> données de démonstration (72 offres) reste le repli hors ligne / CI. Les pages
-> carrières d'employeurs (Atwill-Morin, Hamel, Pomerleau) sont rendues en JS /
-> protégées et nécessitent encore un rendu headless.
+> État : **scraping live, ciblé construction**. Six employeurs sont branchés et
+> ramènent de vraies offres via leur portail carrières : **Pomerleau** (Avature),
+> **EBC** (RSS WordPress), **Les Excavations Lafontaine** (Zoho Recruit),
+> **Atwill-Morin** (BambooHR), **Hamel Construction** (Wix) et **LEQEL** (liens
+> HTML). Chaque type de portail a un scraper réutilisable, donc un nouvel
+> employeur s'ajoute en une ligne de config.
 
 ---
 
@@ -85,7 +85,7 @@ Toutes les sources sont déclarées dans **`packages/shared/src/sources.ts`**. C
 | `experimental` | Scraper écrit, à valider contre le site réel |
 | `planned` | Site répertorié, scraper à écrire |
 
-La source **principale est Jobillico**. Sont aussi répertoriés : Jobboom, Guichet-Emplois (Job Bank), Québec emploi, Espresso-Jobs, Isarta, CCQ (construction), Recrutement Santé Québec, Carrières Québec, Randstad, Indeed CA, Talent.com, LinkedIn.
+Sources branchées (portails carrières d'employeurs de la construction) : **Pomerleau** (Avature), **EBC** (RSS WordPress), **Les Excavations Lafontaine** (Zoho Recruit), **Atwill-Morin** (BambooHR), **Hamel Construction** (Wix) et **LEQEL** (liens HTML). Répertorié pour plus tard : **CCQ — Carrefour construction**.
 
 ### Ajouter une source
 
@@ -103,14 +103,21 @@ interface Scraper {
 }
 ```
 
-La façon la plus robuste de démarrer une source est le helper `makeJsonLdScraper({ id, buildUrl })` : il exploite les **données structurées JSON-LD (schema.org `JobPosting`)** que beaucoup de sites exposent. Il suffit de fournir le patron d'URL de recherche.
+Selon la plateforme du portail carrières, un helper réutilisable suffit (il ne reste qu'à fournir l'URL) :
+
+| Plateforme de l'employeur | Helper | Exemple |
+| --- | --- | --- |
+| BambooHR (ATS) | `makeBambooHrScraper` | Atwill-Morin |
+| Zoho Recruit (RSS) | `makeZohoRecruitScraper` | Lafontaine |
+| WordPress « job feed » (RSS) | `makeWpJobFeedScraper` | EBC |
+| Avature (ATS) | `makeAvatureScraper` | Pomerleau |
+| Page carrières Wix / liens HTML | `makeCareersScraper` | Hamel, LEQEL |
 
 ### Lancer le scraping
 
 ```bash
 npm run scrape                      # toutes les sources branchées
-npm run scrape -- jobillico         # une source
-npm run scrape -- jobillico "développeur" "Montréal"
+npm run scrape -- pomerleau         # une source
 ```
 
 > ⚠️ **Réseau** : le scraping nécessite un accès sortant aux sites d'emploi. Dans certains environnements (bacs à sable, CI restreinte), l'accès est bloqué — utilise alors les données de démo (`npm run seed`). Le scraping est conçu pour être **poli** (User-Agent identifiable, throttling, retry). Respecte les conditions d'utilisation et le `robots.txt` de chaque site, ainsi que les lois applicables.
@@ -172,9 +179,9 @@ Pour régénérer l'instantané à partir de la vraie base (après un scraping) 
 
 ## Feuille de route
 
-- [x] Valider Jobillico, Guichet-Emplois et Espresso-Jobs contre les vrais sites (faits)
-- [ ] Valider les scrapers `experimental` restants (Jobboom, etc.)
-- [ ] Scrapers `headless` (Playwright) pour Indeed / Talent.com / LinkedIn
+- [x] Brancher 6 employeurs de la construction (Pomerleau, EBC, Lafontaine, Atwill-Morin, Hamel, LEQEL)
+- [ ] Ajouter d'autres entrepreneurs (Broccolini, Kiewit, Eurovia, Construction Demathieu & Bard…)
+- [ ] Brancher le Carrefour construction de la CCQ (ccq.org)
 - [ ] Planification du scraping (cron) + déduplication inter-sources plus fine
 - [ ] Alertes courriel / notifications push mobiles sur nouvelles offres
 - [ ] Comptes utilisateurs, offres sauvegardées, recherches enregistrées

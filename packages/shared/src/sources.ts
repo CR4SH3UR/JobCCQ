@@ -1,7 +1,9 @@
 /**
- * Répertoire des sources d'emploi Québec / Canada.
+ * Répertoire des sources d'emploi — **construction et génie civil au Québec**.
  *
- * Chaque site est une entrée du catalogue. Un scraper peut être :
+ * JobCCQ se concentre sur les employeurs de la construction (entrepreneurs,
+ * génie civil, métiers CCQ). Chaque site est une entrée du catalogue. Un
+ * scraper peut être :
  *  - `active`       : parseur implémenté et branché dans l'API ;
  *  - `experimental` : parseur écrit mais à valider (structure du site mouvante) ;
  *  - `planned`      : site répertorié, scraper à écrire.
@@ -29,85 +31,45 @@ export interface JobSource {
   readonly method: SourceMethod;
   readonly status: SourceStatus;
   readonly language: "fr" | "en" | "bilingue";
-  /** Source mise en avant (Jobillico). */
+  /** Source mise en avant sur la page « Sources ». */
   readonly featured?: boolean;
   readonly notes?: string;
 }
 
 export const JOB_SOURCES = [
   {
-    id: "jobillico",
-    name: "Jobillico",
-    homepage: "https://www.jobillico.com",
+    id: "pomerleau",
+    name: "Pomerleau",
+    homepage: "https://jobs.pomerleau.ca/fr_CA/Jobs",
     region: "QC",
-    scope: "Généraliste — la plus grande plateforme d'emploi au Québec",
-    method: "html",
-    status: "active",
-    language: "fr",
-    featured: true,
-    notes: "Source principale. Pagination /fr/recherche-emploi, fiches /fr/offre-emploi.",
-  },
-  {
-    id: "jobboom",
-    name: "Jobboom",
-    homepage: "https://www.jobboom.com",
-    region: "QC",
-    scope: "Généraliste Québec",
-    method: "html",
-    status: "experimental",
-    language: "fr",
-  },
-  {
-    id: "guichet-emplois",
-    name: "Guichet-Emplois (Job Bank)",
-    homepage: "https://www.guichetemplois.gc.ca",
-    region: "CA",
-    scope: "Portail gouvernemental fédéral — offres partout au Canada",
+    scope: "Employeur — grand entrepreneur en construction et génie civil",
     method: "html",
     status: "active",
     language: "bilingue",
-    notes: "Résultats /jobsearch/jobsearch (cartes a.resultJobItem); couverture nationale, filtrable par lieu.",
+    featured: true,
+    notes: "Portail carrières Avature (jobs.pomerleau.ca) : offres lues via SearchJobs (paginé jobOffset), plafonnées.",
   },
   {
-    id: "quebec-emploi",
-    name: "Québec emploi (Services Québec)",
-    homepage: "https://www.quebec.ca/emploi/placement-en-ligne",
+    id: "ebc",
+    name: "EBC",
+    homepage: "https://ebcinc.com/fr/carrieres/emplois/",
     region: "QC",
-    scope: "Placement en ligne du gouvernement du Québec",
-    method: "html",
-    status: "planned",
-    language: "fr",
-  },
-  {
-    id: "espresso-jobs",
-    name: "Espresso-Jobs",
-    homepage: "https://www.espresso-jobs.com",
-    region: "QC",
-    scope: "Spécialisé technologies / TI au Québec",
-    method: "html",
+    scope: "Employeur — génie civil, bâtiment et mines",
+    method: "rss",
     status: "active",
     language: "fr",
-    notes: "Liste /emploi rendue côté serveur (cartes .job-card avec data-* : ville, salaire).",
+    notes: "Page carrières WordPress (postes en AJAX) : offres lues via le flux RSS /fr/job/feed/ (paginé).",
   },
   {
-    id: "isarta",
-    name: "Isarta",
-    homepage: "https://isarta.com",
+    id: "lafontaine",
+    name: "Les Excavations Lafontaine",
+    homepage: "https://lafontaineinc.zohorecruit.com/jobs/Careers",
     region: "QC",
-    scope: "Marketing, communication, création et médias",
-    method: "html",
-    status: "planned",
+    scope: "Employeur — génie civil et construction (portail Zoho Recruit)",
+    method: "rss",
+    status: "active",
     language: "fr",
-  },
-  {
-    id: "ccq-construction",
-    name: "CCQ — Carrefour construction",
-    homepage: "https://www.ccq.org",
-    region: "QC",
-    scope: "Commission de la construction du Québec — métiers de la construction",
-    method: "html",
-    status: "planned",
-    language: "fr",
+    notes: "Portail carrières Zoho Recruit : offres lues via le flux RSS /jobs/Careers/rss.",
   },
   {
     id: "atwill-morin",
@@ -132,39 +94,6 @@ export const JOB_SOURCES = [
     notes: "Page carrières Wix : postes lus depuis le .wixui-repeater (titre, lieu, type, lien).",
   },
   {
-    id: "pomerleau",
-    name: "Pomerleau",
-    homepage: "https://careers.pomerleau.ca",
-    region: "QC",
-    scope: "Employeur — grand entrepreneur en construction (portail carrières / ATS)",
-    method: "headless",
-    status: "experimental",
-    language: "bilingue",
-    notes: "Portail carrières (ATS) : JSON-LD/liens exploités si présents; un rendu headless (Playwright) ou l'API de l'ATS peut être requis.",
-  },
-  {
-    id: "lafontaine",
-    name: "Les Excavations Lafontaine",
-    homepage: "https://lafontaineinc.zohorecruit.com/jobs/Careers",
-    region: "QC",
-    scope: "Employeur — génie civil et construction (portail Zoho Recruit)",
-    method: "rss",
-    status: "active",
-    language: "fr",
-    notes: "Portail carrières Zoho Recruit : offres lues via le flux RSS /jobs/Careers/rss.",
-  },
-  {
-    id: "ebc",
-    name: "EBC",
-    homepage: "https://ebcinc.com/fr/carrieres/emplois/",
-    region: "QC",
-    scope: "Employeur — génie civil, bâtiment et mines",
-    method: "rss",
-    status: "active",
-    language: "fr",
-    notes: "Page carrières WordPress (postes en AJAX) : offres lues via le flux RSS /fr/job/feed/ (paginé).",
-  },
-  {
     id: "leqel",
     name: "LEQEL / LEQEL Énergie",
     homepage: "https://www.leqel.ca/carriere/",
@@ -176,66 +105,14 @@ export const JOB_SOURCES = [
     notes: "Page carrières WordPress : postes en liens /emploi-<slug>/ dans le HTML.",
   },
   {
-    id: "recrutement-sante",
-    name: "Recrutement Santé Québec",
-    homepage: "https://www.recrutementsantequebec.ca",
+    id: "ccq-construction",
+    name: "CCQ — Carrefour construction",
+    homepage: "https://www.ccq.org",
     region: "QC",
-    scope: "Réseau de la santé et des services sociaux",
+    scope: "Commission de la construction du Québec — métiers de la construction",
     method: "html",
     status: "planned",
     language: "fr",
-  },
-  {
-    id: "carrieres-quebec",
-    name: "Carrières — Gouvernement du Québec",
-    homepage: "https://www.carrieres.gouv.qc.ca",
-    region: "QC",
-    scope: "Fonction publique québécoise",
-    method: "html",
-    status: "planned",
-    language: "fr",
-  },
-  {
-    id: "randstad-ca",
-    name: "Randstad Canada",
-    homepage: "https://www.randstad.ca",
-    region: "CA",
-    scope: "Agence de placement — nombreux mandats au Québec",
-    method: "html",
-    status: "planned",
-    language: "bilingue",
-  },
-  {
-    id: "indeed-ca",
-    name: "Indeed Canada",
-    homepage: "https://ca.indeed.com",
-    region: "CA",
-    scope: "Agrégateur généraliste (forte protection anti-robot)",
-    method: "headless",
-    status: "planned",
-    language: "bilingue",
-    notes: "Nécessite un navigateur headless (Playwright) et une bonne gestion du rythme.",
-  },
-  {
-    id: "talent-ca",
-    name: "Talent.com (Neuvoo)",
-    homepage: "https://ca.talent.com",
-    region: "CA",
-    scope: "Agrégateur généraliste",
-    method: "headless",
-    status: "planned",
-    language: "bilingue",
-  },
-  {
-    id: "linkedin",
-    name: "LinkedIn Jobs",
-    homepage: "https://www.linkedin.com/jobs",
-    region: "INTL",
-    scope: "Réseau professionnel mondial",
-    method: "headless",
-    status: "planned",
-    language: "bilingue",
-    notes: "Scraping restreint par les CGU; privilégier l'API partenaire si disponible.",
   },
 ] as const satisfies readonly JobSource[];
 
@@ -252,4 +129,4 @@ export const sourceName = (id?: string | null): string =>
   (id && SOURCE_BY_ID[id]?.name) || id || "Source inconnue";
 
 export const activeSources = (): JobSource[] =>
-  JOB_SOURCES.filter((s) => s.status === "active" || s.status === "experimental");
+  JOB_SOURCES.filter((s) => s.status !== "planned");

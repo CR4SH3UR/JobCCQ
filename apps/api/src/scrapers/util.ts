@@ -75,7 +75,7 @@ export function parseFrenchDate(text?: string | null, now = new Date()): string 
     return new Date(now.getTime() - n * ms).toISOString();
   }
 
-  const abs = t.match(/(\d{1,2})\s+([a-zà-ÿ]+)\.?\s+(\d{4})/);
+  const abs = t.match(/(\d{1,2})[\s-]+([a-zà-ÿ]+)\.?[\s-]+(\d{4})/);
   if (abs) {
     const day = Number(abs[1]);
     const month = MONTHS_FR[abs[2]!];

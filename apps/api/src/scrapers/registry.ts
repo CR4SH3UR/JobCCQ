@@ -1,7 +1,4 @@
 import type { Scraper } from "./types.js";
-import { jobillicoScraper } from "./jobillico.js";
-import { espressoJobsScraper } from "./espresso-jobs.js";
-import { guichetEmploisScraper } from "./guichet-emplois.js";
 import { atwillMorinScraper } from "./atwill-morin.js";
 import { hamelConstructionScraper } from "./hamel-construction.js";
 import { pomerleauScraper } from "./pomerleau.js";
@@ -16,9 +13,6 @@ import { leqelScraper } from "./leqel.js";
  * Pour ajouter une source : implémente un Scraper puis ajoute-le ici.
  */
 export const SCRAPERS: Record<string, Scraper> = {
-  [jobillicoScraper.id]: jobillicoScraper,
-  [espressoJobsScraper.id]: espressoJobsScraper,
-  [guichetEmploisScraper.id]: guichetEmploisScraper,
   [atwillMorinScraper.id]: atwillMorinScraper,
   [hamelConstructionScraper.id]: hamelConstructionScraper,
   [pomerleauScraper.id]: pomerleauScraper,
