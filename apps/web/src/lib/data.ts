@@ -31,6 +31,7 @@ const SCRAPER_IDS = new Set([
   "atwill-morin",
   "hamel-construction",
   "pomerleau",
+  "lafontaine",
 ]);
 
 export type SourceWithMeta = JobSource & { hasScraper: boolean; jobCount: number };

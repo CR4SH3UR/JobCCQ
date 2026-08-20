@@ -22,7 +22,6 @@ const CITY_TO_REGION: Array<[RegExp, string]> = [
   [/montreal|montréal|ville-marie|verdun|lachine|anjou|outremont/i, "montreal"],
   [/laval/i, "laval"],
   [/longueuil|brossard|saint-hubert|st-hubert|boucherville|saint-jean-sur-richelieu|granby|sorel|chambly|varennes/i, "monteregie"],
-  [/quebec|québec|sainte-foy|ste-foy|charlesbourg|beauport|l'ancienne-lorette/i, "capitale-nationale"],
   [/levis|lévis|thetford|sainte-marie|montmagny/i, "chaudiere-appalaches"],
   [/gatineau|hull|aylmer|outaouais/i, "outaouais"],
   [/sherbrooke|magog|granby|estrie/i, "estrie"],
@@ -36,6 +35,10 @@ const CITY_TO_REGION: Array<[RegExp, string]> = [
   [/repentigny|terrebonne|mascouche|joliette|lanaudiere|lanaudière/i, "lanaudiere"],
   [/saint-jerome|st-jerome|blainville|mirabel|sainte-therese|laurentides|mont-tremblant/i, "laurentides"],
   [/chibougamau|nord-du-quebec|nunavik|baie-james/i, "nord-du-quebec"],
+  // En dernier : « quebec/québec » sert aussi de nom de province. Placé après
+  // les autres villes, il ne capte « Québec » (Capitale-Nationale) que si
+  // aucune ville plus précise (ex. Lévis, Gatineau) n'a déjà été reconnue.
+  [/quebec|québec|sainte-foy|ste-foy|charlesbourg|beauport|l'ancienne-lorette/i, "capitale-nationale"],
 ];
 
 const REMOTE_HINT = /télétravail|teletravail|à distance|a distance|remote|hybride/i;
@@ -54,9 +57,12 @@ export function detectRegion(location?: string): string | undefined {
   const city = location.split(/[,(]/)[0]!.trim() || location;
   for (const [re, region] of CITY_TO_REGION) if (re.test(city)) return region;
   if (/télétravail|teletravail|à distance|a distance|remote/i.test(location)) return "teletravail";
-  if (NON_QC_PROVINCE.test(location) || /\bcanada\b/i.test(location)) return "canada-autre";
-  // Québec confirmé mais ville hors référentiel : bucket « non précisé ».
+  // Province/ville hors Québec explicitement nommée.
+  if (NON_QC_PROVINCE.test(location)) return "canada-autre";
+  // Québec confirmé mais ville hors référentiel (prioritaire sur « Canada »,
+  // ex. « 872, Archimède, Québec, Canada »).
   if (QC_HINT.test(location)) return "autre";
+  if (/\bcanada\b/i.test(location)) return "canada-autre";
   return undefined;
 }
 
