@@ -139,6 +139,61 @@ export function registerAdminRoutes(app: FastifyInstance): void {
     return { removed: del.count };
   });
 
+  // Ajout d'un employeur depuis la console. Turso : INSERT en base ; sinon,
+  // ajout au fichier discovered.json (à committer via « Publier »).
+  app.post<{ Body: Record<string, unknown> }>("/admin/employers", async (req, reply) => {
+    const b = req.body ?? {};
+    const id = String(b.id ?? "").trim();
+    const name = String(b.name ?? "").trim();
+    const careersUrl = String(b.careersUrl ?? "").trim();
+    if (!id || !name || !careersUrl) {
+      reply.code(400);
+      return { error: "id, name et careersUrl sont requis." };
+    }
+    let homepage = String(b.homepage ?? "").trim();
+    if (!homepage) {
+      try {
+        homepage = new URL(careersUrl).origin;
+      } catch {
+        homepage = careersUrl;
+      }
+    }
+    const method = String(b.method ?? "html");
+    const region = b.region ? String(b.region) : null;
+    if (USE_TURSO) {
+      const created = await prisma.employer
+        .create({ data: { id, name, homepage, careersUrl, method, region, sectors: "[]" } })
+        .catch(() => null);
+      if (!created) {
+        reply.code(409);
+        return { error: "Création impossible (id déjà utilisé ?)." };
+      }
+      return { employer: rowToEmployer(created) };
+    }
+    const list = await readAll();
+    if (list.some((e) => e.id === id)) {
+      reply.code(409);
+      return { error: "id déjà utilisé." };
+    }
+    const emp = { id, name, homepage, careersUrl, method, ...(region ? { region } : {}), sectors: [] } as Employer;
+    list.push(emp);
+    await writeAll(list);
+    return { employer: emp };
+  });
+
+  // Suppression définitive d'un employeur (sa fiche + toutes ses offres).
+  app.delete<{ Params: { id: string } }>("/admin/employers/:id", async (req) => {
+    const id = req.params.id;
+    const del = await prisma.job.deleteMany({ where: { sourceId: id } });
+    if (USE_TURSO) {
+      await prisma.employer.delete({ where: { id } }).catch(() => null);
+    } else {
+      const list = await readAll();
+      await writeAll(list.filter((e) => e.id !== id));
+    }
+    return { removed: del.count, deleted: id };
+  });
+
   // Publie discovered.json : git add + commit + push → redéploiement du site.
   // (Endpoint local : utilise les identifiants git de la machine.)
   app.post<{ Body: { message?: string } }>("/admin/publish", async (_req, reply) => {
