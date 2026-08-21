@@ -157,6 +157,40 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
   return { inserted, updated };
 }
 
+/**
+ * Synchronise les offres d'une source **sans jamais détruire sur échec**.
+ *
+ * - Un scrape qui ne renvoie rien (erreur HTTP 403 anti-robot, page vide) ne
+ *   supprime AUCUNE offre existante : on conserve le dernier bon état.
+ * - Une chute brutale du nombre d'offres (lecture partielle probable, pagination
+ *   coupée) ne purge pas non plus : on ajoute/actualise sans retirer.
+ * - Sinon, on retire les offres disparues (postes comblés) en plus d'insérer/
+ *   actualiser les offres courantes.
+ */
+export async function syncSourceJobs(
+  sourceId: string,
+  jobs: Job[],
+): Promise<UpsertResult & { removed: number }> {
+  if (jobs.length === 0) return { inserted: 0, updated: 0, removed: 0 };
+
+  const existingCount = await prisma.job.count({ where: { sourceId } });
+  const res = await upsertJobs(jobs);
+
+  // Garde-fou anti-purge : si le nouveau lot est bien plus petit que l'existant
+  // (source volumineuse), c'est probablement une lecture partielle ou un blocage
+  // — on n'efface pas les offres « manquantes ».
+  const suspicious = existingCount >= 10 && jobs.length < existingCount * 0.4;
+  let removed = 0;
+  if (!suspicious) {
+    const keep = jobs.map((j) => j.id);
+    const del = await prisma.job.deleteMany({
+      where: { sourceId, id: { notIn: keep } },
+    });
+    removed = del.count;
+  }
+  return { ...res, removed };
+}
+
 /** Statistiques globales pour la page d'accueil / le tableau de bord. */
 export async function getStats() {
   const [total, bySource, byRegion, byCategory, distinctCompanies, lastRuns] = await Promise.all([

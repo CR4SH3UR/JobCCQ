@@ -1,10 +1,19 @@
 import { RawJobSchema, type Job } from "@jobccq/shared";
 import { prisma } from "./db.js";
 import { normalizeRawJob } from "./normalize.js";
-import { upsertJobs } from "./repository.js";
+import { syncSourceJobs, upsertJobs } from "./repository.js";
 import { createHttpContext } from "./scrapers/http.js";
 import { getScraper, listScraperIds } from "./scrapers/registry.js";
 import type { Scraper, ScrapeParams } from "./scrapers/types.js";
+
+/**
+ * Mode d'écriture :
+ * - `upsert` (défaut) : insère/actualise sans jamais retirer (aperçu admin).
+ * - `sync` : retire aussi les offres disparues (postes comblés), mais jamais
+ *   sur un scrape vide/échoué (voir syncSourceJobs) — utilisé par le CLI de
+ *   scraping (workflow planifié / re-scrape d'un site).
+ */
+export type PersistMode = "upsert" | "sync";
 
 export interface RunReport {
   sourceId: string;
@@ -24,6 +33,7 @@ export interface RunReport {
 export async function runScraperInstance(
   scraper: Scraper,
   params: ScrapeParams = {},
+  persist: PersistMode = "upsert",
 ): Promise<{ report: RunReport; jobs: Job[] }> {
   const sourceId = scraper.id;
   const run = await prisma.scrapeRun.create({ data: { sourceId } });
@@ -39,7 +49,8 @@ export async function runScraperInstance(
       else log(`offre ignorée (invalide) : ${parsed.error.issues[0]?.message ?? "?"}`);
     }
 
-    const { inserted, updated } = await upsertJobs(jobs);
+    const { inserted, updated } =
+      persist === "sync" ? await syncSourceJobs(sourceId, jobs) : await upsertJobs(jobs);
     await prisma.scrapeRun.update({
       where: { id: run.id },
       data: { status: "success", found: raw.length, inserted, updated, finishedAt: new Date() },
@@ -61,22 +72,27 @@ export async function runScraperInstance(
 }
 
 /** Exécute un scraper du registre par son id. */
-export async function runScraper(sourceId: string, params: ScrapeParams = {}): Promise<RunReport> {
+export async function runScraper(
+  sourceId: string,
+  params: ScrapeParams = {},
+  persist: PersistMode = "upsert",
+): Promise<RunReport> {
   const scraper = getScraper(sourceId);
   if (!scraper) {
     return { sourceId, found: 0, inserted: 0, updated: 0, status: "error", error: "Scraper introuvable" };
   }
-  return (await runScraperInstance(scraper, params)).report;
+  return (await runScraperInstance(scraper, params, persist)).report;
 }
 
 /** Exécute plusieurs scrapers en séquence (poli envers les sources). */
 export async function runScrapers(
   ids: string[] = listScraperIds(),
   params: ScrapeParams = {},
+  persist: PersistMode = "upsert",
 ): Promise<RunReport[]> {
   const reports: RunReport[] = [];
   for (const id of ids) {
-    reports.push(await runScraper(id, params));
+    reports.push(await runScraper(id, params, persist));
   }
   return reports;
 }

@@ -238,7 +238,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "richardsteel-ca",
@@ -8527,7 +8528,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "ferblanterieeroy-ca",
@@ -14196,7 +14198,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "lesfeuillagesduquebec-ca",
@@ -19775,8 +19778,8 @@
     "id": "rtsi-ca",
     "name": "Rodrigue Tremblay (Sherbrooke) inc.",
     "homepage": "https://rtsi.ca",
-    "careersUrl": "https://www.jobillico.com/fr/employeurs/rtsi-sherbrooke-inc./voir-liste-opportunites",
-    "method": "jobillico",
+    "careersUrl": "https://rtsi.ca/carrieres/",
+    "method": "html",
     "region": "Estrie",
     "rbq": "1161-4583-58",
     "scope": "Employeur — construction (découverte RBQ)",
