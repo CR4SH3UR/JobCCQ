@@ -110,17 +110,22 @@ export interface UpsertResult {
 export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
   if (jobs.length === 0) return { inserted: 0, updated: 0 };
 
-  // Déduplication intra-lot par id.
-  const byId = new Map(jobs.map((j) => [j.id, j]));
-  const unique = [...byId.values()];
+  // Déduplication + upsert par **URL** (clé unique en base). Une même offre peut
+  // être publiée par deux sources (ex. un employeur curé et son doublon
+  // découvert partagent la même page Jobillico) : elles produisent la même URL
+  // sous des id différents. Cibler l'URL évite la violation `unique(url)` qui
+  // faisait planter tout le scrape ; la 1re source qui l'a insérée en garde
+  // l'attribution.
+  const byUrl = new Map(jobs.map((j) => [j.url, j]));
+  const unique = [...byUrl.values()];
 
   const existing = new Set(
     (
       await prisma.job.findMany({
-        where: { id: { in: unique.map((j) => j.id) } },
-        select: { id: true },
+        where: { url: { in: unique.map((j) => j.url) } },
+        select: { url: true },
       })
-    ).map((r) => r.id),
+    ).map((r) => r.url),
   );
 
   let inserted = 0;
@@ -128,7 +133,7 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
   for (const job of unique) {
     const data = jobToRow(job);
     await prisma.job.upsert({
-      where: { id: job.id },
+      where: { url: job.url },
       create: data,
       // On ne réécrit pas scrapedAt/createdAt à chaque passage inutilement,
       // mais on rafraîchit le contenu susceptible d'avoir changé.
@@ -151,7 +156,7 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
         postedAt: data.postedAt,
       },
     });
-    if (existing.has(job.id)) updated += 1;
+    if (existing.has(job.url)) updated += 1;
     else inserted += 1;
   }
   return { inserted, updated };
