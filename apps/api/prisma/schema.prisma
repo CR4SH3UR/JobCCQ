@@ -5,13 +5,13 @@
 //   infra/README-turso.md). Aucun changement de provider requis (libSQL = SQLite).
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
+  // Prisma 7 : l'URL de connexion ne vit plus ici — elle est déclarée dans
+  // prisma.config.ts (CLI) ; le client applicatif passe par l'adaptateur libSQL.
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
 
 /// Employeur du répertoire (auparavant packages/shared/src/discovered.json).
