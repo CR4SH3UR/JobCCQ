@@ -35,7 +35,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "ajlbourgeois-com",
@@ -48,7 +49,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "lepec-ca",
