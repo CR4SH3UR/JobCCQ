@@ -478,12 +478,15 @@ export function AdminExplorer() {
   };
 
   // Suivi des re-scrapes en cours : UNE seule boucle de polling pour TOUTES les
-  // sources en attente (file `pendingRef`), avec une requête GROUPÉE par tick.
-  // Lancer plusieurs re-scrapes en même temps n'ouvre donc plus N boucles /
-  // connexions Turso concurrentes (ce qui les faisait échouer) : un seul
-  // `SELECT … GROUP BY` met tous les badges à jour d'un coup. Une source quitte
-  // la file dès que son compte change, ou après ~2,5 min.
-  const pendingRef = useRef<Map<string, { before: number; deadline: number }>>(new Map());
+  // sources en attente (file `pendingRef`). On détecte la fin d'un scrape via la
+  // table **ScrapeRun** (une ligne par exécution, passant de « running » à
+  // « success »/« error »), et NON via un changement du nombre d'offres : un
+  // re-scrape qui retrouve le MÊME nombre d'offres est un cas fréquent, et
+  // l'ancienne détection « le compte a changé » le ratait (« marche 1 fois sur
+  // 2 »). Une seule requête ScrapeRun par tick → insensible au nombre de
+  // re-scrapes simultanés. Chaque source quitte la file à la fin de son scrape,
+  // ou après ~3 min (garde-fou si l'exécution meurt sans se clôturer).
+  const pendingRef = useRef<Map<string, { deadline: number }>>(new Map());
   const pollingRef = useRef(false);
 
   const runPollLoop = async () => {
@@ -496,25 +499,43 @@ export function AdminExplorer() {
     }
     pollingRef.current = true;
     try {
+      // Repère de départ : seules les exécutions créées APRÈS ce point comptent
+      // (id auto-incrémenté → monotone, insensible à l'horloge du navigateur).
+      const base = await tursoRows(tUrl, tTok, "SELECT COALESCE(MAX(id),0) AS m FROM ScrapeRun").catch(() => null);
+      const sinceId = base ? Number(base[0]?.m ?? 0) : 0;
       while (pendingRef.current.size > 0) {
         await sleep(6000);
-        const m = await tursoCounts(tUrl, tTok).catch(() => null);
-        if (!m) continue; // erreur réseau ponctuelle : on retente au tick suivant
-        // Rafraîchit tous les badges ; force la valeur exacte (0 compris) pour
-        // les sources suivies (un GROUP BY n'aurait pas renvoyé une source à 0).
-        setCounts((c) => {
-          const next: Record<string, number> = { ...c, ...m };
-          for (const id of pendingRef.current.keys()) next[id] = m[id] ?? 0;
-          return next;
-        });
-        for (const [id, info] of [...pendingRef.current]) {
-          const n = m[id] ?? 0;
-          if (n !== info.before) {
-            setScrapes((s) => ({ ...s, [id]: { status: "ok", found: n, error: "updated" } }));
+        // Exécutions TERMINÉES depuis le repère (toutes sources ; on filtre les
+        // suivies côté client). Peu de lignes : seulement les scrapes récents.
+        const runs = await tursoRows(
+          tUrl,
+          tTok,
+          "SELECT sourceId, status, found, error, id FROM ScrapeRun WHERE id > ? AND status != 'running' ORDER BY id ASC",
+          [sinceId],
+        ).catch(() => null);
+        if (runs) {
+          for (const r of runs) {
+            const id = String(r.sourceId);
+            if (!pendingRef.current.has(id)) continue;
+            // Compte RÉEL en base (peut différer de `found` après purge/dédup).
+            const cnt = await tursoRows(tUrl, tTok, "SELECT COUNT(*) AS n FROM Job WHERE sourceId=?", [id]).catch(
+              () => null,
+            );
+            const n = cnt ? Number(cnt[0]?.n ?? 0) : Number(r.found ?? 0);
+            setCounts((c) => ({ ...c, [id]: n }));
+            setScrapes((s) => ({
+              ...s,
+              [id]:
+                r.status === "error"
+                  ? { status: "err", error: String(r.error ?? "échec du scrape") }
+                  : { status: "ok", found: n, error: "updated" },
+            }));
             pendingRef.current.delete(id);
-          } else if (Date.now() > info.deadline) {
-            pendingRef.current.delete(id); // fenêtre écoulée (offres identiques ou scrape long)
           }
+        }
+        // Garde-fou : sources dont la fenêtre est écoulée (exécution morte/bloquée).
+        for (const [id, info] of [...pendingRef.current]) {
+          if (Date.now() > info.deadline) pendingRef.current.delete(id);
         }
       }
     } finally {
@@ -524,7 +545,7 @@ export function AdminExplorer() {
 
   // Ajoute une source re-scrapée à la file suivie et (re)lance la boucle unique.
   const queuePoll = (sourceId: string) => {
-    pendingRef.current.set(sourceId, { before: counts[sourceId] ?? 0, deadline: Date.now() + 150_000 });
+    pendingRef.current.set(sourceId, { deadline: Date.now() + 180_000 });
     void runPollLoop();
   };
 
