@@ -28,6 +28,31 @@ const METHODS: DiscoveredMethod[] = [
 const PAGE_SIZE = 40;
 const LS_EDITS = "admin:edits";
 const LS_VERIF = "admin:verified";
+const LS_TOKEN = "admin:ghtoken";
+const DISCOVERED_PATH = "packages/shared/src/discovered.json";
+
+/** Détecte owner/repo depuis l'URL GitHub Pages (repli sur des constantes). */
+function ghRepo(): { owner: string; repo: string } {
+  try {
+    const host = location.hostname.split(".")[0];
+    const seg = location.pathname.split("/").filter(Boolean)[0];
+    if (location.hostname.endsWith("github.io") && host && seg) return { owner: host, repo: seg };
+  } catch {
+    /* SSR / build */
+  }
+  return { owner: "CR4SH3UR", repo: "JobCCQ" };
+}
+
+const GH_HEADERS = (token: string) => ({
+  Authorization: `Bearer ${token}`,
+  Accept: "application/vnd.github+json",
+  "X-GitHub-Api-Version": "2022-11-28",
+});
+
+/** Encode en base64 sûr pour l'UTF-8 (accents). */
+function b64utf8(s: string): string {
+  return btoa(unescape(encodeURIComponent(s)));
+}
 
 function loadLS<T>(key: string, fallback: T): T {
   try {
@@ -54,6 +79,26 @@ export function AdminExplorer() {
   const [page, setPage] = useState(1);
   const [scrapes, setScrapes] = useState<Record<string, ScrapeState>>({});
   const [publish, setPublish] = useState<{ status: "idle" | "run" | "ok" | "err"; message?: string }>({ status: "idle" });
+  const [ghToken, setGhToken] = useState("");
+  const [ghOpen, setGhOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      setGhToken(localStorage.getItem(LS_TOKEN) ?? "");
+    } catch {
+      /* stockage indisponible */
+    }
+  }, []);
+
+  const saveToken = (t: string) => {
+    setGhToken(t);
+    try {
+      if (t) localStorage.setItem(LS_TOKEN, t);
+      else localStorage.removeItem(LS_TOKEN);
+    } catch {
+      /* stockage indisponible */
+    }
+  };
   // Édition locale (mode statique) : superposée aux données du paquet partagé.
   const editsRef = useRef<Record<string, Partial<Employer>>>({});
 
@@ -149,19 +194,66 @@ export function AdminExplorer() {
     }
   };
 
-  const exportJson = () => {
-    const clean = employers.map((e) => ({
+  const cleanList = () =>
+    employers.map((e) => ({
       id: e.id, name: e.name, homepage: e.homepage, careersUrl: e.careersUrl,
       method: e.method, region: e.region, scope: e.scope, sectors: e.sectors,
       ...(e.verified ? { verified: true } : {}),
     }));
-    const blob = new Blob([JSON.stringify(clean, null, 2) + "\n"], { type: "application/json" });
+
+  const exportJson = () => {
+    const blob = new Blob([JSON.stringify(cleanList(), null, 2) + "\n"], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = "discovered.json";
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  // --- Mode statique : agir sur GitHub via le jeton personnel du navigateur ---
+  const ghScrape = async (sourceId: string) => {
+    const { owner, repo } = ghRepo();
+    setScrapes((s) => ({ ...s, [sourceId]: { status: "run" } }));
+    try {
+      const r = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/actions/workflows/scrape.yml/dispatches`,
+        { method: "POST", headers: GH_HEADERS(ghToken), body: JSON.stringify({ ref: "main", inputs: { sourceId, maxPages: "2" } }) },
+      );
+      if (r.status === 204) {
+        setScrapes((s) => ({ ...s, [sourceId]: { status: "ok", error: "launched" } }));
+      } else {
+        const d = await r.json().catch(() => ({}));
+        setScrapes((s) => ({ ...s, [sourceId]: { status: "err", error: d.message ?? `HTTP ${r.status}` } }));
+      }
+    } catch (e) {
+      setScrapes((s) => ({ ...s, [sourceId]: { status: "err", error: (e as Error).message } }));
+    }
+  };
+
+  const ghPublish = async () => {
+    const { owner, repo } = ghRepo();
+    const base = `https://api.github.com/repos/${owner}/${repo}/contents/${DISCOVERED_PATH}`;
+    setPublish({ status: "run" });
+    try {
+      const cur = await fetch(`${base}?ref=main`, { headers: GH_HEADERS(ghToken) });
+      const sha = cur.ok ? (await cur.json()).sha : undefined;
+      const body = {
+        message: "Admin : mise à jour des employeurs (URLs / vérifications)",
+        content: b64utf8(JSON.stringify(cleanList(), null, 2) + "\n"),
+        branch: "main",
+        ...(sha ? { sha } : {}),
+      };
+      const r = await fetch(base, { method: "PUT", headers: GH_HEADERS(ghToken), body: JSON.stringify(body) });
+      if (r.ok) {
+        setPublish({ status: "ok", message: "Publié sur GitHub — le site va se redéployer." });
+      } else {
+        const d = await r.json().catch(() => ({}));
+        setPublish({ status: "err", message: d.message ?? `HTTP ${r.status}` });
+      }
+    } catch (e) {
+      setPublish({ status: "err", message: (e as Error).message });
+    }
   };
 
   const filtered = useMemo(() => {
@@ -217,12 +309,54 @@ export function AdminExplorer() {
                 )}
               </div>
             ) : (
-              <>
-                ⚠️ <strong>Mode lecture</strong> (API non détectée) — les modifications et cases cochées sont mémorisées dans
-                ton navigateur. Lance l'API en local (<code>npm run dev:api</code>) pour éditer/scraper pour de vrai, ou utilise
-                <button onClick={exportJson} className="mx-1 rounded bg-brand-600 px-2 py-0.5 text-xs font-semibold text-white">Exporter discovered.json</button>
-                pour committer tes corrections.
-              </>
+              <div className="flex flex-col gap-2">
+                <span>
+                  ⚠️ <strong>Mode lecture</strong> (API non détectée). Connecte un jeton GitHub pour <strong>scraper</strong> et
+                  <strong> publier</strong> directement depuis cette page, ou lance l'API en local (<code>npm run dev:api</code>).
+                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button onClick={() => setGhOpen((v) => !v)} className="rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-xs font-semibold hover:bg-amber-100">
+                    {ghToken ? "🔑 GitHub connecté" : "🔗 Connecter GitHub"}
+                  </button>
+                  {ghToken && (
+                    <button onClick={ghPublish} disabled={publish.status === "run"} className="rounded-lg bg-green-700 px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-50">
+                      {publish.status === "run" ? "Publication…" : "⬆ Publier sur GitHub"}
+                    </button>
+                  )}
+                  <button onClick={exportJson} className="rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-xs font-semibold hover:bg-amber-100">
+                    ⬇ Exporter (télécharger)
+                  </button>
+                  {publish.status !== "idle" && publish.status !== "run" && (
+                    <span className={publish.status === "ok" ? "text-green-700" : "text-red-600"}>{publish.message}</span>
+                  )}
+                </div>
+                {ghOpen && (
+                  <div className="rounded-lg border border-amber-300 bg-white p-2 text-xs text-slate-700">
+                    <p className="mb-1">
+                      Colle un <strong>jeton GitHub à granularité fine</strong> (fine-grained PAT) limité au dépôt
+                      <code> {ghRepo().owner}/{ghRepo().repo}</code>, avec les permissions <strong>Contents : lecture/écriture</strong> et
+                      <strong> Actions : lecture/écriture</strong>. Il est stocké <strong>uniquement dans ce navigateur</strong> (rien n'est envoyé ailleurs qu'à GitHub).
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="password"
+                        value={ghToken}
+                        onChange={(e) => saveToken(e.target.value.trim())}
+                        placeholder="github_pat_…"
+                        className="flex-1 rounded border border-slate-300 px-2 py-1 font-mono"
+                      />
+                      {ghToken && (
+                        <button onClick={() => saveToken("")} className="rounded border border-slate-300 px-2 py-1 hover:bg-slate-100">
+                          Oublier
+                        </button>
+                      )}
+                    </div>
+                    <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-brand-600 hover:underline">
+                      Créer un jeton →
+                    </a>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
@@ -259,11 +393,11 @@ export function AdminExplorer() {
               <Row
                 key={e.id}
                 e={e}
-                mode={mode}
                 count={counts[e.id] ?? 0}
                 scrape={scrapes[e.id]}
+                scrapeEnabled={mode === "api" || !!ghToken}
                 onPatch={patchEmployer}
-                onRescrape={rescrape}
+                onScrape={mode === "api" ? rescrape : ghScrape}
               />
             ))}
           </div>
@@ -286,14 +420,14 @@ export function AdminExplorer() {
 }
 
 function Row({
-  e, mode, count, scrape, onPatch, onRescrape,
+  e, count, scrape, scrapeEnabled, onPatch, onScrape,
 }: {
   e: Employer;
-  mode: Mode;
   count: number;
   scrape?: ScrapeState;
+  scrapeEnabled: boolean;
   onPatch: (id: string, patch: Partial<Employer>) => void;
-  onRescrape: (id: string) => void;
+  onScrape: (id: string) => void;
 }) {
   const [url, setUrl] = useState(e.careersUrl);
   const [name, setName] = useState(e.name);
@@ -358,9 +492,9 @@ function Row({
         >
           Enregistrer
         </button>
-        {mode === "api" && (
+        {scrapeEnabled && (
           <button
-            onClick={() => onRescrape(e.id)}
+            onClick={() => onScrape(e.id)}
             className="rounded-lg border border-brand-300 px-2.5 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-50"
           >
             {scrape?.status === "run" ? "Scraping…" : "Re-scraper"}
@@ -370,7 +504,9 @@ function Row({
 
       {scrape && scrape.status !== "run" && (
         <div className="mt-2 text-xs">
-          {scrape.status === "ok" ? (
+          {scrape.status === "ok" && scrape.error === "launched" ? (
+            <span className="text-green-700">🚀 Scraping lancé sur GitHub — voir l'onglet « Actions » (résultat en ligne dans ~1 min).</span>
+          ) : scrape.status === "ok" ? (
             <div className={scrape.found ? "text-green-700" : "text-amber-700"}>
               {scrape.found} poste{(scrape.found ?? 0) > 1 ? "s" : ""} trouvé{(scrape.found ?? 0) > 1 ? "s" : ""}
               {scrape.sample && scrape.sample.length > 0 && (
