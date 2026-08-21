@@ -99,8 +99,18 @@ async function fetchWithRetry(
         throw new Error(`HTTP ${res.status}`);
       }
       if (!res.ok) {
-        // 4xx définitif : inutile de réessayer.
-        throw Object.assign(new Error(`HTTP ${res.status} sur ${origUrl}`), { fatal: true });
+        // 4xx définitif : inutile de réessayer. On joint un extrait du corps
+        // pour rendre l'échec auto-diagnostiquable, surtout via le proxy :
+        // « Forbidden » = jeton du Worker faux, « Host not allowed » = hôte hors
+        // ALLOW_HOSTS ; une page HTML = un vrai blocage de la cible elle-même.
+        let snippet = "";
+        try {
+          const body = (await res.text()).trim().replace(/\s+/g, " ");
+          if (body) snippet = ` — ${body.slice(0, 120)}`;
+        } catch {
+          /* corps illisible : on garde juste le statut */
+        }
+        throw Object.assign(new Error(`HTTP ${res.status} sur ${origUrl}${snippet}`), { fatal: true });
       }
       return await res.text();
     } catch (err) {
