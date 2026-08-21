@@ -334,7 +334,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "airpeloquin-com",
@@ -596,7 +597,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "bilex-ca",
@@ -1156,7 +1158,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "brelectrique-ca",
@@ -3682,7 +3685,7 @@
     "id": "cppinc-ca",
     "name": "Construction et Pavage Portneuf inc.",
     "homepage": "https://www.cppinc.ca",
-    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-pavage-portneuf-inc-eBlqIn/voir-liste-emplois",
+    "careersUrl": "https://www.jobillico.com/voir-entreprise/construction-pavage-portneuf-inc-eBlqIn",
     "method": "jobillico",
     "region": "Capitale-Nationale",
     "scope": "Employeur — excavation / génie civil (découverte RBQ)",
