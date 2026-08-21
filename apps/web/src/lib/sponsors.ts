@@ -23,7 +23,7 @@ export interface Sponsor {
 }
 
 /** Courriel de contact pour la vente d'espace publicitaire. TODO: mets le tien. */
-export const SPONSOR_CONTACT_EMAIL = "commandites@jobccq.ca";
+export const SPONSOR_CONTACT_EMAIL = "dickie1719@gmail.com";
 
 /**
  * Commanditaires actifs affichés dans la bannière.
