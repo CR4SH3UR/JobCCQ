@@ -79,3 +79,18 @@ body {
 [data-theme="dark"] .shadow-sm {
   --tw-shadow-color: rgb(0 0 0 / 0.4);
 }
+
+/* Menus déroulants natifs : forcer fond sombre + texte clair (sinon les
+ * <option> restent en texte sombre illisible dans la liste déroulante). */
+[data-theme="dark"] select,
+[data-theme="dark"] option {
+  background-color: var(--surface);
+  color: var(--color-slate-900);
+}
+[data-theme="dark"] option:checked,
+[data-theme="dark"] option:hover {
+  background-color: var(--color-slate-200);
+}
+[data-theme="dark"] ::placeholder {
+  color: var(--color-slate-400);
+}
