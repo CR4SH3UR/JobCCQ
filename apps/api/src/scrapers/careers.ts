@@ -326,7 +326,7 @@ const SERVICE_ONLY =
 function pageDeclaresNoOpenings(html: string): boolean {
   const text = cheerio.load(html)("body").text().replace(/\s+/g, " ");
   return (
-    /\baucune?\s+(?:offre|poste|position|opportunit[ée])s?(?:\s+d['’]emploi)?\s+(?:disponible|ouvert|vacant|en ce moment|actuellement|pr[ée]sentement|pour (?:le|l['’]instant|ce) moment|[àa] combler|n['’]est)/i.test(
+    /\baucune?\s+(?:offre|poste|position|opportunit[ée])s?(?:\s+d['’]emploi)?\s+(?:disponible|ouvert|vacant|en ce moment|actuellement|pr[ée]sentement|pour (?:le|l['’]instant|ce) moment|[àa] combler|[àa] afficher|n['’]est)/i.test(
       text,
     ) ||
     /(?:il n['’]y a|nous n['’]avons|n['’]avons)\s+(?:actuellement\s+|pr[ée]sentement\s+)?(?:aucune?\s+(?:offre|poste|position|emploi)|pas d['’](?:offre|poste|emploi))/i.test(
