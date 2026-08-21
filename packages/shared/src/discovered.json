@@ -414,7 +414,8 @@
     "scope": "Employeur — mécanique du bâtiment (découverte RBQ)",
     "sectors": [
       "Ventilation et réfrigération"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "akiressources-ca",
@@ -441,7 +442,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "grouperdl-ca",
@@ -553,7 +555,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "alliancetechnologie-ca",
@@ -734,7 +737,7 @@
     "id": "amrize-com",
     "name": "Amrize Canada Inc.",
     "homepage": "https://amrize.com",
-    "careersUrl": "https://www.amrize.com/ca/fr/careers.html",
+    "careersUrl": "https://careers.amrize.com/search",
     "method": "html",
     "rbq": "2359-1902-22",
     "scope": "Employeur — construction (découverte RBQ)",
