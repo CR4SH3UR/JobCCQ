@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { JOB_CATEGORIES, JOB_SOURCES, type HiringCompany } from "@jobccq/shared";
 import { searchCompanies, getStats, buildQuery, type Stats } from "@/lib/data";
 import { initials } from "@/lib/format";
+import { SponsorBanner } from "./SponsorBanner";
 
 export function HomeView() {
   const router = useRouter();
@@ -85,6 +86,8 @@ export function HomeView() {
             peuple la base avec <code>npm run seed</code>.
           </div>
         )}
+
+        <SponsorBanner className="mt-6" />
       </section>
 
       {/* Top des entreprises qui recrutent */}

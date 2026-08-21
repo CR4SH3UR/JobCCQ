@@ -9,6 +9,7 @@ import {
 } from "@jobccq/shared";
 import { Badge } from "./Badge";
 import { cn, formatSalary, initials, timeAgo } from "@/lib/format";
+import { isSponsoredEmployer } from "@/lib/sponsors";
 
 const REMOTE_TONE = { teletravail: "green", hybride: "violet", presentiel: "slate" } as const;
 
@@ -17,9 +18,15 @@ export function JobCard({ job }: { job: Job }) {
   const region = labelForRegion(job.regionId);
   const posted = timeAgo(job.postedAt ?? job.scrapedAt);
   const sectors = getSource(job.sourceId)?.sectors ?? [];
+  const sponsored = isSponsoredEmployer(job.sourceId);
 
   return (
-    <article className="card group p-4 transition-shadow hover:shadow-md">
+    <article
+      className={cn(
+        "card group p-4 transition-shadow hover:shadow-md",
+        sponsored && "ring-2 ring-amber-300",
+      )}
+    >
       <div className="flex gap-3">
         <Avatar name={job.company} logo={job.companyLogoUrl} />
         <div className="min-w-0 flex-1">
@@ -45,6 +52,7 @@ export function JobCard({ job }: { job: Job }) {
           </p>
 
           <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+            {sponsored && <Badge tone="amber">★ Commandité</Badge>}
             {job.categoryId && <Badge tone="brand">{labelForCategory(job.categoryId)}</Badge>}
             {sectors.slice(0, 2).map((s) => (
               <Badge key={s} tone="amber">
