@@ -20,7 +20,7 @@ type Employer = {
   enabled?: boolean;
 };
 
-type Mode = "loading" | "api" | "static";
+type Mode = "loading" | "api" | "static" | "turso";
 type ScrapeState = { status: "run" | "ok" | "err"; found?: number; error?: string; sample?: { title: string; city?: string }[] };
 
 const METHODS: DiscoveredMethod[] = [
@@ -31,7 +31,60 @@ const PAGE_SIZE = 40;
 const LS_EDITS = "admin:edits";
 const LS_VERIF = "admin:verified";
 const LS_TOKEN = "admin:ghtoken";
+const LS_TURSO_URL = "admin:tursourl";
+const LS_TURSO_TOKEN = "admin:tursotoken";
 const DISCOVERED_PATH = "packages/shared/src/discovered.json";
+
+/** Lecture directe (hors state React) d'une clé localStorage. */
+function readLS(key: string): string {
+  try {
+    return localStorage.getItem(key) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Exécute une requête sur Turso depuis le navigateur (client libSQL web, HTTP).
+ * Chargé à la demande pour ne pas alourdir le bundle. Retourne les lignes.
+ */
+async function tursoRows(
+  url: string,
+  token: string,
+  sql: string,
+  args: unknown[] = [],
+): Promise<Record<string, unknown>[]> {
+  const { createClient } = await import("@libsql/client/web");
+  const client = createClient({
+    url: url.trim().replace(/^libsql:\/\//i, "https://"),
+    authToken: token.trim(),
+  });
+  const res = await client.execute({ sql, args: args as never[] });
+  return res.rows as unknown as Record<string, unknown>[];
+}
+
+/** Ligne SQL Employer → objet Employer de l'UI. */
+function rowToEmployer(r: Record<string, unknown>): Employer {
+  let sectors: string[] = [];
+  try {
+    sectors = JSON.parse((r.sectors as string) || "[]");
+  } catch {
+    /* ignore */
+  }
+  return {
+    id: String(r.id),
+    name: String(r.name),
+    homepage: String(r.homepage),
+    careersUrl: String(r.careersUrl),
+    method: r.method as DiscoveredMethod,
+    region: r.region ? String(r.region) : undefined,
+    rbq: r.rbq ? String(r.rbq) : undefined,
+    scope: r.scope ? String(r.scope) : undefined,
+    sectors,
+    verified: Number(r.verified) === 1,
+    enabled: Number(r.enabled) !== 0,
+  };
+}
 
 /** Détecte owner/repo depuis l'URL GitHub Pages (repli sur des constantes). */
 function ghRepo(): { owner: string; repo: string } {
@@ -108,6 +161,8 @@ export function AdminExplorer() {
   const [publish, setPublish] = useState<{ status: "idle" | "run" | "ok" | "err"; message?: string }>({ status: "idle" });
   const [ghToken, setGhToken] = useState("");
   const [ghOpen, setGhOpen] = useState(false);
+  const [tursoUrl, setTursoUrl] = useState("");
+  const [tursoToken, setTursoToken] = useState("");
   const [stale, setStale] = useState(false);
   const [reloading, setReloading] = useState(false);
   const latestRef = useRef<Employer[] | null>(null);
@@ -115,10 +170,23 @@ export function AdminExplorer() {
   useEffect(() => {
     try {
       setGhToken(localStorage.getItem(LS_TOKEN) ?? "");
+      setTursoUrl(localStorage.getItem(LS_TURSO_URL) ?? "");
+      setTursoToken(localStorage.getItem(LS_TURSO_TOKEN) ?? "");
     } catch {
       /* stockage indisponible */
     }
   }, []);
+
+  const saveTurso = (url: string, token: string) => {
+    setTursoUrl(url);
+    setTursoToken(token);
+    try {
+      url ? localStorage.setItem(LS_TURSO_URL, url) : localStorage.removeItem(LS_TURSO_URL);
+      token ? localStorage.setItem(LS_TURSO_TOKEN, token) : localStorage.removeItem(LS_TURSO_TOKEN);
+    } catch {
+      /* stockage indisponible */
+    }
+  };
 
   const saveToken = (t: string) => {
     setGhToken(t);
@@ -144,9 +212,28 @@ export function AdminExplorer() {
         setEmployers(d.employers);
         setMode("api");
       })
-      .catch(() => {
+      .catch(async () => {
         if (!alive) return;
         clearTimeout(t);
+        // Mode Turso : base partagée, lue directement depuis le navigateur
+        // (prioritaire sur le mode statique quand un jeton Turso est configuré).
+        const tUrl = readLS(LS_TURSO_URL);
+        const tTok = readLS(LS_TURSO_TOKEN);
+        if (tUrl && tTok) {
+          try {
+            const rows = await tursoRows(
+              tUrl,
+              tTok,
+              "SELECT id,name,homepage,careersUrl,method,region,rbq,scope,sectors,verified,enabled FROM Employer ORDER BY name",
+            );
+            if (!alive) return;
+            setEmployers(rows.map(rowToEmployer));
+            setMode("turso");
+            return;
+          } catch {
+            /* échec Turso (jeton/URL) → repli sur le mode statique */
+          }
+        }
         // Mode statique : données du paquet + éditions/vérifs locales.
         editsRef.current = loadLS<Record<string, Partial<Employer>>>(LS_EDITS, {});
         const verified = new Set(loadLS<string[]>(LS_VERIF, []));
@@ -185,7 +272,14 @@ export function AdminExplorer() {
   const reloadData = async () => {
     setReloading(true);
     try {
-      if (mode === "api") {
+      if (mode === "turso") {
+        const rows = await tursoRows(
+          tursoUrl,
+          tursoToken,
+          "SELECT id,name,homepage,careersUrl,method,region,rbq,scope,sectors,verified,enabled FROM Employer ORDER BY name",
+        ).catch(() => null);
+        if (rows) setEmployers(rows.map(rowToEmployer));
+      } else if (mode === "api") {
         const d = await fetch(`${API_URL}/admin/employers`).then((r) => r.json()).catch(() => null);
         if (d?.employers) setEmployers(d.employers);
       } else {
@@ -223,6 +317,32 @@ export function AdminExplorer() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(patch),
       }).catch(() => {});
+    } else if (mode === "turso") {
+      // Écriture directe dans la table Employer (base partagée), en direct.
+      const cols: string[] = [];
+      const args: unknown[] = [];
+      for (const k of ["name", "careersUrl", "method", "homepage", "region", "scope"] as const) {
+        if (k in patch) {
+          cols.push(`${k}=?`);
+          args.push((patch as Record<string, unknown>)[k]);
+        }
+      }
+      if ("verified" in patch) {
+        cols.push("verified=?");
+        args.push(patch.verified ? 1 : 0);
+      }
+      if ("enabled" in patch) {
+        cols.push("enabled=?");
+        args.push(patch.enabled === false ? 0 : 1);
+      }
+      if (cols.length) {
+        cols.push("updatedAt=?");
+        args.push(new Date().toISOString());
+        args.push(id);
+        await tursoRows(tursoUrl, tursoToken, `UPDATE Employer SET ${cols.join(",")} WHERE id=?`, args).catch(
+          () => {},
+        );
+      }
     } else {
       editsRef.current[id] = { ...editsRef.current[id], ...patch };
       saveLS(LS_EDITS, editsRef.current);
@@ -300,6 +420,26 @@ export function AdminExplorer() {
       }
     } catch (e) {
       setScrapes((s) => ({ ...s, [sourceId]: { status: "err", error: (e as Error).message } }));
+    }
+  };
+
+  // Turso : les modifications sont déjà en base ; « publier » = redéployer le
+  // site (qui se reconstruit depuis Turso). Nécessite un jeton GitHub.
+  const ghTriggerDeploy = async () => {
+    const { owner, repo } = ghRepo();
+    setPublish({ status: "run" });
+    try {
+      const r = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/actions/workflows/deploy-pages.yml/dispatches`,
+        { method: "POST", headers: GH_HEADERS(ghToken), body: JSON.stringify({ ref: "main" }) },
+      );
+      setPublish(
+        r.status === 204
+          ? { status: "ok", message: "Reconstruction du site lancée (quelques minutes)." }
+          : { status: "err", message: `HTTP ${r.status}` },
+      );
+    } catch (e) {
+      setPublish({ status: "err", message: (e as Error).message });
     }
   };
 
@@ -397,7 +537,9 @@ export function AdminExplorer() {
         <>
           <div
             className={`card mb-4 p-3 text-sm ${
-              mode === "api" ? "border-green-200 bg-green-50 text-green-800" : "border-amber-200 bg-amber-50 text-amber-800"
+              mode === "api" || mode === "turso"
+                ? "border-green-200 bg-green-50 text-green-800"
+                : "border-amber-200 bg-amber-50 text-amber-800"
             }`}
           >
             {mode === "api" ? (
@@ -410,6 +552,26 @@ export function AdminExplorer() {
                 >
                   {publish.status === "run" ? "Publication…" : "⬆ Publier sur le site"}
                 </button>
+                {publish.status !== "idle" && publish.status !== "run" && (
+                  <span className={publish.status === "ok" ? "text-green-700" : "text-red-600"}>{publish.message}</span>
+                )}
+              </div>
+            ) : mode === "turso" ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <span>
+                  ✅ <strong>Mode Turso</strong> — éditions et vérifications enregistrées <strong>en direct</strong> dans la base partagée.
+                </span>
+                {ghToken ? (
+                  <button
+                    onClick={ghTriggerDeploy}
+                    disabled={publish.status === "run"}
+                    className="rounded-lg bg-green-700 px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                  >
+                    {publish.status === "run" ? "Reconstruction…" : "🔁 Reconstruire le site"}
+                  </button>
+                ) : (
+                  <span className="text-green-700">Le site se reconstruira au prochain déploiement.</span>
+                )}
                 {publish.status !== "idle" && publish.status !== "run" && (
                   <span className={publish.status === "ok" ? "text-green-700" : "text-red-600"}>{publish.message}</span>
                 )}
@@ -465,6 +627,55 @@ export function AdminExplorer() {
               </div>
             )}
           </div>
+
+          <details className="card mb-4 p-3 text-sm">
+            <summary className="cursor-pointer font-medium text-slate-700">
+              {mode === "turso" ? "🗄️ Turso connecté (base partagée)" : "🗄️ Connecter Turso (base partagée)"}
+            </summary>
+            <div className="mt-2 flex flex-col gap-2 text-slate-600">
+              <p>
+                Colle l'URL <code>libsql://…</code> et un jeton Turso : l'admin lit et écrit alors
+                <strong> directement dans la base</strong> (édition en direct, plus de fichier à publier). Stocké
+                uniquement dans ce navigateur.
+              </p>
+              <input
+                type="text"
+                value={tursoUrl}
+                onChange={(e) => setTursoUrl(e.target.value)}
+                placeholder="libsql://jobccq-….turso.io"
+                className="rounded border border-slate-300 px-2 py-1 font-mono"
+              />
+              <input
+                type="password"
+                value={tursoToken}
+                onChange={(e) => setTursoToken(e.target.value)}
+                placeholder="jeton Turso (lecture/écriture)"
+                className="rounded border border-slate-300 px-2 py-1 font-mono"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    saveTurso(tursoUrl.trim(), tursoToken.trim());
+                    location.reload();
+                  }}
+                  className="rounded-lg bg-brand-600 px-3 py-1 text-xs font-semibold text-white"
+                >
+                  Enregistrer + recharger
+                </button>
+                {(tursoUrl || tursoToken) && (
+                  <button
+                    onClick={() => {
+                      saveTurso("", "");
+                      location.reload();
+                    }}
+                    className="rounded-lg border border-slate-300 px-3 py-1 text-xs"
+                  >
+                    Oublier
+                  </button>
+                )}
+              </div>
+            </div>
+          </details>
 
           {stale && (
             <div className="card mb-4 flex flex-wrap items-center justify-between gap-3 border-amber-400 bg-amber-50 p-3 text-sm text-amber-800">
