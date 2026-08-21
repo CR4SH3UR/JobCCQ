@@ -2,11 +2,11 @@
   {
     "id": "groupepiche-ca",
     "name": "ITR Acoustique MTL inc.",
-    "homepage": "https://www.groupepiche.ca",
+    "homepage": "https://www.itracoustique.com",
     "careersUrl": "https://jackstaff.ca/fr/voir-entreprise/ITR-Acoustique-MTL-inc/258/",
-    "method": "html",
+    "method": "jackstaff",
     "region": "Montérégie",
-    "scope": "Employeur — construction (découverte RBQ)",
+    "scope": "Employeur — acoustique et aménagement intérieur (page Jack Staff)",
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"

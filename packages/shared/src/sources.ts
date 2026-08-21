@@ -36,6 +36,8 @@ export interface JobSource {
   readonly notes?: string;
   /** Secteurs de construction de l'employeur (Résidentiel, Génie civil…). */
   readonly sectors?: readonly string[];
+  /** Source désactivée (false) : ni scrapée, ni affichée sur le site. */
+  readonly enabled?: boolean;
 }
 
 export const JOB_SOURCES = [
@@ -227,6 +229,7 @@ export type DiscoveredMethod =
   | "smartrecruiters"
   | "teamtailor"
   | "ultipro"
+  | "jackstaff"
   | "jobillico";
 
 /** Entrée du registre auto-découvert (data-driven ; voir discovered.json). */
@@ -244,6 +247,8 @@ export interface DiscoveredEmployer {
   readonly sectors?: readonly string[];
   /** Vérifié manuellement (console d'administration) : l'URL et les postes sont bons. */
   readonly verified?: boolean;
+  /** Source désactivée (false) : ni scrapée, ni affichée sur le site. */
+  readonly enabled?: boolean;
 }
 
 export const DISCOVERED_EMPLOYERS = discoveredRaw as readonly DiscoveredEmployer[];
@@ -265,6 +270,7 @@ const DISCOVERED_AS_SOURCES: readonly JobSource[] = DISCOVERED_EMPLOYERS.map((d)
   status: "active",
   language: "fr",
   sectors: d.sectors,
+  enabled: d.enabled,
 }));
 
 /** Toutes les sources : catalogue curé + employeurs auto-découverts. */
@@ -281,4 +287,13 @@ export const sourceName = (id?: string | null): string =>
   (id && SOURCE_BY_ID[id]?.name) || id || "Source inconnue";
 
 export const activeSources = (): JobSource[] =>
-  ALL_SOURCES.filter((s) => s.status !== "planned");
+  ALL_SOURCES.filter((s) => s.status !== "planned" && s.enabled !== false);
+
+/** Ids des sources désactivées (à exclure du scraping et de l'affichage). */
+export const DISABLED_SOURCE_IDS: ReadonlySet<string> = new Set(
+  ALL_SOURCES.filter((s) => s.enabled === false).map((s) => s.id),
+);
+
+/** Une source est-elle désactivée manuellement ? */
+export const isSourceDisabled = (id?: string | null): boolean =>
+  !!id && DISABLED_SOURCE_IDS.has(id);

@@ -6,6 +6,7 @@ import { makeBambooHrScraper } from "./bamboohr.js";
 import { makeAtsJsonScraper, type AtsPlatform } from "./ats-json.js";
 import { makeJobillicoEmployerScraper } from "./jobillico-employer.js";
 import { makeUltiProScraper } from "./ultipro.js";
+import { makeJackStaffScraper } from "./jackstaff.js";
 
 /** Extrait le handle (jeton/sous-domaine) d'un employeur depuis l'URL de son ATS. */
 const atsHandle = (platform: AtsPlatform, url: string, fallback: string): string => {
@@ -49,6 +50,9 @@ export function buildDiscoveredScraper(d: DiscoveredEmployer): Scraper {
   if (d.method === "jobillico") {
     return makeJobillicoEmployerScraper({ id: d.id, company: d.name, listUrl: d.careersUrl });
   }
+  if (d.method === "jackstaff") {
+    return makeJackStaffScraper({ id: d.id, company: d.name, listUrl: d.careersUrl });
+  }
   if (d.method === "ultipro") {
     // careersUrl = https://recruiting.ultipro.ca/<tenant>/JobBoard/<guid>/…
     const m = d.careersUrl.match(/ultipro\.ca\/([^/]+)\/JobBoard\/([0-9a-fA-F-]+)/);
@@ -59,5 +63,6 @@ export function buildDiscoveredScraper(d: DiscoveredEmployer): Scraper {
 }
 
 export const discoveredScrapers: Record<string, Scraper> = Object.fromEntries(
-  DISCOVERED_EMPLOYERS.map((d) => [d.id, buildDiscoveredScraper(d)]),
+  // Les sources désactivées (enabled === false) ne sont pas branchées.
+  DISCOVERED_EMPLOYERS.filter((d) => d.enabled !== false).map((d) => [d.id, buildDiscoveredScraper(d)]),
 );

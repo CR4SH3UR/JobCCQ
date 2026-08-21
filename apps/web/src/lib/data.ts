@@ -13,6 +13,7 @@ import {
   toHiringCompanies,
   ALL_SOURCES,
   DISCOVERED_EMPLOYERS,
+  DISABLED_SOURCE_IDS,
   type HiringCompany,
   type Job,
   type JobQuery,
@@ -69,6 +70,10 @@ function loadSnapshot(): Promise<Job[]> {
         if (!r.ok) throw new Error(`Instantané introuvable (HTTP ${r.status})`);
         return r.json() as Promise<Job[]>;
       })
+      // On masque les offres des sources désactivées manuellement.
+      .then((jobs) =>
+        DISABLED_SOURCE_IDS.size ? jobs.filter((j) => !DISABLED_SOURCE_IDS.has(j.sourceId)) : jobs,
+      )
       .catch((err) => {
         snapshotCache = null;
         throw err;
@@ -137,7 +142,7 @@ export async function getSources(): Promise<{ sources: SourceWithMeta[] }> {
     const counts = new Map<string, number>();
     for (const j of jobs) counts.set(j.sourceId, (counts.get(j.sourceId) ?? 0) + 1);
     return {
-      sources: ALL_SOURCES.map((s) => ({
+      sources: ALL_SOURCES.filter((s) => s.enabled !== false).map((s) => ({
         ...s,
         hasScraper: SCRAPER_IDS.has(s.id),
         jobCount: counts.get(s.id) ?? 0,

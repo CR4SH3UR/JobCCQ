@@ -28,7 +28,7 @@ async function writeAll(list: Employer[]): Promise<void> {
   await writeFile(DP, JSON.stringify(list, null, 2) + "\n");
 }
 
-const EDITABLE = new Set(["name", "careersUrl", "method", "homepage", "region", "scope", "verified"]);
+const EDITABLE = new Set(["name", "careersUrl", "method", "homepage", "region", "scope", "verified", "enabled"]);
 
 export function registerAdminRoutes(app: FastifyInstance): void {
   // Liste de tous les employeurs découverts (données fraîches du fichier).

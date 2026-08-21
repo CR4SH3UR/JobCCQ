@@ -16,6 +16,7 @@ type Employer = {
   scope?: string;
   sectors?: readonly string[];
   verified?: boolean;
+  enabled?: boolean;
 };
 
 type Mode = "loading" | "api" | "static";
@@ -75,7 +76,7 @@ export function AdminExplorer() {
   const [employers, setEmployers] = useState<Employer[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "unverified" | "verified" | "nojobs">("all");
+  const [filter, setFilter] = useState<"all" | "unverified" | "verified" | "nojobs" | "disabled">("all");
   const [page, setPage] = useState(1);
   const [scrapes, setScrapes] = useState<Record<string, ScrapeState>>({});
   const [publish, setPublish] = useState<{ status: "idle" | "run" | "ok" | "err"; message?: string }>({ status: "idle" });
@@ -262,6 +263,7 @@ export function AdminExplorer() {
       if (filter === "verified" && !e.verified) return false;
       if (filter === "unverified" && e.verified) return false;
       if (filter === "nojobs" && (counts[e.id] ?? 0) > 0) return false;
+      if (filter === "disabled" && e.enabled !== false) return false;
       if (!q) return true;
       return (e.name + " " + e.careersUrl + " " + e.homepage + " " + e.method + " " + (e.region ?? ""))
         .toLowerCase()
@@ -271,6 +273,7 @@ export function AdminExplorer() {
 
   const verifiedCount = employers.filter((e) => e.verified).length;
   const noJobsCount = employers.filter((e) => (counts[e.id] ?? 0) === 0).length;
+  const disabledCount = employers.filter((e) => e.enabled === false).length;
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -376,6 +379,7 @@ export function AdminExplorer() {
               <option value="unverified">À vérifier ({employers.length - verifiedCount})</option>
               <option value="verified">Vérifiés ({verifiedCount})</option>
               <option value="nojobs">Sans offres ({noJobsCount})</option>
+              <option value="disabled">Désactivées ({disabledCount})</option>
             </select>
             {mode === "static" && (
               <button onClick={exportJson} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium hover:bg-slate-100">
@@ -435,8 +439,13 @@ function Row({
 
   const dirty = url !== e.careersUrl || name !== e.name;
 
+  const disabled = e.enabled === false;
   return (
-    <article className={`card p-3 ${e.verified ? "ring-1 ring-green-300" : ""}`}>
+    <article
+      className={`card p-3 ${disabled ? "opacity-60" : ""} ${
+        disabled ? "ring-1 ring-red-300" : e.verified ? "ring-1 ring-green-300" : ""
+      }`}
+    >
       <div className="flex flex-wrap items-center gap-2">
         <label className="flex shrink-0 items-center gap-1.5 text-sm" title="Marquer comme vérifié">
           <input
@@ -492,7 +501,7 @@ function Row({
         >
           Enregistrer
         </button>
-        {scrapeEnabled && (
+        {scrapeEnabled && !disabled && (
           <button
             onClick={() => onScrape(e.id)}
             className="rounded-lg border border-brand-300 px-2.5 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-50"
@@ -500,6 +509,16 @@ function Row({
             {scrape?.status === "run" ? "Scraping…" : "Re-scraper"}
           </button>
         )}
+        <button
+          onClick={() => onPatch(e.id, { enabled: disabled })}
+          className={`rounded-lg border px-2.5 py-1 text-xs font-semibold ${
+            disabled
+              ? "border-green-300 text-green-700 hover:bg-green-50"
+              : "border-red-300 text-red-600 hover:bg-red-50"
+          }`}
+        >
+          {disabled ? "Activer" : "Désactiver"}
+        </button>
       </div>
 
       {scrape && scrape.status !== "run" && (
