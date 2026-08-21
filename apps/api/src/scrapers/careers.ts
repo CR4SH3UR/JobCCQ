@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import type { AnyNode } from "domhandler";
 import type { RawJob } from "@jobccq/shared";
 import type { Scraper, ScrapeContext, ScrapeParams } from "./types.js";
 import { extractJsonLdJobs } from "./jsonld.js";
@@ -115,7 +116,7 @@ function parseWixRepeaters(
 }
 
 const NAV_LABELS =
-  /^(carrières|carrieres|postuler|postuler maintenant|je postule|postule[rz]?|en savoir plus|en savoir \+|voir|voir l'offre|voir l'emploi|voir ce poste|voir le poste|voir plus|voir tout|voir d[ée]tails?|d[ée]tails?( du poste)?|plus de d[ée]tails|consulter|lire( la suite| plus)?|accueil|contact|nous joindre|nous rejoindre|contactez-nous|rejoignez-nous|joindre l'équipe|emplois|emploi|carrière|english|anglais|fran[çc]ais|home|apply|apply now|view|view job|view details|read more|learn more|more|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations|candidature spontan[ée]e|postulez( ici| maintenant)?)$/i;
+  /^(carrières|carrieres|postuler|postuler maintenant|je postule|postule[rz]?|en savoir plus|en savoir \+|voir|voir l'offre|voir l'emploi|voir ce poste|voir le poste|voir les postes?( disponibles?)?|voir les d[ée]tails?( du poste)?|voir plus|voir tout|voir d[ée]tails?|d[ée]tails?( du poste)?|plus de d[ée]tails|consulter|lire( la suite| plus)?|accueil|contact|nous joindre|nous rejoindre|contactez-nous|rejoignez-nous|joindre l'équipe|emplois|emploi|carrière|english|anglais|fran[çc]ais|home|apply|apply now|view|view job|view details|read more|learn more|more|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations|candidature spontan[ée]e|postulez( ici| maintenant)?)$/i;
 
 /**
  * Débuts de phrase « marketing » : une accroche (« Un emploi de plombier à
@@ -148,6 +149,30 @@ function looksLikeJobDetail(urlPath: string, careersPath: string): boolean {
   const last = segs[segs.length - 1] ?? "";
   if (last.length < 3) return false;
   return JOB_DETAIL_SEG.test(urlPath);
+}
+
+/**
+ * Intitulé (h1-h6) le plus proche en **remontant les ancêtres** d'un lien.
+ * Sert à récupérer le vrai titre d'une carte de poste quand le texte du lien
+ * est un libellé générique (« Voir les détails du poste ») et que le slug de
+ * l'URL ne correspond pas à l'intitulé (accents, « en », abréviations). On
+ * s'arrête au premier ancêtre contenant un intitulé (la carte du poste) et on
+ * garde le plus proche du lien.
+ */
+function nearestHeading($: cheerio.CheerioAPI, el: AnyNode): string {
+  let $node = $(el);
+  for (let i = 0; i < 5; i++) {
+    const $p = $node.parent();
+    if (!$p.length || $p.is("body")) break;
+    let picked = "";
+    $p.find("h1,h2,h3,h4,h5,h6").each((_, h) => {
+      const t = cleanText($(h).text());
+      if (t.length >= 3 && t.length <= 120) picked = t; // garde le dernier valide (le plus proche du lien)
+    });
+    if (picked) return picked;
+    $node = $p;
+  }
+  return "";
 }
 
 function parseHtmlCareers(
@@ -218,11 +243,18 @@ function parseHtmlCareers(
     if (heading && (unusable || heading.length < title.length)) {
       title = heading;
     } else if (unusable && isDetail) {
-      const derived = deslugify(lastSeg).replace(
-        /\b(de|du|des|la|le|les|aux?|et|en|sur|pour)\b/gi,
-        (w) => w.toLowerCase(),
-      );
-      if (derived.length >= 4) title = derived;
+      // Repli 1 : l'intitulé le plus proche dans la carte du poste (le slug
+      // d'URL ne correspond pas toujours au titre affiché). Repli 2 : le slug.
+      const near = nearestHeading($, el);
+      if (near && !NAV_LABELS.test(near) && !MARKETING_PREFIX.test(near)) {
+        title = near;
+      } else {
+        const derived = deslugify(lastSeg).replace(
+          /\b(de|du|des|la|le|les|aux?|et|en|sur|pour)\b/gi,
+          (w) => w.toLowerCase(),
+        );
+        if (derived.length >= 4) title = derived;
+      }
     }
     // Certaines listes (widgets Jobillico intégrés) collent le lieu au titre
     // sans séparateur (« …aux comptes recevablesSherbrooke, Qc »). On retire un
@@ -255,13 +287,43 @@ function parseHtmlCareers(
 // (« Google Tag Manager »). Les vrais postes de ces domaines ont un mot de
 // métier (« Technicien en ventilation », « Manœuvre en excavation »).
 const JOB_TITLE_HINT =
-  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|chef\s+de\s+chantier|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|stagiaire|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|coordonnateur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|paveur|briqueteur|ma[çc]on|foreman|dessinateur|tuyauteur|mineur|ferblantier|calorifugeur|monteur|installateur|serrurier|vitrier|peintre|pl[âa]trier|[ée]b[ée]niste|assembleur|directeur|gestionnaire|conseiller|repr[ée]sentant|foreuse|d[ée]bosseleur|carrossier|technician|labou?rer|carpenter|welder|electrician|plumber|operator|apprentice|internship|trainee|installer|mechanic|estimator|supervisor|helper|roofer|superintendent|millwright|ironworker|fitter|painter|surveyor|foreperson/i;
+  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|chef\s+de\s+chantier|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|stagiaire|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|coordonnateur|contr[ôo]leur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|paveur|briqueteur|ma[çc]on|foreman|dessinateur|tuyauteur|mineur|ferblantier|calorifugeur|monteur|installateur|serrurier|vitrier|peintre|pl[âa]trier|[ée]b[ée]niste|assembleur|directeur|gestionnaire|conseiller|repr[ée]sentant|foreuse|d[ée]bosseleur|carrossier|technician|labou?rer|carpenter|welder|electrician|plumber|operator|apprentice|internship|trainee|installer|mechanic|estimator|supervisor|helper|roofer|superintendent|millwright|ironworker|fitter|painter|surveyor|foreperson/i;
 
 /** Suffixe de raison sociale — un « titre » qui finit ainsi est un nom d'entreprise, pas un poste. */
 const COMPANY_SUFFIX = /\b(inc|lt[ée]e|ltd|limit[ée]e|senc|enr|corp)\.?$/i;
 
 const SECTION_LABEL =
   /postes?\s+(?:disponibles|ouverts)|nos emplois|offres? d'emploi|postulez|candidature|pourquoi|avantages/i;
+
+/**
+ * La page déclare-t-elle explicitement **aucun poste ouvert** ? (« Désolé, il
+ * n'y a aucune offre en ce moment », « no current openings »…). Sur ces pages,
+ * le repli « titres » capte à tort les métiers listés en vitrine (« Opérateur
+ * de pelle », « Soudeur »… = les types de postes de l'entreprise, pas des
+ * offres actuelles). On l'utilise pour **désactiver ce repli** — sans toucher
+ * aux vraies fiches liées ni au JSON-LD.
+ */
+function pageDeclaresNoOpenings(html: string): boolean {
+  const text = cheerio.load(html)("body").text().replace(/\s+/g, " ");
+  return (
+    /\baucune?\s+(?:offre|poste|position|opportunit[ée])s?(?:\s+d['’]emploi)?\s+(?:disponible|ouvert|vacant|en ce moment|actuellement|pr[ée]sentement|pour (?:le|l['’]instant|ce) moment|[àa] combler|n['’]est)/i.test(
+      text,
+    ) ||
+    /(?:il n['’]y a|nous n['’]avons|n['’]avons)\s+(?:actuellement\s+|pr[ée]sentement\s+)?(?:aucune?\s+(?:offre|poste|position|emploi)|pas d['’](?:offre|poste|emploi))/i.test(
+      text,
+    ) ||
+    // Vitrine de métiers « à titre indicatif » / « postes qui pourraient être
+    // demandés selon les besoins » : ce sont les types de postes de l'entreprise,
+    // pas des offres ouvertes actuellement.
+    /postes?\s+(?:qui\s+)?(?:pourrai(?:en)?t|peuvent|pourront|seraient)\s+[êe]tre\s+(?:demand|combl|requis|ouvert|pourvu|recherch)/i.test(
+      text,
+    ) ||
+    /\bno\s+(?:current\s+|open\s+)?(?:job\s+)?(?:positions?|openings?|vacancies)\s+(?:available|open|at (?:this|the) (?:time|moment)|currently)/i.test(
+      text,
+    ) ||
+    /there are (?:currently )?no (?:open )?(?:positions|jobs|openings|vacancies)/i.test(text)
+  );
+}
 
 /** Repli « titres » : chaque intitulé qui ressemble à un poste devient une offre. */
 function parseHeadingJobs(html: string, careersUrl: string, id: string, company: string): RawJob[] {
@@ -370,7 +432,11 @@ export function makeCareersScraper(config: CareersScraperConfig): Scraper {
       // ou du slug) vs repli « titres » en #fragment. On préfère les vraies
       // URLs dès qu'elles couvrent au moins autant de postes que les titres.
       const links = parseHtmlCareers(html, baseUrl, config.careersUrl, config.id, config.company);
-      const heads = parseHeadingJobs(html, config.careersUrl, config.id, config.company);
+      // Repli « titres » désactivé si la page déclare n'avoir aucun poste ouvert
+      // (sinon on capte la vitrine des métiers comme de fausses offres).
+      const heads = pageDeclaresNoOpenings(html)
+        ? []
+        : parseHeadingJobs(html, config.careersUrl, config.id, config.company);
       if (links.length > 0 && links.length >= heads.length) return links;
       if (heads.length > 0) return heads;
       return links;
