@@ -6,6 +6,7 @@ import { promisify } from "node:util";
 import type { FastifyInstance } from "fastify";
 import type { DiscoveredEmployer } from "@jobccq/shared";
 import { buildDiscoveredScraper } from "./scrapers/discovered.js";
+import { bespokeScraper } from "./scrapers/registry.js";
 import { runScraperInstance } from "./orchestrator.js";
 
 /**
@@ -68,7 +69,9 @@ export function registerAdminRoutes(app: FastifyInstance): void {
         reply.code(404);
         return { error: "Employeur introuvable" };
       }
-      const scraper = buildDiscoveredScraper(employer);
+      // Scraper sur mesure s'il en existe un (EBC, Pomerleau, Béluga…), sinon on
+      // reconstruit depuis la config éditée (prend en compte une URL modifiée).
+      const scraper = bespokeScraper(employer.id) ?? buildDiscoveredScraper(employer);
       const { report, jobs } = await runScraperInstance(scraper, {
         maxPages: req.body?.maxPages ?? 2,
       });

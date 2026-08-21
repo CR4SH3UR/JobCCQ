@@ -269,7 +269,7 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
   const out = new Map<string, RawJob>();
   const base = careersUrl.replace(/\/+$/, "");
 
-  const add = (title: string) => {
+  const add = (title: string, href?: string) => {
     const t = cleanText(title.replace(/^[-–—•*\s]+/, ""));
     if (t.length < 4 || t.length > 110) return;
     // Les qualificatifs entre parenthèses (« (institutionnel et commercial) »,
@@ -293,7 +293,7 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     )
       return;
     if (/\b(afin|ainsi|selon|lorsque|puisque|notamment|responsable de)\b/i.test(probe)) return;
-    const url = `${base}#${slugify(t)}`;
+    const url = href || `${base}#${slugify(t)}`;
     if (!out.has(url)) out.set(url, { sourceId: id, url, title: t, company, tags: [] });
   };
 
@@ -304,7 +304,7 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     // Certaines pages listent plusieurs postes dans un même intitulé
     // (« - Contremaître - Charpentier - Manœuvre »). On sépare ces énumérations.
     const parts = raw.split(/\s+[-–—•|]\s+/).filter(Boolean);
-    if (parts.length > 1) parts.forEach(add);
+    if (parts.length > 1) parts.forEach((p) => add(p));
     else add(raw);
   });
   // <li> : risqué (puces d'exigences, cartes). On n'accepte qu'un intitulé
@@ -322,13 +322,24 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
       return;
     add(raw);
   });
-  // Accordéons : certains sites listent les postes en <a href="#">Titre</a> (ou
-  // ancre de fragment), le clic révélant la description + un bouton « Postuler ».
-  // Le texte de l'ancre est alors le titre. On ne prend que les ancres « feuille »
-  // (sans titre imbriqué) pour éviter d'avaler une carte entière ; add() filtre.
-  $('a[href="#"], a[href^="#"], a:not([href])').each((_, el) => {
+  // Fiches de poste en lien : accordéon <a href="#">Titre</a> (le clic révèle la
+  // description), ou lien vers un **document** de poste (PDF/Word), fréquent sur
+  // les petites pages carrières (ex. RCL : <a href="…technicien-cableur.pdf">
+  // Technicien câbleur</a>). Le texte de l'ancre est le titre ; on garde l'URL
+  // réelle (le PDF) si elle est exploitable. On exclut menus/pieds de page et
+  // les ancres conteneurs ; add() filtre sur les mots de métier.
+  $(
+    'a[href="#"], a[href^="#"], a:not([href]), a[href$=".pdf"], a[href$=".doc"], a[href$=".docx"], a[href*="/document"], a[href*="/_media"]',
+  ).each((_, el) => {
+    if ($(el).closest("nav,header,footer").length) return; // pas la navigation
     if ($(el).find("h1,h2,h3,h4,h5,li,p").length) return; // conteneur, pas un libellé
-    add(cleanText($(el).text()));
+    const href = ($(el).attr("href") || "").trim();
+    let url: string | undefined;
+    if (href && !href.startsWith("#") && !/^(javascript:|mailto:|tel:)/i.test(href)) {
+      const abs = absolute(href.split("#")[0] ?? "", careersUrl);
+      if (!sameUrl(abs, careersUrl)) url = abs;
+    }
+    add(cleanText($(el).text()), url);
   });
   return [...out.values()];
 }

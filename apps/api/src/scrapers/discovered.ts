@@ -1,4 +1,4 @@
-import { DISCOVERED_EMPLOYERS, type DiscoveredEmployer } from "@jobccq/shared";
+import { type DiscoveredEmployer } from "@jobccq/shared";
 import type { Scraper } from "./types.js";
 import { makeCareersScraper } from "./careers.js";
 import { makeZohoRecruitScraper } from "./zoho-recruit.js";
@@ -61,8 +61,3 @@ export function buildDiscoveredScraper(d: DiscoveredEmployer): Scraper {
   // html / jsonld (et repli) → page carrières générique (JSON-LD → Wix → titres → liens).
   return makeCareersScraper({ id: d.id, company: d.name, careersUrl: d.careersUrl });
 }
-
-export const discoveredScrapers: Record<string, Scraper> = Object.fromEntries(
-  // Les sources désactivées (enabled === false) ne sont pas branchées.
-  DISCOVERED_EMPLOYERS.filter((d) => d.enabled !== false).map((d) => [d.id, buildDiscoveredScraper(d)]),
-);
