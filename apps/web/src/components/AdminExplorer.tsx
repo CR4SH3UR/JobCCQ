@@ -35,11 +35,23 @@ const LS_TURSO_URL = "admin:tursourl";
 const LS_TURSO_TOKEN = "admin:tursotoken";
 const LS_SEARCH = "admin:search";
 const LS_FILTER = "admin:filter";
+const LS_SORT = "admin:sort";
+const LS_METHOD = "admin:method";
 const DISCOVERED_PATH = "packages/shared/src/discovered.json";
 
 /** Filtres du tableau (persistés dans le navigateur → survivent au rafraîchissement). */
-const FILTER_KEYS = ["all", "unverified", "verified", "nojobs", "disabled"] as const;
+const FILTER_KEYS = ["all", "unverified", "verified", "nojobs", "disabled", "duplicates"] as const;
 type FilterKey = (typeof FILTER_KEYS)[number];
+/** Tri du tableau. */
+const SORT_KEYS = ["name", "jobsDesc", "jobsAsc", "method", "region"] as const;
+type SortKey = (typeof SORT_KEYS)[number];
+const SORT_LABELS: Record<SortKey, string> = {
+  name: "Nom (A→Z)",
+  jobsDesc: "Offres (plus→moins)",
+  jobsAsc: "Offres (moins→plus)",
+  method: "Méthode",
+  region: "Région",
+};
 
 /** Lecture directe (hors state React) d'une clé localStorage. */
 function readLS(key: string): string {
@@ -181,6 +193,14 @@ export function AdminExplorer() {
   const [tursoToken, setTursoToken] = useState("");
   const [stale, setStale] = useState(false);
   const [reloading, setReloading] = useState(false);
+  const [sort, setSort] = useState<SortKey>("name");
+  const [methodFilter, setMethodFilter] = useState<"all" | DiscoveredMethod>("all");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [addOpen, setAddOpen] = useState(false);
+  const [form, setForm] = useState<{ id: string; name: string; careersUrl: string; homepage: string; method: DiscoveredMethod; region: string }>(
+    { id: "", name: "", careersUrl: "", homepage: "", method: "html", region: "" },
+  );
+  const [bulkMsg, setBulkMsg] = useState("");
   const latestRef = useRef<Employer[] | null>(null);
 
   useEffect(() => {
@@ -188,10 +208,14 @@ export function AdminExplorer() {
       setGhToken(localStorage.getItem(LS_TOKEN) ?? "");
       setTursoUrl(localStorage.getItem(LS_TURSO_URL) ?? "");
       setTursoToken(localStorage.getItem(LS_TURSO_TOKEN) ?? "");
-      // Restaure les filtres du dernier passage (recherche + sélecteur).
+      // Restaure les filtres du dernier passage (recherche + sélecteurs + tri).
       setSearch(localStorage.getItem(LS_SEARCH) ?? "");
       const f = localStorage.getItem(LS_FILTER);
       if (f && (FILTER_KEYS as readonly string[]).includes(f)) setFilter(f as FilterKey);
+      const srt = localStorage.getItem(LS_SORT);
+      if (srt && (SORT_KEYS as readonly string[]).includes(srt)) setSort(srt as SortKey);
+      const mth = localStorage.getItem(LS_METHOD);
+      if (mth) setMethodFilter(mth as "all" | DiscoveredMethod);
     } catch {
       /* stockage indisponible */
     }
@@ -232,6 +256,22 @@ export function AdminExplorer() {
     setFilter(v);
     try {
       localStorage.setItem(LS_FILTER, v);
+    } catch {
+      /* stockage indisponible */
+    }
+  };
+  const changeSort = (v: SortKey) => {
+    setSort(v);
+    try {
+      localStorage.setItem(LS_SORT, v);
+    } catch {
+      /* stockage indisponible */
+    }
+  };
+  const changeMethodFilter = (v: "all" | DiscoveredMethod) => {
+    setMethodFilter(v);
+    try {
+      localStorage.setItem(LS_METHOD, v);
     } catch {
       /* stockage indisponible */
     }
@@ -648,6 +688,123 @@ export function AdminExplorer() {
     }
   };
 
+  // URLs de carrières utilisées par PLUSIEURS employeurs (doublons, ex. Canam).
+  const dupUrls = useMemo(() => {
+    const seen = new Map<string, number>();
+    for (const e of employers) {
+      const u = e.careersUrl.trim().replace(/\/+$/, "").toLowerCase();
+      if (u) seen.set(u, (seen.get(u) ?? 0) + 1);
+    }
+    return new Set([...seen.entries()].filter(([, n]) => n > 1).map(([u]) => u));
+  }, [employers]);
+  const isDup = (e: Employer) => dupUrls.has(e.careersUrl.trim().replace(/\/+$/, "").toLowerCase());
+
+  // --- Sélection multiple + actions groupées -------------------------------
+  const toggleSelect = (id: string) =>
+    setSelected((s) => {
+      const next = new Set(s);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  const scrapeOne = mode === "api" ? rescrape : ghScrape;
+  const bulkRescrape = async (ids: string[]) => {
+    setBulkMsg(`Re-scraping de ${ids.length} employeur(s) lancé…`);
+    for (const id of ids) await scrapeOne(id);
+  };
+  const bulkSetEnabled = async (ids: string[], enabled: boolean) => {
+    for (const id of ids) await patchEmployer(id, { enabled });
+    setBulkMsg(`${ids.length} employeur(s) ${enabled ? "activé(s)" : "désactivé(s)"}.`);
+  };
+  const bulkPurge = async (ids: string[]) => {
+    const withJobs = ids.filter((id) => (counts[id] ?? 0) > 0);
+    if (!withJobs.length) {
+      setBulkMsg("Aucune offre à vider dans la sélection.");
+      return;
+    }
+    if (!window.confirm(`Vider les offres de ${withJobs.length} employeur(s) sélectionné(s) ?\n\nAction irréversible.`)) return;
+    for (const id of withJobs) {
+      if (mode === "turso") await tursoRows(tursoUrl, tursoToken, "DELETE FROM Job WHERE sourceId=?", [id]).catch(() => {});
+      else await fetch(`${API_URL}/admin/employers/${id}/offers`, { method: "DELETE" }).catch(() => {});
+    }
+    setCounts((c) => {
+      const n = { ...c };
+      for (const id of withJobs) n[id] = 0;
+      return n;
+    });
+    setBulkMsg(`Offres vidées pour ${withJobs.length} employeur(s).`);
+  };
+
+  // --- Ajout / suppression d'un employeur ----------------------------------
+  const addEmployer = async () => {
+    const id = form.id.trim();
+    const name = form.name.trim();
+    const careersUrl = form.careersUrl.trim();
+    if (!id || !name || !careersUrl) {
+      setBulkMsg("id, nom et URL carrières sont requis.");
+      return;
+    }
+    if (employers.some((e) => e.id === id)) {
+      setBulkMsg(`L'id « ${id} » existe déjà.`);
+      return;
+    }
+    let homepage = form.homepage.trim();
+    if (!homepage) {
+      try {
+        homepage = new URL(careersUrl).origin;
+      } catch {
+        homepage = careersUrl;
+      }
+    }
+    const region = form.region.trim();
+    const emp: Employer = { id, name, homepage, careersUrl, method: form.method, sectors: [], enabled: true, ...(region ? { region } : {}) };
+    if (mode === "turso") {
+      const now = new Date().toISOString();
+      const ok = await tursoRows(
+        tursoUrl,
+        tursoToken,
+        "INSERT INTO Employer (id,name,homepage,careersUrl,method,region,sectors,verified,enabled,createdAt,updatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+        [id, name, homepage, careersUrl, form.method, region || null, "[]", 0, 1, now, now],
+      )
+        .then(() => true)
+        .catch(() => false);
+      if (!ok) {
+        setBulkMsg("Échec de l'insertion dans Turso (id en double ?).");
+        return;
+      }
+    } else if (mode === "api") {
+      await fetch(`${API_URL}/admin/employers`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(emp) }).catch(() => {});
+    } else {
+      editsRef.current[id] = emp;
+      saveLS(LS_EDITS, editsRef.current);
+    }
+    setEmployers((list) => [...list, emp].sort((a, b) => a.name.localeCompare(b.name)));
+    setForm({ id: "", name: "", careersUrl: "", homepage: "", method: "html", region: "" });
+    setAddOpen(false);
+    setBulkMsg(`Employeur « ${name} » ajouté.`);
+  };
+
+  const deleteEmployer = async (id: string) => {
+    const name = employers.find((e) => e.id === id)?.name ?? id;
+    const n = counts[id] ?? 0;
+    if (!window.confirm(`Supprimer DÉFINITIVEMENT « ${name} »${n ? ` et ses ${n} offre(s)` : ""} ?\n\nAction irréversible.`)) return;
+    if (mode === "turso") {
+      await tursoRows(tursoUrl, tursoToken, "DELETE FROM Job WHERE sourceId=?", [id]).catch(() => {});
+      await tursoRows(tursoUrl, tursoToken, "DELETE FROM Employer WHERE id=?", [id]).catch(() => {});
+    } else if (mode === "api") {
+      await fetch(`${API_URL}/admin/employers/${id}`, { method: "DELETE" }).catch(() => {});
+    } else {
+      delete editsRef.current[id];
+      saveLS(LS_EDITS, editsRef.current);
+    }
+    setEmployers((list) => list.filter((e) => e.id !== id));
+    setSelected((s) => {
+      const next = new Set(s);
+      next.delete(id);
+      return next;
+    });
+    setBulkMsg(`Employeur « ${name} » supprimé.`);
+  };
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return employers.filter((e) => {
@@ -655,20 +812,58 @@ export function AdminExplorer() {
       if (filter === "unverified" && e.verified) return false;
       if (filter === "nojobs" && (counts[e.id] ?? 0) > 0) return false;
       if (filter === "disabled" && e.enabled !== false) return false;
+      if (filter === "duplicates" && !isDup(e)) return false;
+      if (methodFilter !== "all" && e.method !== methodFilter) return false;
       if (!q) return true;
       return (e.name + " " + e.careersUrl + " " + e.homepage + " " + e.method + " " + (e.region ?? ""))
         .toLowerCase()
         .includes(q);
     });
-  }, [employers, search, filter, counts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [employers, search, filter, methodFilter, counts, dupUrls]);
+
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    const byName = (a: Employer, b: Employer) => a.name.localeCompare(b.name, "fr");
+    if (sort === "jobsDesc") arr.sort((a, b) => (counts[b.id] ?? 0) - (counts[a.id] ?? 0) || byName(a, b));
+    else if (sort === "jobsAsc") arr.sort((a, b) => (counts[a.id] ?? 0) - (counts[b.id] ?? 0) || byName(a, b));
+    else if (sort === "method") arr.sort((a, b) => a.method.localeCompare(b.method) || byName(a, b));
+    else if (sort === "region") arr.sort((a, b) => (a.region ?? "").localeCompare(b.region ?? "") || byName(a, b));
+    else arr.sort(byName);
+    return arr;
+  }, [filtered, sort, counts]);
+
+  const exportCsv = () => {
+    const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const lines = [["id", "nom", "methode", "region", "offres", "verifie", "actif", "url"].join(",")];
+    for (const e of sorted)
+      lines.push(
+        [e.id, e.name, e.method, e.region ?? "", counts[e.id] ?? 0, e.verified ? "oui" : "non", e.enabled === false ? "non" : "oui", e.careersUrl]
+          .map(esc)
+          .join(","),
+      );
+    const blob = new Blob(["﻿" + lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "employeurs.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const verifiedCount = employers.filter((e) => e.verified).length;
   const noJobsCount = employers.filter((e) => (counts[e.id] ?? 0) === 0).length;
   const disabledCount = employers.filter((e) => e.enabled === false).length;
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const dupCount = employers.filter((e) => isDup(e)).length;
+  const totalOffers = employers.reduce((s, e) => s + (counts[e.id] ?? 0), 0);
+  const scrapeEnabled = mode === "api" || !!ghToken;
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const pageItems = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const pageIds = pageItems.map((e) => e.id);
+  const selectedList = [...selected];
+  const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
 
-  useEffect(() => setPage(1), [search, filter]);
+  useEffect(() => setPage(1), [search, filter, methodFilter, sort]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -838,42 +1033,163 @@ export function AdminExplorer() {
             </div>
           )}
 
-          <div className="card mb-4 flex flex-col gap-2 p-3 sm:flex-row sm:items-center">
-            <input
-              value={search}
-              onChange={(e) => changeSearch(e.target.value)}
-              placeholder="Rechercher (nom, URL, méthode, région)…"
-              className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
-            />
-            <select
-              value={filter}
-              onChange={(e) => changeFilter(e.target.value as FilterKey)}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-400"
-            >
-              <option value="all">Tous ({employers.length})</option>
-              <option value="unverified">À vérifier ({employers.length - verifiedCount})</option>
-              <option value="verified">Vérifiés ({verifiedCount})</option>
-              <option value="nojobs">Sans offres ({noJobsCount})</option>
-              <option value="disabled">Désactivées ({disabledCount})</option>
-            </select>
-            <button
-              onClick={reloadData}
-              disabled={reloading}
-              title="Récupérer la dernière version des données"
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium hover:bg-slate-100 disabled:opacity-50"
-            >
-              {reloading ? "Rechargement…" : "🔄 Recharger"}
-            </button>
-            {mode === "static" && (
-              <button onClick={exportJson} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium hover:bg-slate-100">
-                Exporter
+          {/* Tableau de bord : indicateurs clés cliquables (filtre associé). */}
+          <div className="mb-4 grid grid-cols-3 gap-2 sm:grid-cols-6">
+            {[
+              { label: "Employeurs", value: employers.length, f: "all" as FilterKey },
+              { label: "Offres", value: totalOffers, f: null },
+              { label: "Vérifiés", value: verifiedCount, f: "verified" as FilterKey },
+              { label: "Désactivés", value: disabledCount, f: "disabled" as FilterKey },
+              { label: "Sans offres", value: noJobsCount, f: "nojobs" as FilterKey },
+              { label: "Doublons", value: dupCount, f: "duplicates" as FilterKey },
+            ].map((k) => (
+              <button
+                key={k.label}
+                onClick={() => k.f && changeFilter(k.f)}
+                className={`card p-2 text-center transition ${k.f ? "cursor-pointer hover:border-brand-300" : "cursor-default"} ${
+                  k.f && filter === k.f ? "border-brand-400 bg-brand-50" : ""
+                }`}
+              >
+                <div className="text-lg font-bold text-slate-800">{k.value}</div>
+                <div className="text-[11px] uppercase tracking-wide text-slate-500">{k.label}</div>
               </button>
-            )}
+            ))}
           </div>
 
-          <p className="mb-2 text-sm text-slate-500">
-            {filtered.length} résultat{filtered.length > 1 ? "s" : ""} · vérifiés {verifiedCount}/{employers.length}
-          </p>
+          <div className="card mb-4 flex flex-col gap-2 p-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <input
+                value={search}
+                onChange={(e) => changeSearch(e.target.value)}
+                placeholder="Rechercher (nom, URL, méthode, région)…"
+                className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+              />
+              <select
+                value={filter}
+                onChange={(e) => changeFilter(e.target.value as FilterKey)}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-400"
+              >
+                <option value="all">Tous ({employers.length})</option>
+                <option value="unverified">À vérifier ({employers.length - verifiedCount})</option>
+                <option value="verified">Vérifiés ({verifiedCount})</option>
+                <option value="nojobs">Sans offres ({noJobsCount})</option>
+                <option value="disabled">Désactivées ({disabledCount})</option>
+                <option value="duplicates">Doublons ({dupCount})</option>
+              </select>
+              <select
+                value={methodFilter}
+                onChange={(e) => changeMethodFilter(e.target.value as "all" | DiscoveredMethod)}
+                title="Filtrer par méthode de scraping"
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-400"
+              >
+                <option value="all">Toutes méthodes</option>
+                {METHODS.map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+              <select
+                value={sort}
+                onChange={(e) => changeSort(e.target.value as SortKey)}
+                title="Trier"
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-400"
+              >
+                {SORT_KEYS.map((s) => (
+                  <option key={s} value={s}>⇅ {SORT_LABELS[s]}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={reloadData}
+                disabled={reloading}
+                title="Récupérer la dernière version des données"
+                className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:bg-slate-100 disabled:opacity-50"
+              >
+                {reloading ? "Rechargement…" : "🔄 Recharger"}
+              </button>
+              <button onClick={exportCsv} className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:bg-slate-100">
+                ⬇ CSV
+              </button>
+              <button
+                onClick={() => setAddOpen((v) => !v)}
+                className="rounded-lg border border-brand-300 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50"
+              >
+                ➕ Ajouter un employeur
+              </button>
+              {mode === "static" && (
+                <button onClick={exportJson} className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:bg-slate-100">
+                  ⬇ JSON
+                </button>
+              )}
+              {bulkMsg && <span className="text-xs text-slate-500">{bulkMsg}</span>}
+            </div>
+          </div>
+
+          {addOpen && (
+            <div className="card mb-4 p-3 text-sm">
+              <div className="mb-2 font-medium text-slate-700">➕ Nouvel employeur</div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <input placeholder="id (ex. ma-compagnie-com)" value={form.id} onChange={(e) => setForm((f) => ({ ...f, id: e.target.value }))} className="rounded border border-slate-300 px-2 py-1 font-mono text-xs" />
+                <input placeholder="Nom" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className="rounded border border-slate-300 px-2 py-1 text-xs" />
+                <input placeholder="URL carrières (https://…)" value={form.careersUrl} onChange={(e) => setForm((f) => ({ ...f, careersUrl: e.target.value }))} className="rounded border border-slate-300 px-2 py-1 font-mono text-xs sm:col-span-2" />
+                <input placeholder="Site web (optionnel — déduit de l'URL)" value={form.homepage} onChange={(e) => setForm((f) => ({ ...f, homepage: e.target.value }))} className="rounded border border-slate-300 px-2 py-1 font-mono text-xs" />
+                <input placeholder="Région (optionnel)" value={form.region} onChange={(e) => setForm((f) => ({ ...f, region: e.target.value }))} className="rounded border border-slate-300 px-2 py-1 text-xs" />
+                <select value={form.method} onChange={(e) => setForm((f) => ({ ...f, method: e.target.value as DiscoveredMethod }))} className="rounded border border-slate-300 px-2 py-1 text-xs">
+                  {METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+              <div className="mt-2 flex gap-2">
+                <button onClick={addEmployer} className="rounded-lg bg-brand-600 px-3 py-1 text-xs font-semibold text-white">Ajouter</button>
+                <button onClick={() => setAddOpen(false)} className="rounded-lg border border-slate-300 px-3 py-1 text-xs hover:bg-slate-100">Annuler</button>
+              </div>
+            </div>
+          )}
+
+          <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
+            <label className="flex items-center gap-1.5" title="Tout sélectionner sur la page">
+              <input
+                type="checkbox"
+                checked={allPageSelected}
+                onChange={(e) =>
+                  setSelected((s) => {
+                    const n = new Set(s);
+                    pageIds.forEach((id) => (e.target.checked ? n.add(id) : n.delete(id)));
+                    return n;
+                  })
+                }
+                className="h-4 w-4 accent-brand-600"
+              />
+              <span>page</span>
+            </label>
+            <span>
+              {sorted.length} résultat{sorted.length > 1 ? "s" : ""} · vérifiés {verifiedCount}/{employers.length}
+            </span>
+          </div>
+
+          {selected.size > 0 && (
+            <div className="card mb-2 flex flex-wrap items-center gap-2 border-brand-200 bg-brand-50 p-2 text-xs">
+              <span className="font-semibold text-brand-800">{selected.size} sélectionné(s)</span>
+              {scrapeEnabled && (
+                <button onClick={() => bulkRescrape(selectedList)} className="rounded-lg border border-brand-300 bg-white px-2.5 py-1 font-semibold text-brand-700 hover:bg-brand-100">
+                  🔄 Re-scraper
+                </button>
+              )}
+              <button onClick={() => bulkSetEnabled(selectedList, true)} className="rounded-lg border border-green-300 bg-white px-2.5 py-1 font-semibold text-green-700 hover:bg-green-50">
+                ✅ Activer
+              </button>
+              <button onClick={() => bulkSetEnabled(selectedList, false)} className="rounded-lg border border-red-300 bg-white px-2.5 py-1 font-semibold text-red-600 hover:bg-red-50">
+                🚫 Désactiver
+              </button>
+              {(mode === "turso" || mode === "api") && (
+                <button onClick={() => bulkPurge(selectedList)} className="rounded-lg border border-red-300 bg-white px-2.5 py-1 font-semibold text-red-600 hover:bg-red-50">
+                  🗑 Vider les offres
+                </button>
+              )}
+              <button onClick={() => setSelected(new Set())} className="rounded-lg border border-slate-300 bg-white px-2.5 py-1 hover:bg-slate-100">
+                Désélectionner
+              </button>
+            </div>
+          )}
 
           <div className="space-y-2">
             {pageItems.map((e) => (
@@ -882,11 +1198,16 @@ export function AdminExplorer() {
                 e={e}
                 count={counts[e.id] ?? 0}
                 scrape={scrapes[e.id]}
-                scrapeEnabled={mode === "api" || !!ghToken}
+                scrapeEnabled={scrapeEnabled}
                 purgeEnabled={mode === "api" || mode === "turso"}
+                deleteEnabled={mode === "api" || mode === "turso" || mode === "static"}
+                selected={selected.has(e.id)}
+                duplicate={isDup(e)}
+                onToggleSelect={toggleSelect}
                 onPatch={patchEmployer}
-                onScrape={mode === "api" ? rescrape : ghScrape}
+                onScrape={scrapeOne}
                 onPurge={purgeOffers}
+                onDelete={deleteEmployer}
               />
             ))}
           </div>
@@ -909,16 +1230,21 @@ export function AdminExplorer() {
 }
 
 function Row({
-  e, count, scrape, scrapeEnabled, purgeEnabled, onPatch, onScrape, onPurge,
+  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, onToggleSelect, onPatch, onScrape, onPurge, onDelete,
 }: {
   e: Employer;
   count: number;
   scrape?: ScrapeState;
   scrapeEnabled: boolean;
   purgeEnabled: boolean;
+  deleteEnabled: boolean;
+  selected: boolean;
+  duplicate: boolean;
+  onToggleSelect: (id: string) => void;
   onPatch: (id: string, patch: Partial<Employer>) => void;
   onScrape: (id: string) => void;
   onPurge: (id: string) => void;
+  onDelete: (id: string) => void;
 }) {
   const [url, setUrl] = useState(e.careersUrl);
   const [name, setName] = useState(e.name);
@@ -930,10 +1256,17 @@ function Row({
   return (
     <article
       className={`card p-3 ${disabled ? "opacity-60" : ""} ${
-        disabled ? "ring-1 ring-red-300" : e.verified ? "ring-1 ring-green-300" : ""
+        selected ? "ring-2 ring-brand-400" : disabled ? "ring-1 ring-red-300" : e.verified ? "ring-1 ring-green-300" : ""
       }`}
     >
       <div className="flex flex-wrap items-center gap-2">
+        <input
+          type="checkbox"
+          checked={selected}
+          onChange={() => onToggleSelect(e.id)}
+          title="Sélectionner"
+          className="h-4 w-4 shrink-0 accent-brand-600"
+        />
         <label className="flex shrink-0 items-center gap-1.5 text-sm" title="Marquer comme vérifié">
           <input
             type="checkbox"
@@ -969,6 +1302,14 @@ function Row({
           </Link>
         ) : (
           <Badge tone="slate">0 offre</Badge>
+        )}
+        {duplicate && (
+          <span
+            title="Plusieurs employeurs partagent cette même URL de carrières"
+            className="rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-semibold text-amber-700"
+          >
+            ⚠ doublon
+          </span>
         )}
       </div>
 
@@ -1014,6 +1355,15 @@ function Row({
             className="rounded-lg border border-red-300 px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
           >
             🗑 Vider les offres
+          </button>
+        )}
+        {deleteEnabled && (
+          <button
+            onClick={() => onDelete(e.id)}
+            title="Supprimer définitivement cet employeur (fiche + offres)"
+            className="ml-auto rounded-lg border border-red-400 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-50"
+          >
+            Supprimer
           </button>
         )}
       </div>
