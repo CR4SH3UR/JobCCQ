@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DISCOVERED_EMPLOYERS, type DiscoveredMethod } from "@jobccq/shared";
-import { API_URL } from "@/lib/data";
+import { API_URL, getStats } from "@/lib/data";
 import { Badge } from "./Badge";
 
 type Employer = {
@@ -47,8 +47,9 @@ function saveLS(key: string, value: unknown) {
 export function AdminExplorer() {
   const [mode, setMode] = useState<Mode>("loading");
   const [employers, setEmployers] = useState<Employer[]>([]);
+  const [counts, setCounts] = useState<Record<string, number>>({});
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "unverified" | "verified">("all");
+  const [filter, setFilter] = useState<"all" | "unverified" | "verified" | "nojobs">("all");
   const [page, setPage] = useState(1);
   const [scrapes, setScrapes] = useState<Record<string, ScrapeState>>({});
   // Édition locale (mode statique) : superposée aux données du paquet partagé.
@@ -83,6 +84,17 @@ export function AdminExplorer() {
     return () => {
       alive = false;
     };
+  }, []);
+
+  // Nombre d'offres par compagnie (depuis l'instantané, mode statique ou connecté).
+  useEffect(() => {
+    getStats()
+      .then((s) => {
+        const m: Record<string, number> = {};
+        for (const x of s.bySource) m[x.id] = x.count;
+        setCounts(m);
+      })
+      .catch(() => {});
   }, []);
 
   const patchEmployer = async (id: string, patch: Partial<Employer>) => {
@@ -144,14 +156,16 @@ export function AdminExplorer() {
     return employers.filter((e) => {
       if (filter === "verified" && !e.verified) return false;
       if (filter === "unverified" && e.verified) return false;
+      if (filter === "nojobs" && (counts[e.id] ?? 0) > 0) return false;
       if (!q) return true;
       return (e.name + " " + e.careersUrl + " " + e.homepage + " " + e.method + " " + (e.region ?? ""))
         .toLowerCase()
         .includes(q);
     });
-  }, [employers, search, filter]);
+  }, [employers, search, filter, counts]);
 
   const verifiedCount = employers.filter((e) => e.verified).length;
+  const noJobsCount = employers.filter((e) => (counts[e.id] ?? 0) === 0).length;
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -202,6 +216,7 @@ export function AdminExplorer() {
               <option value="all">Tous ({employers.length})</option>
               <option value="unverified">À vérifier ({employers.length - verifiedCount})</option>
               <option value="verified">Vérifiés ({verifiedCount})</option>
+              <option value="nojobs">Sans offres ({noJobsCount})</option>
             </select>
             {mode === "static" && (
               <button onClick={exportJson} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium hover:bg-slate-100">
@@ -220,6 +235,7 @@ export function AdminExplorer() {
                 key={e.id}
                 e={e}
                 mode={mode}
+                count={counts[e.id] ?? 0}
                 scrape={scrapes[e.id]}
                 onPatch={patchEmployer}
                 onRescrape={rescrape}
@@ -245,10 +261,11 @@ export function AdminExplorer() {
 }
 
 function Row({
-  e, mode, scrape, onPatch, onRescrape,
+  e, mode, count, scrape, onPatch, onRescrape,
 }: {
   e: Employer;
   mode: Mode;
+  count: number;
   scrape?: ScrapeState;
   onPatch: (id: string, patch: Partial<Employer>) => void;
   onRescrape: (id: string) => void;
@@ -284,6 +301,9 @@ function Row({
           {METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
         {e.region && <Badge>{e.region}</Badge>}
+        <Badge tone={count > 0 ? "brand" : "slate"}>
+          {count} offre{count > 1 ? "s" : ""}
+        </Badge>
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
