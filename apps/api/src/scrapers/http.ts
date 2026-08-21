@@ -13,6 +13,34 @@ async function throttle(minGapMs = env.SCRAPE_DELAY_MS): Promise<void> {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * Réécrit une URL cible pour passer par le proxy sortant si configuré et si
+ * l'hôte est concerné (SCRAPE_PROXY_HOSTS). Retourne `null` = pas de proxy.
+ * Contourne les blocages par IP (ex. Jobillico → 403 depuis les IP de CI).
+ */
+function proxied(rawUrl: string): string | null {
+  const tmpl = env.SCRAPE_PROXY_URL;
+  if (!tmpl) return null;
+  let host: string;
+  try {
+    host = new URL(rawUrl).hostname;
+  } catch {
+    return null;
+  }
+  const hosts = env.SCRAPE_PROXY_HOSTS.split(",").map((s) => s.trim()).filter(Boolean);
+  if (hosts.length && !hosts.some((h) => host === h || host.endsWith(`.${h}`))) return null;
+  const token = env.SCRAPE_PROXY_TOKEN;
+  if (tmpl.includes("{url}")) {
+    return tmpl
+      .replace(/\{url\}/g, encodeURIComponent(rawUrl))
+      .replace(/\{token\}/g, encodeURIComponent(token));
+  }
+  const u = new URL(tmpl);
+  u.searchParams.set("url", rawUrl);
+  if (token) u.searchParams.set("token", token);
+  return u.toString();
+}
+
 export interface FetchOptions {
   retries?: number;
   timeoutMs?: number;
@@ -28,12 +56,14 @@ export interface FetchOptions {
 export async function fetchHtml(url: string, opts: FetchOptions = {}): Promise<string> {
   const { retries = 2, timeoutMs = 20_000, userAgent = env.USER_AGENT } = opts;
 
+  const target = proxied(url) ?? url;
+
   for (let attempt = 0; attempt <= retries; attempt++) {
     await throttle();
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const res = await fetch(url, {
+      const res = await fetch(target, {
         signal: controller.signal,
         redirect: "follow",
         headers: {
