@@ -195,8 +195,47 @@ export const JOB_SOURCES = [
 
 export type JobSourceId = (typeof JOB_SOURCES)[number]["id"];
 
+// --- Employeurs découverts automatiquement (registre RBQ) ------------------
+
+import discoveredRaw from "./discovered.json";
+
+/** Méthode d'accès détectée pour un employeur découvert. */
+export type DiscoveredMethod = "html" | "jsonld" | "zoho" | "bamboohr" | "avature";
+
+/** Entrée du registre auto-découvert (data-driven ; voir discovered.json). */
+export interface DiscoveredEmployer {
+  readonly id: string;
+  readonly name: string;
+  readonly homepage: string;
+  /** URL de la page carrières (ou du flux/endpoint pour un ATS). */
+  readonly careersUrl: string;
+  readonly method: DiscoveredMethod;
+  /** Région administrative RBQ (indicative). */
+  readonly region?: string;
+  readonly scope?: string;
+}
+
+export const DISCOVERED_EMPLOYERS = discoveredRaw as readonly DiscoveredEmployer[];
+
+const methodToSourceMethod = (m: DiscoveredMethod): SourceMethod =>
+  m === "html" || m === "jsonld" ? "html" : m === "zoho" ? "rss" : "api";
+
+const DISCOVERED_AS_SOURCES: readonly JobSource[] = DISCOVERED_EMPLOYERS.map((d) => ({
+  id: d.id,
+  name: d.name,
+  homepage: d.homepage,
+  region: "QC",
+  scope: d.scope ?? "Employeur — construction (découverte RBQ)",
+  method: methodToSourceMethod(d.method),
+  status: "active",
+  language: "fr",
+}));
+
+/** Toutes les sources : catalogue curé + employeurs auto-découverts. */
+export const ALL_SOURCES: readonly JobSource[] = [...JOB_SOURCES, ...DISCOVERED_AS_SOURCES];
+
 const SOURCE_BY_ID: Record<string, JobSource> = Object.fromEntries(
-  JOB_SOURCES.map((s) => [s.id, s]),
+  ALL_SOURCES.map((s) => [s.id, s]),
 );
 
 export const getSource = (id?: string | null): JobSource | undefined =>
@@ -206,4 +245,4 @@ export const sourceName = (id?: string | null): string =>
   (id && SOURCE_BY_ID[id]?.name) || id || "Source inconnue";
 
 export const activeSources = (): JobSource[] =>
-  JOB_SOURCES.filter((s) => s.status !== "planned");
+  ALL_SOURCES.filter((s) => s.status !== "planned");

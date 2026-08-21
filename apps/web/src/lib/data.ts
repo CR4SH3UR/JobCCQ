@@ -11,7 +11,8 @@
 import {
   applyQuery,
   toHiringCompanies,
-  JOB_SOURCES,
+  ALL_SOURCES,
+  DISCOVERED_EMPLOYERS,
   type HiringCompany,
   type Job,
   type JobQuery,
@@ -38,6 +39,7 @@ const SCRAPER_IDS = new Set([
   "jcdrolet",
   "lefrancois",
   "refrabec",
+  ...DISCOVERED_EMPLOYERS.map((d) => d.id),
 ]);
 
 export type SourceWithMeta = JobSource & { hasScraper: boolean; jobCount: number };
@@ -135,7 +137,7 @@ export async function getSources(): Promise<{ sources: SourceWithMeta[] }> {
     const counts = new Map<string, number>();
     for (const j of jobs) counts.set(j.sourceId, (counts.get(j.sourceId) ?? 0) + 1);
     return {
-      sources: JOB_SOURCES.map((s) => ({
+      sources: ALL_SOURCES.map((s) => ({
         ...s,
         hasScraper: SCRAPER_IDS.has(s.id),
         jobCount: counts.get(s.id) ?? 0,

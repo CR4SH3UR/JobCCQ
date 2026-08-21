@@ -1,0 +1,540 @@
+[
+  {
+    "id": "levertpaysage-com",
+    "name": "9019-0786 Québec inc.",
+    "homepage": "https://levertpaysage.com",
+    "careersUrl": "https://levertpaysage.com/emplois/",
+    "method": "html",
+    "region": "Laurentides",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "desfor-com",
+    "name": "9244-3175 Québec inc.",
+    "homepage": "https://desfor.com",
+    "careersUrl": "https://desfor.com/emplois",
+    "method": "html",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "bruantoconstruction-com",
+    "name": "9342-0032 Québec inc.",
+    "homepage": "https://bruantoconstruction.com",
+    "careersUrl": "https://bruantoconstruction.com/carriere-menuisiers/",
+    "method": "html",
+    "region": "Laurentides",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "comatech-ca",
+    "name": "9368-2045 Québec inc.",
+    "homepage": "https://comatech.ca",
+    "careersUrl": "https://comatech.ca/emploi-arpentage/",
+    "method": "html",
+    "region": "Montréal",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "cayersinistre-net",
+    "name": "9395-0939 Québec inc.",
+    "homepage": "https://www.cayersinistre.net",
+    "careersUrl": "https://www.cayersinistre.net/emplois-carrieres-technicien-apres-sinistre-aide-menuisier/",
+    "method": "html",
+    "region": "Laurentides",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "dionneenergie-ca",
+    "name": "9403-6456 Québec inc.",
+    "homepage": "https://dionneenergie.ca",
+    "careersUrl": "https://dionneenergie.ca/emplois/",
+    "method": "html",
+    "region": "Montérégie",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "aliexcavation-com",
+    "name": "Ali Excavation Inc.",
+    "homepage": "https://www.aliexcavation.com",
+    "careersUrl": "https://www.aliexcavation.com/emplois/",
+    "method": "html",
+    "region": "Montérégie",
+    "scope": "Employeur — excavation / génie civil (découverte RBQ)"
+  },
+  {
+    "id": "alturaimmobilier-ca",
+    "name": "Apex Société Immobilière inc.",
+    "homepage": "https://alturaimmobilier.ca",
+    "careersUrl": "https://alturaimmobilier.ca/carrieres/",
+    "method": "html",
+    "region": "Estrie",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "artefactconstruction-com",
+    "name": "Artefact Construction inc.",
+    "homepage": "https://www.artefactconstruction.com",
+    "careersUrl": "https://www.artefactconstruction.com/carriere",
+    "method": "html",
+    "region": "Montréal",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "blanchettepeinture-ca",
+    "name": "Blanchette Montréal Ouest inc.",
+    "homepage": "https://innovaspray.com",
+    "careersUrl": "https://innovaspray.com/carriere/",
+    "method": "html",
+    "region": "Montérégie",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "boivinconstruction-com",
+    "name": "Boivin Construction inc.",
+    "homepage": "https://groupeboivin.com",
+    "careersUrl": "https://groupeboivin.com/carrieres/",
+    "method": "html",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "capexcavation-com",
+    "name": "Cap Excavation inc.",
+    "homepage": "https://capexcavation.com",
+    "careersUrl": "https://capexcavation.com/carriere/",
+    "method": "html",
+    "region": "Mauricie",
+    "scope": "Employeur — excavation / génie civil (découverte RBQ)"
+  },
+  {
+    "id": "cent9-com",
+    "name": "Cent-9 Construction inc.",
+    "homepage": "https://www.cent9.com",
+    "careersUrl": "https://www.cent9.com/carrieres",
+    "method": "html",
+    "region": "Chaudière-Appalaches",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "champouxelectrique-com",
+    "name": "Champoux électrique inc.",
+    "homepage": "https://www.champouxelectrique.com",
+    "careersUrl": "https://www.champouxelectrique.com/carriere/",
+    "method": "html",
+    "region": "Abitibi-Témiscamingue",
+    "scope": "Employeur — entrepreneur électricien (découverte RBQ)"
+  },
+  {
+    "id": "charex-ca",
+    "name": "Charex inc.",
+    "homepage": "https://charex.ca",
+    "careersUrl": "https://charex.ca/carrieres/",
+    "method": "html",
+    "region": "Laurentides",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "desrivages-ca",
+    "name": "Construction des Rivages inc.",
+    "homepage": "https://www.desrivages.ca",
+    "careersUrl": "https://www.desrivages.ca/carrieres",
+    "method": "html",
+    "region": "Chaudière-Appalaches",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "interlag-com",
+    "name": "Construction Interlag inc.",
+    "homepage": "https://interlag.com",
+    "careersUrl": "https://interlag.com/emplois/",
+    "method": "html",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "constructionlp-ca",
+    "name": "Construction Laforest&Plouffe inc.",
+    "homepage": "https://www.constructionlp.ca",
+    "careersUrl": "https://www.constructionlp.ca/a-propos/#emplois",
+    "method": "html",
+    "region": "Montérégie",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "thermicanique-ca",
+    "name": "Construction Thermicanique inc.",
+    "homepage": "https://thermicanique.ca",
+    "careersUrl": "https://thermicanique.ca/carriere/",
+    "method": "html",
+    "region": "Saguenay--Lac-Saint-Jean",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "jcelite-ca",
+    "name": "Constructions J.C. Élite inc.",
+    "homepage": "https://jcelite.ca",
+    "careersUrl": "https://jcelite.ca/carrieres/",
+    "method": "html",
+    "region": "Montérégie",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "constructionsrivard-com",
+    "name": "Constructions Rivard inc.",
+    "homepage": "https://www.constructionsrivard.com",
+    "careersUrl": "https://www.constructionsrivard.com/carriere",
+    "method": "html",
+    "region": "Abitibi-Témiscamingue",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "talbon-ca",
+    "name": "Constructions Talbon inc.",
+    "homepage": "https://talbon.ca",
+    "careersUrl": "https://talbon.ca/carriere/",
+    "method": "html",
+    "region": "Abitibi-Témiscamingue",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "courlem-com",
+    "name": "Courlem électrique inc.",
+    "homepage": "https://www.courlem.com",
+    "careersUrl": "https://www.courlem.com/emplois-electriciens/",
+    "method": "html",
+    "region": "Centre-du-Québec",
+    "scope": "Employeur — entrepreneur électricien (découverte RBQ)"
+  },
+  {
+    "id": "dmarpenteurs-ca",
+    "name": "Denincourt Migué, Arpenteurs-Géomètres inc.",
+    "homepage": "https://denicourtmigue.ca",
+    "careersUrl": "https://denicourtmigue.ca/fr/carrieres/",
+    "method": "html",
+    "region": "Montérégie",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "ecoclim-ca",
+    "name": "Écoclim inc.",
+    "homepage": "https://www.ecoclim.ca",
+    "careersUrl": "https://www.ecoclim.ca/carriere",
+    "method": "html",
+    "region": "Laval",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "enairco-com",
+    "name": "Énairco inc.",
+    "homepage": "https://enairco.com",
+    "careersUrl": "https://enairco.com/carriere/",
+    "method": "html",
+    "region": "Laurentides",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "enfouibec-com",
+    "name": "Enfoui-Bec inc.",
+    "homepage": "https://www.enfouibec.com",
+    "careersUrl": "https://www.enfouibec.com/carriere/",
+    "method": "html",
+    "region": "Centre-du-Québec",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "enviroconfort-com",
+    "name": "Enviro Confort inc.",
+    "homepage": "https://enviroconfort.com",
+    "careersUrl": "https://enviroconfort.com/carriere/",
+    "method": "html",
+    "region": "Chaudière-Appalaches",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "excavationjeromien-com",
+    "name": "Excavation Jérômien inc.",
+    "homepage": "https://excavationjeromien.com",
+    "careersUrl": "https://excavationjeromien.com/carrieres/",
+    "method": "html",
+    "region": "Laurentides",
+    "scope": "Employeur — excavation / génie civil (découverte RBQ)"
+  },
+  {
+    "id": "excavationsgal-com",
+    "name": "Excavations G.A.L. Inc.",
+    "homepage": "https://www.excavationsgal.com",
+    "careersUrl": "https://www.excavationsgal.com/carrieres/",
+    "method": "html",
+    "region": "Estrie",
+    "scope": "Employeur — excavation / génie civil (découverte RBQ)"
+  },
+  {
+    "id": "fenetresmagistral-com",
+    "name": "Fenêtres Magistral Windows inc.",
+    "homepage": "https://www.fenetresmagistral.com",
+    "careersUrl": "https://fenetresmagistral.zohorecruit.com/jobs/Careers",
+    "method": "zoho",
+    "region": "Laurentides",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "flmservice-com",
+    "name": "FLM Pro-Mécanique inc.",
+    "homepage": "https://flmservice.com",
+    "careersUrl": "https://flmservice.com/carriere/",
+    "method": "html",
+    "region": "Montérégie",
+    "scope": "Employeur — mécanique du bâtiment (découverte RBQ)"
+  },
+  {
+    "id": "gescoconstruction-com",
+    "name": "Gesco Construction inc.",
+    "homepage": "https://gescoconstruction.com",
+    "careersUrl": "https://gescoconstruction.com/carrieres/",
+    "method": "html",
+    "region": "Lanaudière",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "grandmont-ca",
+    "name": "Grandmont & Fils Ltée",
+    "homepage": "https://grandmont.ca",
+    "careersUrl": "https://grandmont.ca/carrieres/",
+    "method": "html",
+    "region": "Centre-du-Québec",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "groupeleriverain-com",
+    "name": "Groupe LeRiverain inc.",
+    "homepage": "https://www.gus.ca",
+    "careersUrl": "https://gus.zohorecruit.com/jobs/Careers",
+    "method": "zoho",
+    "region": "Mauricie",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "cmac-thyssen-com",
+    "name": "Groupe Minier CMAC-Thyssen inc.",
+    "homepage": "https://www.cmac-thyssen.com",
+    "careersUrl": "https://www.cmac-thyssen.com/carrieres/",
+    "method": "html",
+    "region": "Abitibi-Témiscamingue",
+    "scope": "Employeur — construction minière (découverte RBQ)"
+  },
+  {
+    "id": "groupenoel-com",
+    "name": "Groupe Noël Montréal inc.",
+    "homepage": "https://groupenoel.com",
+    "careersUrl": "https://groupenoel.com/emplois/",
+    "method": "html",
+    "region": "Laval",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "stim-ca",
+    "name": "Groupe PMI inc.",
+    "homepage": "https://www.groupepmi.ca",
+    "careersUrl": "https://www.groupepmi.ca/carriere/",
+    "method": "html",
+    "region": "Estrie",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "gsf-canada-com",
+    "name": "GSF Canada inc.",
+    "homepage": "https://www.gsf-canada.com",
+    "careersUrl": "https://gsf-canada.zohorecruit.com/jobs/Careers",
+    "method": "zoho",
+    "region": "Laval",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "hlventilation-com",
+    "name": "HL Ventilation inc",
+    "homepage": "https://hlventilation.com",
+    "careersUrl": "https://hlventilation.com/emplois",
+    "method": "html",
+    "region": "Chaudière-Appalaches",
+    "scope": "Employeur — mécanique du bâtiment (découverte RBQ)"
+  },
+  {
+    "id": "indigoconstruction-ca",
+    "name": "Indigo Construction inc.",
+    "homepage": "https://www.indigoconstruction.ca",
+    "careersUrl": "https://www.indigoconstruction.ca/carriere",
+    "method": "html",
+    "region": "Montréal",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "ccdc-qc-ca",
+    "name": "La compagnie de construction et de développement Crie ltée",
+    "homepage": "https://ccdc.qc.ca",
+    "careersUrl": "https://ccdc.qc.ca/carrieres",
+    "method": "html",
+    "region": "Nord-du-Québec",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "lab7construction-com",
+    "name": "Lab7 construction inc.",
+    "homepage": "https://lab7construction.cshq.ca",
+    "careersUrl": "https://lab7construction.cshq.ca/carrieres/",
+    "method": "html",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "armoirestardif-com",
+    "name": "Les Armoires Tardif inc.",
+    "homepage": "https://www.armoirestardif.com",
+    "careersUrl": "https://www.armoirestardif.com/carrieres/",
+    "method": "html",
+    "region": "Chaudière-Appalaches",
+    "scope": "Employeur — menuiserie / ébénisterie (découverte RBQ)"
+  },
+  {
+    "id": "sema-ca",
+    "name": "Les Ateliers Ferroviaires de Mont-Joli Inc.",
+    "homepage": "https://sema.ca",
+    "careersUrl": "https://sema.ca/careers",
+    "method": "html",
+    "region": "Bas-Saint-Laurent",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "lalondebelisle-com",
+    "name": "Les Constructions Lalonde & Bélisle inc.",
+    "homepage": "https://lalondebelisle.com",
+    "careersUrl": "https://lalondebelisle.com/carriere/",
+    "method": "html",
+    "region": "Montérégie",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "servicesroy-com",
+    "name": "Les Services Ménagers Roy Ltée",
+    "homepage": "https://servicesroy.com",
+    "careersUrl": "https://servicesroy-royp.zohorecruit.com/jobs/Careers",
+    "method": "zoho",
+    "region": "Montréal",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "groupeava-com",
+    "name": "Les spécialistes AVA inc.",
+    "homepage": "https://groupeava.com",
+    "careersUrl": "https://groupeava.com/emplois/",
+    "method": "html",
+    "region": "Montérégie",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "logis-experts-com",
+    "name": "Logis-Experts inc.",
+    "homepage": "https://logis-experts.com",
+    "careersUrl": "https://logis-experts.com/emplois",
+    "method": "html",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "econonord-com",
+    "name": "Madame Maison Inc.",
+    "homepage": "https://www.econonord.com",
+    "careersUrl": "https://www.econonord.com/entreprise/carriere/",
+    "method": "html",
+    "region": "Laurentides",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "scaffolding-ca",
+    "name": "Northstar Access Corporation",
+    "homepage": "https://scaffolding.ca",
+    "careersUrl": "https://scaffolding.bamboohr.com",
+    "method": "bamboohr",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "plomberiemeunier-ca",
+    "name": "Plomberie Meunier inc.",
+    "homepage": "https://plomberiemeunier.ca",
+    "careersUrl": "https://plomberiemeunier.ca/carrieres/",
+    "method": "html",
+    "region": "Estrie",
+    "scope": "Employeur — mécanique du bâtiment (découverte RBQ)"
+  },
+  {
+    "id": "constructionpraxis-ca",
+    "name": "Praxis Construction inc.",
+    "homepage": "https://constructionpraxis.ca",
+    "careersUrl": "https://constructionpraxis.ca/fr/carrieres",
+    "method": "html",
+    "region": "Montréal",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "pecoffrage-com",
+    "name": "Pro-Expert Armature inc.",
+    "homepage": "https://www.pecoffrage.com",
+    "careersUrl": "https://www.pecoffrage.com/carrieres",
+    "method": "html",
+    "region": "Lanaudière",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "progima-com",
+    "name": "Progima Construction inc.",
+    "homepage": "https://progima.com",
+    "careersUrl": "https://progima.com/carrieres/",
+    "method": "html",
+    "region": "Montréal",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "ramcorconstruction-ca",
+    "name": "Ramcor Construction inc.",
+    "homepage": "https://ramcorconstruction.ca",
+    "careersUrl": "https://ramcorconstruction.ca/carrieres/",
+    "method": "html",
+    "region": "Montréal",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "srconstruction-ca",
+    "name": "S.R. Construction Inc.",
+    "homepage": "https://www.srconstruction.ca",
+    "careersUrl": "https://www.srconstruction.ca/carrieres",
+    "method": "html",
+    "region": "Lanaudière",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "signel-ca",
+    "name": "Signel Services inc.",
+    "homepage": "https://www.signel.ca",
+    "careersUrl": "https://www.signel.ca/carrieres/",
+    "method": "html",
+    "region": "Montérégie",
+    "scope": "Employeur — construction (découverte RBQ)"
+  },
+  {
+    "id": "toituregarneau-com",
+    "name": "Toiture Garneau inc.",
+    "homepage": "https://toituregarneau.com",
+    "careersUrl": "https://toituregarneau.com/carrieres",
+    "method": "html",
+    "region": "Chaudière-Appalaches",
+    "scope": "Employeur — toiture / couverture (découverte RBQ)"
+  },
+  {
+    "id": "toituresbenoitdubois-com",
+    "name": "Toitures Benoit Dubois inc.",
+    "homepage": "https://www.toituresbenoitdubois.com",
+    "careersUrl": "https://www.toituresbenoitdubois.com/carrieres/",
+    "method": "html",
+    "region": "Lanaudière",
+    "scope": "Employeur — toiture / couverture (découverte RBQ)"
+  }
+]
