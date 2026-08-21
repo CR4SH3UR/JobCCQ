@@ -215,7 +215,18 @@ export type JobSourceId = (typeof JOB_SOURCES)[number]["id"];
 import discoveredRaw from "./discovered.json";
 
 /** Méthode d'accès détectée pour un employeur découvert. */
-export type DiscoveredMethod = "html" | "jsonld" | "zoho" | "bamboohr" | "avature";
+export type DiscoveredMethod =
+  | "html"
+  | "jsonld"
+  | "zoho"
+  | "bamboohr"
+  | "avature"
+  | "greenhouse"
+  | "lever"
+  | "recruitee"
+  | "smartrecruiters"
+  | "teamtailor"
+  | "jobillico";
 
 /** Entrée du registre auto-découvert (data-driven ; voir discovered.json). */
 export interface DiscoveredEmployer {
@@ -235,7 +246,11 @@ export interface DiscoveredEmployer {
 export const DISCOVERED_EMPLOYERS = discoveredRaw as readonly DiscoveredEmployer[];
 
 const methodToSourceMethod = (m: DiscoveredMethod): SourceMethod =>
-  m === "html" || m === "jsonld" ? "html" : m === "zoho" ? "rss" : "api";
+  m === "html" || m === "jsonld" || m === "jobillico"
+    ? "html"
+    : m === "zoho"
+      ? "rss"
+      : "api";
 
 const DISCOVERED_AS_SOURCES: readonly JobSource[] = DISCOVERED_EMPLOYERS.map((d) => ({
   id: d.id,
