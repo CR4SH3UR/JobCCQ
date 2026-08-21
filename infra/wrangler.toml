@@ -1,0 +1,19 @@
+# Config Wrangler pour déployer le proxy JobCCQ (Cloudflare Worker).
+#
+#   cd infra
+#   npx wrangler login
+#   npx wrangler secret put PROXY_TOKEN      # colle ton jeton (garde-le)
+#   npx wrangler deploy
+#
+# Après le deploy, Wrangler affiche l'URL publique (https://jobccq-proxy.<compte>.workers.dev)
+# à mettre dans le secret GitHub SCRAPE_PROXY_URL (et le même jeton dans SCRAPE_PROXY_TOKEN).
+
+name = "jobccq-proxy"
+main = "jobillico-proxy-worker.js"
+compatibility_date = "2025-01-01"
+
+# Hôtes autorisés par le proxy (anti relais ouvert). Modifiable sans toucher au code.
+[vars]
+ALLOW_HOSTS = "jobillico.com"
+
+# Le jeton PROXY_TOKEN n'est PAS ici (c'est un secret) : `wrangler secret put PROXY_TOKEN`.

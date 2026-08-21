@@ -17,15 +17,35 @@ n'est pas bloquée. Le plus simple et **gratuit** : un **Cloudflare Worker**.
 
 ### 1. Déployer le Worker
 
-1. Crée un compte gratuit sur <https://dash.cloudflare.com> → **Workers & Pages**
-   → **Create** → **Create Worker**. Donne-lui un nom (ex. `jobccq-proxy`) et
-   **Deploy**.
-2. Clique **Edit code**, remplace tout par le contenu de
-   [`infra/jobillico-proxy-worker.js`](./jobillico-proxy-worker.js), puis
-   **Deploy**.
-3. Note l'URL publique du Worker (ex. `https://jobccq-proxy.<compte>.workers.dev`).
+> ⚠️ **N'utilise pas le glisser-déposer de fichiers** du tableau de bord : il
+> refuse un `.js` seul (« _This uploader does not yet support projects that
+> require a build process… use `wrangler deploy`_ »). Prends **A1 (wrangler)** —
+> c'est ce que Cloudflare recommande — ou **A2 (éditeur en ligne)**.
 
-### 2. Configurer le jeton (secret du Worker)
+#### A1. Avec Wrangler (recommandé)
+
+Tout est déjà prêt dans `infra/` (`wrangler.toml` + le Worker). Depuis le dépôt :
+
+```bash
+cd infra
+npx wrangler login                    # ouvre le navigateur, autorise
+npx wrangler secret put PROXY_TOKEN   # colle un jeton aléatoire, garde-le
+npx wrangler deploy
+```
+
+Génère le jeton avec `openssl rand -hex 24`. À la fin, Wrangler affiche l'URL
+publique (`https://jobccq-proxy.<compte>.workers.dev`) — note-la. **Passe à
+l'étape 3** (le jeton est déjà configuré).
+
+#### A2. Sans Wrangler (éditeur en ligne)
+
+1. <https://dash.cloudflare.com> → **Workers & Pages** → **Create** →
+   **Create Worker** (modèle « Hello World ») → **Deploy**.
+2. Ouvre **Edit code**, remplace **tout** par le contenu de
+   [`infra/jobillico-proxy-worker.js`](./jobillico-proxy-worker.js) → **Deploy**.
+3. Note l'URL du Worker, puis fais l'étape 2 ci-dessous (jeton).
+
+### 2. Configurer le jeton (seulement pour A2)
 
 Dans le Worker → **Settings** → **Variables and Secrets** :
 
