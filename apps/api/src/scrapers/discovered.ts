@@ -63,5 +63,6 @@ export function buildDiscoveredScraper(d: DiscoveredEmployer): Scraper {
 }
 
 export const discoveredScrapers: Record<string, Scraper> = Object.fromEntries(
-  DISCOVERED_EMPLOYERS.map((d) => [d.id, buildDiscoveredScraper(d)]),
+  // Les sources désactivées (enabled === false) ne sont pas branchées.
+  DISCOVERED_EMPLOYERS.filter((d) => d.enabled !== false).map((d) => [d.id, buildDiscoveredScraper(d)]),
 );
