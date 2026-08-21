@@ -22,6 +22,8 @@ type Employer = {
 
 type Mode = "loading" | "api" | "static" | "turso";
 type ScrapeState = { status: "run" | "ok" | "err"; found?: number; error?: string; sample?: { title: string; city?: string }[] };
+/** Dernière exécution de scraping connue pour un employeur (table ScrapeRun). */
+type LastRun = { status: string; at: number | null; found: number; error?: string };
 
 const METHODS: DiscoveredMethod[] = [
   "html", "jsonld", "zoho", "bamboohr", "greenhouse", "lever",
@@ -40,10 +42,10 @@ const LS_METHOD = "admin:method";
 const DISCOVERED_PATH = "packages/shared/src/discovered.json";
 
 /** Filtres du tableau (persistés dans le navigateur → survivent au rafraîchissement). */
-const FILTER_KEYS = ["all", "unverified", "verified", "nojobs", "disabled", "duplicates"] as const;
+const FILTER_KEYS = ["all", "unverified", "verified", "nojobs", "disabled", "duplicates", "errors"] as const;
 type FilterKey = (typeof FILTER_KEYS)[number];
 /** Tri du tableau. */
-const SORT_KEYS = ["name", "jobsDesc", "jobsAsc", "method", "region"] as const;
+const SORT_KEYS = ["name", "jobsDesc", "jobsAsc", "method", "region", "lastRun"] as const;
 type SortKey = (typeof SORT_KEYS)[number];
 const SORT_LABELS: Record<SortKey, string> = {
   name: "Nom (A→Z)",
@@ -51,6 +53,7 @@ const SORT_LABELS: Record<SortKey, string> = {
   jobsAsc: "Offres (moins→plus)",
   method: "Méthode",
   region: "Région",
+  lastRun: "Dernier scrape",
 };
 
 /** Lecture directe (hors state React) d'une clé localStorage. */
@@ -89,6 +92,34 @@ async function tursoCounts(url: string, token: string): Promise<Record<string, n
   const m: Record<string, number> = {};
   for (const r of rows) m[String(r.sourceId)] = Number(r.n);
   return m;
+}
+
+/** Interprète une date SQLite (chaîne ISO OU nombre en s/ms) en ms epoch. */
+function whenMs(v: unknown): number | null {
+  if (v == null) return null;
+  if (typeof v === "number") return v > 1e12 ? v : v * 1000;
+  const s = String(v).trim();
+  if (!s) return null;
+  if (/^\d+$/.test(s)) {
+    const n = Number(s);
+    return n > 1e12 ? n : n * 1000;
+  }
+  const t = Date.parse(s);
+  return Number.isNaN(t) ? null : t;
+}
+
+/** Temps relatif court en français : « il y a 2 h », « il y a 3 j »… */
+function relTime(ms: number | null): string {
+  if (ms == null) return "";
+  const diff = Date.now() - ms;
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "à l'instant";
+  if (min < 60) return `il y a ${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `il y a ${h} h`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `il y a ${d} j`;
+  return `il y a ${Math.floor(d / 30)} mois`;
 }
 
 /** Ligne SQL Employer → objet Employer de l'UI. */
@@ -201,6 +232,7 @@ export function AdminExplorer() {
     { id: "", name: "", careersUrl: "", homepage: "", method: "html", region: "" },
   );
   const [bulkMsg, setBulkMsg] = useState("");
+  const [lastRuns, setLastRuns] = useState<Record<string, LastRun>>({});
   const latestRef = useRef<Employer[] | null>(null);
 
   useEffect(() => {
@@ -357,10 +389,38 @@ export function AdminExplorer() {
     }
   };
 
-  // (Re)charge les compteurs dès que le mode est connu (Turso → base ; sinon
-  // instantané). Rejoué si le mode change (ex. bascule statique → Turso).
+  // Dernier scrape connu par employeur (mode Turso). Une seule requête : SQLite
+  // renvoie les colonnes de la ligne au MAX(id) → l'exécution la plus récente
+  // par source (statut, date, nb trouvé, erreur éventuelle).
+  const refreshLastRuns = async () => {
+    const tUrl = tursoUrl || readLS(LS_TURSO_URL);
+    const tTok = tursoToken || readLS(LS_TURSO_TOKEN);
+    if (mode !== "turso" || !tUrl || !tTok) return;
+    const rows = await tursoRows(
+      tUrl,
+      tTok,
+      "SELECT sourceId, status, found, error, finishedAt, startedAt, MAX(id) AS id FROM ScrapeRun GROUP BY sourceId",
+    ).catch(() => null);
+    if (!rows) return;
+    const m: Record<string, LastRun> = {};
+    for (const r of rows) {
+      m[String(r.sourceId)] = {
+        status: String(r.status ?? ""),
+        at: whenMs(r.finishedAt ?? r.startedAt),
+        found: Number(r.found ?? 0),
+        error: r.error ? String(r.error) : undefined,
+      };
+    }
+    setLastRuns(m);
+  };
+
+  // (Re)charge les compteurs + le dernier scrape dès que le mode est connu
+  // (Turso → base ; sinon instantané). Rejoué si le mode change.
   useEffect(() => {
-    if (mode !== "loading") refreshCounts();
+    if (mode !== "loading") {
+      refreshCounts();
+      refreshLastRuns();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
@@ -392,6 +452,7 @@ export function AdminExplorer() {
         }
       }
       await refreshCounts();
+      await refreshLastRuns();
       latestRef.current = null;
       setStale(false);
     } finally {
@@ -563,6 +624,15 @@ export function AdminExplorer() {
             );
             const n = cnt ? Number(cnt[0]?.n ?? 0) : Number(r.found ?? 0);
             setCounts((c) => ({ ...c, [id]: n }));
+            setLastRuns((prev) => ({
+              ...prev,
+              [id]: {
+                status: String(r.status ?? ""),
+                at: Date.now(),
+                found: Number(r.found ?? 0),
+                error: r.status === "error" ? String(r.error ?? "") : undefined,
+              },
+            }));
             setScrapes((s) => ({
               ...s,
               [id]:
@@ -813,6 +883,7 @@ export function AdminExplorer() {
       if (filter === "nojobs" && (counts[e.id] ?? 0) > 0) return false;
       if (filter === "disabled" && e.enabled !== false) return false;
       if (filter === "duplicates" && !isDup(e)) return false;
+      if (filter === "errors" && lastRuns[e.id]?.status !== "error") return false;
       if (methodFilter !== "all" && e.method !== methodFilter) return false;
       if (!q) return true;
       return (e.name + " " + e.careersUrl + " " + e.homepage + " " + e.method + " " + (e.region ?? ""))
@@ -820,7 +891,7 @@ export function AdminExplorer() {
         .includes(q);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [employers, search, filter, methodFilter, counts, dupUrls]);
+  }, [employers, search, filter, methodFilter, counts, dupUrls, lastRuns]);
 
   const sorted = useMemo(() => {
     const arr = [...filtered];
@@ -829,9 +900,10 @@ export function AdminExplorer() {
     else if (sort === "jobsAsc") arr.sort((a, b) => (counts[a.id] ?? 0) - (counts[b.id] ?? 0) || byName(a, b));
     else if (sort === "method") arr.sort((a, b) => a.method.localeCompare(b.method) || byName(a, b));
     else if (sort === "region") arr.sort((a, b) => (a.region ?? "").localeCompare(b.region ?? "") || byName(a, b));
+    else if (sort === "lastRun") arr.sort((a, b) => (lastRuns[b.id]?.at ?? 0) - (lastRuns[a.id]?.at ?? 0) || byName(a, b));
     else arr.sort(byName);
     return arr;
-  }, [filtered, sort, counts]);
+  }, [filtered, sort, counts, lastRuns]);
 
   const exportCsv = () => {
     const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
@@ -855,6 +927,7 @@ export function AdminExplorer() {
   const noJobsCount = employers.filter((e) => (counts[e.id] ?? 0) === 0).length;
   const disabledCount = employers.filter((e) => e.enabled === false).length;
   const dupCount = employers.filter((e) => isDup(e)).length;
+  const errorCount = employers.filter((e) => lastRuns[e.id]?.status === "error").length;
   const totalOffers = employers.reduce((s, e) => s + (counts[e.id] ?? 0), 0);
   const scrapeEnabled = mode === "api" || !!ghToken;
   const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
@@ -1034,7 +1107,7 @@ export function AdminExplorer() {
           )}
 
           {/* Tableau de bord : indicateurs clés cliquables (filtre associé). */}
-          <div className="mb-4 grid grid-cols-3 gap-2 sm:grid-cols-6">
+          <div className="mb-4 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-7">
             {[
               { label: "Employeurs", value: employers.length, f: "all" as FilterKey },
               { label: "Offres", value: totalOffers, f: null },
@@ -1042,6 +1115,7 @@ export function AdminExplorer() {
               { label: "Désactivés", value: disabledCount, f: "disabled" as FilterKey },
               { label: "Sans offres", value: noJobsCount, f: "nojobs" as FilterKey },
               { label: "Doublons", value: dupCount, f: "duplicates" as FilterKey },
+              { label: "En erreur", value: errorCount, f: "errors" as FilterKey },
             ].map((k) => (
               <button
                 key={k.label}
@@ -1075,6 +1149,7 @@ export function AdminExplorer() {
                 <option value="nojobs">Sans offres ({noJobsCount})</option>
                 <option value="disabled">Désactivées ({disabledCount})</option>
                 <option value="duplicates">Doublons ({dupCount})</option>
+                <option value="errors">En erreur ({errorCount})</option>
               </select>
               <select
                 value={methodFilter}
@@ -1203,6 +1278,7 @@ export function AdminExplorer() {
                 deleteEnabled={mode === "api" || mode === "turso" || mode === "static"}
                 selected={selected.has(e.id)}
                 duplicate={isDup(e)}
+                lastRun={lastRuns[e.id]}
                 onToggleSelect={toggleSelect}
                 onPatch={patchEmployer}
                 onScrape={scrapeOne}
@@ -1230,7 +1306,7 @@ export function AdminExplorer() {
 }
 
 function Row({
-  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, onToggleSelect, onPatch, onScrape, onPurge, onDelete,
+  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, onToggleSelect, onPatch, onScrape, onPurge, onDelete,
 }: {
   e: Employer;
   count: number;
@@ -1240,6 +1316,7 @@ function Row({
   deleteEnabled: boolean;
   selected: boolean;
   duplicate: boolean;
+  lastRun?: LastRun;
   onToggleSelect: (id: string) => void;
   onPatch: (id: string, patch: Partial<Employer>) => void;
   onScrape: (id: string) => void;
@@ -1311,6 +1388,32 @@ function Row({
             ⚠ doublon
           </span>
         )}
+        <span
+          title={
+            lastRun
+              ? lastRun.error
+                ? `Dernier scrape en erreur : ${lastRun.error}`
+                : `Dernier scrape ${relTime(lastRun.at)} — ${lastRun.found} trouvée(s)`
+              : "Jamais scrapé (ou base sans historique)"
+          }
+          className={`ml-auto shrink-0 text-[11px] ${
+            !lastRun
+              ? "text-slate-300"
+              : lastRun.status === "error"
+                ? "text-red-600"
+                : lastRun.status === "running"
+                  ? "text-amber-600"
+                  : "text-slate-400"
+          }`}
+        >
+          {!lastRun
+            ? "◦ jamais"
+            : lastRun.status === "error"
+              ? `❌ ${relTime(lastRun.at)}`
+              : lastRun.status === "running"
+                ? "⏳ en cours"
+                : `✅ ${relTime(lastRun.at)}`}
+        </span>
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
