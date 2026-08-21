@@ -69,6 +69,16 @@ async function tursoRows(
   return res.rows as unknown as Record<string, unknown>[];
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Compte d'offres par source, lu EN DIRECT dans Turso (une requête groupée). */
+async function tursoCounts(url: string, token: string): Promise<Record<string, number>> {
+  const rows = await tursoRows(url, token, "SELECT sourceId, COUNT(*) AS n FROM Job GROUP BY sourceId");
+  const m: Record<string, number> = {};
+  for (const r of rows) m[String(r.sourceId)] = Number(r.n);
+  return m;
+}
+
 /** Ligne SQL Employer → objet Employer de l'UI. */
 function rowToEmployer(r: Record<string, unknown>): Employer {
   let sectors: string[] = [];
@@ -288,16 +298,31 @@ export function AdminExplorer() {
     };
   }, []);
 
-  // Nombre d'offres par compagnie (depuis l'instantané, mode statique ou connecté).
+  // Compteurs d'offres par source. En mode Turso on les lit EN DIRECT dans la
+  // base ; sinon ils viennent de l'instantané statique jobs.json (figé jusqu'au
+  // redéploiement — d'où un badge périmé après un re-scrape en mode Turso).
+  const refreshCounts = async () => {
+    const tUrl = tursoUrl || readLS(LS_TURSO_URL);
+    const tTok = tursoToken || readLS(LS_TURSO_TOKEN);
+    if (mode === "turso" && tUrl && tTok) {
+      const m = await tursoCounts(tUrl, tTok).catch(() => null);
+      if (m) setCounts(m);
+      return;
+    }
+    const s = await getStats().catch(() => null);
+    if (s) {
+      const m: Record<string, number> = {};
+      for (const x of s.bySource) m[x.id] = x.count;
+      setCounts(m);
+    }
+  };
+
+  // (Re)charge les compteurs dès que le mode est connu (Turso → base ; sinon
+  // instantané). Rejoué si le mode change (ex. bascule statique → Turso).
   useEffect(() => {
-    getStats()
-      .then((s) => {
-        const m: Record<string, number> = {};
-        for (const x of s.bySource) m[x.id] = x.count;
-        setCounts(m);
-      })
-      .catch(() => {});
-  }, []);
+    if (mode !== "loading") refreshCounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
 
   const reloadData = async () => {
     setReloading(true);
@@ -326,12 +351,7 @@ export function AdminExplorer() {
           );
         }
       }
-      const s = await getStats().catch(() => null);
-      if (s) {
-        const m: Record<string, number> = {};
-        for (const x of s.bySource) m[x.id] = x.count;
-        setCounts(m);
-      }
+      await refreshCounts();
       latestRef.current = null;
       setStale(false);
     } finally {
@@ -396,6 +416,8 @@ export function AdminExplorer() {
       const d = await r.json();
       if (d.report?.status === "success") {
         setScrapes((s) => ({ ...s, [id]: { status: "ok", found: d.report.found, sample: d.sample } }));
+        // Le scrape a écrit en base : on rafraîchit le compteur sans recharger.
+        refreshCounts();
       } else {
         setScrapes((s) => ({ ...s, [id]: { status: "err", error: d.report?.error ?? "échec" } }));
       }
@@ -455,6 +477,30 @@ export function AdminExplorer() {
     URL.revokeObjectURL(url);
   };
 
+  // Après un scrape lancé sur GitHub Actions (mode Turso), interroge la base
+  // toutes les ~6 s pour refléter le nouveau compte d'offres SANS recharger la
+  // page. S'arrête dès que le compte change (scrape terminé), ou après ~2,5 min.
+  const pollAfterScrape = async (sourceId: string) => {
+    const tUrl = tursoUrl || readLS(LS_TURSO_URL);
+    const tTok = tursoToken || readLS(LS_TURSO_TOKEN);
+    if (!tUrl || !tTok) return;
+    const before = counts[sourceId] ?? 0;
+    const deadline = Date.now() + 150_000;
+    while (Date.now() < deadline) {
+      await sleep(6000);
+      const rows = await tursoRows(tUrl, tTok, "SELECT COUNT(*) AS n FROM Job WHERE sourceId=?", [sourceId]).catch(
+        () => null,
+      );
+      if (!rows) continue;
+      const n = Number(rows[0]?.n ?? 0);
+      setCounts((c) => (c[sourceId] === n ? c : { ...c, [sourceId]: n }));
+      if (n !== before) {
+        setScrapes((s) => ({ ...s, [sourceId]: { status: "ok", found: n, error: "updated" } }));
+        return;
+      }
+    }
+  };
+
   // --- Mode statique : agir sur GitHub via le jeton personnel du navigateur ---
   const ghScrape = async (sourceId: string) => {
     const { owner, repo } = ghRepo();
@@ -466,6 +512,8 @@ export function AdminExplorer() {
       );
       if (r.status === 204) {
         setScrapes((s) => ({ ...s, [sourceId]: { status: "ok", error: "launched" } }));
+        // Mode Turso : suit la base et rafraîchit le compteur automatiquement.
+        if (mode === "turso") pollAfterScrape(sourceId);
       } else {
         const d = await r.json().catch(() => ({}));
         setScrapes((s) => ({ ...s, [sourceId]: { status: "err", error: d.message ?? `HTTP ${r.status}` } }));
@@ -925,7 +973,11 @@ function Row({
       {scrape && scrape.status !== "run" && (
         <div className="mt-2 text-xs">
           {scrape.status === "ok" && scrape.error === "launched" ? (
-            <span className="text-green-700">🚀 Scraping lancé sur GitHub — voir l'onglet « Actions » (résultat en ligne dans ~1 min).</span>
+            <span className="text-green-700">🚀 Scraping lancé sur GitHub — le compteur se mettra à jour tout seul dans ~1 min (sans recharger).</span>
+          ) : scrape.status === "ok" && scrape.error === "updated" ? (
+            <span className="text-green-700">
+              ✅ Compteur à jour : {scrape.found} offre{(scrape.found ?? 0) > 1 ? "s" : ""} (base rafraîchie, sans recharger).
+            </span>
           ) : scrape.status === "ok" ? (
             <div className={scrape.found ? "text-green-700" : "text-amber-700"}>
               {scrape.found} poste{(scrape.found ?? 0) > 1 ? "s" : ""} trouvé{(scrape.found ?? 0) > 1 ? "s" : ""}
