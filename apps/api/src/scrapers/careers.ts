@@ -115,7 +115,7 @@ function parseWixRepeaters(
 }
 
 const NAV_LABELS =
-  /^(carrières|carrieres|postuler|en savoir plus|voir|voir l'offre|accueil|contact|nous joindre|emplois|carrière)$/i;
+  /^(carrières|carrieres|postuler|en savoir plus|voir|voir l'offre|voir tout|accueil|contact|nous joindre|contactez-nous|emplois|emploi|carrière|english|anglais|fran[çc]ais|home|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations)$/i;
 
 function parseHtmlCareers(
   html: string,
