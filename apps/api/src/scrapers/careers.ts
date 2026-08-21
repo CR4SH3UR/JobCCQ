@@ -116,14 +116,14 @@ function parseWixRepeaters(
 }
 
 const NAV_LABELS =
-  /^(carrières|carrieres|postuler|postuler maintenant|je postule|postule[rz]?|en savoir plus|en savoir \+|voir|voir l'offre|voir l'emploi|voir ce poste|voir le poste|voir les postes?( disponibles?)?|voir les d[ée]tails?( du poste)?|voir plus|voir tout|voir d[ée]tails?|d[ée]tails?( du poste)?|plus de d[ée]tails|consulter|lire( la suite| plus)?|accueil|contact|nous joindre|nous rejoindre|contactez-nous|rejoignez-nous|joindre l'équipe|emplois|emploi|carrière|english|anglais|fran[çc]ais|home|apply|apply now|view|view job|view details|read more|learn more|more|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations|candidature spontan[ée]e|postulez( ici| maintenant)?)$/i;
+  /^(carrières|carrieres|postuler|postuler maintenant|je postule|postule[rz]?|en savoir plus|en savoir \+|voir|voir l'offre|voir l'emploi|voir ce poste|voir le poste|voir les postes?( disponibles?)?|voir (tous|toutes) les (postes?|emplois?|offres?)( disponibles?)?|voir les offres?( d'emploi)?|voir les d[ée]tails?( du poste)?|voir plus|voir tout|voir d[ée]tails?|d[ée]tails?( du poste)?|plus de d[ée]tails|consulter|lire( la suite| plus)?|accueil|contact|nous joindre|nous rejoindre|contactez-nous|rejoignez-nous|joindre l'équipe|emplois|emploi|carrière|english|anglais|fran[çc]ais|home|apply|apply now|view|view job|view details|read more|learn more|more|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations|candidature spontan[ée]e|postulez( ici| maintenant)?)$/i;
 
 /**
  * Débuts de phrase « marketing » : une accroche (« Un emploi de plombier à
  * échelle humaine », « Pourquoi nous rejoindre ») n'est pas un titre de poste.
  */
 const MARKETING_PREFIX =
-  /^(un |une |notre |nos |nous |pourquoi|rejoign|joins|deviens|devenez|faites|envie|pr[êe]t|viens|es-tu|as-tu|ton |ta |tes |vos |votre |travaille[rz]|construis|b[âa]tis|joignez|candidature spontan[ée]e?)/i;
+  /^(un |une |notre |nos |nous |pourquoi|rejoign|joins|deviens|devenez|faites|envie|pr[êe]t|viens|es-tu|as-tu|ton |ta |tes |vos |votre |travaille[rz]|construis|b[âa]tis|joignez|d[ée]couvr(ir|e|ez|ons)|candidature spontan[ée]e?)/i;
 
 /** Pathname d'une URL, ou "" si invalide. */
 function safePath(u: string): string {
@@ -287,7 +287,7 @@ function parseHtmlCareers(
 // (« Google Tag Manager »). Les vrais postes de ces domaines ont un mot de
 // métier (« Technicien en ventilation », « Manœuvre en excavation »).
 const JOB_TITLE_HINT =
-  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|chef\s+de\s+chantier|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|stagiaire|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|coordonnateur|contr[ôo]leur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|paveur|briqueteur|ma[çc]on|foreman|dessinateur|tuyauteur|mineur|ferblantier|calorifugeur|monteur|installateur|serrurier|vitrier|peintre|pl[âa]trier|[ée]b[ée]niste|assembleur|directeur|gestionnaire|conseiller|repr[ée]sentant|foreuse|d[ée]bosseleur|carrossier|technician|labou?rer|carpenter|welder|electrician|plumber|operator|apprentice|internship|trainee|installer|mechanic|estimator|supervisor|helper|roofer|superintendent|millwright|ironworker|fitter|painter|surveyor|foreperson/i;
+  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|chef\s+de\s+chantier|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|stagiaire|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|surintendant|coordonnateur|contr[ôo]leur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|paveur|briqueteur|ma[çc]on|foreman|dessinateur|designer|cuisiniste|tuyauteur|mineur|ferblantier|calorifugeur|monteur|installateur|serrurier|vitrier|peintre|pl[âa]trier|[ée]b[ée]niste|assembleur|directeur|gestionnaire|conseiller|repr[ée]sentant|foreuse|d[ée]bosseleur|carrossier|technician|labou?rer|carpenter|welder|electrician|plumber|operator|apprentice|internship|trainee|installer|mechanic|estimator|supervisor|helper|roofer|superintendent|millwright|ironworker|fitter|painter|surveyor|foreperson/i;
 
 /** Suffixe de raison sociale — un « titre » qui finit ainsi est un nom d'entreprise, pas un poste. */
 const COMPANY_SUFFIX = /\b(inc|lt[ée]e|ltd|limit[ée]e|senc|enr|corp)\.?$/i;
@@ -334,6 +334,14 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
   const add = (title: string, href?: string) => {
     const t = cleanText(title.replace(/^[-–—•*\s]+/, ""));
     if (t.length < 4 || t.length > 110) return;
+    // Trombinoscope d'équipe : « Prénom Nom | Fonction » (membre de l'équipe)
+    // n'est pas une offre, même si la fonction ressemble à un poste. Gère les
+    // prénoms composés (« Marie-Claude Dubé | … »).
+    if (/^[A-ZÀ-Ÿ][A-Za-zÀ-ÿ.'’-]+\s+[A-ZÀ-Ÿ][A-Za-zÀ-ÿ.'’-]+\s*\|/.test(t)) return;
+    // Étiquette de champ dans une fiche (« Métier : Cuisiniste », « Type :
+    // Temps plein », « Horaire : … ») : ce n'est pas un intitulé de poste.
+    if (/^(m[ée]tier|type|horaire|statut|salaire|lieu|d[ée]partement|cat[ée]gorie|secteur|division)\s*:/i.test(t))
+      return;
     // Les qualificatifs entre parenthèses (« (institutionnel et commercial) »,
     // « (jour/soir) », « (H/F) ») ne doivent pas fausser les filtres (« et »,
     // longueur…) : on teste sur une version sans parenthèses, mais on conserve
@@ -349,7 +357,7 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     // contient un connecteur, et dépasse souvent 8 mots.
     if (probe.split(/\s+/).length > 8) return;
     if (
-      /^(installer|superviser|assurer|effectuer|g[ée]rer|r[ée]aliser|participer|coordonner|planifier|ex[ée]cuter|contr[ôo]ler|veiller|maintenir|pr[ée]parer|d[ée]velopper|concevoir|proc[ée]der|collaborer|respecter|appliquer|utiliser|lire|obtenir|poss[ée]der|d[ée]tenir|avoir|[êe]tre|travailler|prendre|soutien|exp[ée]rience)\b/i.test(
+      /^(installer|superviser|assurer|effectuer|g[ée]rer|r[ée]aliser|participer|coordonner|planifier|ex[ée]cuter|contr[ôo]ler|veiller|maintenir|pr[ée]parer|d[ée]velopper|concevoir|proc[ée]der|collaborer|respecter|appliquer|utiliser|lire|obtenir|poss[ée]der|d[ée]tenir|avoir|[êe]tre|travailler|prendre|soutien|exp[ée]rience|accueillir|accompagner)\b/i.test(
         probe,
       )
     )
@@ -380,7 +388,7 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     if (/\b(in|or|and|with|the|of|de la|du)\b/i.test(raw)) return; // exigences EN / phrase
     // Puces d'exigences (« Valid driver's license », « Permis de conduire »,
     // « Minimum 3 années d'expérience ») : ce ne sont pas des postes.
-    if (/licen[cs]e|permis|valid|minimum|exp[ée]rience|ann[ée]es?|ability|must|required|driving|driver|assurance|avantages?|b[ée]n[ée]fices?|atout/i.test(raw))
+    if (/licen[cs]e|permis|valid|minimum|exp[ée]rience|ann[ée]es?|ability|must|required|driving|driver|assurance|avantages?|b[ée]n[ée]fices?|atout|connaissances?|ma[îi]trise|comp[ée]tences?|aptitudes?|habilet[ée]s?/i.test(raw))
       return;
     add(raw);
   });
