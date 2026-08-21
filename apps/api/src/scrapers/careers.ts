@@ -458,10 +458,21 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
   // <li> : risqué (puces d'exigences, cartes). On n'accepte qu'un intitulé
   // court et propre (peu de mots, sans chiffres ni marqueurs de phrase FR/EN).
   $("li").each((_, el) => {
-    if ($(el).find("li").length) return; // conteneur, pas une feuille
-    const raw = cleanText($(el).text());
+    const full = cleanText($(el).text());
+    // Titre = texte DIRECT de la puce (avant un bloc de description <p>/<div>/
+    // sous-liste) ; sinon le texte complet (titre + description) est trop long.
+    // Ex. AXCO : « Mécanicien de machinerie lourde : <ul><li>Effectuer…</li></ul> ».
+    const lead = cleanText($(el).clone().children().remove().end().text()).replace(/\s*:\s*$/, "");
+    const nested = $(el).find("li").length > 0;
+    // Puce conteneur (sous-liste) SANS texte propre = structure de menu → on
+    // saute ; avec texte propre = le titre est ce texte (la sous-liste = ses tâches).
+    if (nested && lead.length < 4) return;
+    const raw = lead.length >= 4 && (nested || lead.length < full.length) ? lead : full;
     if (raw.length < 4 || raw.length > 48) return;
-    if (/\d/.test(raw)) return; // dates / quantités (cartes)
+    // Chiffres de date / quantité / prix (cartes), mais on garde « Chauffeur
+    // classe 1 », « Opérateur type 2 » (un simple chiffre de niveau).
+    if (/\b(19|20)\d\d\b|\d+\s*(ans|ann[ée]es|heures?|jours?|semaines?|km|\$|%|,\d)|\d{3,}/i.test(raw))
+      return;
     if (raw.split(/\s+/).length > 6) return;
     if (/\b(in|or|and|with|the|of|de la|du)\b/i.test(raw)) return; // exigences EN / phrase
     // Puces d'exigences (« Valid driver's license », « Permis de conduire »,
