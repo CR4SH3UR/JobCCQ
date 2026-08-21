@@ -1,17 +1,5 @@
 [
   {
-    "id": "outabec-com",
-    "name": "10023914 Canada inc.",
-    "homepage": "https://outabec.com",
-    "careersUrl": "https://outabec.com/emplois",
-    "method": "html",
-    "region": "Outaouais",
-    "scope": "Employeur — construction (découverte RBQ)",
-    "sectors": [
-      "Commercial et institutionnel"
-    ]
-  },
-  {
     "id": "groupegts-ca",
     "name": "10087548 Canada inc.",
     "homepage": "https://gauvreauterredesurface.com",
@@ -7577,6 +7565,18 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Résidentiel",
+      "Commercial et institutionnel"
+    ]
+  },
+  {
+    "id": "outabec-com",
+    "name": "Outabec",
+    "homepage": "https://outabec.com",
+    "careersUrl": "https://outabec.com/emplois",
+    "method": "html",
+    "region": "Outaouais",
+    "scope": "Employeur — construction (découverte RBQ)",
+    "sectors": [
       "Commercial et institutionnel"
     ]
   },
