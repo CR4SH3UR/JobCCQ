@@ -74,7 +74,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "ar-construction-ca",
@@ -87,7 +88,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "arv-inc-ca",
@@ -99,7 +101,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "abmecaniquebatiment-ca",
