@@ -49,7 +49,7 @@ export function rowToJob(row: PrismaJob): Job {
 }
 
 /** Prépare les champs d'écriture d'une offre (dates + JSON sérialisés). */
-function jobToRow(job: Job) {
+export function jobToRow(job: Job) {
   return {
     id: job.id,
     sourceId: job.sourceId,
