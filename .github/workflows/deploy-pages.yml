@@ -25,20 +25,34 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      # Si Turso est configuré (secrets présents), le site se construit à partir
+      # de la base ; sinon, à partir des fichiers versionnés. Voir infra/README-turso.md.
+      TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+      TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Installer les dépendances
         run: npm ci
 
-      # Un instantané réel est versionné dans le dépôt ; on ne le régénère
-      # (depuis les données de démo) que s'il est absent, pour ne pas écraser
-      # les vraies offres publiées.
+      # Turso = source de vérité : on régénère discovered.json + jobs.json depuis
+      # la base avant le build (éphémère en CI, non committé). Le site reste
+      # statique et aucun jeton n'est exposé au navigateur.
+      - name: Rafraîchir les données depuis Turso (si configuré)
+        if: env.TURSO_DATABASE_URL != ''
+        run: |
+          npm run prisma:generate -w @jobccq/api
+          npm run export:employers -w @jobccq/api
+          npm run export:static -w @jobccq/api -- --from-db
+
+      # Sans Turso : un instantané réel est versionné ; on ne le régénère (depuis
+      # les données de démo) que s'il est absent, pour ne pas écraser les offres.
       - name: Générer l'instantané des offres (jobs.json) si absent
         run: test -f apps/web/public/data/jobs.json || npm run export:static -w @jobccq/api
 
