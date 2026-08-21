@@ -130,6 +130,15 @@ export function registerAdminRoutes(app: FastifyInstance): void {
     },
   );
 
+  // Supprime TOUTES les offres d'un employeur (remise à zéro). Sert à repartir
+  // proprement quand un employeur était mal configuré et a accumulé de fausses
+  // offres que le garde-fou anti-purge protège (ex. Balvent). Après ça, un
+  // re-scrape avec la bonne config repart de 0.
+  app.delete<{ Params: { id: string } }>("/admin/employers/:id/offers", async (req) => {
+    const del = await prisma.job.deleteMany({ where: { sourceId: req.params.id } });
+    return { removed: del.count };
+  });
+
   // Publie discovered.json : git add + commit + push → redéploiement du site.
   // (Endpoint local : utilise les identifiants git de la machine.)
   app.post<{ Body: { message?: string } }>("/admin/publish", async (_req, reply) => {
