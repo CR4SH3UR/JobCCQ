@@ -30,9 +30,13 @@ export const env = {
    * Jobillico + quelques sites qui répondent 200 mais servent une page vide/de
    * défi aux IP de centre de données de CI (le repli automatique sur échec ne
    * les rattrape pas, la requête directe « réussissant » avec 0 offre). Les
-   * blocages francs (connexion refusée/coupée) sont, eux, rattrapés
-   * automatiquement par le repli proxy de http.ts, sans être listés ici.
+   * blocages francs (connexion refusée/coupée / 403) sont, eux, rattrapés
+   * automatiquement par le repli proxy de http.ts même sans être listés ici —
+   * mais on peut tout de même en épingler un (ex. `ardecconstruction.com`, qui
+   * renvoie 403 aux IP de CI) pour éviter la tentative directe qui échoue
+   * d'abord et pollue les journaux, et fetcher directement via le proxy.
    */
   SCRAPE_PROXY_HOSTS:
-    process.env.SCRAPE_PROXY_HOSTS ?? "jobillico.com,desfor.com,alarme-bois-francs.com",
+    process.env.SCRAPE_PROXY_HOSTS ??
+    "jobillico.com,desfor.com,alarme-bois-francs.com,ardecconstruction.com",
 };
