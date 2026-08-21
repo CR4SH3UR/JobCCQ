@@ -22,6 +22,10 @@ on:
         description: "Pages max par site"
         required: false
         default: "2"
+      force:
+        description: "Remplacement forcé (ignore l'anti-purge) : id(s) à écraser, ou 'true' pour la source ciblée. Ex. balvent-com. Vide = jamais. À utiliser pour un employeur mal configuré."
+        required: false
+        default: ""
   schedule:
     # Tous les lundis à 08:00 UTC (~3–4 h du matin, heure du Québec).
     - cron: "0 8 * * 1"
@@ -89,13 +93,14 @@ jobs:
         env:
           SID: ${{ github.event.inputs.sourceId }}
           MP: ${{ github.event.inputs.maxPages || '2' }}
+          FORCE: ${{ github.event.inputs.force }}
         run: |
           if [ -n "$SID" ]; then
-            echo "Scraping ciblé : $SID (maxPages=$MP)"
-            SCRAPE_IDS="$SID" SCRAPE_MAX_PAGES="$MP" npm run scrape -w @jobccq/api
+            echo "Scraping ciblé : $SID (maxPages=$MP, force='$FORCE')"
+            SCRAPE_IDS="$SID" SCRAPE_MAX_PAGES="$MP" SCRAPE_FORCE="$FORCE" npm run scrape -w @jobccq/api
           else
-            echo "Scraping de toutes les sources (maxPages=$MP)"
-            SCRAPE_MAX_PAGES="$MP" npm run scrape -w @jobccq/api
+            echo "Scraping de toutes les sources (maxPages=$MP, force='$FORCE')"
+            SCRAPE_MAX_PAGES="$MP" SCRAPE_FORCE="$FORCE" npm run scrape -w @jobccq/api
           fi
 
       # Avec Turso : RIEN à committer. La base est déjà à jour (écriture temps

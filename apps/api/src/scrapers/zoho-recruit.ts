@@ -17,6 +17,12 @@ export interface ZohoRecruitConfig {
   company: string;
   /** URL de la page carrières, ex. https://x.zohorecruit.com/jobs/Careers */
   careersUrl: string;
+  /**
+   * Ne conserver que les postes dont l'intitulé correspond (ex. `/\(GLR\)/i`).
+   * Sert quand plusieurs entités **partagent un même portail Zoho** (ex. GLR
+   * utilise celui d'EBC) : on ne garde que les postes étiquetés pour l'entité.
+   */
+  titleFilter?: RegExp;
 }
 
 /** Normalise l'URL d'une offre (encodage des accents, sans paramètres de suivi). */
@@ -40,6 +46,7 @@ export function parseZohoRss(xml: string, id: string, company: string): RawJob[]
     const title = cleanText($it.find("title").first().text());
     const url = cleanUrl($it.find("link").first().text());
     if (!title || !url) return;
+    if (/candidature spontan|spontaneous application|application spontan/i.test(title)) return;
 
     const rawDesc = $it.find("description").first().text();
     const location = cleanText(
@@ -102,6 +109,9 @@ export function parseZohoCareersJson(
     const title = cleanText(String(r.Posting_Title ?? ""));
     const jobId = cleanText(String(r.id ?? ""));
     if (!title || !jobId) continue;
+    // « Candidature spontanée » = entrée « postulez même sans poste ouvert »,
+    // pas une vraie offre. Fréquent sur les portails Zoho.
+    if (/candidature spontan|spontaneous application|application spontan/i.test(title)) continue;
 
     const location =
       [r.City, r.State].map((v) => cleanText(String(v ?? ""))).filter(Boolean).join(", ") ||
@@ -128,20 +138,22 @@ export function parseZohoCareersJson(
 export function makeZohoRecruitScraper(config: ZohoRecruitConfig): Scraper {
   const base = config.careersUrl.replace(/\/+$/, "");
   const rssUrl = `${base}/rss`;
+  const keep = (jobs: RawJob[]): RawJob[] =>
+    config.titleFilter ? jobs.filter((j) => config.titleFilter!.test(j.title)) : jobs;
   return {
     id: config.id,
     parseList(html: string): RawJob[] {
       // RSS (XML) si c'est un flux, sinon JSON embarqué de la page carrières.
       if (html.trimStart().startsWith("<?xml") || html.includes("<item>")) {
-        return parseZohoRss(html, config.id, config.company);
+        return keep(parseZohoRss(html, config.id, config.company));
       }
-      return parseZohoCareersJson(html, config.id, config.company, config.careersUrl);
+      return keep(parseZohoCareersJson(html, config.id, config.company, config.careersUrl));
     },
     async scrape(_params: ScrapeParams, ctx: ScrapeContext): Promise<RawJob[]> {
       // 1) Flux RSS (le plus propre).
       try {
         const xml = await ctx.fetchHtml(rssUrl);
-        const rss = parseZohoRss(xml, config.id, config.company);
+        const rss = keep(parseZohoRss(xml, config.id, config.company));
         if (rss.length > 0) {
           ctx.log(`${config.id} — ${rss.length} poste(s) via RSS`);
           return rss;
@@ -153,7 +165,7 @@ export function makeZohoRecruitScraper(config: ZohoRecruitConfig): Scraper {
       // 2) JSON embarqué de la page carrières.
       try {
         const html = await ctx.fetchHtml(config.careersUrl);
-        const jobs = parseZohoCareersJson(html, config.id, config.company, config.careersUrl);
+        const jobs = keep(parseZohoCareersJson(html, config.id, config.company, config.careersUrl));
         ctx.log(`${config.id} — ${jobs.length} poste(s) via JSON embarqué`);
         return jobs;
       } catch (err) {

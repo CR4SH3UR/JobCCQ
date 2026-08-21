@@ -23,14 +23,27 @@ async function main() {
     maxPages: Number(process.env.SCRAPE_MAX_PAGES ?? 3),
   };
 
+  // SCRAPE_FORCE="id1,id2" (ou "1"/"all"/"true" = toutes les sources ciblées) :
+  // outrepasse le garde-fou anti-purge pour ces sources. Sert au remplacement
+  // PROPRE d'un employeur mal configuré (ex. Balvent : 36 fausses offres d'une
+  // page de recherche Jobillico → 2 vrais postes de la bonne URL). À n'utiliser
+  // que sciemment, sur une source dont on VEUT écraser l'ancien contenu.
+  const forceRaw = process.env.SCRAPE_FORCE?.trim() ?? "";
+  const forceAll = ["1", "all", "true", "*"].includes(forceRaw.toLowerCase());
+  const forceIds = forceAll
+    ? new Set(ids)
+    : new Set(forceRaw.split(",").map((s) => s.trim()).filter(Boolean));
+
   console.log(`▶ Scraping des sources : ${ids.join(", ")}`);
-  console.log(`   Paramètres : ${JSON.stringify(params)}\n`);
+  console.log(`   Paramètres : ${JSON.stringify(params)}`);
+  if (forceIds.size) console.log(`   ⚠️  Remplacement forcé (anti-purge ignoré) : ${[...forceIds].join(", ")}`);
+  console.log();
 
   // « sync » : retire les postes comblés, mais ne détruit jamais sur un scrape
   // vide/échoué (ex. Jobillico renvoie 403 depuis les IP de CI). Combiné à
   // l'import de l'instantané en amont (workflow), un site bloqué garde ses
   // offres au lieu d'être vidé.
-  const reports = await runScrapers(ids, params, "sync");
+  const reports = await runScrapers(ids, params, "sync", forceIds);
 
   console.log("\n=== Résumé ===");
   for (const r of reports) {

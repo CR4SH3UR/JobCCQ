@@ -34,6 +34,7 @@ export async function runScraperInstance(
   scraper: Scraper,
   params: ScrapeParams = {},
   persist: PersistMode = "upsert",
+  force = false,
 ): Promise<{ report: RunReport; jobs: Job[] }> {
   const sourceId = scraper.id;
   const run = await prisma.scrapeRun.create({ data: { sourceId } });
@@ -67,6 +68,7 @@ export async function runScraperInstance(
         ? await syncSourceJobs(sourceId, jobs, {
             reachableEmpty: reachableEmpty && jobs.length === 0,
             explicitEmpty: explicitEmpty && jobs.length === 0,
+            force,
           })
         : await upsertJobs(jobs);
     await prisma.scrapeRun.update({
@@ -94,23 +96,29 @@ export async function runScraper(
   sourceId: string,
   params: ScrapeParams = {},
   persist: PersistMode = "upsert",
+  force = false,
 ): Promise<RunReport> {
   const scraper = getScraper(sourceId);
   if (!scraper) {
     return { sourceId, found: 0, inserted: 0, updated: 0, status: "error", error: "Scraper introuvable" };
   }
-  return (await runScraperInstance(scraper, params, persist)).report;
+  return (await runScraperInstance(scraper, params, persist, force)).report;
 }
 
-/** Exécute plusieurs scrapers en séquence (poli envers les sources). */
+/**
+ * Exécute plusieurs scrapers en séquence (poli envers les sources). `forceIds`
+ * = sources pour lesquelles on outrepasse le garde-fou anti-purge (remplacement
+ * propre d'un employeur mal configuré, ex. Balvent 36 → 2).
+ */
 export async function runScrapers(
   ids: string[] = listScraperIds(),
   params: ScrapeParams = {},
   persist: PersistMode = "upsert",
+  forceIds: Set<string> = new Set(),
 ): Promise<RunReport[]> {
   const reports: RunReport[] = [];
   for (const id of ids) {
-    reports.push(await runScraper(id, params, persist));
+    reports.push(await runScraper(id, params, persist, forceIds.has(id)));
   }
   return reports;
 }
