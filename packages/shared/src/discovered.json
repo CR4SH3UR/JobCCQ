@@ -1,5 +1,19 @@
 [
   {
+    "id": "groupepiche-ca",
+    "name": "ITR Acoustique MTL inc.",
+    "homepage": "https://www.itracoustique.com",
+    "careersUrl": "https://jackstaff.ca/fr/voir-entreprise/ITR-Acoustique-MTL-inc/258/",
+    "method": "jackstaff",
+    "region": "Montérégie",
+    "scope": "Employeur — acoustique et aménagement intérieur (page Jack Staff)",
+    "sectors": [
+      "Résidentiel",
+      "Commercial et institutionnel"
+    ],
+    "verified": true
+  },
+  {
     "id": "monteursdacier-com",
     "name": " Les Monteurs d'Acier inc.",
     "homepage": "https://monteursdacier.com",
@@ -10672,19 +10686,6 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
-  },
-  {
-    "id": "groupepiche-ca",
-    "name": "ITR Acoustique MTL inc.",
-    "homepage": "https://www.itracoustique.com",
-    "careersUrl": "https://jackstaff.ca/fr/voir-entreprise/ITR-Acoustique-MTL-inc/258/",
-    "method": "jackstaff",
-    "region": "Montérégie",
-    "scope": "Employeur — acoustique et aménagement intérieur (page Jack Staff)",
-    "sectors": [
-      "Résidentiel",
-      "Commercial et institutionnel"
     ]
   },
   {
