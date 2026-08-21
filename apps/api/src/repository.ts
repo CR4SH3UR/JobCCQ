@@ -181,16 +181,17 @@ const REACHABLE_EMPTY_PURGE_MAX = 10;
 export async function syncSourceJobs(
   sourceId: string,
   jobs: Job[],
-  opts: { reachableEmpty?: boolean; explicitEmpty?: boolean } = {},
+  opts: { reachableEmpty?: boolean; explicitEmpty?: boolean; force?: boolean } = {},
 ): Promise<UpsertResult & { removed: number }> {
   if (jobs.length === 0) {
-    const { reachableEmpty = false, explicitEmpty = false } = opts;
+    const { reachableEmpty = false, explicitEmpty = false, force = false } = opts;
     // 0 offre confirmé : la page a été récupérée (site joignable) et n'a aucune
     // offre. Un 0 par échec/blocage réseau (403, page vide) n'a AUCUN de ces
     // drapeaux → on conserve le dernier bon état.
+    // - `force` (remplacement demandé explicitement) : purge toute taille.
     // - `explicitEmpty` (« aucune offre en ce moment ») : purge toute taille.
     // - `reachableEmpty` (page réelle, 0 offre) : purge des petites sources.
-    if (explicitEmpty) {
+    if (force || explicitEmpty) {
       const del = await prisma.job.deleteMany({ where: { sourceId } });
       return { inserted: 0, updated: 0, removed: del.count };
     }
@@ -209,8 +210,9 @@ export async function syncSourceJobs(
 
   // Garde-fou anti-purge : si le nouveau lot est bien plus petit que l'existant
   // (source volumineuse), c'est probablement une lecture partielle ou un blocage
-  // — on n'efface pas les offres « manquantes ».
-  const suspicious = existingCount >= 10 && jobs.length < existingCount * 0.4;
+  // — on n'efface pas les offres « manquantes ». `force` outrepasse ce garde-fou
+  // (remplacement propre demandé, ex. employeur mal configuré : Balvent 36 → 2).
+  const suspicious = !opts.force && existingCount >= 10 && jobs.length < existingCount * 0.4;
   let removed = 0;
   if (!suspicious) {
     const keep = jobs.map((j) => j.id);
