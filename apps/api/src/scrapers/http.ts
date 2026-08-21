@@ -148,11 +148,11 @@ export async function fetchHtml(url: string, opts: FetchOptions = {}): Promise<s
 /** Contexte de scraping par défaut (réseau réel). */
 export function createHttpContext(
   log: (m: string) => void = () => {},
-  onNoOpenings?: () => void,
+  onNoOpenings?: (explicit: boolean) => void,
 ): ScrapeContext {
   return {
     fetchHtml: (url, opts) => fetchHtml(url, opts),
     log,
-    ...(onNoOpenings ? { markNoOpenings: onNoOpenings } : {}),
+    ...(onNoOpenings ? { markNoOpenings: (explicit = false) => onNoOpenings(explicit) } : {}),
   };
 }

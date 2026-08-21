@@ -172,18 +172,34 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
  * - Sinon, on retire les offres disparues (postes comblés) en plus d'insérer/
  *   actualiser les offres courantes.
  */
+/** Au-delà de ce nombre d'offres, une source « joignable mais vide » (sans
+ *  déclaration explicite) n'est PAS purgée : un 0 vient probablement d'un
+ *  parseur cassé plutôt que d'un vrai vide. Les petites sources, elles, sont
+ *  purgées (typiquement une page carrières sans offre ouverte). */
+const REACHABLE_EMPTY_PURGE_MAX = 10;
+
 export async function syncSourceJobs(
   sourceId: string,
   jobs: Job[],
-  confirmedEmpty = false,
+  opts: { reachableEmpty?: boolean; explicitEmpty?: boolean } = {},
 ): Promise<UpsertResult & { removed: number }> {
   if (jobs.length === 0) {
-    // 0 offre **confirmé** (la page déclare « aucun poste ouvert ») : on purge
-    // réellement la source. Un 0 par échec/blocage (403, page vide) n'arrive
-    // pas ici avec ce drapeau → on conserve le dernier bon état.
-    if (confirmedEmpty) {
+    const { reachableEmpty = false, explicitEmpty = false } = opts;
+    // 0 offre confirmé : la page a été récupérée (site joignable) et n'a aucune
+    // offre. Un 0 par échec/blocage réseau (403, page vide) n'a AUCUN de ces
+    // drapeaux → on conserve le dernier bon état.
+    // - `explicitEmpty` (« aucune offre en ce moment ») : purge toute taille.
+    // - `reachableEmpty` (page réelle, 0 offre) : purge des petites sources.
+    if (explicitEmpty) {
       const del = await prisma.job.deleteMany({ where: { sourceId } });
       return { inserted: 0, updated: 0, removed: del.count };
+    }
+    if (reachableEmpty) {
+      const existingCount = await prisma.job.count({ where: { sourceId } });
+      if (existingCount <= REACHABLE_EMPTY_PURGE_MAX) {
+        const del = await prisma.job.deleteMany({ where: { sourceId } });
+        return { inserted: 0, updated: 0, removed: del.count };
+      }
     }
     return { inserted: 0, updated: 0, removed: 0 };
   }
