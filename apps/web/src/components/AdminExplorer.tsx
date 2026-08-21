@@ -33,7 +33,13 @@ const LS_VERIF = "admin:verified";
 const LS_TOKEN = "admin:ghtoken";
 const LS_TURSO_URL = "admin:tursourl";
 const LS_TURSO_TOKEN = "admin:tursotoken";
+const LS_SEARCH = "admin:search";
+const LS_FILTER = "admin:filter";
 const DISCOVERED_PATH = "packages/shared/src/discovered.json";
+
+/** Filtres du tableau (persistés dans le navigateur → survivent au rafraîchissement). */
+const FILTER_KEYS = ["all", "unverified", "verified", "nojobs", "disabled"] as const;
+type FilterKey = (typeof FILTER_KEYS)[number];
 
 /** Lecture directe (hors state React) d'une clé localStorage. */
 function readLS(key: string): string {
@@ -155,7 +161,7 @@ export function AdminExplorer() {
   const [employers, setEmployers] = useState<Employer[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "unverified" | "verified" | "nojobs" | "disabled">("all");
+  const [filter, setFilter] = useState<FilterKey>("all");
   const [page, setPage] = useState(1);
   const [scrapes, setScrapes] = useState<Record<string, ScrapeState>>({});
   const [publish, setPublish] = useState<{ status: "idle" | "run" | "ok" | "err"; message?: string }>({ status: "idle" });
@@ -172,6 +178,10 @@ export function AdminExplorer() {
       setGhToken(localStorage.getItem(LS_TOKEN) ?? "");
       setTursoUrl(localStorage.getItem(LS_TURSO_URL) ?? "");
       setTursoToken(localStorage.getItem(LS_TURSO_TOKEN) ?? "");
+      // Restaure les filtres du dernier passage (recherche + sélecteur).
+      setSearch(localStorage.getItem(LS_SEARCH) ?? "");
+      const f = localStorage.getItem(LS_FILTER);
+      if (f && (FILTER_KEYS as readonly string[]).includes(f)) setFilter(f as FilterKey);
     } catch {
       /* stockage indisponible */
     }
@@ -197,6 +207,26 @@ export function AdminExplorer() {
       /* stockage indisponible */
     }
   };
+
+  // Filtres persistés : on écrit dans localStorage à chaque changement pour que
+  // la recherche et le sélecteur restent identiques après un rafraîchissement.
+  const changeSearch = (v: string) => {
+    setSearch(v);
+    try {
+      v ? localStorage.setItem(LS_SEARCH, v) : localStorage.removeItem(LS_SEARCH);
+    } catch {
+      /* stockage indisponible */
+    }
+  };
+  const changeFilter = (v: FilterKey) => {
+    setFilter(v);
+    try {
+      localStorage.setItem(LS_FILTER, v);
+    } catch {
+      /* stockage indisponible */
+    }
+  };
+
   // Édition locale (mode statique) : superposée aux données du paquet partagé.
   const editsRef = useRef<Record<string, Partial<Employer>>>({});
 
@@ -715,13 +745,13 @@ export function AdminExplorer() {
           <div className="card mb-4 flex flex-col gap-2 p-3 sm:flex-row sm:items-center">
             <input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => changeSearch(e.target.value)}
               placeholder="Rechercher (nom, URL, méthode, région)…"
               className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
             />
             <select
               value={filter}
-              onChange={(e) => setFilter(e.target.value as typeof filter)}
+              onChange={(e) => changeFilter(e.target.value as FilterKey)}
               className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-400"
             >
               <option value="all">Tous ({employers.length})</option>
