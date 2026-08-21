@@ -34,11 +34,14 @@ export interface JobSource {
   /** Source mise en avant sur la page « Sources ». */
   readonly featured?: boolean;
   readonly notes?: string;
+  /** Secteurs de construction de l'employeur (Résidentiel, Génie civil…). */
+  readonly sectors?: readonly string[];
 }
 
 export const JOB_SOURCES = [
   {
     id: "pomerleau",
+    sectors: ["Génie civil","Commercial et institutionnel","Résidentiel"],
     name: "Pomerleau",
     homepage: "https://jobs.pomerleau.ca/fr_CA/Jobs",
     region: "QC",
@@ -51,6 +54,7 @@ export const JOB_SOURCES = [
   },
   {
     id: "ebc",
+    sectors: ["Génie civil","Commercial et institutionnel","Mines"],
     name: "EBC",
     homepage: "https://ebcinc.com/fr/carrieres/emplois/",
     region: "QC",
@@ -62,6 +66,7 @@ export const JOB_SOURCES = [
   },
   {
     id: "lafontaine",
+    sectors: ["Génie civil"],
     name: "Les Excavations Lafontaine",
     homepage: "https://lafontaineinc.zohorecruit.com/jobs/Careers",
     region: "QC",
@@ -73,6 +78,7 @@ export const JOB_SOURCES = [
   },
   {
     id: "atwill-morin",
+    sectors: ["Maçonnerie","Restauration de bâtiments"],
     name: "Atwill-Morin",
     homepage: "https://atwill-morin.com/carrieres/",
     region: "QC",
@@ -84,6 +90,7 @@ export const JOB_SOURCES = [
   },
   {
     id: "hamel-construction",
+    sectors: ["Génie civil","Construction générale"],
     name: "Hamel Construction",
     homepage: "https://www.hamelconstruction.com/carrieres",
     region: "QC",
@@ -95,6 +102,7 @@ export const JOB_SOURCES = [
   },
   {
     id: "leqel",
+    sectors: ["Électricité","Génie civil"],
     name: "LEQEL / LEQEL Énergie",
     homepage: "https://www.leqel.ca/carriere/",
     region: "QC",
@@ -106,6 +114,7 @@ export const JOB_SOURCES = [
   },
   {
     id: "beluga",
+    sectors: ["Génie civil","Mines"],
     name: "Béluga Construction",
     homepage: "https://constructionbeluga.zohorecruit.ca/jobs/Careers",
     region: "QC",
@@ -117,6 +126,7 @@ export const JOB_SOURCES = [
   },
   {
     id: "jmdemers",
+    sectors: ["Génie civil","Béton et structure"],
     name: "JM Demers Excavation",
     homepage: "https://www.jmdemers.com/carriere",
     region: "QC",
@@ -128,6 +138,7 @@ export const JOB_SOURCES = [
   },
   {
     id: "portneuf",
+    sectors: ["Génie civil"],
     name: "Construction & Pavage Portneuf",
     homepage: "https://www.jobillico.com/fr/employeurs/construction-pavage-portneuf-inc-eBlqIn/voir-liste-emplois",
     region: "QC",
@@ -139,6 +150,7 @@ export const JOB_SOURCES = [
   },
   {
     id: "cote-et-fils",
+    sectors: ["Construction générale"],
     name: "Construction Côté et fils",
     homepage: "https://www.jobillico.com/voir-entreprise/construction-cote-fils.tZkiVw",
     region: "QC",
@@ -150,6 +162,7 @@ export const JOB_SOURCES = [
   },
   {
     id: "jcdrolet",
+    sectors: ["Génie civil"],
     name: "JC Drolet",
     homepage: "https://jcdrolet.com/carrieres/",
     region: "QC",
@@ -161,6 +174,7 @@ export const JOB_SOURCES = [
   },
   {
     id: "lefrancois",
+    sectors: ["Béton et structure","Génie civil"],
     name: "Lefrançois",
     homepage: "https://www.lefrancoisinc.ca/carrières",
     region: "QC",
@@ -172,6 +186,7 @@ export const JOB_SOURCES = [
   },
   {
     id: "refrabec",
+    sectors: ["Maçonnerie"],
     name: "Refrabec",
     homepage: "https://refrabec.qc.ca/carrieres/",
     region: "QC",
@@ -213,6 +228,8 @@ export interface DiscoveredEmployer {
   /** Région administrative RBQ (indicative). */
   readonly region?: string;
   readonly scope?: string;
+  /** Secteurs de construction (dérivés du nom + classification RBQ). */
+  readonly sectors?: readonly string[];
 }
 
 export const DISCOVERED_EMPLOYERS = discoveredRaw as readonly DiscoveredEmployer[];
@@ -229,6 +246,7 @@ const DISCOVERED_AS_SOURCES: readonly JobSource[] = DISCOVERED_EMPLOYERS.map((d)
   method: methodToSourceMethod(d.method),
   status: "active",
   language: "fr",
+  sectors: d.sectors,
 }));
 
 /** Toutes les sources : catalogue curé + employeurs auto-découverts. */

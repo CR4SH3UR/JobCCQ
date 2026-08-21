@@ -1,4 +1,5 @@
 import {
+  getSource,
   labelForCategory,
   labelForEmployment,
   labelForRegion,
@@ -15,6 +16,7 @@ export function JobCard({ job }: { job: Job }) {
   const salary = formatSalary(job);
   const region = labelForRegion(job.regionId);
   const posted = timeAgo(job.postedAt ?? job.scrapedAt);
+  const sectors = getSource(job.sourceId)?.sectors ?? [];
 
   return (
     <article className="card group p-4 transition-shadow hover:shadow-md">
@@ -44,6 +46,11 @@ export function JobCard({ job }: { job: Job }) {
 
           <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
             {job.categoryId && <Badge tone="brand">{labelForCategory(job.categoryId)}</Badge>}
+            {sectors.slice(0, 2).map((s) => (
+              <Badge key={s} tone="amber">
+                {s}
+              </Badge>
+            ))}
             {job.employmentType && <Badge>{labelForEmployment(job.employmentType)}</Badge>}
             {job.remote && (
               <Badge tone={REMOTE_TONE[job.remote]}>{labelForRemote(job.remote)}</Badge>

@@ -105,6 +105,16 @@ function SourceCard({ source: s }: { source: SourceWithMeta }) {
 
       <p className="mt-2 text-sm text-slate-600">{s.scope}</p>
 
+      {s.sectors && s.sectors.length > 0 && (
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          {s.sectors.map((sec) => (
+            <Badge key={sec} tone="amber">
+              {sec}
+            </Badge>
+          ))}
+        </div>
+      )}
+
       <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs">
         <Badge>{REGION_LABEL[s.region] ?? s.region}</Badge>
         <Badge>{METHOD_LABEL[s.method] ?? s.method}</Badge>
