@@ -287,7 +287,7 @@ function parseHtmlCareers(
 // (« Google Tag Manager »). Les vrais postes de ces domaines ont un mot de
 // métier (« Technicien en ventilation », « Manœuvre en excavation »).
 const JOB_TITLE_HINT =
-  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|chef\s+de\s+chantier|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|stagiaire|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|surintendant|coordonnateur|contr[ôo]leur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|paveur|briqueteur|ma[çc]on|foreman|dessinateur|designer|cuisiniste|tuyauteur|mineur|ferblantier|calorifugeur|monteur|installateur|serrurier|vitrier|peintre|pl[âa]trier|[ée]b[ée]niste|assembleur|directeur|gestionnaire|conseiller|repr[ée]sentant|foreuse|d[ée]bosseleur|carrossier|technician|labou?rer|carpenter|welder|electrician|plumber|operator|apprentice|internship|trainee|installer|mechanic|estimator|supervisor|helper|roofer|superintendent|millwright|ironworker|fitter|painter|surveyor|foreperson/i;
+  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|chef\s+de\s+chantier|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|stagiaire|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|surintendant|coordonnateur|contr[ôo]leur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|paveur|briqueteur|ma[çc]on(?!nerie)|foreman|dessinateur|designer|cuisiniste|tuyauteur|mineur|ferblantier|calorifugeur|monteur|installateur|serrurier|vitrier|peintre|pl[âa]trier|[ée]b[ée]niste(?!rie)|assembleur|directeur|gestionnaire|conseiller|repr[ée]sentant|foreuse|d[ée]bosseleur|carrossier|technician|labou?rer|carpenter|welder|electrician|plumber|operator|apprentice|internship|trainee|installer|mechanic|estimator|supervisor|helper|roofer|superintendent|millwright|ironworker|fitter|painter|surveyor|foreperson/i;
 
 /** Suffixe de raison sociale — un « titre » qui finit ainsi est un nom d'entreprise, pas un poste. */
 const COMPANY_SUFFIX = /\b(inc|lt[ée]e|ltd|limit[ée]e|senc|enr|corp)\.?$/i;
@@ -334,6 +334,7 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
   const add = (title: string, href?: string) => {
     const t = cleanText(title.replace(/^[-–—•*\s]+/, ""));
     if (t.length < 4 || t.length > 110) return;
+    if (/[\w.+-]+@[\w.-]+\.\w{2,}/.test(t)) return; // adresse courriel, pas un poste
     // Trombinoscope d'équipe : « Prénom Nom | Fonction » (membre de l'équipe)
     // n'est pas une offre, même si la fonction ressemble à un poste. Gère les
     // prénoms composés (« Marie-Claude Dubé | … »).
@@ -460,11 +461,15 @@ export function makeCareersScraper(config: CareersScraperConfig): Scraper {
         return [];
       }
       const jobs = this.parseList!(html, config.careersUrl);
-      // Page récupérée mais qui déclare explicitement n'avoir aucun poste ouvert
-      // → 0 offre **légitime** (la synchro peut purger, cf. syncSourceJobs).
-      if (jobs.length === 0 && pageDeclaresNoOpenings(html)) {
-        ctx.markNoOpenings?.();
-        ctx.log(`${config.id} — aucun poste ouvert (déclaré par la page)`);
+      if (jobs.length === 0) {
+        // Page carrières **récupérée** (site joignable) et sans aucune offre. On
+        // le signale pour permettre la purge des offres périmées. `explicit` = la
+        // page le déclare noir sur blanc (« aucune offre en ce moment ») → purge
+        // quelle que soit la taille ; sinon (page réelle substantielle, pas une
+        // courte page de défi) → purge seulement des petites sources, cf.
+        // syncSourceJobs. Une page trop courte (blocage déguisé) n'émet rien.
+        const explicit = pageDeclaresNoOpenings(html);
+        if (explicit || html.length > 2000) ctx.markNoOpenings?.(explicit);
       }
       ctx.log(`${config.id} — ${jobs.length} poste(s) trouvé(s)`);
       return jobs;

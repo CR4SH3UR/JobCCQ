@@ -40,14 +40,18 @@ export async function runScraperInstance(
   const log = (m: string) => console.log(`[scrape:${sourceId}] ${m}`);
 
   try {
-    // La source peut signaler qu'elle n'a **aucun poste ouvert** (page récupérée
-    // mais « aucune offre en ce moment ») → purge légitime, contrairement à un 0
-    // par échec/blocage qui, lui, conserve l'état existant.
-    let noOpenings = false;
+    // La source peut signaler qu'elle a été **récupérée mais sans aucune offre**
+    // (site joignable, 0 poste) → purge légitime, contrairement à un 0 par
+    // échec/blocage réseau qui conserve l'état existant. `explicitEmpty` = la
+    // page le déclare (purge toute taille) ; sinon `reachableEmpty` (purge des
+    // petites sources seulement, cf. syncSourceJobs).
+    let reachableEmpty = false;
+    let explicitEmpty = false;
     const raw = await scraper.scrape(
       params,
-      createHttpContext(log, () => {
-        noOpenings = true;
+      createHttpContext(log, (explicit) => {
+        reachableEmpty = true;
+        explicitEmpty = explicit;
       }),
     );
 
@@ -60,7 +64,10 @@ export async function runScraperInstance(
 
     const { inserted, updated } =
       persist === "sync"
-        ? await syncSourceJobs(sourceId, jobs, noOpenings && jobs.length === 0)
+        ? await syncSourceJobs(sourceId, jobs, {
+            reachableEmpty: reachableEmpty && jobs.length === 0,
+            explicitEmpty: explicitEmpty && jobs.length === 0,
+          })
         : await upsertJobs(jobs);
     await prisma.scrapeRun.update({
       where: { id: run.id },

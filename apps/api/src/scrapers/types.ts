@@ -17,12 +17,14 @@ export interface ScrapeContext {
   fetchHtml(url: string, opts?: { userAgent?: string }): Promise<string>;
   log(message: string): void;
   /**
-   * Signale que la page a été récupérée avec succès mais déclare
-   * **explicitement n'avoir aucun poste ouvert** (« aucune offre en ce
-   * moment »…). Permet à la synchro de **purger** réellement la source (0 offre
-   * légitime), au lieu de conserver l'ancien état comme sur un échec/blocage.
+   * Signale que la page carrières a été **récupérée** (site joignable) mais ne
+   * contient **aucune offre** → la synchro peut purger les offres périmées (au
+   * lieu de conserver l'ancien état comme sur un échec/blocage réseau).
+   * `explicit` = la page le **déclare** noir sur blanc (« aucune offre en ce
+   * moment ») : purge quelle que soit la taille de la source ; sinon (page
+   * réelle mais 0 offre), la synchro ne purge que les petites sources.
    */
-  markNoOpenings?(): void;
+  markNoOpenings?(explicit?: boolean): void;
 }
 
 /**
