@@ -5,6 +5,7 @@ import { makeZohoRecruitScraper } from "./zoho-recruit.js";
 import { makeBambooHrScraper } from "./bamboohr.js";
 import { makeAtsJsonScraper, type AtsPlatform } from "./ats-json.js";
 import { makeJobillicoEmployerScraper } from "./jobillico-employer.js";
+import { makeUltiProScraper } from "./ultipro.js";
 
 /** Extrait le handle (jeton/sous-domaine) d'un employeur depuis l'URL de son ATS. */
 const atsHandle = (platform: AtsPlatform, url: string, fallback: string): string => {
@@ -47,6 +48,14 @@ export const discoveredScrapers: Record<string, Scraper> = Object.fromEntries(
     }
     if (d.method === "jobillico") {
       return [d.id, makeJobillicoEmployerScraper({ id: d.id, company: d.name, listUrl: d.careersUrl })];
+    }
+    if (d.method === "ultipro") {
+      // careersUrl = https://recruiting.ultipro.ca/<tenant>/JobBoard/<guid>/…
+      const m = d.careersUrl.match(/ultipro\.ca\/([^/]+)\/JobBoard\/([0-9a-fA-F-]+)/);
+      if (m) {
+        return [d.id, makeUltiProScraper({ id: d.id, company: d.name, tenant: m[1]!, boardGuid: m[2]! })];
+      }
+      return [d.id, makeCareersScraper({ id: d.id, company: d.name, careersUrl: d.careersUrl })];
     }
     // html / jsonld → page carrières générique (JSON-LD → Wix → titres → liens).
     return [d.id, makeCareersScraper({ id: d.id, company: d.name, careersUrl: d.careersUrl })];
