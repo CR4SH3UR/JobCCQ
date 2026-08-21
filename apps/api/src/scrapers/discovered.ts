@@ -30,7 +30,12 @@ const atsHandle = (platform: AtsPlatform, url: string, fallback: string): string
 /** Construit le scraper adapté à un employeur découvert selon sa méthode. */
 export function buildDiscoveredScraper(d: DiscoveredEmployer): Scraper {
   if (d.method === "zoho") {
-    return makeZohoRecruitScraper({ id: d.id, company: d.name, careersUrl: d.careersUrl });
+    // GLR (G.L.R. inc.) fait partie du groupe EBC et partage SON portail Zoho
+    // (ebcinc.zohorecruit.com) : sans filtre, GLR hériterait des ~240 postes
+    // d'EBC (doublon d'EBC, employeur séparé). On ne garde que ceux étiquetés
+    // « (GLR) » dans l'intitulé.
+    const titleFilter = d.id === "glr-qc-ca" ? /\(\s*GLR\s*\)/i : undefined;
+    return makeZohoRecruitScraper({ id: d.id, company: d.name, careersUrl: d.careersUrl, titleFilter });
   }
   if (d.method === "bamboohr") {
     // careersUrl = https://<subdomain>.bamboohr.com
