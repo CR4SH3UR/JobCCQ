@@ -116,14 +116,14 @@ function parseWixRepeaters(
 }
 
 const NAV_LABELS =
-  /^(carrières|carrieres|postuler|postuler maintenant|je postule|postule[rz]?|en savoir plus|en savoir \+|voir|voir l'offre|voir l'emploi|voir ce poste|voir le poste|voir les postes?( disponibles?)?|voir (tous|toutes) les (postes?|emplois?|offres?)( disponibles?)?|voir les offres?( d'emploi)?|voir les d[ée]tails?( du poste)?|voir plus|voir tout|voir d[ée]tails?|d[ée]tails?( du poste)?|plus de d[ée]tails|consulter|lire( la suite| plus)?|accueil|contact|nous joindre|nous rejoindre|contactez-nous|rejoignez-nous|joindre l'équipe|emplois|emploi|carrière|english|anglais|fran[çc]ais|home|apply|apply now|view|view job|view details|read more|learn more|more|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations|candidature spontan[ée]e|postulez( ici| maintenant)?|jobillico|indeed|linkedin|workday|glassdoor|neuvoo|monster|talentu?p)$/i;
+  /^(carrières|carrieres|postuler|postuler maintenant|je postule|postule[rz]?|en savoir plus|en savoir \+|voir|voir l'offre|voir l'emploi|voir ce poste|voir le poste|voir les postes?( disponibles?)?|voir (tous|toutes) les (postes?|emplois?|offres?)( disponibles?)?|voir les offres?( d'emploi)?|voir les d[ée]tails?( du poste)?|voir plus|voir tout|voir d[ée]tails?|d[ée]tails?( du poste)?|plus de d[ée]tails|consulter|lire( la suite| plus)?|accueil|contact|nous joindre|nous rejoindre|contactez-nous|rejoignez-nous|joindre l'équipe|emplois|emploi|carrière|english|anglais|fran[çc]ais|home|apply|apply now|view|view job|view details|read more|learn more|more|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations|site|plan du site|travaux|projets|candidature spontan[ée]e|postulez( ici| maintenant)?|jobillico|indeed|linkedin|workday|glassdoor|neuvoo|monster|talentu?p|retour( [àa] la liste| aux (offres|emplois|postes))?|pr[ée]c[ée]dent|suivant)$/i;
 
 /**
  * Débuts de phrase « marketing » : une accroche (« Un emploi de plombier à
  * échelle humaine », « Pourquoi nous rejoindre ») n'est pas un titre de poste.
  */
 const MARKETING_PREFIX =
-  /^(un |une |notre |nos |nous |pourquoi|rejoign|joins|deviens|devenez|faites|envie|pr[êe]t|viens|es-tu|as-tu|ton |ta |tes |vos |votre |travaille[rz]|construis|b[âa]tis|joignez|d[ée]couvr(ir|e|ez|ons)|candidature spontan[ée]e?)/i;
+  /^(un |une |notre |nos |nous |pourquoi|rejoign|joins|deviens|devenez|faites|envie|pr[êe]t|viens|es-tu|as-tu|ton |ta |tes |vos |votre |vous |tu ne|travaille[rz]|construis|b[âa]tis|joignez|d[ée]couvr(ir|e|ez|ons)|candidature spontan[ée]e?|postuler (pour|à|au|aux|en|comme)|postule[rz] (pour|à|au|aux)|appliquer (pour|sur|à)|apply (for|to|now))/i;
 
 /** Pathname d'une URL, ou "" si invalide. */
 function safePath(u: string): string {
@@ -209,6 +209,9 @@ function parseHtmlCareers(
   $(selector).each((_, el) => {
     const href = $(el).attr("href");
     if (!href) return;
+    // Liens non-navigants : un mailto « carrieres@… » matche a[href*="carriere"]
+    // et donnerait une « offre » = adresse courriel (ex. Les Charpentistes).
+    if (/^(mailto:|tel:|javascript:|sms:)/i.test(href.trim())) return;
     if (jobPathPattern && !jobPathPattern.test(href)) return;
     const url = absolute((href.split("#")[0] ?? "").trim(), baseUrl);
     if (sameUrl(url, careersUrl)) return; // ignore la page index elle-même
@@ -304,6 +307,15 @@ const SECTION_LABEL =
   /postes?\s+(?:disponibles|ouverts)|nos emplois|offres? d'emploi|postulez|candidature|pourquoi|avantages/i;
 
 /**
+ * Mot de **service/activité** seul (« Déneigement », « Excavation », « Aménagement
+ * paysager »…) : c'est une prestation de l'entreprise affichée en vitrine, pas
+ * une offre. Un vrai poste porte un mot de métier (« Opérateur de déneigement »,
+ * « Manœuvre en excavation ») et ne matche donc pas ce motif « exact ».
+ */
+const SERVICE_ONLY =
+  /^(d[ée]neigement|excavation|am[ée]nagement(\s+paysager)?|pavage|ventilation|terrassement|paysagement|maintenance|entretien(\s+(d['’]espaces?\s+verts?|paysager|m[ée]nager))?|toiture|charpente|ma[çc]onnerie|plomberie|[ée]lectricit[ée]|r[ée]novation|construction)(\s+(m[ée]canique|manuel(?:le)?|commerciale?|r[ée]sidentiell?e?|industrielle?)e?)?$/i;
+
+/**
  * La page déclare-t-elle explicitement **aucun poste ouvert** ? (« Désolé, il
  * n'y a aucune offre en ce moment », « no current openings »…). Sur ces pages,
  * le repli « titres » capte à tort les métiers listés en vitrine (« Opérateur
@@ -333,6 +345,37 @@ function pageDeclaresNoOpenings(html: string): boolean {
   );
 }
 
+/**
+ * Sections d'une **fiche de poste** (description, non des offres). Une puce
+ * listée sous « Avantages » / « Responsabilités » / « Exigences »… est du
+ * contenu descriptif, jamais un intitulé de poste — même si elle contient un
+ * mot de métier (« Contremaîtres accessibles et à l'écoute » sous « Avantages »).
+ */
+const DETAIL_SECTION =
+  /^(responsabilit|exigence|avantage|description|profil|condition|t[âa]che|comp[ée]tence|qualification|qualit[ée]|ce que|pourquoi|nous offrons|au quotidien|r[ôo]le|mandat|sommaire|aper[çc]u|habilet|aptitude|prérequis|pr[ée]requis|nous recherchons)/i;
+
+/** La puce est-elle sous une section de description (et non une liste d'offres) ? */
+function underDetailSection($: cheerio.CheerioAPI, el: AnyNode): boolean {
+  let $node = $(el);
+  for (let depth = 0; depth < 6; depth++) {
+    let $sib = $node.prev();
+    while ($sib.length) {
+      const $h = $sib.is("h1,h2,h3,h4,h5,h6,strong,b")
+        ? $sib
+        : $sib.find("h1,h2,h3,h4,h5,h6").last();
+      if ($h.length) {
+        const t = cleanText($h.first().text());
+        if (t) return DETAIL_SECTION.test(t);
+      }
+      $sib = $sib.prev();
+    }
+    const $p = $node.parent();
+    if (!$p.length || $p.is("body")) break;
+    $node = $p;
+  }
+  return false;
+}
+
 /** Repli « titres » : chaque intitulé qui ressemble à un poste devient une offre. */
 function parseHeadingJobs(html: string, careersUrl: string, id: string, company: string): RawJob[] {
   const $ = cheerio.load(html);
@@ -340,7 +383,7 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
   const base = careersUrl.replace(/\/+$/, "");
 
   const add = (title: string, href?: string) => {
-    const t = cleanText(title.replace(/^[-–—•*\s]+/, ""));
+    const t = cleanText(title.replace(/^[-–—•*\s]+/, "").replace(/[\s*•·]+$/, ""));
     if (t.length < 4 || t.length > 110) return;
     if (/[\w.+-]+@[\w.-]+\.\w{2,}/.test(t)) return; // adresse courriel, pas un poste
     // Trombinoscope d'équipe : « Prénom Nom | Fonction » (membre de l'équipe)
@@ -359,6 +402,7 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     if (!JOB_TITLE_HINT.test(probe) || SECTION_LABEL.test(probe)) return;
     if (COMPANY_SUFFIX.test(probe)) return; // « … inc./ltée » = nom d'entreprise, pas un poste
     if (MARKETING_PREFIX.test(probe)) return; // accroche marketing, pas un poste
+    if (SERVICE_ONLY.test(probe)) return; // « Déneigement », « Excavation »… = service, pas un poste
     // Rejet des **phrases** (puces de responsabilités « Installer et superviser
     // les systèmes… ») sans écarter les vrais intitulés qui contiennent « et »
     // ou « en » (« Dessinateur en Conception 3D et Mise en Plan »). Un intitulé
@@ -374,6 +418,11 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     )
       return;
     if (/\b(afin|ainsi|selon|lorsque|puisque|notamment|responsable de)\b/i.test(probe)) return;
+    // Phrase de recrutement (« … sont recherchés », « nous recherchons … ») ou
+    // phrase complète terminée par une ponctuation de fin : pas un intitulé.
+    if (/\b(recherch(?:e|é|è|ez|ons|ent|ait)s?|recrutons|embauchons|cherchons)\b/i.test(probe)) return;
+    if (/[.!?]$/.test(t) && probe.split(/\s+/).filter((w) => /[A-Za-zÀ-ÿ]/.test(w)).length >= 3)
+      return;
     const url = href || `${base}#${slugify(t)}`;
     if (!out.has(url)) out.set(url, { sourceId: id, url, title: t, company, tags: [] });
   };
@@ -407,6 +456,7 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     // « Minimum 3 années d'expérience ») : ce ne sont pas des postes.
     if (/licen[cs]e|permis|valid|minimum|exp[ée]rience|ann[ée]es?|ability|must|required|driving|driver|assurance|avantages?|b[ée]n[ée]fices?|atout|connaissances?|ma[îi]trise|comp[ée]tences?|aptitudes?|habilet[ée]s?/i.test(raw))
       return;
+    if (underDetailSection($, el)) return; // puce d'une section de description
     add(raw);
   });
   // Fiches de poste en lien : accordéon <a href="#">Titre</a> (le clic révèle la
@@ -475,6 +525,56 @@ function parseJobsListing(
   return [...out.values()];
 }
 
+/**
+ * Page = **une seule fiche de poste** ? (URL /emploi/ menant à un poste précis,
+ * avec sections « Description du poste / Responsabilités / Exigences / Avantages »
+ * et UN seul intitulé de métier en titre). Sur ces pages, les puces de
+ * description contiennent des mots de métier (« … contremaîtres accessibles »,
+ * « compagnons et apprentis recherchés ») que le repli « titres » prend à tort
+ * pour des offres. On retourne alors le seul vrai titre (le h1). `null` si ce
+ * n'est pas une fiche unique (0 ou plusieurs intitulés → page liste : repli
+ * normal, ex. BR Climatisation = 4 postes).
+ */
+function singleJobDetailOffer(
+  html: string,
+  careersUrl: string,
+  id: string,
+  company: string,
+): RawJob | null {
+  const $ = cheerio.load(html);
+  const body = $("body").text().replace(/\s+/g, " ");
+  const sectionRes = [
+    /description du poste/i,
+    /responsabilit[ée]s?/i,
+    /exigences?/i,
+    /avantages/i,
+    /profil recherch/i,
+    /t[âa]ches? (principales|et)/i,
+    /conditions? de travail/i,
+    /ce que (nous offrons|tu)/i,
+  ];
+  if (sectionRes.filter((re) => re.test(body)).length < 2) return null;
+  const titles: string[] = [];
+  $("h1,h2,h3").each((_, h) => {
+    const t = cleanText($(h).text());
+    const probe = t.replace(/\s*\([^)]*\)/g, "").replace(/\s+/g, " ").trim();
+    if (
+      t.length >= 4 &&
+      t.length <= 120 &&
+      JOB_TITLE_HINT.test(probe) &&
+      !SECTION_LABEL.test(probe) &&
+      !NAV_LABELS.test(t) &&
+      !MARKETING_PREFIX.test(probe) &&
+      !/\b(recherch(?:e|é|è|ez|ons|ent|ait)s?|recrutons|embauchons|cherchons)\b/i.test(probe) &&
+      !/[.!?]$/.test(t)
+    )
+      titles.push(t);
+  });
+  const uniq = [...new Set(titles)];
+  if (uniq.length !== 1) return null;
+  return { sourceId: id, url: careersUrl, title: uniq[0] as string, company, tags: [] };
+}
+
 export function makeCareersScraper(config: CareersScraperConfig): Scraper {
   return {
     id: config.id,
@@ -488,6 +588,11 @@ export function makeCareersScraper(config: CareersScraperConfig): Scraper {
       // /{entreprise}/{id} sans mot-clé, ratés par le repli « liens » générique.
       const listing = parseJobsListing(html, config.careersUrl, config.id, config.company);
       if (listing.length > 0) return listing;
+      // Page = une seule fiche de poste (sections description/exigences/avantages
+      // + un seul intitulé de métier) : on retourne le vrai titre, sans capter
+      // les puces de description qui contiennent des mots de métier.
+      const single = singleJobDetailOffer(html, config.careersUrl, config.id, config.company);
+      if (single) return [single];
       // Si la source expose un motif de lien de poste (ex. /emploi-…), on le
       // privilégie (vraies URLs de fiches).
       if (config.jobPathPattern) {
