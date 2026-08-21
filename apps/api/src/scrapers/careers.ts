@@ -116,7 +116,7 @@ function parseWixRepeaters(
 }
 
 const NAV_LABELS =
-  /^(carrières|carrieres|postuler|postuler maintenant|je postule|postule[rz]?|en savoir plus|en savoir \+|voir|voir l'offre|voir l'emploi|voir ce poste|voir le poste|voir les postes?( disponibles?)?|voir (tous|toutes) les (postes?|emplois?|offres?)( disponibles?)?|voir les offres?( d'emploi)?|voir les d[ée]tails?( du poste)?|voir plus|voir tout|voir d[ée]tails?|d[ée]tails?( du poste)?|plus de d[ée]tails|consulter|lire( la suite| plus)?|accueil|contact|nous joindre|nous rejoindre|contactez-nous|rejoignez-nous|joindre l'équipe|emplois|emploi|carrière|english|anglais|fran[çc]ais|home|apply|apply now|view|view job|view details|read more|learn more|more|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations|candidature spontan[ée]e|postulez( ici| maintenant)?)$/i;
+  /^(carrières|carrieres|postuler|postuler maintenant|je postule|postule[rz]?|en savoir plus|en savoir \+|voir|voir l'offre|voir l'emploi|voir ce poste|voir le poste|voir les postes?( disponibles?)?|voir (tous|toutes) les (postes?|emplois?|offres?)( disponibles?)?|voir les offres?( d'emploi)?|voir les d[ée]tails?( du poste)?|voir plus|voir tout|voir d[ée]tails?|d[ée]tails?( du poste)?|plus de d[ée]tails|consulter|lire( la suite| plus)?|accueil|contact|nous joindre|nous rejoindre|contactez-nous|rejoignez-nous|joindre l'équipe|emplois|emploi|carrière|english|anglais|fran[çc]ais|home|apply|apply now|view|view job|view details|read more|learn more|more|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations|candidature spontan[ée]e|postulez( ici| maintenant)?|jobillico|indeed|linkedin|workday|glassdoor|neuvoo|monster|talentu?p)$/i;
 
 /**
  * Débuts de phrase « marketing » : une accroche (« Un emploi de plombier à
@@ -255,6 +255,14 @@ function parseHtmlCareers(
         );
         if (derived.length >= 4) title = derived;
       }
+    } else if (unusable) {
+      // Lien de candidature externe (ATS : « Jobillico », « Postuler sur
+      // Indeed »…) : l'URL n'est pas une fiche reconnue (autre domaine), mais
+      // la carte contient l'intitulé réel — on le récupère du titre le plus
+      // proche. Sans intitulé exploitable, le titre reste inutilisable et
+      // l'offre est écartée plus bas (mieux que d'afficher « Jobillico »).
+      const near = nearestHeading($, el);
+      if (near && !NAV_LABELS.test(near) && !MARKETING_PREFIX.test(near)) title = near;
     }
     // Certaines listes (widgets Jobillico intégrés) collent le lieu au titre
     // sans séparateur (« …aux comptes recevablesSherbrooke, Qc »). On retire un
