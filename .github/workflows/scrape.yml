@@ -60,9 +60,12 @@ jobs:
       - name: Préparer la base
         run: npm run setup -w @jobccq/api
 
-      # On repeuple TOUJOURS la base avec l'instantané en ligne : les sites non
-      # re-scrapés (ou bloqués) conservent ainsi leurs offres à l'export.
-      - name: Importer l'instantané
+      # Repli fichier (SQLite éphémère) : on repeuple la base avec l'instantané
+      # pour que les sites non re-scrapés conservent leurs offres à l'export.
+      # Inutile avec Turso, qui **persiste** entre les exécutions (et l'import
+      # ligne-par-ligne sur le réseau serait lent) → on saute l'étape.
+      - name: Importer l'instantané (repli fichier)
+        if: env.TURSO_DATABASE_URL == ''
         run: npm run import:snapshot -w @jobccq/api
 
       # Scraping en mode « sync » (retire les postes comblés, jamais sur échec).
