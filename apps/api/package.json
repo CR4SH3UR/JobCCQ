@@ -13,6 +13,7 @@
     "start": "tsx src/index.ts",
     "seed": "tsx src/seed.ts",
     "scrape": "tsx src/scrape.ts",
+    "import:snapshot": "tsx src/import-snapshot.ts",
     "export:static": "tsx src/export-static.ts",
     "typecheck": "tsc --noEmit"
   },
