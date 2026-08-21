@@ -26,7 +26,8 @@
     "sectors": [
       "Construction générale"
     ],
-    "enabled": false
+    "enabled": false,
+    "verified": true
   },
   {
     "id": "360fondapro-com",
@@ -69,7 +70,8 @@
     "sectors": [
       "Construction générale"
     ],
-    "enabled": false
+    "enabled": false,
+    "verified": true
   },
   {
     "id": "agmconstruction-ca",
@@ -140,7 +142,8 @@
     "sectors": [
       "Commercial et institutionnel"
     ],
-    "enabled": false
+    "enabled": false,
+    "verified": true
   },
   {
     "id": "abfmines-com",
@@ -239,7 +242,8 @@
       "Résidentiel",
       "Commercial et institutionnel"
     ],
-    "enabled": false
+    "enabled": false,
+    "verified": true
   },
   {
     "id": "richardsteel-ca",
@@ -252,7 +256,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "acierselect-com",
@@ -265,7 +270,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "actionrlelectrique-com",
@@ -279,7 +285,8 @@
     "sectors": [
       "Électricité"
     ],
-    "enabled": false
+    "enabled": false,
+    "verified": true
   },
   {
     "id": "adga-ca",
@@ -292,7 +299,8 @@
     "sectors": [
       "Construction générale"
     ],
-    "enabled": false
+    "enabled": false,
+    "verified": true
   },
   {
     "id": "aeraventilation-ca",
@@ -307,7 +315,8 @@
       "Ventilation et réfrigération",
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "aeromt-ca",
@@ -321,7 +330,8 @@
     "sectors": [
       "Construction générale"
     ],
-    "enabled": false
+    "enabled": false,
+    "verified": true
   },
   {
     "id": "afcor-ca",
@@ -335,7 +345,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupethomassin-com",
@@ -375,7 +386,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "airnetventilation-com",
@@ -388,7 +400,8 @@
     "scope": "Employeur — mécanique du bâtiment (découverte RBQ)",
     "sectors": [
       "Ventilation et réfrigération"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "airmatic-ca",
@@ -434,7 +447,7 @@
     "id": "grouperdl-ca",
     "name": "Alarme Bois-Francs inc.",
     "homepage": "https://grouperdl.ca",
-    "careersUrl": "https://grouperdl.ca/solutions-comptables/carriere/",
+    "careersUrl": "https://alarme-bois-francs.com/emploi/",
     "method": "html",
     "region": "Centre-du-Québec",
     "rbq": "2546-1104-88",
@@ -2690,7 +2703,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "estruxture-com",
@@ -2704,7 +2718,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "cf-construction-ca",
@@ -3979,9 +3994,9 @@
   },
   {
     "id": "cppinc-ca",
-    "name": "Construction & Pavage Portneuf",
+    "name": "Construction et Pavage Portneuf inc.",
     "homepage": "https://www.jobillico.com/fr/employeurs/construction-pavage-portneuf-inc-eBlqIn/voir-liste-emplois",
-    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-pavage-portneuf-inc-eBlqIn/voir-liste-emplois",
+    "careersUrl": "https://www.jobillico.com/voir-entreprise/construction-pavage-portneuf-inc-eBlqIn",
     "method": "jobillico",
     "region": "Capitale-Nationale",
     "rbq": "2735-7771-57",
@@ -3990,7 +4005,8 @@
       "Génie civil",
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "formule-ca",
@@ -5687,7 +5703,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "dgrelectrique-ca",
@@ -8087,7 +8104,8 @@
     "sectors": [
       "Génie civil",
       "Commercial et institutionnel"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "rchevrieretfils-com",
