@@ -19,8 +19,11 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  * Contourne les blocages par IP (ex. Jobillico → 403 depuis les IP de CI).
  */
 function proxied(rawUrl: string): string | null {
-  const tmpl = env.SCRAPE_PROXY_URL;
+  let tmpl = env.SCRAPE_PROXY_URL;
   if (!tmpl) return null;
+  // Tolère une URL de proxy sans schéma (ex. « xxx.workers.dev ») : on préfixe
+  // https:// sinon `new URL(tmpl)` lève « Invalid URL » et le scrape échoue.
+  if (!/^https?:\/\//i.test(tmpl)) tmpl = `https://${tmpl}`;
   let host: string;
   try {
     host = new URL(rawUrl).hostname;
