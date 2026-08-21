@@ -17,8 +17,19 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@libsql/client";
 import { prisma } from "./db.js";
-import { upsertJobs } from "./repository.js";
+import { jobToRow } from "./repository.js";
 import type { Job } from "@jobccq/shared";
+
+/** Insère un tableau par lots (createMany) pour limiter les allers-retours réseau. */
+async function insertChunked<T>(
+  rows: T[],
+  create: (batch: T[]) => Promise<unknown>,
+  size = 200,
+): Promise<void> {
+  for (let i = 0; i < rows.length; i += size) {
+    await create(rows.slice(i, i + size));
+  }
+}
 
 const exec = promisify(execFile);
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -62,29 +73,34 @@ async function main() {
   await libsql.executeMultiple(safeDdl);
   console.log("✅ Schéma appliqué sur la base cible.");
 
+  // Table vierge (idempotent) : on repart d'un état propre avant l'insertion en
+  // lot. Insertion par createMany chunké — ~35 allers-retours au lieu de ~7000.
+  await prisma.job.deleteMany({});
+  await prisma.employer.deleteMany({});
+
   // 2) Employeurs (discovered.json → table Employer).
   const employers = JSON.parse(await readFile(DISCOVERED, "utf8")) as Employer[];
-  for (const e of employers) {
-    const data = {
-      name: e.name,
-      homepage: e.homepage,
-      careersUrl: e.careersUrl,
-      method: e.method,
-      region: e.region ?? null,
-      rbq: e.rbq ?? null,
-      scope: e.scope ?? null,
-      sectors: JSON.stringify(e.sectors ?? []),
-      verified: !!e.verified,
-      enabled: e.enabled !== false,
-    };
-    await prisma.employer.upsert({ where: { id: e.id }, create: { id: e.id, ...data }, update: data });
-  }
-  console.log(`✅ Employeurs importés : ${employers.length}`);
+  const empRows = employers.map((e) => ({
+    id: e.id,
+    name: e.name,
+    homepage: e.homepage,
+    careersUrl: e.careersUrl,
+    method: e.method,
+    region: e.region ?? null,
+    rbq: e.rbq ?? null,
+    scope: e.scope ?? null,
+    sectors: JSON.stringify(e.sectors ?? []),
+    verified: !!e.verified,
+    enabled: e.enabled !== false,
+  }));
+  await insertChunked(empRows, (batch) => prisma.employer.createMany({ data: batch }));
+  console.log(`✅ Employeurs importés : ${empRows.length}`);
 
   // 3) Offres (jobs.json → table Job).
   const jobs = JSON.parse(await readFile(SNAPSHOT, "utf8")) as Job[];
-  const r = await upsertJobs(jobs);
-  console.log(`✅ Offres importées : ${jobs.length} (${r.inserted} ajoutées, ${r.updated} MAJ)`);
+  const jobRows = jobs.map(jobToRow);
+  await insertChunked(jobRows, (batch) => prisma.job.createMany({ data: batch }));
+  console.log(`✅ Offres importées : ${jobRows.length}`);
   console.log("🎉 Migration Turso terminée.");
 }
 
