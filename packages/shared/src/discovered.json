@@ -23,7 +23,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "360fondapro-com",
@@ -62,7 +63,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "agmconstruction-ca",
@@ -127,7 +129,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "abfmines-com",
@@ -211,7 +214,7 @@
     "id": "aciermc4-com",
     "name": "Acier MC4 inc.",
     "homepage": "https://armature-trepanier.com",
-    "careersUrl": "https://www.jobillico.com/fr/employeurs/armature-trepanier/voir-liste-emplois?ji_visitsrc=18&gad_source=1",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/armature-trepanier/voir-liste-emplois",
     "method": "jobillico",
     "region": "Laval",
     "scope": "Employeur — construction (découverte RBQ)",
@@ -254,7 +257,8 @@
     "scope": "Employeur — entrepreneur électricien (découverte RBQ)",
     "sectors": [
       "Électricité"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "adga-ca",
@@ -265,7 +269,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "aeraventilation-ca",
@@ -291,7 +296,8 @@
     "scope": "Employeur — mécanique du bâtiment (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "afcor-ca",
