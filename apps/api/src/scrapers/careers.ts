@@ -287,7 +287,7 @@ function parseHtmlCareers(
 // (« Google Tag Manager »). Les vrais postes de ces domaines ont un mot de
 // métier (« Technicien en ventilation », « Manœuvre en excavation »).
 const JOB_TITLE_HINT =
-  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|chef\s+de\s+chantier|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|stagiaire|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|surintendant|coordonnateur|contr[ôo]leur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|paveur|briqueteur|ma[çc]on(?!nerie)|foreman|dessinateur|designer|cuisiniste|tuyauteur|mineur|ferblantier|calorifugeur|monteur|installateur|serrurier|vitrier|peintre|pl[âa]trier|[ée]b[ée]niste(?!rie)|assembleur|directeur|gestionnaire|conseiller|repr[ée]sentant|foreuse|d[ée]bosseleur|carrossier|technician|labou?rer|carpenter|welder|electrician|plumber|operator|apprentice|internship|trainee|installer|mechanic|estimator|supervisor|helper|roofer|superintendent|millwright|ironworker|fitter|painter|surveyor|foreperson/i;
+  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|chef\s+de\s+chantier|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|stagiaire|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|surintendant|coordonnateur|contr[ôo]leur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|paveur|briqueteur|ma[çc]on(?!nerie)|foreman|dessinateur|designer|cuisiniste|tuyauteur|mineur|ferblantier|frigoriste|calorifugeur|monteur|instal{2,3}ateur|serrurier|vitrier|peintre|pl[âa]trier|[ée]b[ée]niste(?!rie)|assembleur|directeur|gestionnaire|conseiller|repr[ée]sentant|foreuse|d[ée]bosseleur|carrossier|technician|labou?rer|carpenter|welder|electrician|plumber|operator|apprentice|internship|trainee|installer|mechanic|estimator|supervisor|helper|roofer|superintendent|millwright|ironworker|fitter|painter|surveyor|foreperson/i;
 
 /** Suffixe de raison sociale — un « titre » qui finit ainsi est un nom d'entreprise, pas un poste. */
 const COMPANY_SUFFIX = /\b(inc|lt[ée]e|ltd|limit[ée]e|senc|enr|corp)\.?$/i;
@@ -356,7 +356,9 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     // ou « en » (« Dessinateur en Conception 3D et Mise en Plan »). Un intitulé
     // est un groupe nominal court ; une phrase commence par un verbe d'action ou
     // contient un connecteur, et dépasse souvent 8 mots.
-    if (probe.split(/\s+/).length > 8) return;
+    // Compte les mots « réels » : on ignore les tirets isolés d'un intitulé
+    // « Poste - Niveau - Lieu » (« - »), qui gonfleraient le total sans en être.
+    if (probe.split(/\s+/).filter((w) => /[A-Za-zÀ-ÿ0-9]/.test(w)).length > 8) return;
     if (
       /^(installer|superviser|assurer|effectuer|g[ée]rer|r[ée]aliser|participer|coordonner|planifier|ex[ée]cuter|contr[ôo]ler|veiller|maintenir|pr[ée]parer|d[ée]velopper|concevoir|proc[ée]der|collaborer|respecter|appliquer|utiliser|lire|obtenir|poss[ée]der|d[ée]tenir|avoir|[êe]tre|travailler|prendre|soutien|exp[ée]rience|accueillir|accompagner)\b/i.test(
         probe,
@@ -373,9 +375,15 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     const raw = cleanText($(el).text());
     if (raw.length < 4) return;
     // Certaines pages listent plusieurs postes dans un même intitulé
-    // (« - Contremaître - Charpentier - Manœuvre »). On sépare ces énumérations.
+    // (« Contremaître - Charpentier - Manœuvre »). On ne découpe QUE si CHAQUE
+    // segment ressemble à un métier. Sinon l'intitulé est un seul poste suivi
+    // d'un niveau/lieu (« Frigoriste - Compagnon ou apprenti - Rive-Sud de
+    // Montréal ») : le découper le réduirait à des fragments (« Compagnon ou
+    // apprenti »), donc on garde l'intitulé entier.
     const parts = raw.split(/\s+[-–—•|]\s+/).filter(Boolean);
-    if (parts.length > 1) parts.forEach((p) => add(p));
+    const looksLikeTrade = (s: string) =>
+      JOB_TITLE_HINT.test(s.replace(/\s*\([^)]*\)/g, "").replace(/\s+/g, " ").trim());
+    if (parts.length > 1 && parts.every(looksLikeTrade)) parts.forEach((p) => add(p));
     else add(raw);
   });
   // <li> : risqué (puces d'exigences, cartes). On n'accepte qu'un intitulé
