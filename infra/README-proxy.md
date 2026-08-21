@@ -76,9 +76,11 @@ Génère un jeton, par exemple : `openssl rand -hex 24`.
 > de CI, sans devoir inscrire chaque hôte à la main. Tu peux aussi lister des
 > hôtes précis (`jobillico.com,desfor.com`) si tu préfères restreindre.
 >
-> **Avec Wrangler** (au lieu du tableau de bord) :
-> `cd infra && echo "*" | npx wrangler secret put ALLOW_HOSTS` — ou mets
-> `[vars] ALLOW_HOSTS = "*"` dans `wrangler.toml` puis `npx wrangler deploy`.
+> **Avec Wrangler** (au lieu du tableau de bord) : `ALLOW_HOSTS` est une
+> **variable** (pas un secret), donc **pas** `wrangler secret put` (erreur
+> « Binding name already in use »). Le `wrangler.toml` fourni met déjà
+> `ALLOW_HOSTS = "*"` → un simple `cd infra && npx wrangler deploy` suffit ; ou
+> sans éditer le fichier : `npx wrangler deploy --var ALLOW_HOSTS:"*"`.
 
 ### 3. Donner l'URL + le jeton à GitHub Actions
 
