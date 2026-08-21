@@ -242,6 +242,8 @@ export interface DiscoveredEmployer {
   readonly scope?: string;
   /** Secteurs de construction (dérivés du nom + classification RBQ). */
   readonly sectors?: readonly string[];
+  /** Vérifié manuellement (console d'administration) : l'URL et les postes sont bons. */
+  readonly verified?: boolean;
 }
 
 export const DISCOVERED_EMPLOYERS = discoveredRaw as readonly DiscoveredEmployer[];

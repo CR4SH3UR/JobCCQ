@@ -19,6 +19,7 @@ import {
 } from "./repository.js";
 import { listScraperIds } from "./scrapers/registry.js";
 import { runScraper } from "./orchestrator.js";
+import { registerAdminRoutes } from "./admin.js";
 
 /** Normalise un paramètre de requête en tableau (répété ou séparé par des virgules). */
 function asArray(v: unknown): string[] | undefined {
@@ -52,6 +53,9 @@ export function buildServer(): FastifyInstance {
   app.register(cors, { origin: true });
 
   app.get("/health", async () => ({ ok: true, service: "jobccq-api" }));
+
+  // Console d'administration (liste / édition / re-scrape d'un employeur).
+  registerAdminRoutes(app);
 
   // Métadonnées / taxonomies pour construire l'UI (filtres).
   app.get("/api/meta", async () => ({

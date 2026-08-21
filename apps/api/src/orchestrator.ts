@@ -4,7 +4,7 @@ import { normalizeRawJob } from "./normalize.js";
 import { upsertJobs } from "./repository.js";
 import { createHttpContext } from "./scrapers/http.js";
 import { getScraper, listScraperIds } from "./scrapers/registry.js";
-import type { ScrapeParams } from "./scrapers/types.js";
+import type { Scraper, ScrapeParams } from "./scrapers/types.js";
 
 export interface RunReport {
   sourceId: string;
@@ -15,13 +15,17 @@ export interface RunReport {
   error?: string;
 }
 
-/** Exécute un scraper : collecte → validation → normalisation → upsert + journal. */
-export async function runScraper(sourceId: string, params: ScrapeParams = {}): Promise<RunReport> {
-  const scraper = getScraper(sourceId);
-  if (!scraper) {
-    return { sourceId, found: 0, inserted: 0, updated: 0, status: "error", error: "Scraper introuvable" };
-  }
-
+/**
+ * Exécute un **scraper donné** (instance) : collecte → validation →
+ * normalisation → upsert + journal. Retourne le rapport et les offres
+ * normalisées (utile pour un aperçu). Permet à la console d'admin de scraper
+ * avec une configuration fraîche (URL éditée) sans passer par le registre.
+ */
+export async function runScraperInstance(
+  scraper: Scraper,
+  params: ScrapeParams = {},
+): Promise<{ report: RunReport; jobs: Job[] }> {
+  const sourceId = scraper.id;
   const run = await prisma.scrapeRun.create({ data: { sourceId } });
   const log = (m: string) => console.log(`[scrape:${sourceId}] ${m}`);
 
@@ -41,7 +45,7 @@ export async function runScraper(sourceId: string, params: ScrapeParams = {}): P
       data: { status: "success", found: raw.length, inserted, updated, finishedAt: new Date() },
     });
     log(`terminé : ${raw.length} trouvées, ${inserted} ajoutées, ${updated} mises à jour`);
-    return { sourceId, found: raw.length, inserted, updated, status: "success" };
+    return { report: { sourceId, found: raw.length, inserted, updated, status: "success" }, jobs };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     await prisma.scrapeRun.update({
@@ -49,8 +53,20 @@ export async function runScraper(sourceId: string, params: ScrapeParams = {}): P
       data: { status: "error", error: message, finishedAt: new Date() },
     });
     log(`erreur : ${message}`);
-    return { sourceId, found: 0, inserted: 0, updated: 0, status: "error", error: message };
+    return {
+      report: { sourceId, found: 0, inserted: 0, updated: 0, status: "error", error: message },
+      jobs: [],
+    };
   }
+}
+
+/** Exécute un scraper du registre par son id. */
+export async function runScraper(sourceId: string, params: ScrapeParams = {}): Promise<RunReport> {
+  const scraper = getScraper(sourceId);
+  if (!scraper) {
+    return { sourceId, found: 0, inserted: 0, updated: 0, status: "error", error: "Scraper introuvable" };
+  }
+  return (await runScraperInstance(scraper, params)).report;
 }
 
 /** Exécute plusieurs scrapers en séquence (poli envers les sources). */
