@@ -159,7 +159,10 @@ function parseHtmlCareers(
  * lien ni type par poste.
  */
 const JOB_TITLE_HINT =
-  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|coordonnateur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|pav(?:age|eur)|briqueteur|ma[çc]on|terrassement|excavation|b[ée]ton|aqueduc|voirie|drainage|foreman/i;
+  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|coordonnateur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|pav(?:age|eur|é)|briqueteur|ma[çc]on|terrassement|excavation|b[ée]ton|aqueduc|voirie|drainage|foreman/i;
+
+/** Suffixe de raison sociale — un « titre » qui finit ainsi est un nom d'entreprise, pas un poste. */
+const COMPANY_SUFFIX = /\b(inc|lt[ée]e|ltd|limit[ée]e|senc|enr|corp)\.?$/i;
 
 const SECTION_LABEL =
   /postes?\s+(?:disponibles|ouverts)|nos emplois|offres? d'emploi|postulez|candidature|pourquoi|avantages/i;
@@ -174,11 +177,14 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     const t = cleanText(title.replace(/^[-–—•*\s]+/, ""));
     if (t.length < 4 || t.length > 110) return;
     if (!JOB_TITLE_HINT.test(t) || SECTION_LABEL.test(t)) return;
+    if (COMPANY_SUFFIX.test(t)) return; // « … inc./ltée » = nom d'entreprise, pas un poste
     const url = `${base}#${slugify(t)}`;
     if (!out.has(url)) out.set(url, { sourceId: id, url, title: t, company, tags: [] });
   };
 
-  $("h1,h2,h3,h4,h5").each((_, el) => {
+  // h1-h5 + intitulés en gras (<strong>/<b>) : certains sites listent les postes
+  // en gras sous une section « Postes », sans titres ni liens.
+  $("h1,h2,h3,h4,h5,strong,b").each((_, el) => {
     const raw = cleanText($(el).text());
     if (raw.length < 4) return;
     // Certaines pages listent plusieurs postes dans un même intitulé
