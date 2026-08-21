@@ -242,6 +242,8 @@ export interface DiscoveredEmployer {
   readonly method: DiscoveredMethod;
   /** Région administrative RBQ (indicative). */
   readonly region?: string;
+  /** Numéro de licence RBQ (indicatif, dérivé du registre). */
+  readonly rbq?: string;
   readonly scope?: string;
   /** Secteurs de construction (dérivés du nom + classification RBQ). */
   readonly sectors?: readonly string[];

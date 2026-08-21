@@ -2,7 +2,7 @@ import * as cheerio from "cheerio";
 import type { RawJob } from "@jobccq/shared";
 import type { Scraper, ScrapeContext, ScrapeParams } from "./types.js";
 import { extractJsonLdJobs } from "./jsonld.js";
-import { cleanText, mapEmploymentType, slugify } from "./util.js";
+import { cleanText, deslugify, mapEmploymentType, slugify } from "./util.js";
 
 /**
  * Fabrique un scraper pour une **page carrières d'entreprise** (employeur) :
@@ -117,6 +117,22 @@ function parseWixRepeaters(
 const NAV_LABELS =
   /^(carrières|carrieres|postuler|en savoir plus|voir|voir l'offre|voir tout|accueil|contact|nous joindre|contactez-nous|emplois|emploi|carrière|english|anglais|fran[çc]ais|home|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations)$/i;
 
+/**
+ * Débuts de phrase « marketing » : une accroche (« Un emploi de plombier à
+ * échelle humaine », « Pourquoi nous rejoindre ») n'est pas un titre de poste.
+ */
+const MARKETING_PREFIX =
+  /^(un |une |notre |nos |nous |pourquoi|rejoign|joins|deviens|devenez|faites|envie|pr[êe]t|viens|es-tu|as-tu|ton |ta |tes |vos |votre |travaille[rz]|construis|b[âa]tis|joignez)/i;
+
+/** Pathname d'une URL, ou "" si invalide. */
+function safePath(u: string): string {
+  try {
+    return new URL(u).pathname;
+  } catch {
+    return "";
+  }
+}
+
 function parseHtmlCareers(
   html: string,
   baseUrl: string,
@@ -141,9 +157,26 @@ function parseHtmlCareers(
     if (sameUrl(url, careersUrl)) return; // ignore la page index elle-même
     if (seen.has(url)) return;
 
-    const title = ($(el).text() || $(el).attr("title") || "").replace(/\s+/g, " ").trim();
+    let title = ($(el).text() || $(el).attr("title") || "").replace(/\s+/g, " ").trim();
+    // Beaucoup de sites listent les postes en fiches /emplois/<slug>/ dont le
+    // lien n'a pas de texte exploitable (image, carte). Si le lien est une
+    // sous-page de la page carrières, on dérive le titre du slug d'URL.
+    const careersPath = safePath(careersUrl).replace(/\/+$/, "");
+    const urlPath = safePath(url).replace(/\/+$/, "");
+    if (
+      (!title || title.length < 3 || title.length > 120) &&
+      careersPath &&
+      urlPath !== careersPath &&
+      urlPath.startsWith(careersPath + "/")
+    ) {
+      const derived = deslugify(urlPath.split("/").pop() ?? "").replace(
+        /\b(de|du|des|la|le|les|aux?|et|en|sur|pour)\b/gi,
+        (w) => w.toLowerCase(),
+      );
+      if (derived.length >= 4) title = derived;
+    }
     if (!title || title.length < 3 || title.length > 120) return;
-    if (NAV_LABELS.test(title)) return;
+    if (NAV_LABELS.test(title) || MARKETING_PREFIX.test(title)) return;
 
     seen.add(url);
     jobs.push({ sourceId: id, url, title, company, tags: [] });
@@ -159,7 +192,7 @@ function parseHtmlCareers(
  * lien ni type par poste.
  */
 const JOB_TITLE_HINT =
-  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|coordonnateur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|pav(?:age|eur|é)|briqueteur|ma[çc]on|terrassement|excavation|b[ée]ton|aqueduc|voirie|drainage|foreman/i;
+  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|chef\s+de\s+chantier|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|coordonnateur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|pav(?:age|eur|é)|briqueteur|ma[çc]on|terrassement|excavation|b[ée]ton|aqueduc|voirie|drainage|foreman|dessinateur|tuyauteur|mineur|ferblantier|calorifugeur|monteur|installateur|serrurier|vitrier|peintre|pl[âa]trier|[ée]b[ée]niste|assembleur|manutention|maintenance|directeur|gestionnaire|conseiller|repr[ée]sentant|arpenteur|foreuse|r[ée]frig[ée]ration|ventilation|toiture|d[ée]bosseleur|carrossier/i;
 
 /** Suffixe de raison sociale — un « titre » qui finit ainsi est un nom d'entreprise, pas un poste. */
 const COMPANY_SUFFIX = /\b(inc|lt[ée]e|ltd|limit[ée]e|senc|enr|corp)\.?$/i;
@@ -178,6 +211,7 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     if (t.length < 4 || t.length > 110) return;
     if (!JOB_TITLE_HINT.test(t) || SECTION_LABEL.test(t)) return;
     if (COMPANY_SUFFIX.test(t)) return; // « … inc./ltée » = nom d'entreprise, pas un poste
+    if (MARKETING_PREFIX.test(t)) return; // accroche marketing, pas un poste
     const url = `${base}#${slugify(t)}`;
     if (!out.has(url)) out.set(url, { sourceId: id, url, title: t, company, tags: [] });
   };
