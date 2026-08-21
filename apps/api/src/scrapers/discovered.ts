@@ -1,4 +1,4 @@
-import { DISCOVERED_EMPLOYERS } from "@jobccq/shared";
+import { DISCOVERED_EMPLOYERS, type DiscoveredEmployer } from "@jobccq/shared";
 import type { Scraper } from "./types.js";
 import { makeCareersScraper } from "./careers.js";
 import { makeZohoRecruitScraper } from "./zoho-recruit.js";
@@ -26,38 +26,38 @@ const atsHandle = (platform: AtsPlatform, url: string, fallback: string): string
  * JSON d'un ATS (Zoho, BambooHR, Greenhouse, Lever, Recruitee, SmartRecruiters)
  * ou par une page employeur Jobillico.
  */
+/** Construit le scraper adapté à un employeur découvert selon sa méthode. */
+export function buildDiscoveredScraper(d: DiscoveredEmployer): Scraper {
+  if (d.method === "zoho") {
+    return makeZohoRecruitScraper({ id: d.id, company: d.name, careersUrl: d.careersUrl });
+  }
+  if (d.method === "bamboohr") {
+    // careersUrl = https://<subdomain>.bamboohr.com
+    const subdomain = d.careersUrl.match(/\/\/([a-z0-9-]+)\.bamboohr\.com/i)?.[1] ?? d.id;
+    return makeBambooHrScraper({ id: d.id, company: d.name, subdomain });
+  }
+  if (
+    d.method === "greenhouse" ||
+    d.method === "lever" ||
+    d.method === "recruitee" ||
+    d.method === "smartrecruiters"
+  ) {
+    const platform = d.method as AtsPlatform;
+    const handle = atsHandle(platform, d.careersUrl, d.id);
+    return makeAtsJsonScraper({ id: d.id, company: d.name, platform, handle });
+  }
+  if (d.method === "jobillico") {
+    return makeJobillicoEmployerScraper({ id: d.id, company: d.name, listUrl: d.careersUrl });
+  }
+  if (d.method === "ultipro") {
+    // careersUrl = https://recruiting.ultipro.ca/<tenant>/JobBoard/<guid>/…
+    const m = d.careersUrl.match(/ultipro\.ca\/([^/]+)\/JobBoard\/([0-9a-fA-F-]+)/);
+    if (m) return makeUltiProScraper({ id: d.id, company: d.name, tenant: m[1]!, boardGuid: m[2]! });
+  }
+  // html / jsonld (et repli) → page carrières générique (JSON-LD → Wix → titres → liens).
+  return makeCareersScraper({ id: d.id, company: d.name, careersUrl: d.careersUrl });
+}
+
 export const discoveredScrapers: Record<string, Scraper> = Object.fromEntries(
-  DISCOVERED_EMPLOYERS.map((d) => {
-    if (d.method === "zoho") {
-      return [d.id, makeZohoRecruitScraper({ id: d.id, company: d.name, careersUrl: d.careersUrl })];
-    }
-    if (d.method === "bamboohr") {
-      // careersUrl = https://<subdomain>.bamboohr.com
-      const subdomain = (d.careersUrl.match(/\/\/([a-z0-9-]+)\.bamboohr\.com/i)?.[1] ?? d.id);
-      return [d.id, makeBambooHrScraper({ id: d.id, company: d.name, subdomain })];
-    }
-    if (
-      d.method === "greenhouse" ||
-      d.method === "lever" ||
-      d.method === "recruitee" ||
-      d.method === "smartrecruiters"
-    ) {
-      const platform = d.method as AtsPlatform;
-      const handle = atsHandle(platform, d.careersUrl, d.id);
-      return [d.id, makeAtsJsonScraper({ id: d.id, company: d.name, platform, handle })];
-    }
-    if (d.method === "jobillico") {
-      return [d.id, makeJobillicoEmployerScraper({ id: d.id, company: d.name, listUrl: d.careersUrl })];
-    }
-    if (d.method === "ultipro") {
-      // careersUrl = https://recruiting.ultipro.ca/<tenant>/JobBoard/<guid>/…
-      const m = d.careersUrl.match(/ultipro\.ca\/([^/]+)\/JobBoard\/([0-9a-fA-F-]+)/);
-      if (m) {
-        return [d.id, makeUltiProScraper({ id: d.id, company: d.name, tenant: m[1]!, boardGuid: m[2]! })];
-      }
-      return [d.id, makeCareersScraper({ id: d.id, company: d.name, careersUrl: d.careersUrl })];
-    }
-    // html / jsonld → page carrières générique (JSON-LD → Wix → titres → liens).
-    return [d.id, makeCareersScraper({ id: d.id, company: d.name, careersUrl: d.careersUrl })];
-  }),
+  DISCOVERED_EMPLOYERS.map((d) => [d.id, buildDiscoveredScraper(d)]),
 );

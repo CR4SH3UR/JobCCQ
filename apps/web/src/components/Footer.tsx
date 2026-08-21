@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function Footer() {
   return (
     <footer className="border-t border-slate-200 bg-white">
@@ -11,6 +13,8 @@ export function Footer() {
         </p>
         <p className="mt-3 text-xs text-slate-400">
           © {new Date().getFullYear()} JobCCQ — projet de démonstration.
+          {" · "}
+          <Link href="/admin" className="hover:text-brand-600 hover:underline">Admin</Link>
         </p>
       </div>
     </footer>
