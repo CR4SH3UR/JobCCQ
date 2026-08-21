@@ -1013,6 +1013,20 @@
     ]
   },
   {
+    "id": "aurelharvey-com",
+    "name": "Aurel Harvey & Fils",
+    "homepage": "https://www.aurelharvey.com",
+    "careersUrl": "https://www.aurelharvey.com/emplois/",
+    "method": "html",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — excavation, génie civil et transport",
+    "sectors": [
+      "Génie civil",
+      "Résidentiel",
+      "Commercial et institutionnel"
+    ]
+  },
+  {
     "id": "aurelecote-com",
     "name": "Aurèle Côté inc.",
     "homepage": "https://www.aurelecote.ca",
