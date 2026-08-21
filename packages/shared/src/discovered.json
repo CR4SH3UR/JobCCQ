@@ -25,19 +25,6 @@
     ]
   },
   {
-    "id": "pbsconstruction-com",
-    "name": "2740621 Canada Ltd",
-    "homepage": "https://www.pbsconstruction.com",
-    "careersUrl": "https://www.pbsconstruction.com/carrieres",
-    "method": "html",
-    "region": "Outaouais",
-    "scope": "Employeur — construction (découverte RBQ)",
-    "sectors": [
-      "Résidentiel",
-      "Commercial et institutionnel"
-    ]
-  },
-  {
     "id": "360fondapro-com",
     "name": "360 Fonda Pro Inc.",
     "homepage": "https://360fondapro.com",
@@ -46,18 +33,6 @@
     "region": "Montérégie",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
-      "Commercial et institutionnel"
-    ]
-  },
-  {
-    "id": "epm-mecanic-com",
-    "name": "6518648 Canada ltd",
-    "homepage": "https://epm-mecanic.com",
-    "careersUrl": "https://epm-mecanic.com/carriere/",
-    "method": "html",
-    "scope": "Employeur — construction (découverte RBQ)",
-    "sectors": [
-      "Résidentiel",
       "Commercial et institutionnel"
     ]
   },
@@ -6856,6 +6831,18 @@
     "careersUrl": "https://jobs.glowinthecloud.com/environnement-routier-nrj",
     "method": "html",
     "region": "Montréal",
+    "scope": "Employeur — construction (découverte RBQ)",
+    "sectors": [
+      "Résidentiel",
+      "Commercial et institutionnel"
+    ]
+  },
+  {
+    "id": "epm-mecanic-com",
+    "name": "EPM Mécanique",
+    "homepage": "https://epm-mecanic.com",
+    "careersUrl": "https://epm-mecanic.com/carriere/",
+    "method": "html",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Résidentiel",
@@ -16290,6 +16277,19 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Aménagement paysager"
+    ]
+  },
+  {
+    "id": "pbsconstruction-com",
+    "name": "PBS Construction",
+    "homepage": "https://www.pbsconstruction.com",
+    "careersUrl": "https://www.pbsconstruction.com/carrieres",
+    "method": "html",
+    "region": "Outaouais",
+    "scope": "Employeur — construction (découverte RBQ)",
+    "sectors": [
+      "Résidentiel",
+      "Commercial et institutionnel"
     ]
   },
   {
