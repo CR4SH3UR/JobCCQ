@@ -25,6 +25,14 @@ export const env = {
   SCRAPE_PROXY_URL: process.env.SCRAPE_PROXY_URL ?? "",
   /** Jeton partagé avec le proxy (évite un relais ouvert). */
   SCRAPE_PROXY_TOKEN: process.env.SCRAPE_PROXY_TOKEN ?? "",
-  /** Hôtes routés via le proxy (CSV). Vide = tous. Défaut : Jobillico seul. */
-  SCRAPE_PROXY_HOSTS: process.env.SCRAPE_PROXY_HOSTS ?? "jobillico.com",
+  /**
+   * Hôtes toujours routés via le proxy (CSV). « * » ou vide = tous. Défaut :
+   * Jobillico + quelques sites qui répondent 200 mais servent une page vide/de
+   * défi aux IP de centre de données de CI (le repli automatique sur échec ne
+   * les rattrape pas, la requête directe « réussissant » avec 0 offre). Les
+   * blocages francs (connexion refusée/coupée) sont, eux, rattrapés
+   * automatiquement par le repli proxy de http.ts, sans être listés ici.
+   */
+  SCRAPE_PROXY_HOSTS:
+    process.env.SCRAPE_PROXY_HOSTS ?? "jobillico.com,desfor.com,alarme-bois-francs.com",
 };

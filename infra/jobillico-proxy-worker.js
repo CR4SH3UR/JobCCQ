@@ -43,12 +43,17 @@ export default {
     if (t.protocol !== "http:" && t.protocol !== "https:") {
       return new Response("Bad scheme", { status: 400 });
     }
-    // 3) Allowlist d'hôtes (anti relais ouvert).
+    // 3) Allowlist d'hôtes (anti relais ouvert). « * » = tous les hôtes
+    //    (le jeton reste obligatoire → ce n'est pas un relais ouvert). Pratique
+    //    quand beaucoup de sites bloquent les IP de CI : on évite d'ajouter
+    //    chaque hôte à la main des deux côtés.
     const allow = (env.ALLOW_HOSTS || "jobillico.com")
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-    const ok = allow.some((h) => t.hostname === h || t.hostname.endsWith(`.${h}`));
+    const ok =
+      allow.includes("*") ||
+      allow.some((h) => t.hostname === h || t.hostname.endsWith(`.${h}`));
     if (!ok) return new Response("Host not allowed", { status: 403 });
 
     // 4) Récupère la cible avec un User-Agent de navigateur.

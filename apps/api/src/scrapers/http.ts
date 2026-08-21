@@ -13,35 +13,55 @@ async function throttle(minGapMs = env.SCRAPE_DELAY_MS): Promise<void> {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/**
- * Réécrit une URL cible pour passer par le proxy sortant si configuré et si
- * l'hôte est concerné (SCRAPE_PROXY_HOSTS). Retourne `null` = pas de proxy.
- * Contourne les blocages par IP (ex. Jobillico → 403 depuis les IP de CI).
- */
-function proxied(rawUrl: string): string | null {
+/** Construit l'URL proxifiée pour une cible (sans tester l'allowlist d'hôtes). */
+function proxyUrlFor(rawUrl: string): string | null {
   let tmpl = env.SCRAPE_PROXY_URL;
   if (!tmpl) return null;
   // Tolère une URL de proxy sans schéma (ex. « xxx.workers.dev ») : on préfixe
   // https:// sinon `new URL(tmpl)` lève « Invalid URL » et le scrape échoue.
   if (!/^https?:\/\//i.test(tmpl)) tmpl = `https://${tmpl}`;
-  let host: string;
-  try {
-    host = new URL(rawUrl).hostname;
-  } catch {
-    return null;
-  }
-  const hosts = env.SCRAPE_PROXY_HOSTS.split(",").map((s) => s.trim()).filter(Boolean);
-  if (hosts.length && !hosts.some((h) => host === h || host.endsWith(`.${h}`))) return null;
   const token = env.SCRAPE_PROXY_TOKEN;
   if (tmpl.includes("{url}")) {
     return tmpl
       .replace(/\{url\}/g, encodeURIComponent(rawUrl))
       .replace(/\{token\}/g, encodeURIComponent(token));
   }
-  const u = new URL(tmpl);
-  u.searchParams.set("url", rawUrl);
-  if (token) u.searchParams.set("token", token);
-  return u.toString();
+  try {
+    const u = new URL(tmpl);
+    u.searchParams.set("url", rawUrl);
+    if (token) u.searchParams.set("token", token);
+    return u.toString();
+  } catch {
+    return null;
+  }
+}
+
+/** L'hôte de `rawUrl` est-il dans l'allowlist proxy (SCRAPE_PROXY_HOSTS) ? */
+function hostInProxyList(rawUrl: string): boolean {
+  let host: string;
+  try {
+    host = new URL(rawUrl).hostname;
+  } catch {
+    return false;
+  }
+  const hosts = env.SCRAPE_PROXY_HOSTS.split(",").map((s) => s.trim()).filter(Boolean);
+  if (!hosts.length) return true; // vide = tous
+  if (hosts.includes("*")) return true; // joker = tous
+  return hosts.some((h) => host === h || host.endsWith(`.${h}`));
+}
+
+/**
+ * Réécrit une URL cible pour passer par le proxy sortant si configuré et si
+ * l'hôte est concerné (SCRAPE_PROXY_HOSTS ; « * » ou vide = tous). Retourne
+ * `null` = pas de proxy. Contourne les blocages par IP (ex. Jobillico → 403,
+ * ou des sites qui n'acceptent pas les IP de centre de données de CI).
+ * `force` ignore l'allowlist : utilisé en **repli** quand la requête directe a
+ * échoué (le proxy sert alors de secours pour n'importe quel hôte bloqué).
+ */
+function proxied(rawUrl: string, force = false): string | null {
+  if (!env.SCRAPE_PROXY_URL) return null;
+  if (!force && !hostInProxyList(rawUrl)) return null;
+  return proxyUrlFor(rawUrl);
 }
 
 export interface FetchOptions {
@@ -51,16 +71,14 @@ export interface FetchOptions {
   userAgent?: string;
 }
 
-/**
- * Récupère le HTML d'une URL de manière « responsable » :
- * User-Agent identifiable, en-têtes FR, throttling, timeout et retry
- * avec backoff exponentiel sur 429 / 5xx / erreurs réseau.
- */
-export async function fetchHtml(url: string, opts: FetchOptions = {}): Promise<string> {
-  const { retries = 2, timeoutMs = 20_000, userAgent = env.USER_AGENT } = opts;
-
-  const target = proxied(url) ?? url;
-
+/** Une tentative complète (avec retries/backoff) contre une URL donnée. */
+async function fetchWithRetry(
+  target: string,
+  origUrl: string,
+  retries: number,
+  timeoutMs: number,
+  userAgent: string,
+): Promise<string> {
   for (let attempt = 0; attempt <= retries; attempt++) {
     await throttle();
     const controller = new AbortController();
@@ -82,7 +100,7 @@ export async function fetchHtml(url: string, opts: FetchOptions = {}): Promise<s
       }
       if (!res.ok) {
         // 4xx définitif : inutile de réessayer.
-        throw Object.assign(new Error(`HTTP ${res.status} sur ${url}`), { fatal: true });
+        throw Object.assign(new Error(`HTTP ${res.status} sur ${origUrl}`), { fatal: true });
       }
       return await res.text();
     } catch (err) {
@@ -93,7 +111,38 @@ export async function fetchHtml(url: string, opts: FetchOptions = {}): Promise<s
       await sleep(backoff);
     }
   }
-  throw new Error(`Échec de récupération : ${url}`);
+  throw new Error(`Échec de récupération : ${origUrl}`);
+}
+
+/**
+ * Récupère le HTML d'une URL de manière « responsable » :
+ * User-Agent identifiable, en-têtes FR, throttling, timeout et retry
+ * avec backoff exponentiel sur 429 / 5xx / erreurs réseau.
+ *
+ * Si la requête **directe** échoue et qu'un proxy est configuré (sans que
+ * l'hôte soit déjà routé via le proxy), on retente **une fois** via le proxy :
+ * beaucoup de sites bloquent les IP de centre de données de GitHub Actions
+ * (connexion coupée / page vide), mais pas l'IP du proxy. Ce repli automatique
+ * rattrape n'importe quel hôte bloqué sans devoir l'inscrire au préalable.
+ */
+export async function fetchHtml(url: string, opts: FetchOptions = {}): Promise<string> {
+  const { retries = 2, timeoutMs = 20_000, userAgent = env.USER_AGENT } = opts;
+
+  const viaProxy = proxied(url); // non-null si l'hôte est déjà routé via le proxy
+  const target = viaProxy ?? url;
+
+  try {
+    return await fetchWithRetry(target, url, retries, timeoutMs, userAgent);
+  } catch (err) {
+    // Repli proxy : uniquement si on n'y est pas déjà passé et qu'un proxy existe.
+    if (!viaProxy) {
+      const forced = proxied(url, true);
+      if (forced) {
+        return await fetchWithRetry(forced, url, retries, timeoutMs, userAgent);
+      }
+    }
+    throw err;
+  }
 }
 
 /** Contexte de scraping par défaut (réseau réel). */
