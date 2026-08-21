@@ -56,6 +56,31 @@ function b64utf8(s: string): string {
   return btoa(unescape(encodeURIComponent(s)));
 }
 
+/** Récupère le discovered.json le plus récent committé (sans jeton). */
+async function fetchLatestDiscovered(): Promise<Employer[] | null> {
+  const { owner, repo } = ghRepo();
+  try {
+    const r = await fetch(
+      `https://raw.githubusercontent.com/${owner}/${repo}/main/${DISCOVERED_PATH}?t=${Date.now()}`,
+      { cache: "no-store" },
+    );
+    if (!r.ok) return null;
+    return (await r.json()) as Employer[];
+  } catch {
+    return null;
+  }
+}
+
+/** Signature légère (compte + hash des champs éditables) pour détecter un écart. */
+function sigOf(list: { id: string; careersUrl: string; method: string; verified?: boolean; enabled?: boolean }[]): string {
+  let h = 0;
+  for (const e of list) {
+    const s = `${e.id}|${e.careersUrl}|${e.method}|${e.verified ? 1 : 0}|${e.enabled === false ? 0 : 1}`;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  }
+  return `${list.length}:${h >>> 0}`;
+}
+
 function loadLS<T>(key: string, fallback: T): T {
   try {
     const v = localStorage.getItem(key);
@@ -83,6 +108,9 @@ export function AdminExplorer() {
   const [publish, setPublish] = useState<{ status: "idle" | "run" | "ok" | "err"; message?: string }>({ status: "idle" });
   const [ghToken, setGhToken] = useState("");
   const [ghOpen, setGhOpen] = useState(false);
+  const [stale, setStale] = useState(false);
+  const [reloading, setReloading] = useState(false);
+  const latestRef = useRef<Employer[] | null>(null);
 
   useEffect(() => {
     try {
@@ -129,6 +157,14 @@ export function AdminExplorer() {
         }));
         setEmployers(base);
         setMode("static");
+        // Détecte si une version plus récente est committée (bundle périmé).
+        fetchLatestDiscovered().then((latest) => {
+          if (!alive || !latest) return;
+          if (sigOf(latest) !== sigOf(DISCOVERED_EMPLOYERS as unknown as Employer[])) {
+            latestRef.current = latest;
+            setStale(true);
+          }
+        });
       });
     return () => {
       alive = false;
@@ -145,6 +181,39 @@ export function AdminExplorer() {
       })
       .catch(() => {});
   }, []);
+
+  const reloadData = async () => {
+    setReloading(true);
+    try {
+      if (mode === "api") {
+        const d = await fetch(`${API_URL}/admin/employers`).then((r) => r.json()).catch(() => null);
+        if (d?.employers) setEmployers(d.employers);
+      } else {
+        const latest = latestRef.current ?? (await fetchLatestDiscovered());
+        if (latest) {
+          editsRef.current = loadLS<Record<string, Partial<Employer>>>(LS_EDITS, {});
+          const verified = new Set(loadLS<string[]>(LS_VERIF, []));
+          setEmployers(
+            latest.map((e) => ({
+              ...e,
+              ...editsRef.current[e.id],
+              verified: e.verified || verified.has(e.id) || !!editsRef.current[e.id]?.verified,
+            })),
+          );
+        }
+      }
+      const s = await getStats().catch(() => null);
+      if (s) {
+        const m: Record<string, number> = {};
+        for (const x of s.bySource) m[x.id] = x.count;
+        setCounts(m);
+      }
+      latestRef.current = null;
+      setStale(false);
+    } finally {
+      setReloading(false);
+    }
+  };
 
   const patchEmployer = async (id: string, patch: Partial<Employer>) => {
     setEmployers((list) => list.map((e) => (e.id === id ? { ...e, ...patch } : e)));
@@ -199,8 +268,9 @@ export function AdminExplorer() {
   const cleanList = () =>
     employers.map((e) => ({
       id: e.id, name: e.name, homepage: e.homepage, careersUrl: e.careersUrl,
-      method: e.method, region: e.region, scope: e.scope, sectors: e.sectors,
+      method: e.method, region: e.region, rbq: e.rbq, scope: e.scope, sectors: e.sectors,
       ...(e.verified ? { verified: true } : {}),
+      ...(e.enabled === false ? { enabled: false } : {}),
     }));
 
   const exportJson = () => {
@@ -364,6 +434,19 @@ export function AdminExplorer() {
             )}
           </div>
 
+          {stale && (
+            <div className="card mb-4 flex flex-wrap items-center justify-between gap-3 border-amber-400 bg-amber-50 p-3 text-sm text-amber-800">
+              <span>⚠️ <strong>Version périmée</strong> — des données plus récentes ont été publiées ailleurs. Recharge avant d'éditer ou de publier, sinon tu risques d'écraser ces changements.</span>
+              <button
+                onClick={reloadData}
+                disabled={reloading}
+                className="shrink-0 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+              >
+                {reloading ? "Rechargement…" : "🔄 Recharger maintenant"}
+              </button>
+            </div>
+          )}
+
           <div className="card mb-4 flex flex-col gap-2 p-3 sm:flex-row sm:items-center">
             <input
               value={search}
@@ -382,6 +465,14 @@ export function AdminExplorer() {
               <option value="nojobs">Sans offres ({noJobsCount})</option>
               <option value="disabled">Désactivées ({disabledCount})</option>
             </select>
+            <button
+              onClick={reloadData}
+              disabled={reloading}
+              title="Récupérer la dernière version des données"
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium hover:bg-slate-100 disabled:opacity-50"
+            >
+              {reloading ? "Rechargement…" : "🔄 Recharger"}
+            </button>
             {mode === "static" && (
               <button onClick={exportJson} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium hover:bg-slate-100">
                 Exporter
