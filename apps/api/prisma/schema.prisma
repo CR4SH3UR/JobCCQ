@@ -1,13 +1,39 @@
-// Schéma de base de données JobCCQ (SQLite pour le développement).
-// Passer à PostgreSQL en production : changer `provider` et DATABASE_URL.
+// Schéma de base de données JobCCQ.
+// - Dev : fichier SQLite local (DATABASE_URL="file:./prisma/dev.db").
+// - Prod : Turso (libSQL, compatible SQLite) via l'adaptateur de pilote —
+//   défini TURSO_DATABASE_URL + TURSO_AUTH_TOKEN (voir src/db.ts et
+//   infra/README-turso.md). Aucun changement de provider requis (libSQL = SQLite).
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
+}
+
+/// Employeur du répertoire (auparavant packages/shared/src/discovered.json).
+/// Éditable dans la console d'admin ; source des scrapers.
+model Employer {
+  id         String   @id
+  name       String
+  homepage   String
+  careersUrl String
+  method     String
+  region     String?
+  rbq        String?
+  scope      String?
+  /// SQLite/libSQL n'a pas de type tableau : JSON sérialisé (comme Job.tags).
+  sectors    String   @default("[]")
+  verified   Boolean  @default(false)
+  enabled    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([enabled])
+  @@index([verified])
 }
 
 /// Une offre d'emploi normalisée, provenant de n'importe quelle source.
