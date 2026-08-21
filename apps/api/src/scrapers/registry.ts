@@ -12,6 +12,7 @@ import { coteEtFilsScraper } from "./cote-et-fils.js";
 import { lefrancoisScraper } from "./lefrancois.js";
 import { jcDroletScraper } from "./jcdrolet.js";
 import { refrabecScraper } from "./refrabec.js";
+import { discoveredScrapers } from "./discovered.js";
 
 /**
  * Registre des scrapers branchés. La clé correspond à l'`id` de la source
@@ -33,6 +34,8 @@ export const SCRAPERS: Record<string, Scraper> = {
   [lefrancoisScraper.id]: lefrancoisScraper,
   [jcDroletScraper.id]: jcDroletScraper,
   [refrabecScraper.id]: refrabecScraper,
+  // Employeurs auto-découverts (registre RBQ).
+  ...discoveredScrapers,
 };
 
 export function getScraper(id: string): Scraper | undefined {

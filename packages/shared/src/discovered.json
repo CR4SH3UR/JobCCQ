@@ -1,0 +1,29 @@
+[
+  {
+    "id": "courlem-com",
+    "name": "Courlem électrique inc.",
+    "homepage": "https://www.courlem.com",
+    "careersUrl": "https://www.courlem.com/emplois-electriciens/",
+    "method": "html",
+    "region": "Montréal",
+    "scope": "Employeur — entrepreneur électricien (découverte RBQ)"
+  },
+  {
+    "id": "thermicanique-ca",
+    "name": "Construction Thermicanique inc.",
+    "homepage": "https://thermicanique.ca",
+    "careersUrl": "https://thermicanique.ca/carriere/",
+    "method": "html",
+    "region": "Montréal",
+    "scope": "Employeur — mécanique du bâtiment / construction (découverte RBQ)"
+  },
+  {
+    "id": "logis-experts-com",
+    "name": "Logis-Experts inc.",
+    "homepage": "https://logis-experts.com",
+    "careersUrl": "https://logis-experts.com/emplois",
+    "method": "html",
+    "region": "Montréal",
+    "scope": "Employeur — construction / rénovation (découverte RBQ)"
+  }
+]
