@@ -460,6 +460,12 @@ export function makeCareersScraper(config: CareersScraperConfig): Scraper {
         return [];
       }
       const jobs = this.parseList!(html, config.careersUrl);
+      // Page récupérée mais qui déclare explicitement n'avoir aucun poste ouvert
+      // → 0 offre **légitime** (la synchro peut purger, cf. syncSourceJobs).
+      if (jobs.length === 0 && pageDeclaresNoOpenings(html)) {
+        ctx.markNoOpenings?.();
+        ctx.log(`${config.id} — aucun poste ouvert (déclaré par la page)`);
+      }
       ctx.log(`${config.id} — ${jobs.length} poste(s) trouvé(s)`);
       return jobs;
     },

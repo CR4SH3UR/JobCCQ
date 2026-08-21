@@ -175,8 +175,18 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
 export async function syncSourceJobs(
   sourceId: string,
   jobs: Job[],
+  confirmedEmpty = false,
 ): Promise<UpsertResult & { removed: number }> {
-  if (jobs.length === 0) return { inserted: 0, updated: 0, removed: 0 };
+  if (jobs.length === 0) {
+    // 0 offre **confirmé** (la page déclare « aucun poste ouvert ») : on purge
+    // réellement la source. Un 0 par échec/blocage (403, page vide) n'arrive
+    // pas ici avec ce drapeau → on conserve le dernier bon état.
+    if (confirmedEmpty) {
+      const del = await prisma.job.deleteMany({ where: { sourceId } });
+      return { inserted: 0, updated: 0, removed: del.count };
+    }
+    return { inserted: 0, updated: 0, removed: 0 };
+  }
 
   const existingCount = await prisma.job.count({ where: { sourceId } });
   const res = await upsertJobs(jobs);
