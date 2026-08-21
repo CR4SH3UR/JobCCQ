@@ -13,6 +13,7 @@ type Employer = {
   careersUrl: string;
   method: DiscoveredMethod;
   region?: string;
+  rbq?: string;
   scope?: string;
   sectors?: readonly string[];
   verified?: boolean;
@@ -469,6 +470,7 @@ function Row({
           {METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
         {e.region && <Badge>{e.region}</Badge>}
+        {e.rbq && <span className="font-mono text-xs text-slate-400" title="Numéro de licence RBQ">RBQ {e.rbq}</span>}
         {count > 0 ? (
           <Link
             href={`/emplois?sources=${e.id}`}
