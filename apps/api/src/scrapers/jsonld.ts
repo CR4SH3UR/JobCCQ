@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import type { RawJob } from "@jobccq/shared";
+import { slugify } from "./util.js";
 
 /** Nettoie un fragment HTML en texte simple tronqué. */
 export function htmlToText(html?: string, maxLen = 600): string | undefined {
@@ -64,7 +65,12 @@ function mapNode(node: Record<string, unknown>, sourceId: string, baseUrl: strin
   const company = asString(org?.name);
   if (!title || !company) return null;
 
-  const url = asString(node.url) ?? asString((node as Record<string, unknown>).sameAs) ?? baseUrl;
+  let url = asString(node.url) ?? asString((node as Record<string, unknown>).sameAs) ?? baseUrl;
+  // Plusieurs offres peuvent partager l'URL de la page (candidature par
+  // courriel, page unique). On ajoute un fragment dérivé du titre pour éviter
+  // les collisions d'identifiant (sinon une seule offre survit à l'upsert).
+  const strip = (u: string) => u.replace(/#.*$/, "").replace(/\/+$/, "");
+  if (strip(url) === strip(baseUrl)) url = `${strip(url)}#${slugify(title)}`;
 
   // Localisation
   let location: string | undefined;

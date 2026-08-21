@@ -303,16 +303,48 @@ export function AdminExplorer() {
     }
   };
 
+  // Fusionne les champs éditables de l'onglet sur le fichier committé le plus
+  // récent : on ne réécrit QUE name/careersUrl/method/verified/enabled, et on
+  // conserve les champs dérivés committés (rbq, sectors, scope, region,
+  // homepage). Ainsi, publier depuis un onglet périmé n'efface plus le n° RBQ.
+  const mergeForPublish = (committed: Employer[] | null): Employer[] => {
+    const mine = cleanList() as Employer[];
+    if (!committed || committed.length === 0) return mine;
+    const byMine = new Map(mine.map((e) => [e.id, e]));
+    const committedIds = new Set(committed.map((e) => e.id));
+    const merged = committed.map((base) => {
+      const cur = byMine.get(base.id);
+      if (!cur) return base; // employeur absent de l'onglet : inchangé
+      const m: Record<string, unknown> = {
+        ...base, // conserve rbq/sectors/scope/region/homepage committés
+        name: cur.name,
+        careersUrl: cur.careersUrl,
+        method: cur.method,
+      };
+      if (cur.verified) m.verified = true;
+      else delete m.verified;
+      if (cur.enabled === false) m.enabled = false;
+      else delete m.enabled;
+      return m as unknown as Employer;
+    });
+    // Employeurs ajoutés dans l'onglet mais pas encore committés (ajout manuel).
+    for (const e of mine) if (!committedIds.has(e.id)) merged.push(e);
+    return merged;
+  };
+
   const ghPublish = async () => {
     const { owner, repo } = ghRepo();
     const base = `https://api.github.com/repos/${owner}/${repo}/contents/${DISCOVERED_PATH}`;
     setPublish({ status: "run" });
     try {
+      // Repart TOUJOURS du fichier committé le plus récent (préserve rbq/sectors).
+      const latest = await fetchLatestDiscovered();
+      const merged = mergeForPublish(latest);
       const cur = await fetch(`${base}?ref=main`, { headers: GH_HEADERS(ghToken) });
       const sha = cur.ok ? (await cur.json()).sha : undefined;
       const body = {
         message: "Admin : mise à jour des employeurs (URLs / vérifications)",
-        content: b64utf8(JSON.stringify(cleanList(), null, 2) + "\n"),
+        content: b64utf8(JSON.stringify(merged, null, 2) + "\n"),
         branch: "main",
         ...(sha ? { sha } : {}),
       };

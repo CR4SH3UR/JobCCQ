@@ -115,7 +115,7 @@ function parseWixRepeaters(
 }
 
 const NAV_LABELS =
-  /^(carrières|carrieres|postuler|en savoir plus|voir|voir l'offre|voir tout|accueil|contact|nous joindre|contactez-nous|emplois|emploi|carrière|english|anglais|fran[çc]ais|home|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations)$/i;
+  /^(carrières|carrieres|postuler|postuler maintenant|je postule|postule[rz]?|en savoir plus|en savoir \+|voir|voir l'offre|voir l'emploi|voir ce poste|voir le poste|voir plus|voir tout|voir d[ée]tails?|d[ée]tails?( du poste)?|plus de d[ée]tails|consulter|lire( la suite| plus)?|accueil|contact|nous joindre|nous rejoindre|contactez-nous|rejoignez-nous|joindre l'équipe|emplois|emploi|carrière|english|anglais|fran[çc]ais|home|apply|apply now|view|view job|view details|read more|learn more|more|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations|candidature spontan[ée]e|postulez( ici| maintenant)?)$/i;
 
 /**
  * Débuts de phrase « marketing » : une accroche (« Un emploi de plombier à
@@ -133,6 +133,23 @@ function safePath(u: string): string {
   }
 }
 
+/**
+ * Un chemin d'URL ressemble-t-il à une **fiche de poste** ? (mot-clé de section
+ * + un slug). Permet de récupérer un titre depuis un lien « En savoir plus »
+ * même quand la fiche n'est pas une sous-page directe de la page carrières
+ * (ex. carrières = /demandes-emploi/, fiche = /emploi/installateurs/).
+ */
+const JOB_DETAIL_SEG =
+  /(?:^|\/)(?:emplois?|offres?|postes?|carri[eè]res?|jobs?|careers?|opportunit[eé]s?|opportunit(?:y|ies)|vacatures?)\/[^/]+/i;
+function looksLikeJobDetail(urlPath: string, careersPath: string): boolean {
+  if (!urlPath || urlPath === careersPath) return false;
+  const segs = urlPath.split("/").filter(Boolean);
+  if (segs.length < 2) return false; // besoin d'un mot-clé + un slug
+  const last = segs[segs.length - 1] ?? "";
+  if (last.length < 3) return false;
+  return JOB_DETAIL_SEG.test(urlPath);
+}
+
 function parseHtmlCareers(
   html: string,
   baseUrl: string,
@@ -145,9 +162,24 @@ function parseHtmlCareers(
   const seen = new Set<string>();
   const jobs: RawJob[] = [];
 
+  const careersPath = safePath(careersUrl).replace(/\/+$/, "");
+
+  // Intitulés (h1-h5) indexés par slug : sert à récupérer un libellé propre
+  // (accents, apostrophes, ponctuation) quand un lien de fiche n'expose qu'un
+  // slug d'URL ou un texte inutilisable (« En savoir plus »).
+  const headingByKey = new Map<string, string>();
+  const keyOf = (s: string) => slugify(s).replace(/-/g, "");
+  $("h1,h2,h3,h4,h5").each((_, h) => {
+    const t = cleanText($(h).text());
+    if (t.length >= 4 && t.length <= 120) {
+      const k = keyOf(t);
+      if (k && !headingByKey.has(k)) headingByKey.set(k, t);
+    }
+  });
+
   const selector = jobPathPattern
     ? "a[href]"
-    : 'a[href*="carriere"], a[href*="emploi"], a[href*="poste"], a[href*="/job"]';
+    : 'a[href*="carriere"], a[href*="emploi"], a[href*="poste"], a[href*="/job"], a[href*="offre"], a[href*="opportunit"]';
 
   $(selector).each((_, el) => {
     const href = $(el).attr("href");
@@ -155,21 +187,38 @@ function parseHtmlCareers(
     if (jobPathPattern && !jobPathPattern.test(href)) return;
     const url = absolute((href.split("#")[0] ?? "").trim(), baseUrl);
     if (sameUrl(url, careersUrl)) return; // ignore la page index elle-même
-    if (seen.has(url)) return;
+    // Clé de déduplication insensible au « / » final : /emplois/foo/ et
+    // /emplois/foo (bouton « Voir le poste » vs carte cliquable) = même offre.
+    const dedupKey = url.replace(/\/+$/, "");
+    if (seen.has(dedupKey)) return;
 
     let title = ($(el).text() || $(el).attr("title") || "").replace(/\s+/g, " ").trim();
-    // Beaucoup de sites listent les postes en fiches /emplois/<slug>/ dont le
-    // lien n'a pas de texte exploitable (image, carte). Si le lien est une
-    // sous-page de la page carrières, on dérive le titre du slug d'URL.
-    const careersPath = safePath(careersUrl).replace(/\/+$/, "");
+    // Certains sites encodent le poste dans un paramètre d'URL du bouton
+    // « Postuler » (ex. ?poste=Ferblantier#contact). On le préfère au texte.
+    const qMatch = href.match(/[?&](?:poste|position|job|titre|title|offre)=([^&#]+)/i);
+    if (qMatch) {
+      const decoded = decodeURIComponent((qMatch[1] ?? "").replace(/\+/g, " ")).trim();
+      if (decoded.length >= 3 && decoded.length <= 120) title = decoded;
+    }
     const urlPath = safePath(url).replace(/\/+$/, "");
-    if (
-      (!title || title.length < 3 || title.length > 120) &&
-      careersPath &&
-      urlPath !== careersPath &&
-      urlPath.startsWith(careersPath + "/")
-    ) {
-      const derived = deslugify(urlPath.split("/").pop() ?? "").replace(
+    const isSubPage = !!careersPath && urlPath !== careersPath && urlPath.startsWith(careersPath + "/");
+    const isDetail = isSubPage || looksLikeJobDetail(urlPath, careersPath);
+    const unusable =
+      !title ||
+      title.length < 3 ||
+      title.length > 120 ||
+      NAV_LABELS.test(title) ||
+      MARKETING_PREFIX.test(title);
+    // L'URL pointe une fiche de poste (/emploi/<slug>/). Un intitulé (h1-h5) de
+    // même slug prime : il donne un libellé propre (accents/apostrophes) et
+    // évite les textes inutilisables (« Voir le poste ») comme les textes
+    // fourre-tout des cartes cliquables (« Titre + 1re ligne de description »).
+    const lastSeg = urlPath.split("/").pop() ?? "";
+    const heading = isDetail ? headingByKey.get(keyOf(lastSeg)) : undefined;
+    if (heading && (unusable || heading.length < title.length)) {
+      title = heading;
+    } else if (unusable && isDetail) {
+      const derived = deslugify(lastSeg).replace(
         /\b(de|du|des|la|le|les|aux?|et|en|sur|pour)\b/gi,
         (w) => w.toLowerCase(),
       );
@@ -178,7 +227,7 @@ function parseHtmlCareers(
     if (!title || title.length < 3 || title.length > 120) return;
     if (NAV_LABELS.test(title) || MARKETING_PREFIX.test(title)) return;
 
-    seen.add(url);
+    seen.add(dedupKey);
     jobs.push({ sourceId: id, url, title, company, tags: [] });
   });
 
@@ -191,8 +240,13 @@ function parseHtmlCareers(
  * (Wix/WordPress) qui listent les postes en titres, sans données structurées,
  * lien ni type par poste.
  */
+// N'inclut que des **noms de métier** (une personne qui exerce). On évite les
+// mots de domaine/activité seuls (« Ventilation », « Excavation », « Pavage »,
+// « Maintenance ») qui sont surtout des titres de section, et « manager » seul
+// (« Google Tag Manager »). Les vrais postes de ces domaines ont un mot de
+// métier (« Technicien en ventilation », « Manœuvre en excavation »).
 const JOB_TITLE_HINT =
-  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|chef\s+de\s+chantier|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|coordonnateur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|pav(?:age|eur|é)|briqueteur|ma[çc]on|terrassement|excavation|b[ée]ton|aqueduc|voirie|drainage|foreman|dessinateur|tuyauteur|mineur|ferblantier|calorifugeur|monteur|installateur|serrurier|vitrier|peintre|pl[âa]trier|[ée]b[ée]niste|assembleur|manutention|maintenance|directeur|gestionnaire|conseiller|repr[ée]sentant|arpenteur|foreuse|r[ée]frig[ée]ration|ventilation|toiture|d[ée]bosseleur|carrossier/i;
+  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|chef\s+de\s+chantier|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|coordonnateur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|paveur|briqueteur|ma[çc]on|foreman|dessinateur|tuyauteur|mineur|ferblantier|calorifugeur|monteur|installateur|serrurier|vitrier|peintre|pl[âa]trier|[ée]b[ée]niste|assembleur|directeur|gestionnaire|conseiller|repr[ée]sentant|foreuse|d[ée]bosseleur|carrossier|technician|labou?rer|carpenter|welder|electrician|plumber|operator|apprentice|installer|mechanic|estimator|supervisor|helper|roofer|superintendent|millwright|ironworker|fitter|painter|surveyor|foreperson/i;
 
 /** Suffixe de raison sociale — un « titre » qui finit ainsi est un nom d'entreprise, pas un poste. */
 const COMPANY_SUFFIX = /\b(inc|lt[ée]e|ltd|limit[ée]e|senc|enr|corp)\.?$/i;
@@ -209,15 +263,32 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
   const add = (title: string) => {
     const t = cleanText(title.replace(/^[-–—•*\s]+/, ""));
     if (t.length < 4 || t.length > 110) return;
-    if (!JOB_TITLE_HINT.test(t) || SECTION_LABEL.test(t)) return;
-    if (COMPANY_SUFFIX.test(t)) return; // « … inc./ltée » = nom d'entreprise, pas un poste
-    if (MARKETING_PREFIX.test(t)) return; // accroche marketing, pas un poste
+    // Les qualificatifs entre parenthèses (« (institutionnel et commercial) »,
+    // « (jour/soir) », « (H/F) ») ne doivent pas fausser les filtres (« et »,
+    // longueur…) : on teste sur une version sans parenthèses, mais on conserve
+    // le libellé complet pour l'affichage.
+    const probe = t.replace(/\s*\([^)]*\)/g, "").replace(/\s+/g, " ").trim() || t;
+    if (!JOB_TITLE_HINT.test(probe) || SECTION_LABEL.test(probe)) return;
+    if (COMPANY_SUFFIX.test(probe)) return; // « … inc./ltée » = nom d'entreprise, pas un poste
+    if (MARKETING_PREFIX.test(probe)) return; // accroche marketing, pas un poste
+    // Rejet des **phrases** (puces de responsabilités « Installer et superviser
+    // les systèmes… ») sans écarter les vrais intitulés qui contiennent « et »
+    // ou « en » (« Dessinateur en Conception 3D et Mise en Plan »). Un intitulé
+    // est un groupe nominal court ; une phrase commence par un verbe d'action ou
+    // contient un connecteur, et dépasse souvent 8 mots.
+    if (probe.split(/\s+/).length > 8) return;
+    if (
+      /^(installer|superviser|assurer|effectuer|g[ée]rer|r[ée]aliser|participer|coordonner|planifier|ex[ée]cuter|contr[ôo]ler|veiller|maintenir|pr[ée]parer|d[ée]velopper|concevoir|proc[ée]der|collaborer|respecter|appliquer|utiliser|lire|obtenir|poss[ée]der|d[ée]tenir|avoir|[êe]tre|travailler|prendre|soutien|exp[ée]rience)\b/i.test(
+        probe,
+      )
+    )
+      return;
+    if (/\b(afin|ainsi|selon|lorsque|puisque|notamment|responsable de)\b/i.test(probe)) return;
     const url = `${base}#${slugify(t)}`;
     if (!out.has(url)) out.set(url, { sourceId: id, url, title: t, company, tags: [] });
   };
 
-  // h1-h5 + intitulés en gras (<strong>/<b>) : certains sites listent les postes
-  // en gras sous une section « Postes », sans titres ni liens.
+  // Intitulés en gras (<strong>/<b>) et titres : listes de postes sans liens.
   $("h1,h2,h3,h4,h5,strong,b").each((_, el) => {
     const raw = cleanText($(el).text());
     if (raw.length < 4) return;
@@ -226,6 +297,29 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     const parts = raw.split(/\s+[-–—•|]\s+/).filter(Boolean);
     if (parts.length > 1) parts.forEach(add);
     else add(raw);
+  });
+  // <li> : risqué (puces d'exigences, cartes). On n'accepte qu'un intitulé
+  // court et propre (peu de mots, sans chiffres ni marqueurs de phrase FR/EN).
+  $("li").each((_, el) => {
+    if ($(el).find("li").length) return; // conteneur, pas une feuille
+    const raw = cleanText($(el).text());
+    if (raw.length < 4 || raw.length > 48) return;
+    if (/\d/.test(raw)) return; // dates / quantités (cartes)
+    if (raw.split(/\s+/).length > 6) return;
+    if (/\b(in|or|and|with|the|of|de la|du)\b/i.test(raw)) return; // exigences EN / phrase
+    // Puces d'exigences (« Valid driver's license », « Permis de conduire »,
+    // « Minimum 3 années d'expérience ») : ce ne sont pas des postes.
+    if (/licen[cs]e|permis|valid|minimum|exp[ée]rience|ann[ée]es?|ability|must|required|driving|driver|assurance|avantages?|b[ée]n[ée]fices?|atout/i.test(raw))
+      return;
+    add(raw);
+  });
+  // Accordéons : certains sites listent les postes en <a href="#">Titre</a> (ou
+  // ancre de fragment), le clic révélant la description + un bouton « Postuler ».
+  // Le texte de l'ancre est alors le titre. On ne prend que les ancres « feuille »
+  // (sans titre imbriqué) pour éviter d'avaler une carte entière ; add() filtre.
+  $('a[href="#"], a[href^="#"], a:not([href])').each((_, el) => {
+    if ($(el).find("h1,h2,h3,h4,h5,li,p").length) return; // conteneur, pas un libellé
+    add(cleanText($(el).text()));
   });
   return [...out.values()];
 }
@@ -240,7 +334,7 @@ export function makeCareersScraper(config: CareersScraperConfig): Scraper {
       const wix = parseWixRepeaters(html, baseUrl, config.careersUrl, config.id, config.company);
       if (wix.length > 0) return wix;
       // Si la source expose un motif de lien de poste (ex. /emploi-…), on le
-      // privilégie (vraies URLs de fiches). Sinon on lit les titres.
+      // privilégie (vraies URLs de fiches).
       if (config.jobPathPattern) {
         const links = parseHtmlCareers(
           html,
@@ -252,16 +346,14 @@ export function makeCareersScraper(config: CareersScraperConfig): Scraper {
         );
         if (links.length > 0) return links;
       }
+      // Liens de fiches réelles (/emploi/<slug>/, titre récupéré de l'intitulé
+      // ou du slug) vs repli « titres » en #fragment. On préfère les vraies
+      // URLs dès qu'elles couvrent au moins autant de postes que les titres.
+      const links = parseHtmlCareers(html, baseUrl, config.careersUrl, config.id, config.company);
       const heads = parseHeadingJobs(html, config.careersUrl, config.id, config.company);
+      if (links.length > 0 && links.length >= heads.length) return links;
       if (heads.length > 0) return heads;
-      return parseHtmlCareers(
-        html,
-        baseUrl,
-        config.careersUrl,
-        config.id,
-        config.company,
-        config.jobPathPattern,
-      );
+      return links;
     },
 
     async scrape(_params: ScrapeParams, ctx: ScrapeContext): Promise<RawJob[]> {
