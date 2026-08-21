@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { DISCOVERED_EMPLOYERS, type DiscoveredMethod } from "@jobccq/shared";
 import { API_URL, getStats } from "@/lib/data";
 import { Badge } from "./Badge";
@@ -52,6 +53,7 @@ export function AdminExplorer() {
   const [filter, setFilter] = useState<"all" | "unverified" | "verified" | "nojobs">("all");
   const [page, setPage] = useState(1);
   const [scrapes, setScrapes] = useState<Record<string, ScrapeState>>({});
+  const [publish, setPublish] = useState<{ status: "idle" | "run" | "ok" | "err"; message?: string }>({ status: "idle" });
   // Édition locale (mode statique) : superposée aux données du paquet partagé.
   const editsRef = useRef<Record<string, Partial<Employer>>>({});
 
@@ -136,6 +138,17 @@ export function AdminExplorer() {
     }
   };
 
+  const publishChanges = async () => {
+    setPublish({ status: "run" });
+    try {
+      const r = await fetch(`${API_URL}/admin/publish`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+      const d = await r.json();
+      setPublish({ status: d.published || d.message ? "ok" : "err", message: d.message || d.error || "Terminé." });
+    } catch (e) {
+      setPublish({ status: "err", message: (e as Error).message });
+    }
+  };
+
   const exportJson = () => {
     const clean = employers.map((e) => ({
       id: e.id, name: e.name, homepage: e.homepage, careersUrl: e.careersUrl,
@@ -190,7 +203,19 @@ export function AdminExplorer() {
             }`}
           >
             {mode === "api" ? (
-              <>✅ <strong>Mode connecté</strong> — édition, vérification et re-scraping sont enregistrés dans <code>discovered.json</code>.</>
+              <div className="flex flex-wrap items-center gap-2">
+                <span>✅ <strong>Mode connecté</strong> — édition, vérification et re-scraping enregistrés dans <code>discovered.json</code>.</span>
+                <button
+                  onClick={publishChanges}
+                  disabled={publish.status === "run"}
+                  className="rounded-lg bg-green-700 px-3 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                >
+                  {publish.status === "run" ? "Publication…" : "⬆ Publier sur le site"}
+                </button>
+                {publish.status !== "idle" && publish.status !== "run" && (
+                  <span className={publish.status === "ok" ? "text-green-700" : "text-red-600"}>{publish.message}</span>
+                )}
+              </div>
             ) : (
               <>
                 ⚠️ <strong>Mode lecture</strong> (API non détectée) — les modifications et cases cochées sont mémorisées dans
@@ -301,9 +326,19 @@ function Row({
           {METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
         {e.region && <Badge>{e.region}</Badge>}
-        <Badge tone={count > 0 ? "brand" : "slate"}>
-          {count} offre{count > 1 ? "s" : ""}
-        </Badge>
+        {count > 0 ? (
+          <Link
+            href={`/emplois?sources=${e.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Voir les offres de cette compagnie"
+            className="rounded-full"
+          >
+            <Badge tone="brand">{count} offre{count > 1 ? "s" : ""} ↗</Badge>
+          </Link>
+        ) : (
+          <Badge tone="slate">0 offre</Badge>
+        )}
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-2">

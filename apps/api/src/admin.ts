@@ -1,6 +1,8 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import type { FastifyInstance } from "fastify";
 import type { DiscoveredEmployer } from "@jobccq/shared";
 import { buildDiscoveredScraper } from "./scrapers/discovered.js";
@@ -13,6 +15,9 @@ import { runScraperInstance } from "./orchestrator.js";
  * Les écritures modifient packages/shared/src/discovered.json (à committer).
  */
 const DP = resolve(dirname(fileURLToPath(import.meta.url)), "../../../packages/shared/src/discovered.json");
+const REPO_ROOT = resolve(dirname(DP), "../../..");
+const REL_DP = "packages/shared/src/discovered.json";
+const exec = promisify(execFile);
 
 type Employer = DiscoveredEmployer & { verified?: boolean };
 
@@ -73,4 +78,25 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       };
     },
   );
+
+  // Publie discovered.json : git add + commit + push → redéploiement du site.
+  // (Endpoint local : utilise les identifiants git de la machine.)
+  app.post<{ Body: { message?: string } }>("/admin/publish", async (_req, reply) => {
+    const git = (args: string[]) => exec("git", args, { cwd: REPO_ROOT });
+    try {
+      await git(["add", REL_DP]);
+      // Rien à publier ?
+      const status = await git(["status", "--porcelain", REL_DP]);
+      if (!status.stdout.trim()) {
+        return { published: false, message: "Aucun changement à publier." };
+      }
+      await git(["commit", "-m", _req.body?.message?.slice(0, 200) || "Admin : mise à jour des employeurs"]);
+      await git(["push"]);
+      const head = (await git(["rev-parse", "--short", "HEAD"])).stdout.trim();
+      return { published: true, commit: head, message: "Publié — le site va se redéployer." };
+    } catch (err) {
+      reply.code(500);
+      return { published: false, error: (err as Error).message };
+    }
+  });
 }

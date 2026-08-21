@@ -1,0 +1,85 @@
+name: Scraper les offres
+
+# Lancement manuel (onglet Actions → « Scraper les offres » → « Run workflow »).
+# Scrape UN employeur (champ « sourceId ») ou TOUS (champ vide), met à jour
+# l'instantané jobs.json et le pousse sur main → le site se redéploie tout seul.
+
+on:
+  workflow_dispatch:
+    inputs:
+      sourceId:
+        description: "id de l'employeur à scraper (vide = tous les sites). Ex. patrickmorin-com"
+        required: false
+        default: ""
+      maxPages:
+        description: "Pages max par site"
+        required: false
+        default: "2"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scrape-jobs
+  cancel-in-progress: false
+
+env:
+  DATABASE_URL: file:./prisma/dev.db
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Préparer la base
+        run: npm run setup -w @jobccq/api
+
+      # Pour un scraping ciblé : on repeuple la base avec l'instantané en ligne
+      # (sinon on perdrait tous les autres sites à l'export), puis on purge les
+      # offres de ce site avant de le re-scraper (retire les postes comblés).
+      - name: Importer l'instantané (site ciblé)
+        if: inputs.sourceId != ''
+        run: npm run import:snapshot -w @jobccq/api
+
+      - name: Purger les offres du site ciblé
+        if: inputs.sourceId != ''
+        working-directory: apps/api
+        run: >
+          node -e "const{PrismaClient}=require('@prisma/client');const p=new PrismaClient();
+          p.job.deleteMany({where:{sourceId:process.env.SID}}).then(r=>console.log('purgées:',r.count)).finally(()=>p.\$disconnect());"
+        env:
+          SID: ${{ inputs.sourceId }}
+
+      - name: Scraper
+        run: |
+          if [ -n "${{ inputs.sourceId }}" ]; then
+            echo "Scraping ciblé : ${{ inputs.sourceId }}"
+            SCRAPE_IDS="${{ inputs.sourceId }}" SCRAPE_MAX_PAGES="${{ inputs.maxPages }}" npm run scrape -w @jobccq/api
+          else
+            echo "Scraping de toutes les sources"
+            SCRAPE_MAX_PAGES="${{ inputs.maxPages }}" npm run scrape -w @jobccq/api
+          fi
+
+      - name: Exporter l'instantané
+        run: npm run export:static -w @jobccq/api -- --from-db
+
+      - name: Committer et pousser
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/web/public/data/jobs.json
+          if git diff --cached --quiet; then
+            echo "Aucun changement d'offres."
+          else
+            git commit -m "Scraping : ${{ inputs.sourceId || 'toutes les sources' }}"
+            git push origin HEAD:main
+          fi

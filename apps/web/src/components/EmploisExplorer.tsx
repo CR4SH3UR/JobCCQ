@@ -97,13 +97,15 @@ export function EmploisExplorer() {
     const ic = sp.get("cities");
     const icat = sp.get("categories");
     const ireg = sp.get("regions");
+    const isrc = sp.get("sources");
     if (iq) setQ(iq);
     if (ic) setCity(ic);
-    if (icat || ireg) {
+    if (icat || ireg || isrc) {
       setSel((s) => ({
         ...s,
         categories: icat ? icat.split(",") : s.categories,
         regions: ireg ? ireg.split(",") : s.regions,
+        sources: isrc ? isrc.split(",") : s.sources,
       }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
