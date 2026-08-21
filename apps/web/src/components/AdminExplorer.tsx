@@ -374,6 +374,28 @@ export function AdminExplorer() {
     }
   };
 
+  // Supprime TOUTES les offres d'un employeur (remise à zéro avant re-scrape).
+  // Turso : DELETE direct en base ; API locale : endpoint dédié. Confirmation
+  // obligatoire (destructif).
+  const purgeOffers = async (id: string) => {
+    if (mode !== "api" && mode !== "turso") return;
+    const name = employers.find((e) => e.id === id)?.name ?? id;
+    const n = counts[id] ?? 0;
+    if (
+      !window.confirm(
+        `Supprimer les ${n} offre${n > 1 ? "s" : ""} de « ${name} » ?\n\n` +
+          `Action irréversible. (Elles reviendront au prochain scrape si le site en publie.)`,
+      )
+    )
+      return;
+    if (mode === "turso") {
+      await tursoRows(tursoUrl, tursoToken, "DELETE FROM Job WHERE sourceId=?", [id]).catch(() => {});
+    } else {
+      await fetch(`${API_URL}/admin/employers/${id}/offers`, { method: "DELETE" }).catch(() => {});
+    }
+    setCounts((c) => ({ ...c, [id]: 0 }));
+  };
+
   const publishChanges = async () => {
     setPublish({ status: "run" });
     try {
@@ -735,8 +757,10 @@ export function AdminExplorer() {
                 count={counts[e.id] ?? 0}
                 scrape={scrapes[e.id]}
                 scrapeEnabled={mode === "api" || !!ghToken}
+                purgeEnabled={mode === "api" || mode === "turso"}
                 onPatch={patchEmployer}
                 onScrape={mode === "api" ? rescrape : ghScrape}
+                onPurge={purgeOffers}
               />
             ))}
           </div>
@@ -759,14 +783,16 @@ export function AdminExplorer() {
 }
 
 function Row({
-  e, count, scrape, scrapeEnabled, onPatch, onScrape,
+  e, count, scrape, scrapeEnabled, purgeEnabled, onPatch, onScrape, onPurge,
 }: {
   e: Employer;
   count: number;
   scrape?: ScrapeState;
   scrapeEnabled: boolean;
+  purgeEnabled: boolean;
   onPatch: (id: string, patch: Partial<Employer>) => void;
   onScrape: (id: string) => void;
+  onPurge: (id: string) => void;
 }) {
   const [url, setUrl] = useState(e.careersUrl);
   const [name, setName] = useState(e.name);
@@ -855,6 +881,15 @@ function Row({
         >
           {disabled ? "Activer" : "Désactiver"}
         </button>
+        {purgeEnabled && count > 0 && (
+          <button
+            onClick={() => onPurge(e.id)}
+            title="Supprimer toutes les offres de cet employeur (remise à zéro)"
+            className="rounded-lg border border-red-300 px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+          >
+            🗑 Vider les offres
+          </button>
+        )}
       </div>
 
       {scrape && scrape.status !== "run" && (
