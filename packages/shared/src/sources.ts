@@ -148,7 +148,11 @@ export const JOB_SOURCES = [
     method: "html",
     status: "active",
     language: "fr",
-    notes: "Page employeur Jobillico : ItemList → fiches JobPosting (lieu, salaire).",
+    // Doublon de l'employeur découvert « cppinc-ca » (même page Jobillico), qui
+    // est éditable dans la console d'admin. Désactivé ici pour éviter la
+    // double source (et la collision d'URL) ; cppinc-ca porte les offres.
+    enabled: false,
+    notes: "Doublon désactivé : géré via l'employeur découvert cppinc-ca (console d'admin).",
   },
   {
     id: "cote-et-fils",
