@@ -477,28 +477,55 @@ export function AdminExplorer() {
     URL.revokeObjectURL(url);
   };
 
-  // Après un scrape lancé sur GitHub Actions (mode Turso), interroge la base
-  // toutes les ~6 s pour refléter le nouveau compte d'offres SANS recharger la
-  // page. S'arrête dès que le compte change (scrape terminé), ou après ~2,5 min.
-  const pollAfterScrape = async (sourceId: string) => {
+  // Suivi des re-scrapes en cours : UNE seule boucle de polling pour TOUTES les
+  // sources en attente (file `pendingRef`), avec une requête GROUPÉE par tick.
+  // Lancer plusieurs re-scrapes en même temps n'ouvre donc plus N boucles /
+  // connexions Turso concurrentes (ce qui les faisait échouer) : un seul
+  // `SELECT … GROUP BY` met tous les badges à jour d'un coup. Une source quitte
+  // la file dès que son compte change, ou après ~2,5 min.
+  const pendingRef = useRef<Map<string, { before: number; deadline: number }>>(new Map());
+  const pollingRef = useRef(false);
+
+  const runPollLoop = async () => {
+    if (pollingRef.current) return; // une seule boucle à la fois
     const tUrl = tursoUrl || readLS(LS_TURSO_URL);
     const tTok = tursoToken || readLS(LS_TURSO_TOKEN);
-    if (!tUrl || !tTok) return;
-    const before = counts[sourceId] ?? 0;
-    const deadline = Date.now() + 150_000;
-    while (Date.now() < deadline) {
-      await sleep(6000);
-      const rows = await tursoRows(tUrl, tTok, "SELECT COUNT(*) AS n FROM Job WHERE sourceId=?", [sourceId]).catch(
-        () => null,
-      );
-      if (!rows) continue;
-      const n = Number(rows[0]?.n ?? 0);
-      setCounts((c) => (c[sourceId] === n ? c : { ...c, [sourceId]: n }));
-      if (n !== before) {
-        setScrapes((s) => ({ ...s, [sourceId]: { status: "ok", found: n, error: "updated" } }));
-        return;
-      }
+    if (!tUrl || !tTok) {
+      pendingRef.current.clear();
+      return;
     }
+    pollingRef.current = true;
+    try {
+      while (pendingRef.current.size > 0) {
+        await sleep(6000);
+        const m = await tursoCounts(tUrl, tTok).catch(() => null);
+        if (!m) continue; // erreur réseau ponctuelle : on retente au tick suivant
+        // Rafraîchit tous les badges ; force la valeur exacte (0 compris) pour
+        // les sources suivies (un GROUP BY n'aurait pas renvoyé une source à 0).
+        setCounts((c) => {
+          const next: Record<string, number> = { ...c, ...m };
+          for (const id of pendingRef.current.keys()) next[id] = m[id] ?? 0;
+          return next;
+        });
+        for (const [id, info] of [...pendingRef.current]) {
+          const n = m[id] ?? 0;
+          if (n !== info.before) {
+            setScrapes((s) => ({ ...s, [id]: { status: "ok", found: n, error: "updated" } }));
+            pendingRef.current.delete(id);
+          } else if (Date.now() > info.deadline) {
+            pendingRef.current.delete(id); // fenêtre écoulée (offres identiques ou scrape long)
+          }
+        }
+      }
+    } finally {
+      pollingRef.current = false;
+    }
+  };
+
+  // Ajoute une source re-scrapée à la file suivie et (re)lance la boucle unique.
+  const queuePoll = (sourceId: string) => {
+    pendingRef.current.set(sourceId, { before: counts[sourceId] ?? 0, deadline: Date.now() + 150_000 });
+    void runPollLoop();
   };
 
   // --- Mode statique : agir sur GitHub via le jeton personnel du navigateur ---
@@ -513,7 +540,7 @@ export function AdminExplorer() {
       if (r.status === 204) {
         setScrapes((s) => ({ ...s, [sourceId]: { status: "ok", error: "launched" } }));
         // Mode Turso : suit la base et rafraîchit le compteur automatiquement.
-        if (mode === "turso") pollAfterScrape(sourceId);
+        if (mode === "turso") queuePoll(sourceId);
       } else {
         const d = await r.json().catch(() => ({}));
         setScrapes((s) => ({ ...s, [sourceId]: { status: "err", error: d.message ?? `HTTP ${r.status}` } }));
