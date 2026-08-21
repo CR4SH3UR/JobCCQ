@@ -431,7 +431,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "alertefissure-qc-ca",
@@ -457,7 +458,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "enabled": false
   },
   {
     "id": "aliexcavation-com",
@@ -483,7 +485,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "allardemond-com",
