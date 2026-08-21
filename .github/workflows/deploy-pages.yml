@@ -13,6 +13,13 @@ name: Déploiement du site sur GitHub Pages
 on:
   push:
     branches: [main, claude/job-offers-aggregator-ehf65z]
+  # Redéploie automatiquement à la fin d'un scrape : le push de jobs.json fait
+  # par le workflow « Scraper les offres » (jeton d'Actions) ne déclenche PAS
+  # l'événement `push` ci-dessus (garde-fou anti-boucle de GitHub), donc sans
+  # ceci le site ne se reconstruirait jamais après le scrape hebdomadaire.
+  workflow_run:
+    workflows: ["Scraper les offres"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -25,6 +32,9 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Sur un scrape terminé, ne déploie que s'il a réussi. Les autres
+    # déclencheurs (push sur main, lancement manuel) déploient toujours.
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     env:
       # Si Turso est configuré (secrets présents), le site se construit à partir
       # de la base ; sinon, à partir des fichiers versionnés. Voir infra/README-turso.md.
