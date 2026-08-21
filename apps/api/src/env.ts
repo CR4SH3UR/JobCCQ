@@ -6,6 +6,9 @@ export const env = {
   PORT: Number(process.env.PORT ?? 4000),
   HOST: process.env.HOST ?? "0.0.0.0",
   DATABASE_URL: process.env.DATABASE_URL,
+  /** Base Turso (libSQL) partagée en prod. Vide = fichier SQLite local (dev). */
+  TURSO_DATABASE_URL: process.env.TURSO_DATABASE_URL ?? "",
+  TURSO_AUTH_TOKEN: process.env.TURSO_AUTH_TOKEN ?? "",
   /** Rythme poli entre deux requêtes de scraping (ms). */
   SCRAPE_DELAY_MS: Number(process.env.SCRAPE_DELAY_MS ?? 1500),
   USER_AGENT:

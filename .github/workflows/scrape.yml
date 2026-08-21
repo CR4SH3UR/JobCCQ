@@ -39,6 +39,9 @@ env:
   # Vides si les secrets ne sont pas définis → aucun proxy (voir infra/README-proxy.md).
   SCRAPE_PROXY_URL: ${{ secrets.SCRAPE_PROXY_URL }}
   SCRAPE_PROXY_TOKEN: ${{ secrets.SCRAPE_PROXY_TOKEN }}
+  # Base Turso optionnelle. Vides → fichier SQLite local (voir infra/README-turso.md).
+  TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+  TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
 
 jobs:
   scrape:
