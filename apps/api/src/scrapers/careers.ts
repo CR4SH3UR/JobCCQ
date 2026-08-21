@@ -431,6 +431,50 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
   return [...out.values()];
 }
 
+/**
+ * Gabarit ATS « jobs-listing » (ex. glowinthecloud.com, utilisé par plusieurs
+ * employeurs). Les postes sont dans `<ul class="jobs-listing"><li>` avec un lien
+ * `/{entreprise}/{id}?l=fr` — dont l'URL ne contient AUCUN mot-clé (emploi,
+ * poste…), donc le repli « liens » générique les rate. On lit la liste
+ * directement : le lien porte le titre, un `<span>` voisin le lieu.
+ */
+function parseJobsListing(
+  html: string,
+  careersUrl: string,
+  id: string,
+  company: string,
+): RawJob[] {
+  const $ = cheerio.load(html);
+  const out = new Map<string, RawJob>();
+  $(".jobs-listing li").each((_, li) => {
+    const $li = $(li);
+    if ($li.find("ul.jobs-listing li").length) return; // <li> conteneur, pas une feuille
+    let title = "";
+    let href = "";
+    $li.find("a[href]").each((_, a) => {
+      if (title) return;
+      const t = cleanText($(a).text());
+      if (t.length >= 4 && t.length <= 120 && !NAV_LABELS.test(t) && !MARKETING_PREFIX.test(t)) {
+        title = t;
+        href = ($(a).attr("href") || "").trim();
+      }
+    });
+    if (!title || !href || href.startsWith("#")) return;
+    const url = absolute(href.split("#")[0] ?? "", careersUrl);
+    if (sameUrl(url, careersUrl)) return;
+    // Lieu : un <span> voisin (hors du lien-titre) au texte court et sans chiffre.
+    let location: string | undefined;
+    $li.find("span").each((_, s) => {
+      if (location) return;
+      if ($(s).closest("a").length) return; // le span DANS le lien = le titre
+      const t = cleanText($(s).text());
+      if (t && t !== title && t.length >= 2 && t.length <= 40 && !/\d/.test(t)) location = t;
+    });
+    if (!out.has(url)) out.set(url, { sourceId: id, url, title, company, location, tags: [] });
+  });
+  return [...out.values()];
+}
+
 export function makeCareersScraper(config: CareersScraperConfig): Scraper {
   return {
     id: config.id,
@@ -440,6 +484,10 @@ export function makeCareersScraper(config: CareersScraperConfig): Scraper {
       if (jsonld.length > 0) return jsonld;
       const wix = parseWixRepeaters(html, baseUrl, config.careersUrl, config.id, config.company);
       if (wix.length > 0) return wix;
+      // Gabarit ATS « jobs-listing » (glowinthecloud & co.) : liens
+      // /{entreprise}/{id} sans mot-clé, ratés par le repli « liens » générique.
+      const listing = parseJobsListing(html, config.careersUrl, config.id, config.company);
+      if (listing.length > 0) return listing;
       // Si la source expose un motif de lien de poste (ex. /emploi-…), on le
       // privilégie (vraies URLs de fiches).
       if (config.jobPathPattern) {
