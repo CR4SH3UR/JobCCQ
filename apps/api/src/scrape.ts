@@ -14,7 +14,9 @@ import { prisma } from "./db.js";
 
 async function main() {
   const [, , maybeSource, query, location] = process.argv;
-  const ids = maybeSource ? [maybeSource] : listScraperIds();
+  // SCRAPE_IDS="id1,id2,…" cible une liste précise (utile pour la découverte).
+  const envIds = process.env.SCRAPE_IDS?.split(",").map((s) => s.trim()).filter(Boolean);
+  const ids = envIds?.length ? envIds : maybeSource ? [maybeSource] : listScraperIds();
   const params = {
     query: query || undefined,
     location: location || undefined,
