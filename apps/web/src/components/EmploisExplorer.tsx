@@ -18,6 +18,8 @@ import { JobCard } from "./JobCard";
 import { FacetGroup } from "./FacetGroup";
 import { Pagination } from "./Pagination";
 import { Badge } from "./Badge";
+import { SponsorBanner } from "./SponsorBanner";
+import { isSponsoredEmployer } from "@/lib/sponsors";
 import { cn } from "@/lib/format";
 
 const PAGE_SIZE = 20;
@@ -169,6 +171,14 @@ export function EmploisExplorer() {
     (postedWithinDays ? 1 : 0);
 
   const facets = result?.facets;
+
+  // Offres « en vedette » (commanditées) remontées en tête de la page courante.
+  const items = useMemo(() => {
+    if (!result) return [];
+    return [...result.items].sort(
+      (a, b) => Number(isSponsoredEmployer(b.sourceId)) - Number(isSponsoredEmployer(a.sourceId)),
+    );
+  }, [result]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
@@ -322,6 +332,7 @@ export function EmploisExplorer() {
 
         {/* Colonne résultats */}
         <section>
+          <SponsorBanner className="mb-4" />
           <div className="mb-3 flex items-center justify-between">
             <p className="text-sm text-slate-600">
               {loading && !result ? (
@@ -358,7 +369,7 @@ export function EmploisExplorer() {
           )}
 
           <div className="space-y-3">
-            {result?.items.map((job) => (
+            {items.map((job) => (
               <JobCard key={job.id} job={job} />
             ))}
           </div>
