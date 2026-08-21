@@ -35,6 +35,10 @@ concurrency:
 
 env:
   DATABASE_URL: file:./prisma/dev.db
+  # Proxy sortant optionnel (contourne le 403 de Jobillico depuis les IP de CI).
+  # Vides si les secrets ne sont pas définis → aucun proxy (voir infra/README-proxy.md).
+  SCRAPE_PROXY_URL: ${{ secrets.SCRAPE_PROXY_URL }}
+  SCRAPE_PROXY_TOKEN: ${{ secrets.SCRAPE_PROXY_TOKEN }}
 
 jobs:
   scrape:

@@ -11,4 +11,17 @@ export const env = {
   USER_AGENT:
     process.env.SCRAPE_USER_AGENT ??
     "JobCCQ/0.1 (+https://github.com/cr4sh3ur/jobccq) agrégateur d'emplois",
+
+  // --- Proxy sortant optionnel (contourne les blocages par IP, ex. Jobillico
+  // renvoie 403 depuis les IP de GitHub Actions). Vide = aucun proxy (défaut).
+  /**
+   * Endpoint proxy « fetch » (ex. un Cloudflare Worker). Deux formats acceptés :
+   *  - gabarit avec `{url}` (et `{token}`) : `https://x.workers.dev/?url={url}&token={token}` ;
+   *  - sinon on ajoute `?url=<cible>&token=<jeton>` automatiquement.
+   */
+  SCRAPE_PROXY_URL: process.env.SCRAPE_PROXY_URL ?? "",
+  /** Jeton partagé avec le proxy (évite un relais ouvert). */
+  SCRAPE_PROXY_TOKEN: process.env.SCRAPE_PROXY_TOKEN ?? "",
+  /** Hôtes routés via le proxy (CSV). Vide = tous. Défaut : Jobillico seul. */
+  SCRAPE_PROXY_HOSTS: process.env.SCRAPE_PROXY_HOSTS ?? "jobillico.com",
 };
