@@ -26,7 +26,11 @@ async function main() {
   console.log(`▶ Scraping des sources : ${ids.join(", ")}`);
   console.log(`   Paramètres : ${JSON.stringify(params)}\n`);
 
-  const reports = await runScrapers(ids, params);
+  // « sync » : retire les postes comblés, mais ne détruit jamais sur un scrape
+  // vide/échoué (ex. Jobillico renvoie 403 depuis les IP de CI). Combiné à
+  // l'import de l'instantané en amont (workflow), un site bloqué garde ses
+  // offres au lieu d'être vidé.
+  const reports = await runScrapers(ids, params, "sync");
 
   console.log("\n=== Résumé ===");
   for (const r of reports) {

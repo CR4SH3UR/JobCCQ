@@ -1,8 +1,15 @@
 name: Scraper les offres
 
-# Lancement manuel (onglet Actions → « Scraper les offres » → « Run workflow »).
-# Scrape UN employeur (champ « sourceId ») ou TOUS (champ vide), met à jour
-# l'instantané jobs.json et le pousse sur main → le site se redéploie tout seul.
+# Deux déclenchements :
+#  - manuel (onglet Actions → « Scraper les offres » → « Run workflow ») : un
+#    employeur précis (champ « sourceId ») ou tous (champ vide) ;
+#  - planifié (cron hebdomadaire) : re-scrape tous les sites pour garder
+#    l'instantané frais (évite les offres périmées / manquantes).
+#
+# Dans tous les cas on repart de l'instantané en ligne (jobs.json), puis le
+# scraping se fait en mode « sync » : il retire les postes comblés MAIS ne
+# détruit jamais les offres d'un site qui échoue ou renvoie vide (ex. Jobillico
+# renvoie 403 depuis les IP de GitHub Actions → le site garde ses offres).
 
 on:
   workflow_dispatch:
@@ -15,6 +22,9 @@ on:
         description: "Pages max par site"
         required: false
         default: "2"
+  schedule:
+    # Tous les lundis à 08:00 UTC (~3–4 h du matin, heure du Québec).
+    - cron: "0 8 * * 1"
 
 permissions:
   contents: write
@@ -43,30 +53,24 @@ jobs:
       - name: Préparer la base
         run: npm run setup -w @jobccq/api
 
-      # Pour un scraping ciblé : on repeuple la base avec l'instantané en ligne
-      # (sinon on perdrait tous les autres sites à l'export), puis on purge les
-      # offres de ce site avant de le re-scraper (retire les postes comblés).
-      - name: Importer l'instantané (site ciblé)
-        if: inputs.sourceId != ''
+      # On repeuple TOUJOURS la base avec l'instantané en ligne : les sites non
+      # re-scrapés (ou bloqués) conservent ainsi leurs offres à l'export.
+      - name: Importer l'instantané
         run: npm run import:snapshot -w @jobccq/api
 
-      - name: Purger les offres du site ciblé
-        if: inputs.sourceId != ''
-        working-directory: apps/api
-        run: >
-          node -e "const{PrismaClient}=require('@prisma/client');const p=new PrismaClient();
-          p.job.deleteMany({where:{sourceId:process.env.SID}}).then(r=>console.log('purgées:',r.count)).finally(()=>p.\$disconnect());"
-        env:
-          SID: ${{ inputs.sourceId }}
-
+      # Scraping en mode « sync » (retire les postes comblés, jamais sur échec).
+      # sourceId vide (planifié ou champ vide) = tous les sites.
       - name: Scraper
+        env:
+          SID: ${{ github.event.inputs.sourceId }}
+          MP: ${{ github.event.inputs.maxPages || '2' }}
         run: |
-          if [ -n "${{ inputs.sourceId }}" ]; then
-            echo "Scraping ciblé : ${{ inputs.sourceId }}"
-            SCRAPE_IDS="${{ inputs.sourceId }}" SCRAPE_MAX_PAGES="${{ inputs.maxPages }}" npm run scrape -w @jobccq/api
+          if [ -n "$SID" ]; then
+            echo "Scraping ciblé : $SID (maxPages=$MP)"
+            SCRAPE_IDS="$SID" SCRAPE_MAX_PAGES="$MP" npm run scrape -w @jobccq/api
           else
-            echo "Scraping de toutes les sources"
-            SCRAPE_MAX_PAGES="${{ inputs.maxPages }}" npm run scrape -w @jobccq/api
+            echo "Scraping de toutes les sources (maxPages=$MP)"
+            SCRAPE_MAX_PAGES="$MP" npm run scrape -w @jobccq/api
           fi
 
       - name: Exporter l'instantané
@@ -80,6 +84,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Aucun changement d'offres."
           else
-            git commit -m "Scraping : ${{ inputs.sourceId || 'toutes les sources' }}"
+            git commit -m "Scraping : ${{ github.event.inputs.sourceId || 'toutes les sources (planifié)' }}"
             git push origin HEAD:main
           fi

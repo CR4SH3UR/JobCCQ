@@ -122,7 +122,7 @@ const NAV_LABELS =
  * échelle humaine », « Pourquoi nous rejoindre ») n'est pas un titre de poste.
  */
 const MARKETING_PREFIX =
-  /^(un |une |notre |nos |nous |pourquoi|rejoign|joins|deviens|devenez|faites|envie|pr[êe]t|viens|es-tu|as-tu|ton |ta |tes |vos |votre |travaille[rz]|construis|b[âa]tis|joignez)/i;
+  /^(un |une |notre |nos |nous |pourquoi|rejoign|joins|deviens|devenez|faites|envie|pr[êe]t|viens|es-tu|as-tu|ton |ta |tes |vos |votre |travaille[rz]|construis|b[âa]tis|joignez|candidature spontan[ée]e?)/i;
 
 /** Pathname d'une URL, ou "" si invalide. */
 function safePath(u: string): string {
@@ -224,6 +224,15 @@ function parseHtmlCareers(
       );
       if (derived.length >= 4) title = derived;
     }
+    // Certaines listes (widgets Jobillico intégrés) collent le lieu au titre
+    // sans séparateur (« …aux comptes recevablesSherbrooke, Qc »). On retire un
+    // suffixe « Ville, QC » terminal (déclenché seulement s'il finit par , QC).
+    title = title
+      .replace(
+        /([a-zà-ÿ])([A-ZÀ-Ÿ][a-zà-ÿ]+(?:[\s-][A-ZÀ-Ÿ][a-zà-ÿ]+)*,\s*(?:QC|Qc|Québec|Quebec))\s*$/,
+        "$1",
+      )
+      .trim();
     if (!title || title.length < 3 || title.length > 120) return;
     if (NAV_LABELS.test(title) || MARKETING_PREFIX.test(title)) return;
 
