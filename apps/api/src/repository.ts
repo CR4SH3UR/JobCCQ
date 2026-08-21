@@ -184,14 +184,15 @@ export async function syncSourceJobs(
   opts: { reachableEmpty?: boolean; explicitEmpty?: boolean; force?: boolean } = {},
 ): Promise<UpsertResult & { removed: number }> {
   if (jobs.length === 0) {
-    const { reachableEmpty = false, explicitEmpty = false, force = false } = opts;
-    // 0 offre confirmé : la page a été récupérée (site joignable) et n'a aucune
-    // offre. Un 0 par échec/blocage réseau (403, page vide) n'a AUCUN de ces
-    // drapeaux → on conserve le dernier bon état.
-    // - `force` (remplacement demandé explicitement) : purge toute taille.
+    const { reachableEmpty = false, explicitEmpty = false } = opts;
+    // 0 offre : la page a été récupérée (site joignable) et n'a aucune offre.
+    // Un 0 par échec/blocage réseau (403, page vide) n'a AUCUN de ces drapeaux →
+    // on conserve le dernier bon état. `force` n'intervient PAS ici : il ne sert
+    // qu'à outrepasser le garde-fou d'une VRAIE lecture plus petite (jobs > 0),
+    // jamais à vider sur un scrape à 0 (sinon un 403 transitoire effacerait tout).
     // - `explicitEmpty` (« aucune offre en ce moment ») : purge toute taille.
     // - `reachableEmpty` (page réelle, 0 offre) : purge des petites sources.
-    if (force || explicitEmpty) {
+    if (explicitEmpty) {
       const del = await prisma.job.deleteMany({ where: { sourceId } });
       return { inserted: 0, updated: 0, removed: del.count };
     }
