@@ -29,8 +29,14 @@ on:
 permissions:
   contents: write
 
+# Concurrence **par source** : un scrape ciblé (ex. « atlasmaconnerie-com ») ne
+# fait plus la file derrière un autre scrape d'une AUTRE source (ni derrière le
+# scrape complet hebdomadaire, qui peut durer ~1 h) — il démarre tout de suite.
+# Seuls deux scrapes du MÊME id (ou deux scrapes complets) sont sérialisés, pour
+# éviter qu'ils se marchent dessus sur les mêmes lignes. La base Turso, elle, est
+# écrite en temps réel au fil du scraping (source par source).
 concurrency:
-  group: scrape-jobs
+  group: scrape-${{ github.event.inputs.sourceId || 'all' }}
   cancel-in-progress: false
 
 env:
@@ -92,11 +98,19 @@ jobs:
             SCRAPE_MAX_PAGES="$MP" npm run scrape -w @jobccq/api
           fi
 
-      - name: Exporter l'instantané
-        run: npm run export:static -w @jobccq/api -- --from-db
-
-      - name: Committer et pousser
+      # Avec Turso : RIEN à committer. La base est déjà à jour (écriture temps
+      # réel pendant le scrape) et le site se reconstruit **depuis Turso** au
+      # déploiement automatique (déclencheur `workflow_run` en fin de scrape).
+      # Ne rien pousser évite aussi que deux scrapes en parallèle se battent sur
+      # `main` (push rejeté) — c'est ce qui permet de lancer un scrape sans
+      # attendre les autres.
+      #
+      # Sans Turso (repli fichier) : jobs.json versionné = source de vérité, donc
+      # on l'exporte et on le committe comme avant.
+      - name: Exporter et committer l'instantané (repli fichier)
+        if: env.TURSO_DATABASE_URL == ''
         run: |
+          npm run export:static -w @jobccq/api -- --from-db
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add apps/web/public/data/jobs.json
