@@ -41,14 +41,32 @@ function asString(v: unknown): string | undefined {
   return undefined;
 }
 
-/** Aplati les structures @graph / tableaux pour retrouver tous les noeuds. */
-function collectNodes(data: unknown, out: Record<string, unknown>[]): void {
+/**
+ * Décode les entités HTML d'un texte JSON-LD (ex. titre « …d&#x27;engrais »
+ * → « …d'engrais »). Les valeurs JSON-LD sont des chaînes brutes (contrairement
+ * au texte extrait via cheerio), donc les entités y survivent sans ça.
+ */
+function decodeEntities(s: string): string {
+  if (!s.includes("&")) return s;
+  return cheerio.load(`<x>${s}</x>`)("x").text();
+}
+
+/**
+ * Aplati les structures @graph / tableaux / ItemList pour retrouver tous les
+ * noeuds. Beaucoup de pages emballent leurs JobPosting dans un `ItemList`
+ * (`itemListElement`), parfois via un `ListItem` (`item`) — on descend donc
+ * aussi dans ces conteneurs, sinon les offres passent inaperçues.
+ */
+function collectNodes(data: unknown, out: Record<string, unknown>[], depth = 0): void {
+  if (depth > 8) return; // garde-fou (structures profondes/répétées)
   if (Array.isArray(data)) {
-    for (const item of data) collectNodes(item, out);
+    for (const item of data) collectNodes(item, out, depth + 1);
   } else if (data && typeof data === "object") {
     const obj = data as Record<string, unknown>;
-    if ("@graph" in obj) collectNodes(obj["@graph"], out);
     out.push(obj);
+    if ("@graph" in obj) collectNodes(obj["@graph"], out, depth + 1);
+    if ("itemListElement" in obj) collectNodes(obj["itemListElement"], out, depth + 1);
+    if ("item" in obj) collectNodes(obj["item"], out, depth + 1);
   }
 }
 
@@ -60,9 +78,9 @@ function isJobPosting(node: Record<string, unknown>): boolean {
 }
 
 function mapNode(node: Record<string, unknown>, sourceId: string, baseUrl: string): RawJob | null {
-  const title = asString(node.title);
+  const title = decodeEntities(asString(node.title) ?? "");
   const org = first(node.hiringOrganization) as Record<string, unknown> | undefined;
-  const company = asString(org?.name);
+  const company = decodeEntities(asString(org?.name) ?? "");
   if (!title || !company) return null;
 
   let url = asString(node.url) ?? asString((node as Record<string, unknown>).sameAs) ?? baseUrl;
