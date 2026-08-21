@@ -116,14 +116,22 @@ function parseWixRepeaters(
 }
 
 const NAV_LABELS =
-  /^(carrières|carrieres|postuler|postuler maintenant|je postule|postule[rz]?|en savoir plus|en savoir \+|voir|voir l'offre|voir l'emploi|voir ce poste|voir le poste|voir les postes?( disponibles?)?|voir (tous|toutes) les (postes?|emplois?|offres?)( disponibles?)?|voir les offres?( d'emploi)?|voir les d[ée]tails?( du poste)?|voir plus|voir tout|voir d[ée]tails?|d[ée]tails?( du poste)?|plus de d[ée]tails|consulter|lire( la suite| plus)?|accueil|contact|nous joindre|nous rejoindre|contactez-nous|rejoignez-nous|joindre l'équipe|emplois|emploi|carrière|english|anglais|fran[çc]ais|home|apply|apply now|view|view job|view details|read more|learn more|more|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations|site|plan du site|travaux|projets|candidature spontan[ée]e|postulez( ici| maintenant)?|jobillico|indeed|linkedin|workday|glassdoor|neuvoo|monster|talentu?p|retour( [àa] la liste| aux (offres|emplois|postes))?|pr[ée]c[ée]dent|suivant|postes?( actuellement)? (disponibles?|ouverts?|[àa] (combler|pourvoir)|en recrutement( continu)?)|(postes? en )?recrutement continu|postes? [àa] pourvoir)$/i;
+  /^(carrières|carrieres|postuler|postuler maintenant|je postule|postule[rz]?|en savoir plus|en savoir \+|voir|voir l'offre|voir l'emploi|voir ce poste|voir le poste|voir les postes?( disponibles?)?|voir (tous|toutes) les (postes?|emplois?|offres?)( disponibles?)?|voir les offres?( d'emploi)?|voir les d[ée]tails?( du poste)?|voir plus|voir tout|voir d[ée]tails?|d[ée]tails?( du poste)?|plus de d[ée]tails|consulter|lire( la suite| plus)?|accueil|contact|nous joindre|nous rejoindre|contactez-nous|rejoignez-nous|joindre l'équipe|emplois|emploi|postes?|carrière|english|anglais|fran[çc]ais|home|apply|apply now|view|view job|view details|read more|learn more|more|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations|site|plan du site|travaux|projets|candidature spontan[ée]e|postulez( ici| maintenant)?|jobillico|indeed|linkedin|workday|glassdoor|neuvoo|monster|talentu?p|retour( [àa] la liste| aux (offres|emplois|postes))?|pr[ée]c[ée]dent|suivant|postes?( actuellement)? (disponibles?|ouverts?|[àa] (combler|pourvoir)|en recrutement( continu)?)|(postes? en )?recrutement continu|postes? [àa] pourvoir)$/i;
 
 /**
  * Débuts de phrase « marketing » : une accroche (« Un emploi de plombier à
  * échelle humaine », « Pourquoi nous rejoindre ») n'est pas un titre de poste.
  */
 const MARKETING_PREFIX =
-  /^(un |une |notre |nos |nous |pourquoi|rejoign|joins|deviens|devenez|faites|envie|pr[êe]t|viens|es-tu|as-tu|ton |ta |tes |vos |votre |vous |tu ne|travaille[rz]|construis|b[âa]tis|joignez|d[ée]couvr(ir|e|ez|ons)|candidature spontan[ée]e?|postuler (pour|à|au|aux|en|comme)|postule[rz] (pour|à|au|aux)|appliquer (pour|sur|à)|apply (for|to|now)|voir (tout|tous|toutes|nos)\b)/i;
+  /^(un |une |notre |nos |nous |pourquoi|rejoign|joins|deviens|devenez|faites|envie|pr[êe]t|viens|es-tu|as-tu|ton |ta |tes |vos |votre |vous |tu ne|[àa] la recherche|travaille[rz]|construis|b[âa]tis|joignez|d[ée]couvr(ir|e|ez|ons)|candidature spontan[ée]e?|postuler (pour|à|au|aux|en|comme)|postule[rz] (pour|à|au|aux)|appliquer (pour|sur|à)|apply (for|to|now)|voir (tout|tous|toutes|nos)\b|zones? (de|du|d['’])|c[âa]bles? (pour|de|d['’])|connecteurs? (pour|de|d['’]))/i;
+
+/**
+ * Bouton d'action collé à la fin d'un intitulé de carte (« Représentant au
+ * service à la clientèle **Voir le poste** ») : on le retire pour garder le
+ * titre propre, quel que soit le chemin d'extraction.
+ */
+const TRAILING_CTA =
+  /\s+(voir (le |l['’]|ce )?(poste|offre|emploi|d[ée]tails?)|voir (plus|d[ée]tails?)|postuler( maintenant| ici)?|en savoir (plus|\+)|plus de d[ée]tails|d[ée]tails|apply( now)?|read more|learn more|lire la suite)\s*$/i;
 
 /** Pathname d'une URL, ou "" si invalide. */
 function safePath(u: string): string {
@@ -271,6 +279,7 @@ function parseHtmlCareers(
     // sans séparateur (« …aux comptes recevablesSherbrooke, Qc »). On retire un
     // suffixe « Ville, QC » terminal (déclenché seulement s'il finit par , QC).
     title = title
+      .replace(TRAILING_CTA, "")
       .replace(
         /([a-zà-ÿ])([A-ZÀ-Ÿ][a-zà-ÿ]+(?:[\s-][A-ZÀ-Ÿ][a-zà-ÿ]+)*,\s*(?:QC|Qc|Québec|Quebec))\s*$/,
         "$1",
@@ -298,7 +307,7 @@ function parseHtmlCareers(
 // (« Google Tag Manager »). Les vrais postes de ces domaines ont un mot de
 // métier (« Technicien en ventilation », « Manœuvre en excavation »).
 const JOB_TITLE_HINT =
-  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|chef\s+de\s+chantier|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|stagiaire|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|surintendant|coordonnateur|contr[ôo]leur|adjoint|commis|acheteur|magasinier|conducteur|d[ée]neigement|paveur|briqueteur|ma[çc]on(?!nerie)|foreman|dessinateur|designer|cuisiniste|tuyauteur|mineur|ferblantier|frigoriste|chauffagiste|calorifugeur|monteur|instal{2,3}ateur|serrurier|vitrier|peintre|pl[âa]trier|[ée]b[ée]niste(?!rie)|assembleur|directeur|gestionnaire|conseiller|repr[ée]sentant|foreuse|d[ée]bosseleur|carrossier|technician|labou?rer|carpenter|welder|electrician|plumber|operator|apprentice|internship|trainee|installer|mechanic|estimator|supervisor|helper|roofer|superintendent|millwright|ironworker|fitter|painter|surveyor|foreperson/i;
+  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|chef\s+de\s+chantier|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|stagiaire|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|surintendant|coordonnateur|contr[ôo]leur|adjoint|agent|commis|acheteur|magasinier|conducteur|d[ée]neigement|paveur|briqueteur|ma[çc]on(?!nerie)|foreman|dessinateur|designer|cuisiniste|tuyauteur|mineur|ferblantier|frigoriste|chauffagiste|calorifugeur|monteur|instal{2,3}ateur|serrurier|vitrier|peintre|pl[âa]trier|[ée]b[ée]niste(?!rie)|assembleur|directeur|gestionnaire|conseiller|repr[ée]sentant|foreuse|d[ée]bosseleur|carrossier|technician|labou?rer|carpenter|welder|electrician|plumber|operator|apprentice|internship|trainee|installer|mechanic|estimator|supervisor|helper|roofer|superintendent|millwright|ironworker|fitter|painter|surveyor|foreperson/i;
 
 /** Suffixe de raison sociale — un « titre » qui finit ainsi est un nom d'entreprise, pas un poste. */
 const COMPANY_SUFFIX = /\b(inc|lt[ée]e|ltd|limit[ée]e|senc|enr|corp)\.?$/i;
@@ -383,7 +392,9 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
   const base = careersUrl.replace(/\/+$/, "");
 
   const add = (title: string, href?: string) => {
-    const t = cleanText(title.replace(/^[-–—•*\s]+/, "").replace(/[\s*•·]+$/, ""));
+    const t = cleanText(title.replace(/^[-–—•*\s]+/, "").replace(/[\s*•·]+$/, ""))
+      .replace(TRAILING_CTA, "")
+      .trim();
     if (t.length < 4 || t.length > 110) return;
     if (/[\w.+-]+@[\w.-]+\.\w{2,}/.test(t)) return; // adresse courriel, pas un poste
     // Trombinoscope d'équipe : « Prénom Nom | Fonction » (membre de l'équipe)
@@ -403,6 +414,7 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     if (COMPANY_SUFFIX.test(probe)) return; // « … inc./ltée » = nom d'entreprise, pas un poste
     if (MARKETING_PREFIX.test(probe)) return; // accroche marketing, pas un poste
     if (SERVICE_ONLY.test(probe)) return; // « Déneigement », « Excavation »… = service, pas un poste
+    if (/\b[A-Z][A-Z0-9]*_[A-Z0-9]/.test(t)) return; // code produit/SKU (« CMMB_AS »), pas un poste
     // Rejet des **phrases** (puces de responsabilités « Installer et superviser
     // les systèmes… ») sans écarter les vrais intitulés qui contiennent « et »
     // ou « en » (« Dessinateur en Conception 3D et Mise en Plan »). Un intitulé
