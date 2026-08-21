@@ -226,6 +226,7 @@ export type DiscoveredMethod =
   | "recruitee"
   | "smartrecruiters"
   | "teamtailor"
+  | "ultipro"
   | "jobillico";
 
 /** Entrée du registre auto-découvert (data-driven ; voir discovered.json). */
