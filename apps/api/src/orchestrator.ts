@@ -40,7 +40,16 @@ export async function runScraperInstance(
   const log = (m: string) => console.log(`[scrape:${sourceId}] ${m}`);
 
   try {
-    const raw = await scraper.scrape(params, createHttpContext(log));
+    // La source peut signaler qu'elle n'a **aucun poste ouvert** (page récupérée
+    // mais « aucune offre en ce moment ») → purge légitime, contrairement à un 0
+    // par échec/blocage qui, lui, conserve l'état existant.
+    let noOpenings = false;
+    const raw = await scraper.scrape(
+      params,
+      createHttpContext(log, () => {
+        noOpenings = true;
+      }),
+    );
 
     const jobs: Job[] = [];
     for (const candidate of raw) {
@@ -50,7 +59,9 @@ export async function runScraperInstance(
     }
 
     const { inserted, updated } =
-      persist === "sync" ? await syncSourceJobs(sourceId, jobs) : await upsertJobs(jobs);
+      persist === "sync"
+        ? await syncSourceJobs(sourceId, jobs, noOpenings && jobs.length === 0)
+        : await upsertJobs(jobs);
     await prisma.scrapeRun.update({
       where: { id: run.id },
       data: { status: "success", found: raw.length, inserted, updated, finishedAt: new Date() },

@@ -16,6 +16,13 @@ export interface ScrapeContext {
    */
   fetchHtml(url: string, opts?: { userAgent?: string }): Promise<string>;
   log(message: string): void;
+  /**
+   * Signale que la page a été récupérée avec succès mais déclare
+   * **explicitement n'avoir aucun poste ouvert** (« aucune offre en ce
+   * moment »…). Permet à la synchro de **purger** réellement la source (0 offre
+   * légitime), au lieu de conserver l'ancien état comme sur un échec/blocage.
+   */
+  markNoOpenings?(): void;
 }
 
 /**
