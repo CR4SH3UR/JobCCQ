@@ -23608,5 +23608,158 @@
     "sectors": [
       "Construction générale"
     ]
+  },
+  {
+    "id": "pomerleau",
+    "name": "Pomerleau",
+    "homepage": "https://jobs.pomerleau.ca/fr_CA/Jobs",
+    "careersUrl": "https://jobs.pomerleau.ca/fr_CA/Jobs",
+    "method": "avature",
+    "scope": "Employeur — grand entrepreneur en construction et génie civil",
+    "sectors": [
+      "Génie civil",
+      "Commercial et institutionnel",
+      "Résidentiel"
+    ],
+    "verified": true
+  },
+  {
+    "id": "ebc",
+    "name": "EBC",
+    "homepage": "https://ebcinc.com/fr/carrieres/emplois/",
+    "careersUrl": "https://ebcinc.com/fr/carrieres/emplois/",
+    "method": "html",
+    "scope": "Employeur — génie civil, bâtiment et mines",
+    "sectors": [
+      "Génie civil",
+      "Commercial et institutionnel",
+      "Mines"
+    ],
+    "verified": true
+  },
+  {
+    "id": "lafontaine",
+    "name": "Les Excavations Lafontaine",
+    "homepage": "https://lafontaineinc.zohorecruit.com/jobs/Careers",
+    "careersUrl": "https://lafontaineinc.zohorecruit.com/jobs/Careers",
+    "method": "zoho",
+    "scope": "Employeur — génie civil et construction (portail Zoho Recruit)",
+    "sectors": [
+      "Génie civil"
+    ],
+    "verified": true
+  },
+  {
+    "id": "atwill-morin",
+    "name": "Atwill-Morin",
+    "homepage": "https://atwill-morin.com/carrieres/",
+    "careersUrl": "https://atwill-morin.com/carrieres/",
+    "method": "bamboohr",
+    "scope": "Employeur — maçonnerie et restauration de bâtiments (ATS BambooHR)",
+    "sectors": [
+      "Maçonnerie",
+      "Restauration de bâtiments"
+    ],
+    "verified": true
+  },
+  {
+    "id": "hamel-construction",
+    "name": "Hamel Construction",
+    "homepage": "https://www.hamelconstruction.com/carrieres",
+    "careersUrl": "https://www.hamelconstruction.com/carrieres",
+    "method": "html",
+    "scope": "Employeur — entrepreneur en construction (page carrières)",
+    "sectors": [
+      "Génie civil",
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "leqel",
+    "name": "LEQEL / LEQEL Énergie",
+    "homepage": "https://www.leqel.ca/carriere/",
+    "careersUrl": "https://www.leqel.ca/carriere/",
+    "method": "html",
+    "scope": "Employeur — lignes et postes électriques (réseau Hydro-Québec)",
+    "sectors": [
+      "Électricité",
+      "Génie civil"
+    ],
+    "verified": true
+  },
+  {
+    "id": "beluga",
+    "name": "Béluga Construction",
+    "homepage": "https://constructionbeluga.zohorecruit.ca/jobs/Careers",
+    "careersUrl": "https://constructionbeluga.zohorecruit.ca/jobs/Careers",
+    "method": "zoho",
+    "scope": "Employeur — génie civil, égout/aqueduc et mines",
+    "sectors": [
+      "Génie civil",
+      "Mines"
+    ],
+    "verified": true
+  },
+  {
+    "id": "jmdemers",
+    "name": "JM Demers Excavation",
+    "homepage": "https://www.jmdemers.com/carriere",
+    "careersUrl": "https://www.jmdemers.com/carriere",
+    "method": "html",
+    "scope": "Employeur — excavation, génie civil et béton",
+    "sectors": [
+      "Génie civil",
+      "Béton et structure"
+    ],
+    "verified": true
+  },
+  {
+    "id": "cote-et-fils",
+    "name": "Construction Côté et fils",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-cote-fils.tZkiVw",
+    "careersUrl": "https://www.jobillico.com/voir-entreprise/construction-cote-fils.tZkiVw",
+    "method": "jobillico",
+    "scope": "Employeur — entrepreneur en construction",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "lefrancois",
+    "name": "Lefrançois",
+    "homepage": "https://www.lefrancoisinc.ca/carrières",
+    "careersUrl": "https://www.lefrancoisinc.ca/carrières",
+    "method": "html",
+    "scope": "Employeur — coffrage, béton et génie civil",
+    "sectors": [
+      "Béton et structure",
+      "Génie civil"
+    ],
+    "verified": true
+  },
+  {
+    "id": "jcdrolet",
+    "name": "JC Drolet",
+    "homepage": "https://jcdrolet.com/carrieres/",
+    "careersUrl": "https://jcdrolet.com/carrieres/",
+    "method": "html",
+    "scope": "Employeur — génie civil, excavation et déneigement",
+    "sectors": [
+      "Génie civil"
+    ],
+    "verified": true
+  },
+  {
+    "id": "refrabec",
+    "name": "Refrabec",
+    "homepage": "https://refrabec.qc.ca/carrieres/",
+    "careersUrl": "https://refrabec.qc.ca/carrieres/",
+    "method": "html",
+    "scope": "Employeur — réfractaire et maçonnerie industrielle",
+    "sectors": [
+      "Maçonnerie"
+    ]
   }
 ]
