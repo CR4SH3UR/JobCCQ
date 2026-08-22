@@ -1,14 +1,16 @@
 /**
- * Monétisation — commandites & offres en vedette.
+ * Monétisation — commandites & employeurs en vedette.
  *
- * Ce fichier est le SEUL endroit à éditer pour vendre de l'espace sur JobCCQ :
- *  1. `SPONSORS`            → bannière de commandite (logo + lien) ;
- *  2. `SPONSORED_EMPLOYERS` → employeurs « en vedette » (offres épinglées + badge) ;
- *  3. `SPONSOR_CONTACT_EMAIL` → courriel affiché dans l'encart « Devenez commanditaire ».
+ * La configuration vit dans `apps/web/src/data/sponsors.json`, **éditable depuis
+ * la console d'administration** (onglet « Sponsors » → publie le fichier sur
+ * GitHub → redéploiement). Elle est intégrée au bundle au build, donc les
+ * composants la lisent de façon synchrone (bannière, badge « Commandité », tri).
  *
- * Aucune base de données requise : c'est de la configuration statique, déployée
- * avec le site. Pour vendre une place, ajoute une entrée et redéploie.
+ *  - `sponsors`     → bannière de commandite (logo + accroche + lien) ;
+ *  - `featured`     → ids de sources mises en avant (offres épinglées + badge) ;
+ *  - `contactEmail` → adresse affichée dans l'encart « Devenez commanditaire ».
  */
+import config from "@/data/sponsors.json";
 
 export interface Sponsor {
   readonly id: string;
@@ -18,36 +20,28 @@ export interface Sponsor {
   readonly tagline: string;
   /** Lien de destination (site de l'annonceur). */
   readonly url: string;
-  /** Logo optionnel : URL ou data URI (le site étant statique, préfère un data URI). */
+  /** Logo optionnel : URL ou data URI. */
   readonly logoUrl?: string;
 }
 
-/** Courriel de contact pour la vente d'espace publicitaire. TODO: mets le tien. */
-export const SPONSOR_CONTACT_EMAIL = "dickie1719@gmail.com";
+export interface SponsorConfig {
+  readonly contactEmail: string;
+  readonly sponsors: readonly Sponsor[];
+  readonly featured: readonly string[];
+}
 
-/**
- * Commanditaires actifs affichés dans la bannière.
- * Laisse vide pour montrer l'encart « Votre publicité ici » (inventaire à vendre).
- */
-export const SPONSORS: readonly Sponsor[] = [
-  // Exemple :
-  // {
-  //   id: "acme-outils",
-  //   name: "ACME Outils",
-  //   tagline: "Outillage professionnel pour les chantiers du Québec",
-  //   url: "https://acme.example",
-  //   logoUrl: "https://…/logo.png",
-  // },
-];
+/** Configuration brute (utile à la console d'administration comme état initial). */
+export const SPONSOR_CONFIG: SponsorConfig = config as SponsorConfig;
 
-/**
- * Employeurs « en vedette » (placement payant) : leurs offres remontent en tête
- * des résultats et portent un badge « Commandité ». Utilise l'`id` de la source
- * (voir packages/shared/src/sources.ts / discovered.json).
- */
-export const SPONSORED_EMPLOYERS: ReadonlySet<string> = new Set([
-  // "pomerleau",
-]);
+/** Courriel de contact pour la vente d'espace publicitaire. */
+export const SPONSOR_CONTACT_EMAIL = SPONSOR_CONFIG.contactEmail || "";
 
+/** Commanditaires actifs affichés dans la bannière. */
+export const SPONSORS: readonly Sponsor[] = SPONSOR_CONFIG.sponsors ?? [];
+
+/** Employeurs « en vedette » (placement payant) — ids de source. */
+export const SPONSORED_EMPLOYERS: ReadonlySet<string> = new Set(SPONSOR_CONFIG.featured ?? []);
+
+/** Cet employeur est-il mis en avant ? */
 export const isSponsoredEmployer = (sourceId?: string | null): boolean =>
   !!sourceId && SPONSORED_EMPLOYERS.has(sourceId);

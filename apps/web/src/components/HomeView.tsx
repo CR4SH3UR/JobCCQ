@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  getEmployer,
   labelForCategory,
   labelForRegion,
   type HiringCompany,
   type Job,
 } from "@jobccq/shared";
 import { searchCompanies, searchJobs, getStats, buildQuery, type Stats } from "@/lib/data";
+import { SPONSORED_EMPLOYERS } from "@/lib/sponsors";
 import { initials } from "@/lib/format";
 import { JobCard } from "./JobCard";
 import { SponsorBanner } from "./SponsorBanner";
@@ -48,6 +50,12 @@ export function HomeView() {
   const topCategories = [...realCategories].sort((a, b) => b.count - a.count).slice(0, 8);
   const realRegions = (stats?.byRegion ?? []).filter((r) => !SKIP_REGIONS.has(r.id));
   const topRegions = [...realRegions].sort((a, b) => b.count - a.count).slice(0, 8);
+
+  // Employeurs en vedette (commandités) : mis en avant tout en haut.
+  const bySource = new Map((stats?.bySource ?? []).map((s) => [s.id, s.count]));
+  const featured = [...SPONSORED_EMPLOYERS]
+    .map((id) => ({ id, employer: getEmployer(id), count: bySource.get(id) ?? 0 }))
+    .filter((f) => f.employer || f.count > 0);
 
   return (
     <div>
@@ -147,6 +155,45 @@ export function HomeView() {
 
         <SponsorBanner className="mt-6" />
       </section>
+
+      {/* Employeurs en vedette (commandités) */}
+      {featured.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 pb-4">
+          <h2 className="mb-4 text-xl font-bold tracking-tight">★ Employeurs en vedette</h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {featured.map((f) => {
+              const name = f.employer?.name ?? f.id;
+              return (
+                <Link
+                  key={f.id}
+                  href={`/entreprises/${f.id}/`}
+                  className="group relative overflow-hidden rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50/60 to-white p-4 shadow-sm transition-shadow hover:shadow-md"
+                >
+                  <span className="absolute right-0 top-0 rounded-bl-lg bg-amber-400/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-950">
+                    En vedette
+                  </span>
+                  <div className="flex items-center gap-3 pr-16">
+                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-brand-50 text-sm font-bold text-brand-700 ring-1 ring-brand-100">
+                      {initials(name)}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold text-slate-900 group-hover:text-brand-700">
+                        {name}
+                      </p>
+                      <p className="text-sm text-brand-700">
+                        {f.count} poste{f.count > 1 ? "s" : ""} ouvert{f.count > 1 ? "s" : ""}
+                      </p>
+                      {f.employer?.region && (
+                        <p className="truncate text-xs text-slate-500">{f.employer.region}</p>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Dernières offres */}
       {latest.length > 0 && (
