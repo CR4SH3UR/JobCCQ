@@ -42,6 +42,12 @@ interface Changeset {
    * (« Scraper introuvable ») et ses offres n'apparaissent jamais.
    */
   reactivate?: EmpIn[];
+  /**
+   * Ids à **désactiver** (`enabled = false`) : sert à retirer proprement un
+   * doublon d'un employeur déjà couvert par une autre fiche, sans supprimer ses
+   * éventuelles offres. Appliqué en dernier (gagne sur upsert/reactivate).
+   */
+  disable?: string[];
   /** Ids dont on journalise l'état courant (diagnostic, aucune écriture). */
   inspect?: string[];
 }
@@ -54,7 +60,7 @@ async function main() {
     console.log("TURSO_DATABASE_URL manquant — import ignoré (rien à faire hors Turso).");
     return;
   }
-  const { upsert, fixUrl, reactivate = [], inspect = [] } = JSON.parse(
+  const { upsert, fixUrl, reactivate = [], disable = [], inspect = [] } = JSON.parse(
     await readFile(FILE, "utf-8"),
   ) as Changeset;
 
@@ -148,9 +154,20 @@ async function main() {
     reactivated++;
   }
 
+  // Désactivation (doublons) : appliquée en dernier. `updateMany` n'échoue pas
+  // si l'id est absent. On ne supprime jamais les offres liées.
+  let disabled = 0;
+  if (disable.length) {
+    const res = await prisma.employer.updateMany({
+      where: { id: { in: disable } },
+      data: { enabled: false },
+    });
+    disabled = res.count;
+  }
+
   console.log(
     `Employeurs — créés: ${created}, careersUrl mis à jour: ${urlUpdated}, ` +
-      `correctifs fixUrl: ${fixed}, réactivés: ${reactivated}, ` +
+      `correctifs fixUrl: ${fixed}, réactivés: ${reactivated}, désactivés: ${disabled}, ` +
       `inchangés: ${unchanged}, fixUrl introuvables: ${fixSkipped}`,
   );
   const total = await prisma.employer.count();
