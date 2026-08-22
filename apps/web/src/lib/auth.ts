@@ -50,3 +50,23 @@ export async function signInWithEmail(email: string): Promise<{ error?: string }
 export async function signOut(): Promise<void> {
   await supabase?.auth.signOut();
 }
+
+/**
+ * Liste blanche des administrateurs, définie **au build** via la variable
+ * `NEXT_PUBLIC_ADMIN_EMAILS` (courriels séparés par des virgules). On garde les
+ * courriels hors du code source : ils sont fournis par une variable GitHub, comme
+ * les clés Supabase.
+ */
+const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "")
+  .split(",")
+  .map((s) => s.trim().toLowerCase())
+  .filter(Boolean);
+
+/** Une liste blanche a-t-elle été configurée ? (sinon l'admin est verrouillé) */
+export const adminAllowlistConfigured = ADMIN_EMAILS.length > 0;
+
+/** Ce courriel figure-t-il dans la liste blanche des administrateurs ? */
+export function isAdminEmail(email?: string | null): boolean {
+  if (!email) return false;
+  return ADMIN_EMAILS.includes(email.trim().toLowerCase());
+}
