@@ -113,6 +113,29 @@ const LANGUAGE_LABELS = indexBy(LANGUAGES);
 const SALARY_PERIOD_LABELS = indexBy(SALARY_PERIODS);
 
 export const labelForRegion = (id?: string | null) => (id ? REGION_LABELS[id] ?? id : undefined);
+
+/** Slugifie un nom de région (retire accents, minuscules, tirets simples). */
+const slugifyRegion = (s: string): string =>
+  s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+const REGION_IDS: ReadonlySet<string> = new Set(QUEBEC_REGIONS.map((r) => r.id));
+
+/**
+ * Convertit un nom de région administrative (ex. « Montérégie » ou
+ * « Saguenay--Lac-Saint-Jean », tels que renvoyés par le registre RBQ) en
+ * identifiant du référentiel (« monteregie », « saguenay-lac-saint-jean »).
+ * Renvoie `undefined` si le nom ne correspond à aucune région connue.
+ */
+export const regionIdFromName = (name?: string | null): string | undefined => {
+  if (!name) return undefined;
+  const slug = slugifyRegion(name);
+  return REGION_IDS.has(slug) ? slug : undefined;
+};
 export const labelForCategory = (id?: string | null) => (id ? CATEGORY_LABELS[id] ?? id : undefined);
 export const labelForEmployment = (id?: string | null) => (id ? EMPLOYMENT_LABELS[id] ?? id : undefined);
 export const labelForRemote = (id?: string | null) => (id ? REMOTE_LABELS[id] ?? id : undefined);
