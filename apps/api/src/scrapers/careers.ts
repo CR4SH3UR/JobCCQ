@@ -515,7 +515,7 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     // d'un niveau/lieu (« Frigoriste - Compagnon ou apprenti - Rive-Sud de
     // Montréal ») : le découper le réduirait à des fragments (« Compagnon ou
     // apprenti »), donc on garde l'intitulé entier.
-    const parts = raw.split(/\s+[-–—•|]\s+/).filter(Boolean);
+    const parts = raw.split(/\s+[-–—•|/]\s+/).filter(Boolean);
     const looksLikeTrade = (s: string) =>
       JOB_TITLE_HINT.test(s.replace(/\s*\([^)]*\)/g, "").replace(/\s+/g, " ").trim());
     if (parts.length > 1 && parts.every(looksLikeTrade)) parts.forEach((p) => add(p));
