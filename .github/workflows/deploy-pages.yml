@@ -76,6 +76,9 @@ jobs:
           # Vides si non définies → l'app retombe sur les favoris locaux.
           NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          # Liste blanche des administrateurs (courriels séparés par des virgules).
+          # Restreint /admin aux comptes indiqués ; vide → console verrouillée.
+          NEXT_PUBLIC_ADMIN_EMAILS: ${{ vars.NEXT_PUBLIC_ADMIN_EMAILS }}
         run: npm run build -w @jobccq/web
 
       - name: Publier sur la branche gh-pages

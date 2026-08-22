@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AdminExplorer } from "@/components/AdminExplorer";
+import { AdminGate } from "@/components/AdminGate";
 
 export const metadata: Metadata = {
   title: "Administration — JobCCQ",
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function AdminPage() {
-  return <AdminExplorer />;
+  return (
+    <AdminGate>
+      <AdminExplorer />
+    </AdminGate>
+  );
 }

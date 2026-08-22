@@ -53,9 +53,26 @@ Dépôt GitHub → **Settings → Secrets and variables → Actions → onglet _
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | l'URL du projet (étape 1) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | la clé **anon public** (étape 1) |
+| `NEXT_PUBLIC_ADMIN_EMAILS` | *(optionnel)* courriel(s) admin, séparés par des virgules |
 
 > Ce sont des **variables** (pas des secrets) car la clé anon est publique. Le workflow
 > `deploy-pages.yml` les injecte dans le build. Relance un déploiement pour activer.
+
+### Restreindre la console d'administration (`/admin`)
+
+Quand Supabase est actif, la page `/admin` est **verrouillée** : l'accès exige une
+connexion **et** un courriel présent dans `NEXT_PUBLIC_ADMIN_EMAILS`. Définis cette
+variable avec ton courriel de compte (ex. `moi@courriel.com`, ou plusieurs séparés
+par des virgules) puis relance un déploiement.
+
+- Variable **absente** → console verrouillée (écran expliquant quoi configurer).
+- Compte connecté hors liste → « Accès refusé ».
+- Supabase non configuré → pas de comptes, donc pas de restriction possible : la page
+  reste ouverte (l'accès effectif demeure protégé par les jetons GitHub/Turso qu'il
+  faut saisir pour agir).
+
+> Garde-fou d'**interface** (le site est statique, sans serveur) : la vraie protection
+> des actions vient des jetons requis pour scraper / écrire dans Turso.
 
 ## Développement local
 
