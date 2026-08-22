@@ -12,6 +12,9 @@
  */
 import config from "@/data/sponsors.json";
 
+/** Niveau de commandite (détermine le placement et le style de la bannière). */
+export type SponsorTier = "or" | "argent";
+
 export interface Sponsor {
   readonly id: string;
   /** Nom de l'annonceur. */
@@ -22,6 +25,8 @@ export interface Sponsor {
   readonly url: string;
   /** Logo optionnel : URL ou data URI. */
   readonly logoUrl?: string;
+  /** Niveau : « or » (bannière vedette) ou « argent » (défaut). */
+  readonly tier?: SponsorTier;
 }
 
 export interface SponsorConfig {
