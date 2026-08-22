@@ -1,3 +1,5 @@
+"use client";
+
 import {
   getSource,
   labelForCategory,
@@ -10,6 +12,7 @@ import {
 import { Badge } from "./Badge";
 import { cn, formatSalary, initials, timeAgo } from "@/lib/format";
 import { isSponsoredEmployer } from "@/lib/sponsors";
+import { toggleFavorite, useIsFavorite } from "@/lib/favorites";
 
 const REMOTE_TONE = { teletravail: "green", hybride: "violet", presentiel: "slate" } as const;
 
@@ -41,7 +44,10 @@ export function JobCard({ job }: { job: Job }) {
                 {job.title}
               </a>
             </h3>
-            {posted && <span className="shrink-0 text-xs text-slate-400">{posted}</span>}
+            <div className="flex shrink-0 items-center gap-1.5">
+              {posted && <span className="text-xs text-slate-400">{posted}</span>}
+              <FavButton id={job.id} />
+            </div>
           </div>
 
           <p className="mt-0.5 text-sm text-slate-600">
@@ -87,6 +93,28 @@ export function JobCard({ job }: { job: Job }) {
         </div>
       </div>
     </article>
+  );
+}
+
+/** Bouton cœur : ajoute/retire l'offre des favoris (stockés dans le navigateur). */
+function FavButton({ id }: { id: string }) {
+  const fav = useIsFavorite(id);
+  return (
+    <button
+      type="button"
+      onClick={() => toggleFavorite(id)}
+      aria-pressed={fav}
+      aria-label={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
+      title={fav ? "Retirer des favoris" : "Ajouter aux favoris"}
+      className={cn(
+        "grid h-7 w-7 shrink-0 place-items-center rounded-full text-lg leading-none transition-colors",
+        fav
+          ? "text-red-500 hover:bg-red-50"
+          : "text-slate-300 hover:bg-slate-100 hover:text-red-400",
+      )}
+    >
+      {fav ? "♥" : "♡"}
+    </button>
   );
 }
 
