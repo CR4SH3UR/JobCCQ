@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  JOB_SOURCES,
   labelForCategory,
   labelForRegion,
   type HiringCompany,
@@ -45,10 +44,8 @@ export function HomeView() {
     router.push(q.trim() ? `/emplois?q=${encodeURIComponent(q.trim())}` : "/emplois");
   };
 
-  const topCategories = (stats?.byCategory ?? [])
-    .filter((c) => c.id && c.id !== "autre")
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 8);
+  const realCategories = (stats?.byCategory ?? []).filter((c) => c.id && c.id !== "autre");
+  const topCategories = [...realCategories].sort((a, b) => b.count - a.count).slice(0, 8);
   const realRegions = (stats?.byRegion ?? []).filter((r) => !SKIP_REGIONS.has(r.id));
   const topRegions = [...realRegions].sort((a, b) => b.count - a.count).slice(0, 8);
 
@@ -138,7 +135,7 @@ export function HomeView() {
           <Stat icon="📋" value={stats ? stats.totalJobs.toLocaleString("fr-CA") : "—"} label="Offres en ligne" />
           <Stat icon="🏗️" value={stats ? stats.totalCompanies.toLocaleString("fr-CA") : "—"} label="Entreprises" />
           <Stat icon="📍" value={stats ? String(realRegions.length) : "—"} label="Régions couvertes" />
-          <Stat icon="🔗" value={String(JOB_SOURCES.length)} label="Sources répertoriées" />
+          <Stat icon="🧰" value={stats ? String(realCategories.length) : "—"} label="Domaines" />
         </div>
 
         {offline && (
