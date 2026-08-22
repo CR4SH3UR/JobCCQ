@@ -12,6 +12,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: siteUrl("/entreprises/"), changeFrequency: "weekly", priority: 0.7 },
     { url: siteUrl("/sources/"), changeFrequency: "monthly", priority: 0.3 },
     { url: siteUrl("/alertes/"), changeFrequency: "monthly", priority: 0.3 },
+    { url: siteUrl("/a-propos/"), changeFrequency: "monthly", priority: 0.3 },
+    { url: siteUrl("/confidentialite/"), changeFrequency: "yearly", priority: 0.2 },
+    { url: siteUrl("/conditions/"), changeFrequency: "yearly", priority: 0.2 },
   ];
 
   const jobs: MetadataRoute.Sitemap = allJobs().map((j) => ({

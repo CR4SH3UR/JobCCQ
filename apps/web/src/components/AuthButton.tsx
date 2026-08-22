@@ -119,6 +119,17 @@ export function AuthButton() {
                 >
                   {status.kind === "sending" ? "Envoi…" : "Envoyer le lien magique"}
                 </button>
+                <p className="text-xs text-slate-400">
+                  En continuant, tu acceptes notre{" "}
+                  <Link href="/confidentialite" onClick={() => setOpen(false)} className="underline hover:text-brand-600">
+                    politique de confidentialité
+                  </Link>{" "}
+                  et nos{" "}
+                  <Link href="/conditions" onClick={() => setOpen(false)} className="underline hover:text-brand-600">
+                    conditions
+                  </Link>
+                  .
+                </p>
                 {status.kind === "error" && <p className="text-red-600">{status.msg}</p>}
               </form>
             )}

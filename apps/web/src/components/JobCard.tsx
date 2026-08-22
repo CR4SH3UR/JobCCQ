@@ -93,7 +93,10 @@ export function JobCard({ job }: { job: Job }) {
               {rbq && (
                 <>
                   {" · "}
-                  <span className="font-medium text-slate-500" title="Licence RBQ">
+                  <span
+                    className="font-medium text-slate-500"
+                    title="Licence RBQ (indicatif — source : Données Québec)"
+                  >
                     RBQ {rbq}
                   </span>
                 </>
