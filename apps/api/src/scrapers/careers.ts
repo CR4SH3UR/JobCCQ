@@ -506,6 +506,15 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     if (parts.length > 1 && parts.every(looksLikeTrade)) parts.forEach((p) => add(p));
     else add(raw);
   });
+  // Titres d'accordéon / onglets Elementor (fréquent sur WordPress : les postes
+  // sont dépliables et leur intitulé vit dans un <div>/<span> de classe dédiée,
+  // pas dans un h1-h5). add() filtre sur les mots de métier → pas les FAQ.
+  $(
+    ".e-n-accordion-item-title-text, .elementor-accordion-title, .elementor-tab-title, .e-n-tab-title-text",
+  ).each((_, el) => {
+    const raw = cleanText($(el).text());
+    if (raw.length >= 4) add(raw);
+  });
   // <li> : risqué (puces d'exigences, cartes). On n'accepte qu'un intitulé
   // court et propre (peu de mots, sans chiffres ni marqueurs de phrase FR/EN).
   $("li").each((_, el) => {
