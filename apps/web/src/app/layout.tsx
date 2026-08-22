@@ -2,9 +2,14 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "JobCCQ — Qui recrute au Québec ?",
+  metadataBase: new URL(siteUrl("/")),
+  title: {
+    default: "JobCCQ — Qui recrute au Québec ?",
+    template: "%s",
+  },
   description:
     "Agrégateur d'offres d'emploi du Québec et du Canada. Découvrez quelles entreprises recrutent, pour quels postes, et filtrez par région, domaine, salaire et plus.",
 };

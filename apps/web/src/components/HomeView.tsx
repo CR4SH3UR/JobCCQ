@@ -201,7 +201,11 @@ export function HomeView() {
             {companies.map((c) => (
               <Link
                 key={c.company}
-                href={`/emplois?q=${encodeURIComponent(c.company)}`}
+                href={
+                  c.sources.length === 1
+                    ? `/entreprises/${c.sources[0]}/`
+                    : `/emplois?q=${encodeURIComponent(c.company)}`
+                }
                 className="card flex items-center gap-3 p-4 transition-shadow hover:shadow-md"
               >
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-brand-50 text-sm font-bold text-brand-700 ring-1 ring-brand-100">

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   getEmployer,
   getSource,
@@ -44,14 +45,9 @@ export function JobCard({ job }: { job: Job }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <h3 className="font-semibold leading-snug">
-              <a
-                href={job.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-900 hover:text-brand-700"
-              >
+              <Link href={`/emplois/${job.id}/`} className="text-slate-900 hover:text-brand-700">
                 {job.title}
-              </a>
+              </Link>
             </h3>
             <div className="flex shrink-0 items-center gap-1.5">
               {posted && <span className="text-xs text-slate-400">{posted}</span>}
@@ -60,7 +56,12 @@ export function JobCard({ job }: { job: Job }) {
           </div>
 
           <p className="mt-0.5 text-sm text-slate-600">
-            <span className="font-medium text-slate-800">{job.company}</span>
+            <Link
+              href={`/entreprises/${job.sourceId}/`}
+              className="font-medium text-slate-800 hover:text-brand-700"
+            >
+              {job.company}
+            </Link>
             {place && <span className="text-slate-500"> · {place}</span>}
           </p>
 
@@ -98,17 +99,15 @@ export function JobCard({ job }: { job: Job }) {
                 </>
               )}
             </span>
-            <a
-              href={job.url}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href={`/emplois/${job.id}/`}
               className={cn(
                 "rounded-lg px-3 py-1 text-xs font-semibold",
                 "bg-brand-600 text-white opacity-0 transition-opacity group-hover:opacity-100",
               )}
             >
-              Voir l'offre →
-            </a>
+              Détails →
+            </Link>
           </div>
         </div>
       </div>

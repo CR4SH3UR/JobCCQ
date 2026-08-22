@@ -1,0 +1,81 @@
+/**
+ * Accès aux données **au moment du build** (composants serveur / SSG).
+ *
+ * Contrairement à `data.ts` (qui `fetch` l'instantané côté navigateur), ce
+ * module lit `public/data/jobs.json` directement sur le disque : il alimente
+ * `generateStaticParams`, les métadonnées et le rendu des pages de détail
+ * pré-générées. À n'importer que depuis des composants serveur.
+ */
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import {
+  DISABLED_SOURCE_IDS,
+  getEmployer,
+  type DiscoveredEmployer,
+  type Job,
+} from "@jobccq/shared";
+
+let cache: Job[] | null = null;
+
+/** Toutes les offres de l'instantané (sources désactivées exclues). */
+export function allJobs(): Job[] {
+  if (!cache) {
+    const path = join(process.cwd(), "public", "data", "jobs.json");
+    const jobs = JSON.parse(readFileSync(path, "utf8")) as Job[];
+    cache = DISABLED_SOURCE_IDS.size
+      ? jobs.filter((j) => !DISABLED_SOURCE_IDS.has(j.sourceId))
+      : jobs;
+  }
+  return cache;
+}
+
+export function jobById(id: string): Job | undefined {
+  return allJobs().find((j) => j.id === id);
+}
+
+/** Offres d'un employeur (par id de source), les plus récentes d'abord. */
+export function jobsByEmployer(sourceId: string): Job[] {
+  return allJobs()
+    .filter((j) => j.sourceId === sourceId)
+    .sort((a, b) => (b.postedAt ?? b.scrapedAt).localeCompare(a.postedAt ?? a.scrapedAt));
+}
+
+/** Ids d'employeurs ayant au moins une offre (une page profil chacun). */
+export function employerIdsWithJobs(): string[] {
+  return [...new Set(allJobs().map((j) => j.sourceId))];
+}
+
+export interface EmployerProfile {
+  readonly id: string;
+  readonly name: string;
+  readonly employer?: DiscoveredEmployer;
+  readonly jobs: Job[];
+}
+
+/** Fiche complète d'un employeur pour sa page profil. */
+export function employerProfile(id: string): EmployerProfile | undefined {
+  const jobs = jobsByEmployer(id);
+  const employer = getEmployer(id);
+  if (jobs.length === 0 && !employer) return undefined;
+  const name = employer?.name ?? jobs[0]?.company ?? id;
+  return { id, name, employer, jobs };
+}
+
+/**
+ * Offres similaires : même région ou même domaine, employeur/annonce distincts.
+ * Sert la section « Offres similaires » des pages de détail.
+ */
+export function similarJobs(job: Job, limit = 6): Job[] {
+  const scored = allJobs()
+    .filter((j) => j.id !== job.id)
+    .map((j) => {
+      let score = 0;
+      if (job.regionId && j.regionId === job.regionId) score += 2;
+      if (job.categoryId && j.categoryId === job.categoryId) score += 2;
+      if (j.sourceId === job.sourceId) score += 1;
+      return { j, score };
+    })
+    .filter((s) => s.score > 0)
+    .sort((a, b) => b.score - a.score);
+  return scored.slice(0, limit).map((s) => s.j);
+}
