@@ -24,6 +24,8 @@ export interface JobillicoEmployerConfig {
 interface Listed {
   url: string;
   name: string;
+  /** Lieu lu depuis la carte (repli HTML), pour les fiches non détaillées. */
+  location?: string;
 }
 
 /** Extrait les postes de l'ItemList (URL + titre). */
@@ -85,9 +87,21 @@ export function parseEmployerCards(html: string, slug: string): Listed[] {
     const path = href.split("?")[0]!;
     if (!/\/\d{4,}$/.test(path)) return;
     const url = path.startsWith("http") ? path : `https://www.jobillico.com${path}`;
-    if (!out.has(url)) {
-      out.set(url, { url, name: cleanJobillicoTitle($(el).attr("title") || $(el).text()) });
-    }
+    if (out.has(url)) return;
+    // Lieu = le <p> de la carte sans classe « mb0 » (société) ni « date ».
+    const card = $(el).closest(".card__content, li, .card");
+    let location = "";
+    card.find("p").each((_i, p) => {
+      if (location) return;
+      const cls = $(p).attr("class") || "";
+      if (/\bmb0\b/.test(cls) || /\bdate\b/.test(cls)) return;
+      location = cleanText($(p).text());
+    });
+    out.set(url, {
+      url,
+      name: cleanJobillicoTitle($(el).attr("title") || $(el).text()),
+      location: location || undefined,
+    });
   });
   return [...out.values()];
 }
@@ -118,14 +132,41 @@ export function makeJobillicoEmployerScraper(config: JobillicoEmployerConfig): S
     },
     async scrape(_params: ScrapeParams, ctx: ScrapeContext): Promise<RawJob[]> {
       ctx.log(`${config.id} — liste employeur : ${config.listUrl}`);
-      let html: string;
-      try {
-        html = await ctx.fetchHtml(config.listUrl);
-      } catch (err) {
-        ctx.log(`${config.id} — échec : ${(err as Error).message}`);
-        return [];
+
+      // Pagination : Jobillico limite l'affichage (souvent 25/page). On demande
+      // 100/page via `iPerPage` et on parcourt `ipage` jusqu'à ne plus rien
+      // récupérer de nouveau (certains employeurs, ex. Aecon, ont des centaines
+      // de postes). Garde-fou `MAX_PAGES` pour éviter une boucle infinie.
+      const PAGE_SIZE = 100;
+      const MAX_PAGES = 30;
+      const pageUrl = (n: number) => {
+        const sep = config.listUrl.includes("?") ? "&" : "?";
+        return `${config.listUrl}${sep}iPerPage=${PAGE_SIZE}&ipage=${n}`;
+      };
+
+      const seen = new Set<string>();
+      const listed: Listed[] = [];
+      for (let n = 1; n <= MAX_PAGES; n++) {
+        let pageHtml: string;
+        try {
+          pageHtml = await ctx.fetchHtml(pageUrl(n));
+        } catch (err) {
+          if (n === 1) {
+            ctx.log(`${config.id} — échec : ${(err as Error).message}`);
+            return [];
+          }
+          break; // une page ultérieure échoue → on garde les postes déjà lus
+        }
+        const pageListed = listEmployerPostings(pageHtml, config.listUrl);
+        let added = 0;
+        for (const l of pageListed) {
+          if (seen.has(l.url)) continue;
+          seen.add(l.url);
+          listed.push(l);
+          added++;
+        }
+        if (added === 0) break; // plus aucun nouveau poste → fin de la liste
       }
-      const listed = listEmployerPostings(html, config.listUrl);
       ctx.log(`${config.id} — ${listed.length} poste(s) listé(s)`);
 
       const cap = config.detailCap ?? 40;
@@ -137,6 +178,7 @@ export function makeJobillicoEmployerScraper(config: JobillicoEmployerConfig): S
           url: l.url,
           title: l.name || "Poste",
           company: config.company,
+          location: l.location,
           tags: [],
         };
         if (fetched >= cap) {
@@ -149,7 +191,15 @@ export function makeJobillicoEmployerScraper(config: JobillicoEmployerConfig): S
           const detail = extractJsonLdJobs(detailHtml, config.id, l.url);
           out.push(
             detail[0]
-              ? { ...detail[0], url: l.url, title: cleanJobillicoTitle(detail[0].title), company: config.company }
+              ? {
+                  ...detail[0],
+                  url: l.url,
+                  // Titre de la liste (bien capitalisé) prioritaire sur celui,
+                  // parfois en minuscules, du JSON-LD de la fiche.
+                  title: l.name || cleanJobillicoTitle(detail[0].title),
+                  company: config.company,
+                  location: detail[0].location || l.location,
+                }
               : shallow,
           );
         } catch {
