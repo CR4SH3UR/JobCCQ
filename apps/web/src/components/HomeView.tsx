@@ -3,23 +3,39 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { JOB_CATEGORIES, JOB_SOURCES, type HiringCompany } from "@jobccq/shared";
-import { searchCompanies, getStats, buildQuery, type Stats } from "@/lib/data";
+import {
+  JOB_SOURCES,
+  labelForCategory,
+  labelForRegion,
+  type HiringCompany,
+  type Job,
+} from "@jobccq/shared";
+import { searchCompanies, searchJobs, getStats, buildQuery, type Stats } from "@/lib/data";
 import { initials } from "@/lib/format";
+import { JobCard } from "./JobCard";
 import { SponsorBanner } from "./SponsorBanner";
+
+/** Régions « fourre-tout » à ne pas proposer comme raccourci de navigation. */
+const SKIP_REGIONS = new Set(["autre", "canada-autre", "teletravail", ""]);
 
 export function HomeView() {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [stats, setStats] = useState<Stats | null>(null);
   const [companies, setCompanies] = useState<HiringCompany[]>([]);
+  const [latest, setLatest] = useState<Job[]>([]);
   const [offline, setOffline] = useState(false);
 
   useEffect(() => {
-    Promise.all([getStats(), searchCompanies(buildQuery({}))])
-      .then(([s, c]) => {
+    Promise.all([
+      getStats(),
+      searchCompanies(buildQuery({})),
+      searchJobs(buildQuery({ sort: "recent", pageSize: 6 })),
+    ])
+      .then(([s, c, j]) => {
         setStats(s);
         setCompanies(c.companies.slice(0, 8));
+        setLatest(j.items.slice(0, 6));
       })
       .catch(() => setOffline(true));
   }, []);
@@ -29,55 +45,100 @@ export function HomeView() {
     router.push(q.trim() ? `/emplois?q=${encodeURIComponent(q.trim())}` : "/emplois");
   };
 
+  const topCategories = (stats?.byCategory ?? [])
+    .filter((c) => c.id && c.id !== "autre")
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+  const realRegions = (stats?.byRegion ?? []).filter((r) => !SKIP_REGIONS.has(r.id));
+  const topRegions = [...realRegions].sort((a, b) => b.count - a.count).slice(0, 8);
+
   return (
     <div>
       {/* Héros */}
-      <section className="border-b border-slate-200 bg-gradient-to-b from-brand-50 to-white">
-        <div className="mx-auto max-w-4xl px-4 py-16 text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
+      <section className="relative overflow-hidden border-b border-slate-200 bg-gradient-to-b from-brand-50 to-white">
+        {/* Halos décoratifs (marque vive, subtils dans les deux thèmes) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-brand-400/20 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-brand-500/10 blur-3xl"
+        />
+        <div className="relative mx-auto max-w-4xl px-4 py-16 text-center sm:py-20">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-white/70 px-3 py-1 text-xs font-medium text-brand-700 shadow-sm backdrop-blur">
+            <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+            Le portail de la construction et des métiers au Québec
+          </span>
+
+          <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
             Qui recrute au <span className="text-brand-600">Québec</span> ?
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
-            JobCCQ agrège les offres d'emploi de plusieurs sources québécoises et canadiennes.
-            Trouvez quelles entreprises embauchent, pour quels postes, et filtrez comme vous voulez.
+            JobCCQ regroupe les offres d'emploi de centaines d'entreprises québécoises. Trouvez qui
+            embauche, pour quels postes, et postulez directement à la source.
           </p>
 
-          <form onSubmit={submit} className="mx-auto mt-8 flex max-w-xl gap-2">
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Ex. développeur, infirmière, électricien…"
-              className="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
-            />
+          <form onSubmit={submit} className="mx-auto mt-8 flex max-w-xl flex-col gap-2 sm:flex-row">
+            <div className="relative flex-1">
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                🔎
+              </span>
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Ex. charpentier, électricien, estimateur…"
+                aria-label="Rechercher un poste"
+                className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-sm shadow-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+              />
+            </div>
             <button
               type="submit"
-              className="rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700"
+              className="rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700"
             >
               Rechercher
             </button>
           </form>
 
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-            {JOB_CATEGORIES.slice(0, 8).map((c) => (
-              <Link
-                key={c.id}
-                href={`/emplois?categories=${c.id}`}
-                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 hover:border-brand-300 hover:text-brand-700"
-              >
-                {c.label}
-              </Link>
-            ))}
-          </div>
+          {/* Ligne de confiance (chiffres réels) */}
+          {stats && (
+            <p className="mt-4 text-sm text-slate-500">
+              <span className="font-semibold text-slate-700">
+                {stats.totalJobs.toLocaleString("fr-CA")}
+              </span>{" "}
+              offres ·{" "}
+              <span className="font-semibold text-slate-700">
+                {stats.totalCompanies.toLocaleString("fr-CA")}
+              </span>{" "}
+              entreprises · mises à jour chaque semaine
+            </p>
+          )}
+
+          {/* Raccourcis par domaine (dynamiques, avec compte) */}
+          {topCategories.length > 0 && (
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+              {topCategories.map((c) => (
+                <Link
+                  key={c.id}
+                  href={`/emplois?categories=${c.id}`}
+                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 shadow-sm transition-colors hover:border-brand-300 hover:text-brand-700"
+                >
+                  {labelForCategory(c.id) ?? c.id}
+                  <span className="ml-1 text-slate-400">{c.count}</span>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
       {/* Statistiques */}
       <section className="mx-auto max-w-6xl px-4 py-10">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Stat value={stats ? stats.totalJobs.toLocaleString("fr-CA") : "—"} label="Offres" />
-          <Stat value={stats ? stats.totalCompanies.toLocaleString("fr-CA") : "—"} label="Entreprises" />
-          <Stat value={String(JOB_SOURCES.length)} label="Sources répertoriées" />
-          <Stat value={stats ? String(stats.byRegion.length) : "—"} label="Régions couvertes" />
+          <Stat icon="📋" value={stats ? stats.totalJobs.toLocaleString("fr-CA") : "—"} label="Offres en ligne" />
+          <Stat icon="🏗️" value={stats ? stats.totalCompanies.toLocaleString("fr-CA") : "—"} label="Entreprises" />
+          <Stat icon="📍" value={stats ? String(realRegions.length) : "—"} label="Régions couvertes" />
+          <Stat icon="🔗" value={String(JOB_SOURCES.length)} label="Sources répertoriées" />
         </div>
 
         {offline && (
@@ -90,9 +151,49 @@ export function HomeView() {
         <SponsorBanner className="mt-6" />
       </section>
 
+      {/* Dernières offres */}
+      {latest.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 pb-4">
+          <div className="mb-4 flex items-end justify-between">
+            <h2 className="text-xl font-bold tracking-tight">Dernières offres publiées</h2>
+            <Link href="/emplois" className="text-sm font-semibold text-brand-600 hover:underline">
+              Toutes les offres →
+            </Link>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            {latest.map((job) => (
+              <JobCard key={job.id} job={job} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Explorer par région */}
+      {topRegions.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 py-10">
+          <h2 className="mb-4 text-xl font-bold tracking-tight">Explorez par région</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {topRegions.map((r) => (
+              <Link
+                key={r.id}
+                href={`/emplois?regions=${r.id}`}
+                className="card flex items-center justify-between p-4 transition-shadow hover:shadow-md"
+              >
+                <span className="min-w-0 truncate font-medium text-slate-800">
+                  {labelForRegion(r.id) ?? r.id}
+                </span>
+                <span className="ml-2 shrink-0 rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700 ring-1 ring-brand-100">
+                  {r.count}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Top des entreprises qui recrutent */}
       {companies.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pb-14">
+        <section className="mx-auto max-w-6xl px-4 pb-16">
           <div className="mb-4 flex items-end justify-between">
             <h2 className="text-xl font-bold tracking-tight">Elles recrutent en ce moment</h2>
             <Link href="/entreprises" className="text-sm font-semibold text-brand-600 hover:underline">
@@ -103,7 +204,7 @@ export function HomeView() {
             {companies.map((c) => (
               <Link
                 key={c.company}
-                href="/entreprises"
+                href={`/emplois?q=${encodeURIComponent(c.company)}`}
                 className="card flex items-center gap-3 p-4 transition-shadow hover:shadow-md"
               >
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-brand-50 text-sm font-bold text-brand-700 ring-1 ring-brand-100">
@@ -112,7 +213,7 @@ export function HomeView() {
                 <div className="min-w-0">
                   <p className="truncate font-semibold">{c.company}</p>
                   <p className="text-sm text-brand-700">
-                    {c.openings} poste{c.openings > 1 ? "s" : ""}
+                    {c.openings} poste{c.openings > 1 ? "s" : ""} ouvert{c.openings > 1 ? "s" : ""}
                   </p>
                 </div>
               </Link>
@@ -124,10 +225,13 @@ export function HomeView() {
   );
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
+function Stat({ icon, value, label }: { icon: string; value: string; label: string }) {
   return (
     <div className="card p-4 text-center">
-      <p className="text-3xl font-extrabold text-brand-600">{value}</p>
+      <div className="text-lg" aria-hidden>
+        {icon}
+      </div>
+      <p className="mt-1 text-3xl font-extrabold text-brand-600">{value}</p>
       <p className="mt-1 text-sm text-slate-500">{label}</p>
     </div>
   );
