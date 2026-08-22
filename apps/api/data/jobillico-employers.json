@@ -13,18 +13,6 @@
       ]
     },
     {
-      "id": "conn-x",
-      "name": "Conn-X",
-      "homepage": "https://www.jobillico.com/voir-entreprise/conn-x",
-      "careersUrl": "https://www.jobillico.com/fr/employeurs/conn-x/voir-liste-emplois",
-      "method": "jobillico",
-      "region": "Lanaudière",
-      "scope": "Employeur — construction (Jobillico)",
-      "sectors": [
-        "Construction générale"
-      ]
-    },
-    {
       "id": "nouvelle-autoroute-30-s-e-n-c",
       "name": "Nouvelle Autoroute 30 S.E.N.C",
       "homepage": "https://www.jobillico.com/voir-entreprise/nouvelle-autoroute-30-s-e-n-c",
@@ -1178,26 +1166,14 @@
       "careersUrl": "https://www.jobillico.com/fr/employeurs/nordex/voir-liste-emplois"
     }
   ],
-  "reactivate": [
-    {
-      "id": "conn-x",
-      "name": "Conn-X",
-      "homepage": "https://www.jobillico.com/voir-entreprise/conn-x",
-      "careersUrl": "https://www.jobillico.com/fr/employeurs/conn-x/voir-liste-emplois",
-      "method": "jobillico",
-      "region": "Lanaudière",
-      "scope": "Employeur — construction (Jobillico)",
-      "sectors": [
-        "Construction générale"
-      ]
-    }
-  ],
   "inspect": [
     "conn-x",
     "beton-chevalier",
-    "betonchevalier-com"
+    "betonchevalier-com",
+    "Connx"
   ],
   "disable": [
-    "beton-chevalier"
+    "beton-chevalier",
+    "conn-x"
   ]
 }
