@@ -53,7 +53,7 @@ const LS_PAGESIZE = "admin:pagesize";
 const DISCOVERED_PATH = "packages/shared/src/discovered.json";
 
 /** Filtres du tableau (persistés dans le navigateur → survivent au rafraîchissement). */
-const FILTER_KEYS = ["all", "unverified", "verified", "nojobs", "disabled", "duplicates", "errors"] as const;
+const FILTER_KEYS = ["all", "unverified", "verified", "nojobs", "disabled", "duplicates", "errors", "neverrun"] as const;
 type FilterKey = (typeof FILTER_KEYS)[number];
 /** Tri du tableau. */
 const SORT_KEYS = ["name", "jobsDesc", "jobsAsc", "method", "region", "lastRun"] as const;
@@ -950,6 +950,10 @@ export function AdminExplorer() {
     setSelected(new Set());
     setBulkMsg(`${ids.length} employeur(s) supprimé(s).`);
   };
+  const bulkSetMethod = async (ids: string[], method: DiscoveredMethod) => {
+    for (const id of ids) await patchEmployer(id, { method });
+    setBulkMsg(`Méthode « ${method} » appliquée à ${ids.length} employeur(s).`);
+  };
 
   // --- Ajout / suppression d'un employeur ----------------------------------
   const addEmployer = async () => {
@@ -1031,6 +1035,7 @@ export function AdminExplorer() {
       if (filter === "disabled" && e.enabled !== false) return false;
       if (filter === "duplicates" && !isDup(e)) return false;
       if (filter === "errors" && lastRuns[e.id]?.status !== "error") return false;
+      if (filter === "neverrun" && lastRuns[e.id]) return false;
       if (methodFilter !== "all" && e.method !== methodFilter) return false;
       if (regionFilter !== "all" && (e.region ?? "") !== regionFilter) return false;
       if (!q) return true;
@@ -1076,6 +1081,7 @@ export function AdminExplorer() {
   const disabledCount = employers.filter((e) => e.enabled === false).length;
   const dupCount = employers.filter((e) => isDup(e)).length;
   const errorCount = employers.filter((e) => lastRuns[e.id]?.status === "error").length;
+  const neverRunCount = employers.filter((e) => !lastRuns[e.id]).length;
   const totalOffers = employers.reduce((s, e) => s + (counts[e.id] ?? 0), 0);
   const scrapeEnabled = mode === "api" || !!ghToken;
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
@@ -1342,6 +1348,7 @@ export function AdminExplorer() {
                 <option value="disabled">Désactivées ({disabledCount})</option>
                 <option value="duplicates">Doublons ({dupCount})</option>
                 <option value="errors">En erreur ({errorCount})</option>
+                {mode === "turso" && <option value="neverrun">Jamais scrapé ({neverRunCount})</option>}
               </select>
               <select
                 value={methodFilter}
@@ -1494,6 +1501,19 @@ export function AdminExplorer() {
               <button onClick={() => bulkSetVerified(selectedList, false)} className="rounded-lg border border-slate-300 bg-white px-2.5 py-1 font-semibold text-slate-600 hover:bg-slate-100">
                 ✖ Dévérifier
               </button>
+              <select
+                value=""
+                onChange={(ev) => {
+                  if (ev.target.value) bulkSetMethod(selectedList, ev.target.value as DiscoveredMethod);
+                }}
+                title="Appliquer une méthode de scraping à la sélection"
+                className="rounded-lg border border-slate-300 bg-white px-2 py-1 font-semibold text-slate-700"
+              >
+                <option value="">Méthode…</option>
+                {METHODS.map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
               {(mode === "turso" || mode === "api") && (
                 <button onClick={() => bulkPurge(selectedList)} className="rounded-lg border border-red-300 bg-white px-2.5 py-1 font-semibold text-red-600 hover:bg-red-50">
                   🗑 Vider les offres
@@ -1578,6 +1598,19 @@ function Row({
   useEffect(() => { setUrl(e.careersUrl); setName(e.name); }, [e.careersUrl, e.name]);
 
   const dirty = url !== e.careersUrl || name !== e.name;
+
+  // Édition avancée (repliée par défaut) : champs acceptés par le backend mais
+  // absents de la ligne principale (région, site web, portée).
+  const [advOpen, setAdvOpen] = useState(false);
+  const [region, setRegion] = useState(e.region ?? "");
+  const [homepage, setHomepage] = useState(e.homepage ?? "");
+  const [scope, setScope] = useState(e.scope ?? "");
+  useEffect(() => {
+    setRegion(e.region ?? "");
+    setHomepage(e.homepage ?? "");
+    setScope(e.scope ?? "");
+  }, [e.region, e.homepage, e.scope]);
+  const advDirty = region !== (e.region ?? "") || homepage !== (e.homepage ?? "") || scope !== (e.scope ?? "");
 
   const disabled = e.enabled === false;
   return (
@@ -1686,6 +1719,13 @@ function Row({
           </button>
         )}
         <button
+          onClick={() => setAdvOpen((v) => !v)}
+          title="Édition avancée (région, site web, portée)"
+          className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-medium hover:bg-slate-100"
+        >
+          {advOpen ? "▴ Détails" : "⚙ Détails"}
+        </button>
+        <button
           disabled={!dirty}
           onClick={() => onPatch(e.id, { careersUrl: url.trim(), name: name.trim() })}
           className="rounded-lg bg-brand-600 px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-30"
@@ -1757,6 +1797,58 @@ function Row({
               </div>
             </>
           )}
+        </div>
+      )}
+
+      {advOpen && (
+        <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-2 text-xs">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <span className="text-slate-500">id :</span>
+            <code className="rounded bg-white px-1.5 py-0.5 font-mono text-slate-700 ring-1 ring-slate-200">{e.id}</code>
+            <button
+              onClick={() => navigator.clipboard?.writeText(e.id).catch(() => {})}
+              title="Copier l'id"
+              className="rounded border border-slate-200 px-1.5 py-0.5 hover:bg-slate-100"
+            >
+              ⧉ copier
+            </button>
+            {e.rbq && (
+              <span className="text-slate-500">
+                RBQ : <span className="font-mono text-slate-700">{e.rbq}</span>
+              </span>
+            )}
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            <label className="flex flex-col gap-0.5">
+              <span className="text-slate-500">Région</span>
+              <input value={region} onChange={(ev) => setRegion(ev.target.value)} className="rounded border border-slate-300 px-2 py-1" />
+            </label>
+            <label className="flex flex-col gap-0.5">
+              <span className="text-slate-500">Site web</span>
+              <input value={homepage} onChange={(ev) => setHomepage(ev.target.value)} spellCheck={false} className="rounded border border-slate-300 px-2 py-1 font-mono" />
+            </label>
+            <label className="flex flex-col gap-0.5">
+              <span className="text-slate-500">Portée (scope)</span>
+              <input value={scope} onChange={(ev) => setScope(ev.target.value)} className="rounded border border-slate-300 px-2 py-1" />
+            </label>
+          </div>
+          {e.sectors && e.sectors.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-center gap-1">
+              <span className="text-slate-500">Secteurs :</span>
+              {e.sectors.map((s) => (
+                <span key={s} className="rounded bg-white px-1.5 py-0.5 text-[11px] text-slate-600 ring-1 ring-slate-200">{s}</span>
+              ))}
+            </div>
+          )}
+          <div className="mt-2">
+            <button
+              disabled={!advDirty}
+              onClick={() => onPatch(e.id, { region: region.trim(), homepage: homepage.trim(), scope: scope.trim() })}
+              className="rounded-lg bg-brand-600 px-2.5 py-1 font-semibold text-white disabled:opacity-30"
+            >
+              Enregistrer les détails
+            </button>
+          </div>
         </div>
       )}
 
