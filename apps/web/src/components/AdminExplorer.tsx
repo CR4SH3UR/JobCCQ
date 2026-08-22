@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { DISCOVERED_EMPLOYERS, type DiscoveredMethod } from "@jobccq/shared";
 import { API_URL, getStats, searchJobs, buildQuery } from "@/lib/data";
+import { useAuth } from "@/lib/auth";
+import { encryptJson, decryptJson, saveVault, loadVault, clearVault, type AdminSecrets } from "@/lib/vault";
 import { Badge } from "./Badge";
 
 type Employer = {
@@ -76,6 +78,14 @@ function readLS(key: string): string {
   } catch {
     return "";
   }
+}
+
+/** Message d'erreur du coffre plus parlant (table Supabase absente…). */
+function hintVaultError(msg: string): string {
+  if (/admin_secrets|could not find the table|schema cache|relation .* does not exist/i.test(msg)) {
+    return "Table « admin_secrets » absente côté Supabase. Exécute le SQL d'installation (fourni), puis réessaie.";
+  }
+  return msg;
 }
 
 /**
@@ -252,6 +262,12 @@ export function AdminExplorer() {
   const [ghOpen, setGhOpen] = useState(false);
   const [tursoUrl, setTursoUrl] = useState("");
   const [tursoToken, setTursoToken] = useState("");
+  // Coffre-fort chiffré (synchro des identifiants dans le compte).
+  const { user: authUser, enabled: authEnabled } = useAuth();
+  const [passphrase, setPassphrase] = useState("");
+  const [vault, setVault] = useState<{ busy: "idle" | "save" | "load"; msg?: string; tone?: "ok" | "err" }>({
+    busy: "idle",
+  });
   const [stale, setStale] = useState(false);
   const [reloading, setReloading] = useState(false);
   const [sort, setSort] = useState<SortKey>("name");
@@ -315,6 +331,72 @@ export function AdminExplorer() {
     } catch {
       /* stockage indisponible */
     }
+  };
+
+  // --- Coffre-fort chiffré : synchro des identifiants dans le compte ---------
+  const vaultSave = async () => {
+    if (!authUser) return;
+    if (passphrase.length < 8) {
+      setVault({ busy: "idle", msg: "Choisis une phrase secrète d'au moins 8 caractères.", tone: "err" });
+      return;
+    }
+    if (!ghToken && !tursoUrl && !tursoToken) {
+      setVault({ busy: "idle", msg: "Aucun identifiant à sauvegarder pour l'instant.", tone: "err" });
+      return;
+    }
+    setVault({ busy: "save" });
+    try {
+      const blob = await encryptJson({ ghToken, tursoUrl, tursoToken } satisfies AdminSecrets, passphrase);
+      const { error } = await saveVault(authUser.id, blob);
+      if (error) throw new Error(error);
+      setVault({ busy: "idle", msg: "🔒 Identifiants chiffrés et enregistrés dans ton compte.", tone: "ok" });
+    } catch (e) {
+      setVault({ busy: "idle", msg: hintVaultError((e as Error).message), tone: "err" });
+    }
+  };
+
+  const vaultRestore = async () => {
+    if (!authUser) return;
+    if (!passphrase) {
+      setVault({ busy: "idle", msg: "Entre ta phrase secrète pour déchiffrer.", tone: "err" });
+      return;
+    }
+    setVault({ busy: "load" });
+    try {
+      const { ciphertext, error } = await loadVault(authUser.id);
+      if (error) throw new Error(error);
+      if (!ciphertext) {
+        setVault({ busy: "idle", msg: "Aucun coffre enregistré dans ce compte.", tone: "err" });
+        return;
+      }
+      const secrets = await decryptJson<AdminSecrets>(ciphertext, passphrase);
+      if (secrets.ghToken !== undefined) saveToken(secrets.ghToken);
+      if (secrets.tursoUrl !== undefined || secrets.tursoToken !== undefined) {
+        saveTurso(secrets.tursoUrl ?? "", secrets.tursoToken ?? "");
+      }
+      setVault({ busy: "idle", msg: "✅ Identifiants restaurés. Rechargement…", tone: "ok" });
+      setTimeout(() => location.reload(), 900);
+    } catch (e) {
+      const err = e as Error;
+      const wrong = err.name === "OperationError" || /operation-specific|decrypt/i.test(err.message);
+      setVault({
+        busy: "idle",
+        msg: wrong ? "Phrase secrète incorrecte." : hintVaultError(err.message),
+        tone: "err",
+      });
+    }
+  };
+
+  const vaultForget = async () => {
+    if (!authUser) return;
+    if (!window.confirm("Supprimer le coffre chiffré de ton compte ?\n\n(Les identifiants restent dans ce navigateur.)"))
+      return;
+    const { error } = await clearVault(authUser.id);
+    setVault({
+      busy: "idle",
+      msg: error ? hintVaultError(error) : "Coffre supprimé du compte.",
+      tone: error ? "err" : "ok",
+    });
   };
 
   // Filtres persistés : on écrit dans localStorage à chaque changement pour que
@@ -1406,6 +1488,60 @@ export function AdminExplorer() {
               </div>
             </div>
           </details>
+
+          {authEnabled && authUser && (
+            <details className="card mb-4 p-3 text-sm">
+              <summary className="cursor-pointer font-medium text-slate-700">
+                🔐 Coffre-fort — synchroniser mes identifiants (chiffré)
+              </summary>
+              <div className="mt-2 flex flex-col gap-2 text-slate-600">
+                <p>
+                  Sauvegarde ton <strong>jeton GitHub</strong> et tes <strong>identifiants Turso</strong> dans
+                  ton compte, <strong>chiffrés</strong> avec une phrase secrète que toi seul connais — pour les
+                  retrouver sur un autre appareil. La phrase n'est <strong>jamais</strong> envoyée ni stockée ;
+                  tu la saisis une fois par appareil.
+                </p>
+                <input
+                  type="password"
+                  value={passphrase}
+                  onChange={(e) => setPassphrase(e.target.value)}
+                  placeholder="Phrase secrète (≥ 8 caractères)"
+                  autoComplete="new-password"
+                  className="rounded border border-slate-300 px-2 py-1"
+                />
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={vaultSave}
+                    disabled={vault.busy !== "idle"}
+                    className="rounded-lg bg-brand-600 px-3 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                  >
+                    {vault.busy === "save" ? "Chiffrement…" : "🔒 Enregistrer dans mon compte"}
+                  </button>
+                  <button
+                    onClick={vaultRestore}
+                    disabled={vault.busy !== "idle"}
+                    className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold hover:bg-slate-100 disabled:opacity-50"
+                  >
+                    {vault.busy === "load" ? "Déchiffrement…" : "⬇ Restaurer depuis mon compte"}
+                  </button>
+                  <button
+                    onClick={vaultForget}
+                    disabled={vault.busy !== "idle"}
+                    className="rounded-lg border border-slate-300 px-3 py-1 text-xs hover:bg-slate-100 disabled:opacity-50"
+                  >
+                    Supprimer le coffre
+                  </button>
+                </div>
+                {vault.msg && (
+                  <p className={vault.tone === "ok" ? "text-green-700" : "text-red-600"}>{vault.msg}</p>
+                )}
+                <p className="text-xs text-slate-400">
+                  Connecté : {authUser.email}. Chiffrement AES-GCM côté navigateur ; la base ne stocke qu'un
+                  blob illisible sans ta phrase.
+                </p>
+              </div>
+            </details>
+          )}
 
           {stale && (
             <div className="card mb-4 flex flex-wrap items-center justify-between gap-3 border-amber-400 bg-amber-50 p-3 text-sm text-amber-800">

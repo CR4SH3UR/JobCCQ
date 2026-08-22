@@ -93,6 +93,53 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
 ---
 
+# Coffre-fort des identifiants admin (chiffré)
+
+La console `/admin` a besoin d'un **jeton GitHub** (scraper / publier) et des
+**identifiants Turso** (éditer la base). Par défaut ils ne vivent que dans le
+`localStorage` du navigateur courant. Le **coffre-fort** permet de les
+**synchroniser d'un appareil à l'autre**, en les **chiffrant côté navigateur**
+(AES-GCM, clé dérivée d'une phrase secrète via PBKDF2) **avant** de les stocker.
+La base ne voit qu'un blob illisible ; la phrase secrète n'est jamais transmise
+ni stockée, et se saisit une fois par appareil.
+
+## Table + RLS (SQL, une seule fois)
+
+**SQL Editor → New query**, colle et exécute :
+
+```sql
+create table if not exists public.admin_secrets (
+  user_id    uuid        primary key references auth.users (id) on delete cascade,
+  ciphertext text        not null,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.admin_secrets enable row level security;
+
+-- Chacun ne lit / écrit QUE sa propre ligne.
+create policy "read own secrets"   on public.admin_secrets for select using (auth.uid() = user_id);
+create policy "insert own secrets" on public.admin_secrets for insert with check (auth.uid() = user_id);
+create policy "update own secrets" on public.admin_secrets for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "delete own secrets" on public.admin_secrets for delete using (auth.uid() = user_id);
+```
+
+## Utilisation
+
+Dans `/admin`, ouvre **« 🔐 Coffre-fort — synchroniser mes identifiants »** :
+
+1. Connecte GitHub et/ou Turso comme d'habitude (les champs habituels).
+2. Choisis une **phrase secrète** (≥ 8 caractères) → **« Enregistrer dans mon compte »**.
+3. Sur un autre appareil : connecte-toi au compte, entre la **même phrase secrète**
+   → **« Restaurer depuis mon compte »**. Les identifiants sont déchiffrés et rechargés.
+
+> La sécurité repose sur deux couches : la **RLS** (personne d'autre ne lit ta ligne)
+> **et** le **chiffrement** (même une fuite de la base ne révèle rien sans la phrase).
+> Conseil : utilise un **jeton GitHub à granularité fine**, limité au seul dépôt et aux
+> permissions strictement nécessaires (Contents + Actions), pour minimiser l'impact en
+> cas de perte de la phrase.
+
+---
+
 # Notifications par courriel (alertes emploi) — Resend
 
 Un utilisateur connecté enregistre une **recherche** comme alerte (bouton « 🔔 Créer une
