@@ -27,8 +27,20 @@ const atsHandle = (platform: AtsPlatform, url: string, fallback: string): string
  * JSON d'un ATS (Zoho, BambooHR, Greenhouse, Lever, Recruitee, SmartRecruiters)
  * ou par une page employeur Jobillico.
  */
+/** Une URL de page employeur Jobillico (fiche entreprise ou liste d'emplois). */
+const isJobillicoEmployerUrl = (url: string): boolean =>
+  /jobillico\.com\/(?:[a-z]{2}\/)?(?:voir-entreprise|employeurs)\//i.test(url) ||
+  /jobillico\.com\/.*voir-liste-emplois/i.test(url);
+
 /** Construit le scraper adapté à un employeur découvert selon sa méthode. */
 export function buildDiscoveredScraper(d: DiscoveredEmployer): Scraper {
+  // Garde-fou : une page employeur Jobillico se parse TOUJOURS avec le parseur
+  // Jobillico, même si la méthode a été mal réglée (« html »). Sinon la page
+  // générique récupère la navigation du site (« Emplois à Toronto », « Emplois
+  // en vente »…) au lieu des vrais postes. Insensible à une config erronée.
+  if (isJobillicoEmployerUrl(d.careersUrl)) {
+    return makeJobillicoEmployerScraper({ id: d.id, company: d.name, listUrl: d.careersUrl });
+  }
   if (d.method === "zoho") {
     // GLR (G.L.R. inc.) fait partie du groupe EBC et partage SON portail Zoho
     // (ebcinc.zohorecruit.com) : sans filtre, GLR hériterait des ~240 postes
