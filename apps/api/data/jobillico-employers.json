@@ -1,0 +1,1193 @@
+{
+  "upsert": [
+    {
+      "id": "ciment-quebec-inc",
+      "name": "Ciment Québec inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/ciment-quebec-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/ciment-quebec-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "conn-x",
+      "name": "Conn-X",
+      "homepage": "https://www.jobillico.com/voir-entreprise/conn-x",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/conn-x/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Lanaudière",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "nouvelle-autoroute-30-s-e-n-c",
+      "name": "Nouvelle Autoroute 30 S.E.N.C",
+      "homepage": "https://www.jobillico.com/voir-entreprise/nouvelle-autoroute-30-s-e-n-c",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/nouvelle-autoroute-30-s-e-n-c/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montérégie",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "magil-construction",
+      "name": "Magil Construction",
+      "homepage": "https://www.jobillico.com/voir-entreprise/magil-constructionhtmmdy",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/magil-constructionhtmmdy/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "excavation-rimouski-deneigement-nc",
+      "name": "Excavation Rimouski (Déneigement Nc)",
+      "homepage": "https://www.jobillico.com/voir-entreprise/excavation-rimouski-deneigement-nc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/excavation-rimouski-deneigement-nc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Bas-Saint-Laurent",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "protection-incendie-ideal-inc-laval",
+      "name": "Protection Incendie Idéal inc. - Laval",
+      "homepage": "https://www.jobillico.com/voir-entreprise/protection-incendie-ideal-inc-laval",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/protection-incendie-ideal-inc-laval/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Laval",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "beton-dunbrick-inc",
+      "name": "Béton Dunbrick inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/beton-dunbrick-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-dunbrick-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "drainage-epl-lazure",
+      "name": "Drainage Epl Lazure",
+      "homepage": "https://www.jobillico.com/voir-entreprise/drainage-epl-lazure",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/drainage-epl-lazure/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montérégie",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "beton-chevalier",
+      "name": "Béton Chevalier",
+      "homepage": "https://www.jobillico.com/voir-entreprise/beton-chevalier",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-chevalier/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "le-groupe-construction-drumco-inc",
+      "name": "Le Groupe Construction Drumco Inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/le-groupe-construction-drumco-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/le-groupe-construction-drumco-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Centre-du-Québec",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "ventilation-volmair-inc",
+      "name": "Ventilation Volmair inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/ventilation-volmair-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/ventilation-volmair-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Laurentides",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "les-constructions-edguy-inc",
+      "name": "Les Constructions Edguy inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-constructions-edguy-incnEtbIq",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-constructions-edguy-incnEtbIq/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "excavation-alain-lemay-inc",
+      "name": "Excavation Alain Lemay inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/excavation-alain-lemay-inc.qSddAg",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/excavation-alain-lemay-inc.qSddAg/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "l4-construction-inc",
+      "name": "L4 Construction inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/l4-construction-incgPqmGp",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/l4-construction-incgPqmGp/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "terrassement-portugais-inc",
+      "name": "Terrassement Portugais inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/terrassement-portugais-incgXhvSe",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/terrassement-portugais-incgXhvSe/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "les-entreprises-c-sauve-inc",
+      "name": "Les Entreprises C. Sauvé inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-entreprises-c-sauve-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-entreprises-c-sauve-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "atelier-d-usinage-qualitech",
+      "name": "Atelier D'Usinage Qualitech",
+      "homepage": "https://www.jobillico.com/voir-entreprise/atelier-d-usinage-qualitechdFcdWx",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/atelier-d-usinage-qualitechdFcdWx/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "fc-geosynthetiques-inc",
+      "name": "FC Géosynthétiques inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/fc-geosynthetiques-incbRpjVb",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/fc-geosynthetiques-incbRpjVb/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "carriere-mont-saint-hilaire-inc",
+      "name": "Carrière Mont-Saint-Hilaire inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/carriere-mont-saint-hilaire-inc-iNspPj",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/carriere-mont-saint-hilaire-inc-iNspPj/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "acier-trimax",
+      "name": "Acier Trimax",
+      "homepage": "https://www.jobillico.com/voir-entreprise/acier-trimax",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/acier-trimax/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "carrieres-quebec-inc",
+      "name": "Carrières Québec inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/carrieres-quebec-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/carrieres-quebec-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "lumipro-service-d-eclairage",
+      "name": "Lumipro Service d'Éclairage",
+      "homepage": "https://www.jobillico.com/voir-entreprise/lumipro-service-d-eclairage",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/lumipro-service-d-eclairage/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "dexter-quebec-inc",
+      "name": "Dexter Québec inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/dexter-quebec-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/dexter-quebec-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "rotamac",
+      "name": "Rotamac",
+      "homepage": "https://www.jobillico.com/voir-entreprise/rotamac",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/rotamac/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Laurentides",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "blocs-normand-inc",
+      "name": "Blocs Normand inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/blocs-normand-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/blocs-normand-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "innovation-amerik-division-matane-s-e-n-c",
+      "name": "Innovation Amerik division Matane s.e.n.c.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/innovation-amerik-division-matane-s-e-n-c",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/innovation-amerik-division-matane-s-e-n-c/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Bas-Saint-Laurent",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "ciment-st-marys-usine-mcinnis",
+      "name": "Ciment St Marys, Usine McInnis",
+      "homepage": "https://www.jobillico.com/voir-entreprise/ciment-st-marys-usine-mcinnis",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/ciment-st-marys-usine-mcinnis/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "usi-fab-express",
+      "name": "Usi-Fab Express",
+      "homepage": "https://www.jobillico.com/voir-entreprise/usi-fab-express",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/usi-fab-express/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "conteneurs-pbt-inc",
+      "name": "Conteneurs PBT Inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/conteneurs-pbt-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/conteneurs-pbt-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "soudure-df-saguenay-inc",
+      "name": "Soudure DF Saguenay Inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/soudure-df-saguenay-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/soudure-df-saguenay-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "barrette-et-fils-ltee",
+      "name": "Barrette et Fils ltée",
+      "homepage": "https://www.jobillico.com/voir-entreprise/barrette-et-fils-ltee",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/barrette-et-fils-ltee/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "kvn-fabrication-d-acier",
+      "name": "KVN fabrication d’acier",
+      "homepage": "https://www.jobillico.com/voir-entreprise/kvn-fabrication-d-acier",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/kvn-fabrication-d-acier/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "j-n-a-leblanc-electrique-inc",
+      "name": "J.N.A. Leblanc Électrique inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/j-n-a-leblanc-electrique-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/j-n-a-leblanc-electrique-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Lanaudière",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "construction-3b-r-inc-9429-1945-qc-inc",
+      "name": "Construction 3B&R inc. (9429 1945 QC INC.)",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-3b-r-inc-9429-1945-qc-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-3b-r-inc-9429-1945-qc-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "excavation-lmr-inc",
+      "name": "Excavation LMR inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/excavation-lmr-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/excavation-lmr-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "construction-jr-savard",
+      "name": "Construction JR Savard",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-jr-savard",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-jr-savard/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "goliathtech-inc",
+      "name": "GoliathTech inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/goliathtech-inc.lOkqDi",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/goliathtech-inc.lOkqDi/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "groupe-riverin-maritime-inc",
+      "name": "Groupe Riverin Maritime inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-riverin-maritime-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-riverin-maritime-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "beton-prefabrique-fortier",
+      "name": "Béton Préfabriqué Fortier",
+      "homepage": "https://www.jobillico.com/voir-entreprise/beton-prefabrique-fortieraknbiv",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-prefabrique-fortieraknbiv/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "betonnieres-du-golfe",
+      "name": "Bétonnières du Golfe",
+      "homepage": "https://www.jobillico.com/voir-entreprise/betonnieres-du-golfe",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/betonnieres-du-golfe/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "betonnieres-d-arvida",
+      "name": "Bétonnières d’Arvida",
+      "homepage": "https://www.jobillico.com/voir-entreprise/betonnieres-d-arvida",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/betonnieres-d-arvida/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "construction-polaris-cmm-inc",
+      "name": "Construction Polaris CMM Inc",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-polaris-cmm-incbwvaqg",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-polaris-cmm-incbwvaqg/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "les-excavations-g-allard-inc",
+      "name": "Les Excavations G. Allard inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-excavations-g-allard-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-excavations-g-allard-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "les-distributions-styro-inc",
+      "name": "Les distributions Styro inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-distributions-styro-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-distributions-styro-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "altar-construction",
+      "name": "Altar Construction",
+      "homepage": "https://www.jobillico.com/voir-entreprise/altar-construction",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/altar-construction/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "dj-revetement",
+      "name": "DJ Revêtement",
+      "homepage": "https://www.jobillico.com/voir-entreprise/dj-revetement",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/dj-revetement/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Centre-du-Québec",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "armature-du-st-laurent-inc",
+      "name": "Armature du St-Laurent inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/armature-du-st-laurent-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/armature-du-st-laurent-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "gestions-n-a-carrier",
+      "name": "Gestions N.A. Carrier",
+      "homepage": "https://www.jobillico.com/voir-entreprise/gestions-n-a-carrier",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/gestions-n-a-carrier/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "soudure-et-mecanique-plan-b-inc",
+      "name": "Soudure et Mécanique Plan B inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/soudure-et-mecanique-plan-b-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/soudure-et-mecanique-plan-b-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "groupe-diamantex",
+      "name": "Groupe Diamantex",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-diamantex.zWpaYb",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-diamantex.zWpaYb/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "action-progex-inc",
+      "name": "Action Progex inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/action-progex-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/action-progex-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "chantier-davie-canada-inc",
+      "name": "Chantier Davie Canada inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/chantier-davie-canada-inc-mmxwau",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/chantier-davie-canada-inc-mmxwau/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "cms-entrepreneurs-generaux",
+      "name": "CMS Entrepreneurs Généraux",
+      "homepage": "https://www.jobillico.com/voir-entreprise/cms-entrepreneurs-generaux",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/cms-entrepreneurs-generaux/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "groupe-gilbert",
+      "name": "Groupe Gilbert",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-gilbert",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-gilbert/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "les-aciers-solider-inc",
+      "name": "Les Aciers Solider inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-aciers-solider-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-aciers-solider-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Centre-du-Québec",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "mecanitec",
+      "name": "Mécanitec",
+      "homepage": "https://www.jobillico.com/voir-entreprise/mecanitec",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/mecanitec/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Mauricie",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "centrem-inc-alma",
+      "name": "Centrem inc. Alma",
+      "homepage": "https://www.jobillico.com/voir-entreprise/centrem-inc-alma",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/centrem-inc-alma/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "nexfab",
+      "name": "Nexfab",
+      "homepage": "https://www.jobillico.com/voir-entreprise/nexfab",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/nexfab/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "construction-lfg-inc",
+      "name": "Construction LFG inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-lfg-inc-rdwles",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-lfg-inc-rdwles/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "finar-batiments-d-acier",
+      "name": "FINAR Bâtiments d'acier",
+      "homepage": "https://www.jobillico.com/voir-entreprise/finar-batiments-dacier-",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/finar-batiments-dacier-/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "mp-solutions-inc",
+      "name": "MP Solutions Inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/mp-solutions-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/mp-solutions-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Abitibi-Témiscamingue",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "demolition-excavation-demex-inc",
+      "name": "Démolition Excavation Démex inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/demolition-excavation-demex-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/demolition-excavation-demex-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "humaco",
+      "name": "Humaco",
+      "homepage": "https://www.jobillico.com/voir-entreprise/humaco",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/humaco/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "structures-rbr",
+      "name": "Structures RBR",
+      "homepage": "https://www.jobillico.com/voir-entreprise/structures-rbr",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/structures-rbr/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "tardif-metal",
+      "name": "Tardif Métal",
+      "homepage": "https://www.jobillico.com/voir-entreprise/tardif-metal",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/tardif-metal/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "groupe-sm-tardif",
+      "name": "Groupe SM Tardif",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-sm-tardifcapefg",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-sm-tardifcapefg/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "borea-construction",
+      "name": "Borea Construction",
+      "homepage": "https://www.jobillico.com/voir-entreprise/borea-construction",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/borea-construction/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "crt-construction-inc",
+      "name": "CRT Construction inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/crt-construction-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/crt-construction-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "moreau",
+      "name": "Moreau",
+      "homepage": "https://www.jobillico.com/voir-entreprise/moreau-industries",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/moreau-industries/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Abitibi-Témiscamingue",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "colas-quebec",
+      "name": "Colas Québec",
+      "homepage": "https://www.jobillico.com/voir-entreprise/colas-quebec",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/colas-quebec/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "allen-entrepreneur-general-inc",
+      "name": "Allen Entrepreneur Général inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/allen-entrepreneur-general-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/allen-entrepreneur-general-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "tci",
+      "name": "TCI+",
+      "homepage": "https://www.jobillico.com/voir-entreprise/tci",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/tci/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Laval",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "bpdl-inc-beton-prefabrique-du-lac",
+      "name": "BPDL inc. - Béton préfabriqué du Lac",
+      "homepage": "https://www.jobillico.com/voir-entreprise/bpdl--beton-prefabrique-du-lac",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/bpdl--beton-prefabrique-du-lac/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "denis-lavoie-et-fils-ltee",
+      "name": "Denis Lavoie et Fils ltée",
+      "homepage": "https://www.jobillico.com/voir-entreprise/denis-lavoie-et-fils-ltee",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/denis-lavoie-et-fils-ltee/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "pavages-d-amour-inc",
+      "name": "Pavages D'Amour inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/pavages-d-amour-inc-.yTxoLh",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/pavages-d-amour-inc-.yTxoLh/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "groupe-noel-inc",
+      "name": "Groupe Noël inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-noel-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-noel-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "charles-auguste-fortier-inc-caf",
+      "name": "Charles-Auguste Fortier Inc. - CAF",
+      "homepage": "https://www.jobillico.com/voir-entreprise/charles-auguste-fortier-inc-caf",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/charles-auguste-fortier-inc-caf/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "pavage-sartigan-ltee",
+      "name": "Pavage Sartigan ltée",
+      "homepage": "https://www.jobillico.com/voir-entreprise/pavage-sartigan-ltee.fIinTj",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/pavage-sartigan-ltee.fIinTj/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "excavations-darche-inc",
+      "name": "Excavations Darche inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/excavations-darche-inc-.oNhoGe",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/excavations-darche-inc-.oNhoGe/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "schokbeton-quebec-inc-saramac",
+      "name": "Schokbéton Québec Inc. / Saramac",
+      "homepage": "https://www.jobillico.com/voir-entreprise/schokbeton-quebec-inc-saramac-",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/schokbeton-quebec-inc-saramac-/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "les-produits-de-ciment-sherbrooke-ltee",
+      "name": "Les Produits de Ciment Sherbrooke ltée",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-produits-de-ciment-sherbrooke-ltee.sHroFt",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-produits-de-ciment-sherbrooke-ltee.sHroFt/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Estrie",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "les-entreprises-gilbert-cloutier-inc",
+      "name": "Les Entreprises Gilbert Cloutier inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-entreprises-gilbert-cloutier-inc-.xFykCn",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-entreprises-gilbert-cloutier-inc-.xFykCn/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "itc-technologies-inc",
+      "name": "ITC Technologies inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/itc-technologies-inc-.fCqsKh",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/itc-technologies-inc-.fCqsKh/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "elecso",
+      "name": "Elecso",
+      "homepage": "https://www.jobillico.com/voir-entreprise/elecso",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/elecso/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montérégie",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "excavation-de-chicoutimi-inc",
+      "name": "Excavation de Chicoutimi inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/excavation-de-chicoutimi-inc-.xIyxBo",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/excavation-de-chicoutimi-inc-.xIyxBo/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "echafaudage-industriel-inc",
+      "name": "Échafaudage Industriel inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/echafaudage-industriel-inc-.lQjyKx",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/echafaudage-industriel-inc-.lQjyKx/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "baillargeon-msa",
+      "name": "Baillargeon - MSA",
+      "homepage": "https://www.jobillico.com/voir-entreprise/baillargeon-msa",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/baillargeon-msa/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montérégie",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "groupe-arno",
+      "name": "Groupe ARNO",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-arno",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-arno/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Mauricie",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "construction-st-arnaud-inc",
+      "name": "Construction St-Arnaud inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-st-arnaud-inc-.mGxdNs",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-st-arnaud-inc-.mGxdNs/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "groupe-enixum-inc",
+      "name": "Groupe Enixum inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-enixum-inc-.yUytVg",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-enixum-inc-.yUytVg/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montérégie",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "les-entreprises-genereux",
+      "name": "LES ENTREPRISES GÉNÉREUX",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-entreprises-genereux",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-entreprises-genereux/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "ventilation-cf-inc",
+      "name": "Ventilation CF inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/ventilation-cf-inc-.vZzvNv",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/ventilation-cf-inc-.vZzvNv/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "signalisation-de-montreal",
+      "name": "Signalisation de Montréal",
+      "homepage": "https://www.jobillico.com/voir-entreprise/signalisation-de-montreal",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/signalisation-de-montreal/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "groupe-lefebvre-inc",
+      "name": "Groupe Lefebvre inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-lefebvre-inc-heogly",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-lefebvre-inc-heogly/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "coffrage-santco",
+      "name": "Coffrage Santco",
+      "homepage": "https://www.jobillico.com/voir-entreprise/coffrage-santco.qVwoVd",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/coffrage-santco.qVwoVd/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "les-fondations-andre-lemaire-2012-inc",
+      "name": "Les fondations André Lemaire 2012 inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-fondations-andre-lemaire-2012-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-fondations-andre-lemaire-2012-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "corner-cast-inc",
+      "name": "Corner Cast inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/corner-cast-inc-.mLanMr",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/corner-cast-inc-.mLanMr/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "graham-construction",
+      "name": "Graham Construction",
+      "homepage": "https://www.jobillico.com/voir-entreprise/graham-constructionkXwuMx",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/graham-constructionkXwuMx/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    },
+    {
+      "id": "aecon-group-inc",
+      "name": "Aecon Group Inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/aecon-group-inciIqaDm",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/aecon-group-inciIqaDm/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    }
+  ],
+  "fixUrl": [
+    {
+      "id": "cpboisvert-com",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-et-pavage-boisvert-incmXfzPk/voir-liste-emplois"
+    },
+    {
+      "id": "cppinc-ca",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-pavage-portneuf-inc-eBlqIn/voir-liste-emplois"
+    },
+    {
+      "id": "gtek-ca",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/g-tekcmitdf/voir-liste-emplois"
+    },
+    {
+      "id": "entreprisesgnp-com",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/entreprises-gnp-inc/voir-liste-emplois"
+    },
+    {
+      "id": "groupepgs-ca",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/pgs-experts-inc-et-pgs-industriel-inc/voir-liste-emplois"
+    },
+    {
+      "id": "osloconstruction-com",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/oslo-construction-inc.zQxtVs/voir-liste-emplois"
+    },
+    {
+      "id": "interprojet-ca",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/inter-projet-concept-paysage/voir-liste-emplois"
+    },
+    {
+      "id": "stellaireconstruction-com",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/stellaire-construction.yQgdGi/voir-liste-emplois"
+    },
+    {
+      "id": "nordex-ca",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/nordex/voir-liste-emplois"
+    }
+  ]
+}
