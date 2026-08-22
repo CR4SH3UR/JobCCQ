@@ -20,6 +20,7 @@ import { revencoScraper } from "./revenco.js";
 import { lescharpentistesScraper } from "./lescharpentistes.js";
 import { stefetmaxScraper } from "./stefetmax.js";
 import { droletConstructionScraper } from "./droletconstruction.js";
+import { electriciteMc2Scraper } from "./electricitemc2.js";
 import { buildDiscoveredScraper } from "./discovered.js";
 
 /**
@@ -53,6 +54,7 @@ const BESPOKE: Record<string, Scraper> = {
   [lescharpentistesScraper.id]: lescharpentistesScraper,
   [stefetmaxScraper.id]: stefetmaxScraper,
   [droletConstructionScraper.id]: droletConstructionScraper,
+  [electriciteMc2Scraper.id]: electriciteMc2Scraper,
 };
 
 /**
