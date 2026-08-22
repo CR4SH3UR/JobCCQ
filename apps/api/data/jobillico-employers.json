@@ -1126,6 +1126,1909 @@
       "sectors": [
         "Construction générale"
       ]
+    },
+    {
+      "id": "ebenisterie-audet-inc",
+      "name": "Ébénisterie Audet inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/ebenisterie-audet-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/ebenisterie-audet-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "multi-soudures-bsl",
+      "name": "Multi-Soudures BSL",
+      "homepage": "https://www.jobillico.com/voir-entreprise/multi-soudures-bsl",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/multi-soudures-bsl/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Bas-Saint-Laurent",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "les-gouttieres-boivin-inc",
+      "name": "Les Gouttières Boivin inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-gouttieres-boivin-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-gouttieres-boivin-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "contracta",
+      "name": "Contracta",
+      "homepage": "https://www.jobillico.com/voir-entreprise/contracta",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/contracta/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "groupe-vermeren",
+      "name": "Groupe Vermeren",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-vermeren",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-vermeren/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "les-entreprises-electriques-pwrline",
+      "name": "Les Entreprises Électriques PWRLINE",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-entreprises-electriques-pwrline",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-entreprises-electriques-pwrline/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "ecolopeintres",
+      "name": "Écolopeintres",
+      "homepage": "https://www.jobillico.com/voir-entreprise/ecolopeintres",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/ecolopeintres/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "climatisation-jimmy-chasse-inc",
+      "name": "Climatisation Jimmy Chassé inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/climatisation-jimmy-chasse-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/climatisation-jimmy-chasse-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montérégie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "solariums-zytco",
+      "name": "Solariums Zytco",
+      "homepage": "https://www.jobillico.com/voir-entreprise/solariums-zytco",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/solariums-zytco/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Laurentides",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "les-peintres-urbains",
+      "name": "Les peintres Urbains",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-peintres-urbains",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-peintres-urbains/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "cote-expert-en-mecanique-du-batiment",
+      "name": "Côté Expert en mécanique du bâtiment",
+      "homepage": "https://www.jobillico.com/voir-entreprise/cote-expert-en-mecanique-du-batiment",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/cote-expert-en-mecanique-du-batiment/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Laurentides",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "les-maisons-du-saint-laurent",
+      "name": "Les Maisons du Saint-Laurent",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-maisons-du-saint-laurent",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-maisons-du-saint-laurent/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "art-massif-structure-de-bois",
+      "name": "Art Massif Structure de bois",
+      "homepage": "https://www.jobillico.com/voir-entreprise/art-massif-structure-de-bois",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/art-massif-structure-de-bois/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "roberge-fils-inc",
+      "name": "Roberge & Fils inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/roberge-fils-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/roberge-fils-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "cuisines-laurier-inc",
+      "name": "Cuisines Laurier inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/cuisines-laurier-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/cuisines-laurier-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "temlac-ltee",
+      "name": "Temlac Ltée",
+      "homepage": "https://www.jobillico.com/voir-entreprise/temlac-ltee",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/temlac-ltee/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "temlac-ltee-rouyn-noranda",
+      "name": "Temlac Ltée Rouyn-Noranda",
+      "homepage": "https://www.jobillico.com/voir-entreprise/temlac-ltee-rouyn-noranda",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/temlac-ltee-rouyn-noranda/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Abitibi-Témiscamingue",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "garages-et-cabanons-domtec-inc",
+      "name": "Garages et Cabanons Domtec inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/garages-et-cabanons-domtec-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/garages-et-cabanons-domtec-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "coffrages-regis-levesque-inc",
+      "name": "Coffrages Régis Lévesque inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/coffrages-regis-levesque-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/coffrages-regis-levesque-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "toitures-frontenac-inc",
+      "name": "Toitures Frontenac inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/toitures-frontenac-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/toitures-frontenac-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "les-entreprises-quebechab-ltee",
+      "name": "Les Entreprises QuébecHaB ltée",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-entreprises-quebechab-ltee",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-entreprises-quebechab-ltee/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "action-estimation-inc",
+      "name": "Action Estimation inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/action-estimation-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/action-estimation-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "terrain-dev-construction",
+      "name": "Terrain Dev Construction",
+      "homepage": "https://www.jobillico.com/voir-entreprise/terrain-dev-construction",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/terrain-dev-construction/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "athom",
+      "name": "ATHOM.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/athom",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/athom/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Mauricie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "maisons-mcg",
+      "name": "Maisons MCG",
+      "homepage": "https://www.jobillico.com/voir-entreprise/maisons-mcg",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/maisons-mcg/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "toitures-tpl-inc",
+      "name": "Toitures TPL inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/toitures-tpl-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/toitures-tpl-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "groupe-scv-inclqnnna",
+      "name": "SCV Enercor inc",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-scv-inclqnnna",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-scv-inclqnnna/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "excavation-jonda-inc",
+      "name": "Excavation Jonda inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/excavation-jonda-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/excavation-jonda-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "construction-hebert-hebert-inc",
+      "name": "Construction Hébert & Hébert inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-hebert-hebert-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-hebert-hebert-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "thermafix-inc",
+      "name": "Thermafix inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/thermafix-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/thermafix-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "camax-2002-inc",
+      "name": "Camax 2002 inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/camax-2002-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/camax-2002-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "legd-inc",
+      "name": "LEGD inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/legd-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/legd-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "gaston-ouellette-fils",
+      "name": "Gaston Ouellette & Fils",
+      "homepage": "https://www.jobillico.com/voir-entreprise/gaston-ouellette-fils",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/gaston-ouellette-fils/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "pelomix-inc",
+      "name": "Pélomix inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/pelomix-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/pelomix-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "construction-modulor-inc",
+      "name": "Construction Modulor inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-modulor-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-modulor-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "oikos-construction",
+      "name": "OÏKOS Construction",
+      "homepage": "https://www.jobillico.com/voir-entreprise/oikos-construction",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/oikos-construction/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "la-societe-elite-ltee",
+      "name": "La Société Élite Ltée",
+      "homepage": "https://www.jobillico.com/voir-entreprise/la-societe-elite-ltee",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/la-societe-elite-ltee/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "kone-canada",
+      "name": "KONE Canada",
+      "homepage": "https://www.jobillico.com/voir-entreprise/kone-canada",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/kone-canada/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "breton-revetements-metalliques-inc",
+      "name": "Breton Revêtements Métalliques inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/breton-revetements-metalliques-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/breton-revetements-metalliques-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "les-constructions-gmp-inc",
+      "name": "Les Constructions GMP inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-constructions-gmp-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-constructions-gmp-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montérégie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "maison-du-prelart-inc",
+      "name": "Maison du Prélart inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/maison-du-prelart-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/maison-du-prelart-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "tbc-fabrication",
+      "name": "TBC Fabrication",
+      "homepage": "https://www.jobillico.com/voir-entreprise/tbc-fabrication",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/tbc-fabrication/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montérégie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "ben-air-fils-inc",
+      "name": "Ben-Air & Fils inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/ben-air-fils-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/ben-air-fils-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Laurentides",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "grillo-construction-inc",
+      "name": "Grillo Construction Inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/grillo-construction-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/grillo-construction-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "fayolle-canada",
+      "name": "Fayolle Canada",
+      "homepage": "https://www.jobillico.com/voir-entreprise/fayolle-canada",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/fayolle-canada/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "fma-services-construction",
+      "name": "FMA Services Construction",
+      "homepage": "https://www.jobillico.com/voir-entreprise/fma-services-construction",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/fma-services-construction/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "excavation-construction-lr-inc",
+      "name": "Excavation construction LR inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/excavation-construction-lr-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/excavation-construction-lr-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "constructions-jean-grondin-inc",
+      "name": "Constructions Jean Grondin inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/constructions-jean-grondin-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/constructions-jean-grondin-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "structure-cd",
+      "name": "Structure CD",
+      "homepage": "https://www.jobillico.com/voir-entreprise/structure-cd",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/structure-cd/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "beton-dagenais",
+      "name": "Béton Dagenais",
+      "homepage": "https://www.jobillico.com/voir-entreprise/beton-dagenais",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-dagenais/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Laval",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "maconnerie-smart-inc",
+      "name": "Maçonnerie Smart inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/maconnerie-smart-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/maconnerie-smart-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Laval",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "beton-surface-ouest-de-l-ile",
+      "name": "Béton Surface - Ouest-de-l’Île",
+      "homepage": "https://www.jobillico.com/voir-entreprise/beton-surface-ouest-de-l-ile",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-surface-ouest-de-l-ile/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "elite-toiture",
+      "name": "Elite Toiture",
+      "homepage": "https://www.jobillico.com/voir-entreprise/elite-toiture",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/elite-toiture/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "construction-des-hauteurs",
+      "name": "Construction des Hauteurs",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-des-hauteurs",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-des-hauteurs/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Laurentides",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "construction-pls",
+      "name": "Construction PLS",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-pls",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-pls/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "coffrage-vervilleiefltc",
+      "name": "Coffrage Verville",
+      "homepage": "https://www.jobillico.com/voir-entreprise/coffrage-vervilleiefltc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/coffrage-vervilleiefltc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "gestion-gabriel-gagnon",
+      "name": "Gestion Gabriel Gagnon",
+      "homepage": "https://www.jobillico.com/voir-entreprise/gestion-gabriel-gagnon",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/gestion-gabriel-gagnon/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "coffrex-construction",
+      "name": "Coffrex Construction",
+      "homepage": "https://www.jobillico.com/voir-entreprise/coffrex-construction",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/coffrex-construction/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Estrie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "construction-albert-inc",
+      "name": "Construction Albert inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-albert-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-albert-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Bas-Saint-Laurent",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "construction-vincent",
+      "name": "Construction Vincent",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-vincent",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-vincent/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Estrie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "kyo-construction-design",
+      "name": "KYO Construction & Design",
+      "homepage": "https://www.jobillico.com/voir-entreprise/kyo-construction-design",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/kyo-construction-design/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "groupe-desrochers-montpetit-gdm-entrepreneur-gener",
+      "name": "Groupe Desrochers Montpetit (GDM) Entrepreneur Général",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-desrochers-montpetit-gdm-entrepreneur-gener",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-desrochers-montpetit-gdm-entrepreneur-gener/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Estrie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "blais-industries",
+      "name": "Blais Industries",
+      "homepage": "https://www.jobillico.com/voir-entreprise/blais-industries",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/blais-industries/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Abitibi-Témiscamingue",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "techvac-environnement-inc",
+      "name": "Techvac Environnement inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/techvac-environnement-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/techvac-environnement-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "fa-construction",
+      "name": "FA Construction",
+      "homepage": "https://www.jobillico.com/voir-entreprise/fa-construction",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/fa-construction/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Outaouais",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "construction-mahikan-inc",
+      "name": "Construction Mahikan inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-mahikan-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-mahikan-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "signature-jm-xtreme-inc",
+      "name": "Signature JM Xtrême inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/signature-jm-xtreme-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/signature-jm-xtreme-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "construction-renovation-distinction-inc",
+      "name": "Construction Rénovation Distinction inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-renovation-distinction-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-renovation-distinction-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "fabrication-amr-inc",
+      "name": "Fabrication AMR inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/fabrication-amr-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/fabrication-amr-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "style-habitat-inc",
+      "name": "Style-Habitat inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/style-habitat-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/style-habitat-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "les-entreprises-steeve-couture-inc",
+      "name": "Les Entreprises Steeve Couture inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-entreprises-steeve-couture-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-entreprises-steeve-couture-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "climactif-inc",
+      "name": "Climactif inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/climactif-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/climactif-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Laurentides",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "art-dem-demolition-inc",
+      "name": "ART-DÉM démolition inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/art-dem-demolition-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/art-dem-demolition-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "garage-prefab-une-division-de-les-cabanons-modern",
+      "name": "Garage Préfab, une division de Les Cabanons Modernes inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/garage-prefab-une-division-de-les-cabanons-modern",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/garage-prefab-une-division-de-les-cabanons-modern/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "estimatek-estimation-et-service-conseil-inc",
+      "name": "Estimatek Estimation et Service Conseil inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/estimatek-estimation-et-service-conseil-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/estimatek-estimation-et-service-conseil-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Lanaudière",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "thermo-rad-incivdaag",
+      "name": "Thermo-Rad Inc",
+      "homepage": "https://www.jobillico.com/voir-entreprise/thermo-rad-incivdaag",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/thermo-rad-incivdaag/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "groupe-gestion-confort-inc",
+      "name": "Groupe Gestion Confort inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-gestion-confort-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-gestion-confort-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montérégie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "les-cabanons-modernes-inc",
+      "name": "Les Cabanons Modernes inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-cabanons-modernes-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-cabanons-modernes-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "novaplex-construction-inc",
+      "name": "Novaplex construction inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/novaplex-construction-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/novaplex-construction-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "symco-construction",
+      "name": "SYMCO Construction",
+      "homepage": "https://www.jobillico.com/voir-entreprise/symco-construction",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/symco-construction/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "enair-controle",
+      "name": "Enair Contrôle",
+      "homepage": "https://www.jobillico.com/voir-entreprise/enair-controle",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/enair-controle/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "beton-hebert-inc",
+      "name": "Béton Hébert inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/beton-hebert-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-hebert-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "les-escaliers-de-beauce-inc",
+      "name": "Les Escaliers de Beauce inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-escaliers-de-beauce-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-escaliers-de-beauce-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "american-structures",
+      "name": "AmeriCan Structures",
+      "homepage": "https://www.jobillico.com/voir-entreprise/american-structures",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/american-structures/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "groupe-deric",
+      "name": "Groupe Deric",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-deric",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-deric/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "toitures-r--martin-ltee.uDpkKg",
+      "name": "Toitures R. Martin ltée",
+      "homepage": "https://www.jobillico.com/voir-entreprise/toitures-r--martin-ltee.uDpkKg",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/toitures-r--martin-ltee.uDpkKg/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "malo-bernard-malo-inc",
+      "name": "MALO - Bernard Malo inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/malo-bernard-malo-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/malo-bernard-malo-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Lanaudière",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "groupe-lapalme",
+      "name": "Groupe Lapalme",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-lapalme",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-lapalme/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Estrie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "excavations-g-larouche-inc-.jRviGh",
+      "name": "Excavations G. Larouche inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/excavations-g-larouche-inc-.jRviGh",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/excavations-g-larouche-inc-.jRviGh/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "coffrage-ld.bTtgVv",
+      "name": "Coffrage LD",
+      "homepage": "https://www.jobillico.com/voir-entreprise/coffrage-ld.bTtgVv",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/coffrage-ld.bTtgVv/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "groupe-soresto-trois-rivieres",
+      "name": "Groupe Soresto - Trois-Rivières",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-soresto-trois-rivieres",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-soresto-trois-rivieres/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Mauricie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "constructions-pepin-et-fortin-inc-victoriaville",
+      "name": "Constructions Pépin et Fortin inc. - Victoriaville",
+      "homepage": "https://www.jobillico.com/voir-entreprise/constructions-pepin-et-fortin-inc-victoriaville",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/constructions-pepin-et-fortin-inc-victoriaville/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "construction-dinamo-inc.nLyoEu",
+      "name": "Construction Dinamo inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-dinamo-inc.nLyoEu",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-dinamo-inc.nLyoEu/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "nova-construction-jwejdu",
+      "name": "Nova Construction",
+      "homepage": "https://www.jobillico.com/voir-entreprise/nova-construction-jwejdu",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/nova-construction-jwejdu/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "construction-l-grenier-inc-iacqav",
+      "name": "Construction L. Grenier inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-l-grenier-inc-iacqav",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-l-grenier-inc-iacqav/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "maconnerie-desrosiers-de-l-estrie-inc-dekzhn",
+      "name": "Maçonnerie Desrosiers de l'Estrie inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/maconnerie-desrosiers-de-l-estrie-inc-dekzhn",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/maconnerie-desrosiers-de-l-estrie-inc-dekzhn/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Estrie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "pierre-boily-electrique-inc-.mKyrMx",
+      "name": "Pierre Boily Électrique inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/pierre-boily-electrique-inc-.mKyrMx",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/pierre-boily-electrique-inc-.mKyrMx/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "decor-nature-inc-.aJugXb",
+      "name": "Décor Nature inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/decor-nature-inc-.aJugXb",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/decor-nature-inc-.aJugXb/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "avicor-construction.tKilVy",
+      "name": "Avicor Construction",
+      "homepage": "https://www.jobillico.com/voir-entreprise/avicor-construction.tKilVy",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/avicor-construction.tKilVy/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "groupe-forgex",
+      "name": "Groupe Forgex",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-forgex",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-forgex/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montérégie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "vcc-entrepreneur-general",
+      "name": "VCC Entrepreneur Général",
+      "homepage": "https://www.jobillico.com/voir-entreprise/vcc-entrepreneur-general",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/vcc-entrepreneur-general/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Abitibi-Témiscamingue",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "les-industries-perform-air-inc",
+      "name": "Les Industries Perform Air inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-industries-perform-air-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-industries-perform-air-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montérégie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "nmp",
+      "name": "Nmp",
+      "homepage": "https://www.jobillico.com/voir-entreprise/nmp",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/nmp/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "carrelages-de-montreal-ltee.rCtlSn",
+      "name": "Carrelages de Montréal ltée",
+      "homepage": "https://www.jobillico.com/voir-entreprise/carrelages-de-montreal-ltee.rCtlSn",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/carrelages-de-montreal-ltee.rCtlSn/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montérégie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "ebenisterie-chambois",
+      "name": "Ébénisterie Chambois",
+      "homepage": "https://www.jobillico.com/voir-entreprise/ebenisterie-chambois",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/ebenisterie-chambois/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "constrobourg",
+      "name": "Constrobourg",
+      "homepage": "https://www.jobillico.com/voir-entreprise/constrobourg",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/constrobourg/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "tms-systeme-inc",
+      "name": "T.M.S. Système inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/tms-systeme-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/tms-systeme-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "evolution-structures",
+      "name": "Évolution Structures",
+      "homepage": "https://www.jobillico.com/voir-entreprise/evolution-structures",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/evolution-structures/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Laurentides",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "mofax-electrique-lteefedssb",
+      "name": "Mofax Électrique ltée",
+      "homepage": "https://www.jobillico.com/voir-entreprise/mofax-electrique-lteefedssb",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/mofax-electrique-lteefedssb/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Laval",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "rcm-modulaire-inc",
+      "name": "RCM Modulaire inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/rcm-modulaire-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/rcm-modulaire-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "richard-levesque-cuisines-salles-de-bain",
+      "name": "Richard & Levesque Cuisines Salles de Bain",
+      "homepage": "https://www.jobillico.com/voir-entreprise/richard-levesque-cuisines-salles-de-bain",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/richard-levesque-cuisines-salles-de-bain/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "shipshaw-electrique",
+      "name": "Shipshaw Électrique",
+      "homepage": "https://www.jobillico.com/voir-entreprise/shipshaw-electrique",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/shipshaw-electrique/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "raoul-beaulieu-inc",
+      "name": "Raoul Beaulieu Inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/raoul-beaulieu-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/raoul-beaulieu-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "habitat-construction-jeakgj",
+      "name": "Habitat Construction",
+      "homepage": "https://www.jobillico.com/voir-entreprise/habitat-construction-jeakgj",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/habitat-construction-jeakgj/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Bas-Saint-Laurent",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "dube",
+      "name": "Dubé",
+      "homepage": "https://www.jobillico.com/voir-entreprise/dube",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/dube/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Abitibi-Témiscamingue",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "groupe-pro-fab-inc-1",
+      "name": "Groupe Pro-Fab inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-pro-fab-inc-1",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-pro-fab-inc-1/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "construction-geratek-ltee",
+      "name": "Construction Gératek ltée",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-geratek-ltee",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-geratek-ltee/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Estrie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "construction-gely-inc",
+      "name": "Construction Gély inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-gely-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-gely-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "Legault-Dubois-inc.pSxsEq",
+      "name": "Legault-Dubois inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/Legault-Dubois-inc.pSxsEq",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/Legault-Dubois-inc.pSxsEq/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montérégie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "dutran",
+      "name": "DUTRAN",
+      "homepage": "https://www.jobillico.com/voir-entreprise/dutran",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/dutran/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "pelletier-deco-surfaces-quebec",
+      "name": "Pelletier Déco Surfaces - Québec",
+      "homepage": "https://www.jobillico.com/voir-entreprise/pelletier-deco-surfaces-quebec",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/pelletier-deco-surfaces-quebec/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "stc-acoustique-2015-inc",
+      "name": "STC Acoustique 2015 Inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/stc-acoustique-2015-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/stc-acoustique-2015-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Lanaudière",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "moulures-alnordica",
+      "name": "Moulures Alnordica",
+      "homepage": "https://www.jobillico.com/voir-entreprise/moulures-alnordica",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/moulures-alnordica/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "beaux-parterres-laurentiens",
+      "name": "Beaux Parterres Laurentiens",
+      "homepage": "https://www.jobillico.com/voir-entreprise/beaux-parterres-laurentiens",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/beaux-parterres-laurentiens/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "metalunic",
+      "name": "Métalunic",
+      "homepage": "https://www.jobillico.com/voir-entreprise/metalunic",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/metalunic/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "maxi-drain.fFjzAz",
+      "name": "Maxi-Drain",
+      "homepage": "https://www.jobillico.com/voir-entreprise/maxi-drain.fFjzAz",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/maxi-drain.fFjzAz/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "cczwcc",
+      "name": "Groupe Pylium",
+      "homepage": "https://www.jobillico.com/voir-entreprise/cczwcc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/cczwcc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "drainage-st-celestin-inckMyhRr",
+      "name": "Drainage St-Célestin inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/drainage-st-celestin-inckMyhRr",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/drainage-st-celestin-inckMyhRr/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "fabeltafJaqTb",
+      "name": "Fabelta",
+      "homepage": "https://www.jobillico.com/voir-entreprise/fabeltafJaqTb",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/fabeltafJaqTb/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Lanaudière",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "construction-pascal-lanoue-incjiezch",
+      "name": "Construction Pascal Lanoue inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-pascal-lanoue-incjiezch",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-pascal-lanoue-incjiezch/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "beton-adammLgoUp",
+      "name": "Béton Adam",
+      "homepage": "https://www.jobillico.com/voir-entreprise/beton-adammLgoUp",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-adammLgoUp/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "toitures-steeve-arbourbGyfQy",
+      "name": "Toitures Steeve Arbour",
+      "homepage": "https://www.jobillico.com/voir-entreprise/toitures-steeve-arbourbGyfQy",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/toitures-steeve-arbourbGyfQy/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "ledcor",
+      "name": "Ledcor",
+      "homepage": "https://www.jobillico.com/voir-entreprise/ledcor",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/ledcor/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "batitech",
+      "name": "Batitech",
+      "homepage": "https://www.jobillico.com/voir-entreprise/batitech",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/batitech/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "groupe-riverin",
+      "name": "Groupe Riverin",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-riverin",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-riverin/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "confort-expert-incmPktUm",
+      "name": "Confort Expert inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/confort-expert-incmPktUm",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/confort-expert-incmPktUm/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "service-rg-1998-inceLkoXa",
+      "name": "Service RG 1998 inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/service-rg-1998-inceLkoXa",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/service-rg-1998-inceLkoXa/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "construction-guy-ricard-inckYlsGd",
+      "name": "Construction Guy Ricard inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-guy-ricard-inckYlsGd",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-guy-ricard-inckYlsGd/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "roland-grenier-construction-lteejEcsXl",
+      "name": "Roland Grenier Construction ltée",
+      "homepage": "https://www.jobillico.com/voir-entreprise/roland-grenier-construction-lteejEcsXl",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/roland-grenier-construction-lteejEcsXl/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "construction-daniel-emondnsslwd",
+      "name": "Construction Daniel Emond",
+      "homepage": "https://www.jobillico.com/voir-entreprise/construction-daniel-emondnsslwd",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-daniel-emondnsslwd/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "groupe-vat-incmMkgCk",
+      "name": "Groupe V.A.T. inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-vat-incmMkgCk",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-vat-incmMkgCk/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "urbex-construction-inc-oKjvAs",
+      "name": "Urbex Construction Inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/urbex-construction-inc-oKjvAs",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/urbex-construction-inc-oKjvAs/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "entrepot-pelletier-deco-surfacescLayZi",
+      "name": "Entrepôt Pelletier Déco Surfaces",
+      "homepage": "https://www.jobillico.com/voir-entreprise/entrepot-pelletier-deco-surfacescLayZi",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/entrepot-pelletier-deco-surfacescLayZi/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "toiture-quebec.bIfgHo",
+      "name": "Toiture Québec",
+      "homepage": "https://www.jobillico.com/voir-entreprise/toiture-quebec.bIfgHo",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/toiture-quebec.bIfgHo/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "les-installations-electriques-r.-theberg.bWixTo",
+      "name": "Les Installations Électriques R. Théberge inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-installations-electriques-r.-theberg.bWixTo",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-installations-electriques-r.-theberg.bWixTo/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "jc-drolet-excavation-inc",
+      "name": "JC Drolet Excavation inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/jc-drolet-excavation-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/jc-drolet-excavation-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "tisseur-inc",
+      "name": "Tisseur inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/tisseur-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/tisseur-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "le-maitre-constructeur-st-jacques-inc-.uCefEe",
+      "name": "Le Maître Constructeur St-Jacques inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/le-maitre-constructeur-st-jacques-inc-.uCefEe",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/le-maitre-constructeur-st-jacques-inc-.uCefEe/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "qualite-construction-cdn-ltee.pLteBv",
+      "name": "Qualité Construction (CDN) ltée",
+      "homepage": "https://www.jobillico.com/voir-entreprise/qualite-construction-cdn-ltee.pLteBv",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/qualite-construction-cdn-ltee.pLteBv/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "produits-boreal.uImsYb",
+      "name": "Produits Boréal",
+      "homepage": "https://www.jobillico.com/voir-entreprise/produits-boreal.uImsYb",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/produits-boreal.uImsYb/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "toiturex.oUuhOe",
+      "name": "Toiturex",
+      "homepage": "https://www.jobillico.com/voir-entreprise/toiturex.oUuhOe",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/toiturex.oUuhOe/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montérégie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "paul-davis-laurentides.kOoaJj",
+      "name": "Paul Davis Laurentides",
+      "homepage": "https://www.jobillico.com/voir-entreprise/paul-davis-laurentides.kOoaJj",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/paul-davis-laurentides.kOoaJj/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "chevron-royal-inc",
+      "name": "Chevron Royal inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/chevron-royal-inc",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/chevron-royal-inc/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Estrie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "frigon-electrique.gTxgZj",
+      "name": "Frigon Électrique",
+      "homepage": "https://www.jobillico.com/voir-entreprise/frigon-electrique.gTxgZj",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/frigon-electrique.gTxgZj/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "groupe-gagne-construction-inc-hvxufg",
+      "name": "Groupe Gagné Construction inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-gagne-construction-inc-hvxufg",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-gagne-construction-inc-hvxufg/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "darocha-webster-paysages",
+      "name": "DaRocha Webster Paysages",
+      "homepage": "https://www.jobillico.com/voir-entreprise/darocha-webster-paysages",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/darocha-webster-paysages/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Montréal",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "la-charpenterie-inc.aDykFm",
+      "name": "La Charpenterie inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/la-charpenterie-inc.aDykFm",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/la-charpenterie-inc.aDykFm/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Saguenay–Lac-Saint-Jean",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "les-concasses-du-cap-inc.gVhnDw",
+      "name": "Les Concassés du Cap inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/les-concasses-du-cap-inc.gVhnDw",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/les-concasses-du-cap-inc.gVhnDw/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "moreau-prs.zMnqSq",
+      "name": "Moreau PRS",
+      "homepage": "https://www.jobillico.com/voir-entreprise/moreau-prs.zMnqSq",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/moreau-prs.zMnqSq/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Capitale-Nationale",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "groupe-gnb-services-inc.bHplAy",
+      "name": "Groupe GNB Services inc.",
+      "homepage": "https://www.jobillico.com/voir-entreprise/groupe-gnb-services-inc.bHplAy",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-gnb-services-inc.bHplAy/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "giroux-lessard-ltee-qjcjwy",
+      "name": "Giroux & Lessard ltée",
+      "homepage": "https://www.jobillico.com/voir-entreprise/giroux-lessard-ltee-qjcjwy",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/giroux-lessard-ltee-qjcjwy/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Chaudière-Appalaches",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "fmd-excavation",
+      "name": "FMD Excavation",
+      "homepage": "https://www.jobillico.com/voir-entreprise/fmd-excavation",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/fmd-excavation/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Estrie",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
+    },
+    {
+      "id": "maple-reinders.bSnqOn",
+      "name": "Maple Reinders",
+      "homepage": "https://www.jobillico.com/voir-entreprise/maple-reinders.bSnqOn",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/maple-reinders.bSnqOn/voir-liste-emplois",
+      "method": "jobillico",
+      "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+      "sectors": [
+        "Résidentiel et commercial"
+      ]
     }
   ],
   "fixUrl": [
