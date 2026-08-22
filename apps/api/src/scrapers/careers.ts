@@ -123,7 +123,7 @@ const NAV_LABELS =
  * échelle humaine », « Pourquoi nous rejoindre ») n'est pas un titre de poste.
  */
 const MARKETING_PREFIX =
-  /^(un |une |notre |nos |nous |pourquoi|rejoign|joins|deviens|devenez|faites|envie|pr[êe]t|viens|es-tu|as-tu|ton |ta |tes |vos |votre |vous |tu ne|[àa] la recherche|travaille[rz]|construis|b[âa]tis|joignez|d[ée]couvr(ir|e|ez|ons)|candidature spontan[ée]e?|postuler (pour|à|au|aux|en|comme)|postule[rz] (pour|à|au|aux)|appliquer (pour|sur|à)|apply (for|to|now)|voir (tout|tous|toutes|nos)\b|zones? (de|du|d['’])|c[âa]bles? (pour|de|d['’])|connecteurs? (pour|de|d['’])|pour (parler|nous|en savoir|prendre|obtenir|discuter|contacter|planifier|r[ée]server)|rejoins|tu |offrez|restez|abonnez|click here|start your)/i;
+  /^(un |une |notre |nos |nous |pourquoi|rejoign|joins|deviens|devenez|faites|envie|pr[êe]t|viens|es-tu|as-tu|ton |ta |tes |vos |votre |vous |tu ne|[àa] la recherche|travaille[rz]|construis|b[âa]tis|joignez|d[ée]couvr(ir|e|ez|ons)|candidature spontan[ée]e?|postuler (pour|à|au|aux|en|comme)|postule[rz] (pour|à|au|aux)|appliquer (pour|sur|à)|apply (for|to|now)|voir (tout|tous|toutes|nos)\b|zones? (de|du|d['’])|c[âa]bles? (pour|de|d['’])|connecteurs? (pour|de|d['’])|pour (parler|nous|en savoir|prendre|obtenir|discuter|contacter|planifier|r[ée]server)|rejoins|tu |offrez|restez|abonnez|click here|start your|je d[ée]sire|je veux)/i;
 
 /**
  * Bouton d'action collé à la fin d'un intitulé de carte (« Représentant au
@@ -239,6 +239,7 @@ function parseHtmlCareers(
     if (jobPathPattern && !jobPathPattern.test(href)) return;
     const url = absolute((href.split("#")[0] ?? "").trim(), baseUrl);
     if (sameUrl(url, careersUrl)) return; // ignore la page index elle-même
+    if (/candidature[-_]?spontan|spontane[eé]?[-_/]?$/i.test(url)) return; // candidature spontanée ≠ poste
     // Clé de déduplication insensible au « / » final : /emplois/foo/ et
     // /emplois/foo (bouton « Voir le poste » vs carte cliquable) = même offre.
     const dedupKey = url.replace(/\/+$/, "");
