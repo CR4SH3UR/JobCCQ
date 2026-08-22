@@ -63,6 +63,7 @@ export type JobSourceId = (typeof JOB_SOURCES)[number]["id"];
 // --- Employeurs découverts automatiquement (registre RBQ) ------------------
 
 import discoveredRaw from "./discovered.json";
+import { regionIdFromName } from "./taxonomy.js";
 
 /** Méthode d'accès détectée pour un employeur découvert. */
 export type DiscoveredMethod =
@@ -140,6 +141,20 @@ const EMPLOYER_BY_ID: Record<string, DiscoveredEmployer> = Object.fromEntries(
 /** Fiche employeur (registre RBQ) pour un id de source — porte `rbq`, `region`, `sectors`. */
 export const getEmployer = (id?: string | null): DiscoveredEmployer | undefined =>
   id ? EMPLOYER_BY_ID[id] : undefined;
+
+/** Id de région (référentiel) de l'employeur, dérivé de sa région administrative RBQ. */
+export const employerRegionId = (sourceId?: string | null): string | undefined =>
+  regionIdFromName(getEmployer(sourceId)?.region);
+
+/**
+ * Région effective d'une offre : sa région détectée depuis la localisation ;
+ * à défaut, la région administrative (RBQ) du siège de l'employeur. C'est une
+ * approximation raisonnable pour les entrepreneurs locaux (siège ≈ chantiers).
+ */
+export const effectiveRegionId = (job: {
+  readonly regionId?: string | null;
+  readonly sourceId?: string | null;
+}): string | undefined => job.regionId ?? employerRegionId(job.sourceId);
 
 export const sourceName = (id?: string | null): string =>
   (id && SOURCE_BY_ID[id]?.name) || id || "Source inconnue";

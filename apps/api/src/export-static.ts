@@ -7,7 +7,7 @@
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import type { Job } from "@jobccq/shared";
+import { effectiveRegionId, type Job } from "@jobccq/shared";
 import { SEED_JOBS } from "./seed-data.js";
 import { seedToJob } from "./seed-transform.js";
 
@@ -30,9 +30,26 @@ async function main() {
     jobs = SEED_JOBS.map(seedToJob);
   }
 
+  // Région manquante (localisation non fournie par le site) : on retombe sur la
+  // région administrative (RBQ) de l'employeur. Approximation raisonnable pour
+  // les entrepreneurs locaux, et cela alimente le filtre « Région » du site.
+  let filled = 0;
+  for (const job of jobs) {
+    if (job.regionId) continue;
+    const region = effectiveRegionId(job);
+    if (region) {
+      job.regionId = region;
+      filled++;
+    }
+  }
+  const withRegion = jobs.filter((j) => j.regionId).length;
+
   await mkdir(dirname(OUT), { recursive: true });
   await writeFile(OUT, JSON.stringify(jobs));
   console.log(`✅ ${jobs.length} offres exportées vers ${OUT}`);
+  console.log(
+    `📍 Régions : ${withRegion}/${jobs.length} renseignées (${filled} complétées via la région RBQ de l'employeur).`,
+  );
 }
 
 main().catch((err) => {
