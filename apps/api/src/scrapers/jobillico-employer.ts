@@ -62,6 +62,21 @@ function employerSlug(listUrl: string): string | undefined {
 }
 
 /**
+ * Lieu manifestement HORS Québec : JobCCQ est un board québécois, on écarte les
+ * postes d'une autre province (fréquent chez les employeurs pancanadiens, ex.
+ * Aecon : 444/479 hors QC). Un lieu vide/ambigu est CONSERVÉ (on ne jette pas un
+ * poste québécois mal formaté).
+ */
+export function isOutsideQuebec(location?: string): boolean {
+  if (!location) return false;
+  if (/\bqu[eé]bec\b/i.test(location) || /\bqc\b/i.test(location)) return false;
+  if (/\b(ON|AB|BC|MB|SK|NS|NB|PE|NL|YT|NT|NU)\b/.test(location)) return true;
+  return /\b(ontario|alberta|british columbia|manitoba|saskatchewan|nova scotia|new brunswick|newfoundland|yukon|nunavut|colombie-britannique|nouveau-brunswick|nouvelle-[ée]cosse|terre-neuve|[îi]le-du-prince)\b/i.test(
+    location,
+  );
+}
+
+/**
  * Nettoie les intitulés bruités poussés par certains ATS via Jobillico, du type
  * « Carpenter Foreman Job Details | Aecon » → « Carpenter Foreman ». N'affecte
  * pas un intitulé normal (sans « Job Details » ni suffixe « | … »).
@@ -167,12 +182,20 @@ export function makeJobillicoEmployerScraper(config: JobillicoEmployerConfig): S
         }
         if (added === 0) break; // plus aucun nouveau poste → fin de la liste
       }
-      ctx.log(`${config.id} — ${listed.length} poste(s) listé(s)`);
+      // Filtre Québec : on écarte les postes clairement hors QC (le lieu de la
+      // carte suffit pour la plupart), AVANT de récupérer les fiches détaillées.
+      const before = listed.length;
+      const quebec = listed.filter((l) => !isOutsideQuebec(l.location));
+      if (before !== quebec.length) {
+        ctx.log(`${config.id} — ${before} listé(s), ${before - quebec.length} hors Québec écarté(s)`);
+      } else {
+        ctx.log(`${config.id} — ${quebec.length} poste(s) listé(s)`);
+      }
 
       const cap = config.detailCap ?? 40;
       const out: RawJob[] = [];
       let fetched = 0;
-      for (const l of listed) {
+      for (const l of quebec) {
         const shallow: RawJob = {
           sourceId: config.id,
           url: l.url,
@@ -206,7 +229,8 @@ export function makeJobillicoEmployerScraper(config: JobillicoEmployerConfig): S
           out.push(shallow);
         }
       }
-      return out;
+      // 2e passe : le lieu vient parfois de la fiche détaillée (path ItemList).
+      return out.filter((j) => !isOutsideQuebec(j.location));
     },
   };
 }
