@@ -14,6 +14,7 @@ import { jcDroletScraper } from "./jcdrolet.js";
 import { refrabecScraper } from "./refrabec.js";
 import { amenagementGrenonScraper } from "./amenagement-grenon.js";
 import { guayScraper } from "./guay.js";
+import { cafortierScraper } from "./cafortier.js";
 import { buildDiscoveredScraper } from "./discovered.js";
 
 /**
@@ -40,6 +41,7 @@ const BESPOKE: Record<string, Scraper> = {
   [refrabecScraper.id]: refrabecScraper,
   [amenagementGrenonScraper.id]: amenagementGrenonScraper,
   [guayScraper.id]: guayScraper,
+  [cafortierScraper.id]: cafortierScraper,
 };
 
 /**
