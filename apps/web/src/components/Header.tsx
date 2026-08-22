@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/format";
 import { ThemeToggle } from "./ThemeToggle";
+import { AuthButton } from "./AuthButton";
 import { useFavorites } from "@/lib/favorites";
 
 const LINKS = [
@@ -46,6 +47,7 @@ export function Header() {
           })}
           <FavLink active={pathname.startsWith("/favoris")} />
           <ThemeToggle />
+          <AuthButton />
         </nav>
       </div>
     </header>
