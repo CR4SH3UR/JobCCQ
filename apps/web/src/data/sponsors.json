@@ -1,5 +1,14 @@
 {
   "contactEmail": "dickie1719@gmail.com",
-  "sponsors": [],
-  "featured": []
+  "sponsors": [
+    {
+      "id": "sponsor-1",
+      "name": "EBC",
+      "tagline": "Ohrase",
+      "url": "Https://EBC.com"
+    }
+  ],
+  "featured": [
+    "ebc"
+  ]
 }
