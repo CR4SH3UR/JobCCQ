@@ -23,6 +23,7 @@ import { droletConstructionScraper } from "./droletconstruction.js";
 import { electriciteMc2Scraper } from "./electricitemc2.js";
 import { glrScraper } from "./glr.js";
 import { excavationsRsrScraper } from "./excavationsrsr.js";
+import { galileeScraper } from "./galilee.js";
 import { buildDiscoveredScraper } from "./discovered.js";
 
 /**
@@ -59,6 +60,7 @@ const BESPOKE: Record<string, Scraper> = {
   [electriciteMc2Scraper.id]: electriciteMc2Scraper,
   [glrScraper.id]: glrScraper,
   [excavationsRsrScraper.id]: excavationsRsrScraper,
+  [galileeScraper.id]: galileeScraper,
 };
 
 /**
