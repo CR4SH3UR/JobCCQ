@@ -1127,24 +1127,37 @@ export function AdminExplorer() {
                 )}
               </div>
             ) : mode === "turso" ? (
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-col gap-2">
                 <span>
                   ✅ <strong>Mode Turso</strong> — éditions et vérifications enregistrées <strong>en direct</strong> dans la base partagée.
                 </span>
-                {ghToken ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Sans jeton GitHub, le re-scrape (qui lance un workflow
+                      GitHub) est impossible et TOUS les boutons « Re-scraper »
+                      disparaissent — d'où leur absence sur un appareil (mobile)
+                      où le jeton n'a jamais été saisi. */}
                   <button
-                    onClick={ghTriggerDeploy}
-                    disabled={publish.status === "run"}
-                    className="rounded-lg bg-green-700 px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                    onClick={() => setGhOpen((v) => !v)}
+                    className="rounded-lg border border-green-300 bg-white px-2.5 py-1 text-xs font-semibold hover:bg-green-100"
                   >
-                    {publish.status === "run" ? "Reconstruction…" : "🔁 Reconstruire le site"}
+                    {ghToken ? "🔑 GitHub connecté" : "🔗 Connecter GitHub (pour re-scraper)"}
                   </button>
-                ) : (
-                  <span className="text-green-700">Le site se reconstruira au prochain déploiement.</span>
-                )}
-                {publish.status !== "idle" && publish.status !== "run" && (
-                  <span className={publish.status === "ok" ? "text-green-700" : "text-red-600"}>{publish.message}</span>
-                )}
+                  {ghToken && (
+                    <button
+                      onClick={ghTriggerDeploy}
+                      disabled={publish.status === "run"}
+                      className="rounded-lg bg-green-700 px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                    >
+                      {publish.status === "run" ? "Reconstruction…" : "🔁 Reconstruire le site"}
+                    </button>
+                  )}
+                  {!ghToken && (
+                    <span className="text-green-700">Le site se reconstruira au prochain déploiement.</span>
+                  )}
+                  {publish.status !== "idle" && publish.status !== "run" && (
+                    <span className={publish.status === "ok" ? "text-green-700" : "text-red-600"}>{publish.message}</span>
+                  )}
+                </div>
               </div>
             ) : (
               <div className="flex flex-col gap-2">
@@ -1168,32 +1181,36 @@ export function AdminExplorer() {
                     <span className={publish.status === "ok" ? "text-green-700" : "text-red-600"}>{publish.message}</span>
                   )}
                 </div>
-                {ghOpen && (
-                  <div className="rounded-lg border border-amber-300 bg-white p-2 text-xs text-slate-700">
-                    <p className="mb-1">
-                      Colle un <strong>jeton GitHub à granularité fine</strong> (fine-grained PAT) limité au dépôt
-                      <code> {ghRepo().owner}/{ghRepo().repo}</code>, avec les permissions <strong>Contents : lecture/écriture</strong> et
-                      <strong> Actions : lecture/écriture</strong>. Il est stocké <strong>uniquement dans ce navigateur</strong> (rien n'est envoyé ailleurs qu'à GitHub).
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="password"
-                        value={ghToken}
-                        onChange={(e) => saveToken(e.target.value.trim())}
-                        placeholder="github_pat_…"
-                        className="flex-1 rounded border border-slate-300 px-2 py-1 font-mono"
-                      />
-                      {ghToken && (
-                        <button onClick={() => saveToken("")} className="rounded border border-slate-300 px-2 py-1 hover:bg-slate-100">
-                          Oublier
-                        </button>
-                      )}
-                    </div>
-                    <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-brand-600 hover:underline">
-                      Créer un jeton →
-                    </a>
-                  </div>
-                )}
+              </div>
+            )}
+            {/* Panneau de connexion GitHub — partagé par les modes Turso et
+                lecture. Le re-scrape passe par un workflow GitHub : sans jeton,
+                aucun bouton « Re-scraper » n'apparaît. Le rendre accessible ici
+                le débloque sur tout appareil (mobile compris). */}
+            {ghOpen && (
+              <div className="mt-2 rounded-lg border border-slate-300 bg-white p-2 text-xs text-slate-700">
+                <p className="mb-1">
+                  Colle un <strong>jeton GitHub à granularité fine</strong> (fine-grained PAT) limité au dépôt
+                  <code> {ghRepo().owner}/{ghRepo().repo}</code>, avec les permissions <strong>Contents : lecture/écriture</strong> et
+                  <strong> Actions : lecture/écriture</strong>. Il est stocké <strong>uniquement dans ce navigateur</strong> (rien n'est envoyé ailleurs qu'à GitHub).
+                </p>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="password"
+                    value={ghToken}
+                    onChange={(e) => saveToken(e.target.value.trim())}
+                    placeholder="github_pat_…"
+                    className="flex-1 rounded border border-slate-300 px-2 py-1 font-mono"
+                  />
+                  {ghToken && (
+                    <button onClick={() => saveToken("")} className="rounded border border-slate-300 px-2 py-1 hover:bg-slate-100">
+                      Oublier
+                    </button>
+                  )}
+                </div>
+                <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-brand-600 hover:underline">
+                  Créer un jeton →
+                </a>
               </div>
             )}
           </div>
