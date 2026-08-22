@@ -1,0 +1,49 @@
+name: Enrichir les numéros RBQ (Turso)
+
+# Renseigne le numéro de licence RBQ des employeurs (champ `rbq` vide) à partir
+# de leur nom, recoupé avec le registre PUBLIC des licences actives de la RBQ
+# (Données Québec). Additif/prudent : ne remplit que les champs vides, sur une
+# correspondance de nom UNIQUE, ne touche jamais les offres. Voir
+# apps/api/src/enrich-rbq.ts. Lancement manuel (onglet Actions → Run workflow).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enrich-rbq
+  cancel-in-progress: false
+
+env:
+  DATABASE_URL: file:./prisma/dev.db
+  TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+  TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+  # Jeu « Liste des licences actives de la Régie du bâtiment du Québec » (Données Québec).
+  RBQ_ZIP_URL: https://www.donneesquebec.ca/recherche/dataset/755b45d6-7aee-46df-a216-748a0191c79f/resource/32f6ec46-85fd-45e9-945b-965d9235840a/download/rdl01_extractiondonneesouvertes.zip
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Générer le client Prisma
+        run: npm run prisma:generate -w @jobccq/api
+
+      - name: Télécharger le registre RBQ (Données Québec)
+        run: |
+          curl -sSL "$RBQ_ZIP_URL" -o rbq.zip
+          unzip -o rbq.zip -d rbq_data
+          ls -la rbq_data
+
+      - name: Enrichir les numéros RBQ dans Turso
+        run: RBQ_CSV="$(ls rbq_data/*.csv | head -n1)" npm run enrich:rbq -w @jobccq/api
