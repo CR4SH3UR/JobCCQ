@@ -78,7 +78,10 @@ export function AdminSponsors() {
   const updateSponsor = (i: number, patch: Partial<Sponsor>) =>
     setSponsors(cfg.sponsors.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
   const addSponsor = () =>
-    setSponsors([...cfg.sponsors, { id: `sponsor-${cfg.sponsors.length + 1}`, name: "", tagline: "", url: "" }]);
+    setSponsors([
+      ...cfg.sponsors,
+      { id: `sponsor-${cfg.sponsors.length + 1}`, name: "", tagline: "", url: "", tier: "argent" },
+    ]);
   const removeSponsor = (i: number) => setSponsors(cfg.sponsors.filter((_, idx) => idx !== i));
 
   const addFeatured = (raw: string) => {
@@ -109,6 +112,7 @@ export function AdminSponsors() {
             name: s.name.trim(),
             tagline: s.tagline.trim(),
             url: s.url.trim(),
+            tier: s.tier ?? "argent",
             ...(s.logoUrl?.trim() ? { logoUrl: s.logoUrl.trim() } : {}),
           })),
         featured: [...new Set(cfg.featured.map((f) => f.trim()).filter(Boolean))],
@@ -167,6 +171,17 @@ export function AdminSponsors() {
             <div className="space-y-3">
               {cfg.sponsors.map((s, i) => (
                 <div key={s.id} className="rounded-lg border border-slate-200 p-3">
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="text-xs font-medium text-slate-500">Niveau :</span>
+                    <select
+                      value={s.tier ?? "argent"}
+                      onChange={(e) => updateSponsor(i, { tier: e.target.value as "or" | "argent" })}
+                      className="rounded border border-slate-300 px-2 py-1 text-xs"
+                    >
+                      <option value="or">🥇 Or (bannière vedette, rotative)</option>
+                      <option value="argent">🥈 Argent (grille compacte)</option>
+                    </select>
+                  </div>
                   <div className="grid gap-2 sm:grid-cols-2">
                     <input
                       value={s.name}
