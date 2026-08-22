@@ -39,8 +39,13 @@ permissions:
 # Seuls deux scrapes du MÊME id (ou deux scrapes complets) sont sérialisés, pour
 # éviter qu'ils se marchent dessus sur les mêmes lignes. La base Turso, elle, est
 # écrite en temps réel au fil du scraping (source par source).
+#
+# Cas d'une LISTE d'ids (« a,b,c ») : on utilise un groupe fixe « scrape-batch »
+# plutôt que d'inclure toute la liste — un nom de groupe trop long (>255 car.)
+# fait échouer le run au démarrage (0 job). Les scrapes par lot se sérialisent
+# donc entre eux, ce qui est sans risque (écriture Turso par source, mode sync).
 concurrency:
-  group: scrape-${{ github.event.inputs.sourceId || 'all' }}
+  group: scrape-${{ contains(github.event.inputs.sourceId, ',') && 'batch' || (github.event.inputs.sourceId || 'all') }}
   cancel-in-progress: false
 
 env:
