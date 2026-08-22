@@ -33,7 +33,7 @@
     "id": "360fondapro-com",
     "name": "360 Fonda Pro Inc.",
     "homepage": "https://360fondapro.com",
-    "careersUrl": "https://360fondapro.com/carrieres/",
+    "careersUrl": "https://360fondapro.com/carrieres",
     "method": "html",
     "region": "Montérégie",
     "rbq": "5714-4727-01",
@@ -359,7 +359,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "aigleinfo-ca",
@@ -373,7 +375,8 @@
     "sectors": [
       "Construction générale"
     ],
-    "enabled": false
+    "enabled": false,
+    "verified": true
   },
   {
     "id": "airpeloquin-com",
@@ -401,7 +404,8 @@
     "sectors": [
       "Ventilation et réfrigération"
     ],
-    "enabled": false
+    "enabled": false,
+    "verified": true
   },
   {
     "id": "airmatic-ca",
@@ -415,7 +419,8 @@
     "sectors": [
       "Ventilation et réfrigération"
     ],
-    "enabled": false
+    "enabled": false,
+    "verified": true
   },
   {
     "id": "akiressources-ca",
@@ -428,7 +433,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "groupelizotte-com",
@@ -456,7 +463,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "rcl-ca",
@@ -469,7 +477,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "alecjutras-com",
@@ -483,7 +492,8 @@
     "sectors": [
       "Construction générale"
     ],
-    "enabled": false
+    "enabled": false,
+    "verified": true
   },
   {
     "id": "alertefissure-qc-ca",
@@ -497,7 +507,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "aliconstruction-com",
@@ -527,7 +538,8 @@
       "Génie civil",
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "alignementbeaudoin-com",
@@ -569,7 +581,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "alphacombustion-ca",
@@ -582,7 +596,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "alphatsi-com",
@@ -595,7 +610,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "lyspavage-com",
@@ -608,7 +624,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Génie civil"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "altanconstruction-com",
@@ -621,7 +639,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "toituresjlp-ca",
@@ -634,7 +653,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "altitudetoiture-ca",
@@ -662,7 +683,8 @@
     "sectors": [
       "Construction générale"
     ],
-    "enabled": false
+    "enabled": false,
+    "verified": true
   },
   {
     "id": "bilex-ca",
@@ -676,7 +698,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "paysagistegaiaart-com",
@@ -691,7 +714,9 @@
       "Aménagement paysager",
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "amenagementgrenon-com",
@@ -705,7 +730,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupelambert-ca",
@@ -718,7 +744,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "industrielami-com",
@@ -731,7 +758,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "amrize-com",
@@ -743,7 +772,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "andrebouvet-com",
@@ -756,7 +787,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "aubinpelissier-com",
@@ -770,7 +802,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "arpd-ca",
@@ -784,7 +817,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "anten-ca",
@@ -797,7 +831,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "alturaimmobilier-ca",
@@ -811,7 +846,9 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "appalachesexcavation-com",
@@ -824,7 +861,8 @@
     "scope": "Employeur — excavation / génie civil (découverte RBQ)",
     "sectors": [
       "Génie civil"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "aquatecplombier-ca",
@@ -837,7 +875,9 @@
     "scope": "Employeur — mécanique du bâtiment (découverte RBQ)",
     "sectors": [
       "Plomberie et chauffage"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "ardecconstruction-com",
@@ -864,13 +904,14 @@
     "scope": "Employeur — menuiserie / ébénisterie (découverte RBQ)",
     "sectors": [
       "Charpente et menuiserie"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "arno-qc-ca",
     "name": "Arno Électrique ltée",
     "homepage": "https://arno.qc.ca",
-    "careersUrl": "https://arno.qc.ca/offres-demploi",
+    "careersUrl": "https://arno.qc.ca/carrieres",
     "method": "html",
     "region": "Mauricie",
     "rbq": "1166-6229-23",
@@ -879,7 +920,8 @@
       "Électricité",
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupegtg-ca",
@@ -892,7 +934,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "boreal-ag-com",
@@ -905,7 +949,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "artefactconstruction-com",
@@ -919,14 +965,15 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "arteliagroup-com",
     "name": "Artelia Canada inc.",
     "homepage": "https://www.arteliagroup.com",
-    "careersUrl": "https://careers.smartrecruiters.com/oneclick-ui",
-    "method": "smartrecruiters",
+    "careersUrl": "https://careers.arteliagroup.com/canada-fr/jobs?page=1&size=480",
+    "method": "html",
     "region": "Montréal",
     "rbq": "5771-0592-01",
     "scope": "Employeur — construction (découverte RBQ)",
@@ -952,13 +999,14 @@
     "id": "asbex-net",
     "name": "Asbex Ltd",
     "homepage": "https://asbex.net",
-    "careersUrl": "https://asbexltd.bamboohr.com",
-    "method": "bamboohr",
+    "careersUrl": "https://asbex.net/fr/careers/",
+    "method": "html",
     "rbq": "8000-7321-50",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "ascenseursabsolu-com",
@@ -1026,7 +1074,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "athenaconstruction-ca",
@@ -1053,7 +1102,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Résidentiel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "atkinsrealis-com",
@@ -1079,7 +1129,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Maçonnerie"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "atlas-apex-com",
@@ -1121,7 +1172,8 @@
       "Génie civil",
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "aurelecote-com",
@@ -1134,7 +1186,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "automationdamours-com",
@@ -1147,7 +1200,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "automationdrummond-com",
@@ -1199,7 +1253,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "avantage-plus-com",
@@ -1239,7 +1294,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "aximconstruction-com",
@@ -1253,7 +1309,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "bbpenergies-ca",
@@ -1282,21 +1339,23 @@
     "sectors": [
       "Électricité",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "balvent-com",
     "name": "Balvent inc.",
     "homepage": "https://www.balvent.com",
-    "careersUrl": "https://www.jobillico.com/recherche-emploi?skwd=balvent&scty=&icty=0&ipc=0&sil=&sjdpl=&sdl=&imc1=0&imc2=0&flat=0&flng=0&mfil=40&ipg=1&clr=1",
-    "method": "html",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/balvent-inc-.zMxkZe/voir-liste-emplois",
+    "method": "jobillico",
     "region": "Capitale-Nationale",
     "rbq": "1464-6731-96",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "barabeconstruction-com",
@@ -1310,7 +1369,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "bardeaux-ca",
@@ -1350,7 +1410,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "barnard-inc-com",
@@ -1376,7 +1438,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "qmb-ca",
@@ -1445,7 +1508,9 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "baulne-ca",
@@ -1473,7 +1538,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "bcelectrique-com",
@@ -1513,7 +1579,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "beaucinox-com",
@@ -1526,7 +1593,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "beaudetsaucier-com",
@@ -1540,7 +1608,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "beauvais-verret-com",
@@ -1553,7 +1622,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "bellaluminium-com",
@@ -1567,7 +1637,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "bellemare-co",
@@ -1580,13 +1651,15 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Toiture"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "groupebellemare-com",
     "name": "Bellemare Manutention inc.",
     "homepage": "https://www.groupebellemare.com",
-    "careersUrl": "https://www.groupebellemare.com/nous-joindre/",
+    "careersUrl": "https://bellemare.njoyn.com/cl3/xweb/Xweb.asp?tbtoken=Zl9bShtYDVBzYQZ5QlVSYU9OBGZcaVVdel1MIl8ND3lbW0sYL0odBhZ9cDcYGhBRTXJsF3Y%3D&chk=ZVpaShM%3D&page=joblisting&CLID=53428&lang=2",
     "method": "html",
     "region": "Mauricie",
     "rbq": "5824-9970-01",
@@ -1634,7 +1707,8 @@
       "Électricité",
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "desautelselectrique-com",
@@ -1647,7 +1721,8 @@
     "scope": "Employeur — entrepreneur électricien (découverte RBQ)",
     "sectors": [
       "Électricité"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "bertrandostiguy-ca",
@@ -1674,7 +1749,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Aménagement paysager"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "betexconstruction-ca",
@@ -1866,7 +1942,9 @@
     "sectors": [
       "Béton et structure",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "betonprovincial-com",
@@ -1881,7 +1959,8 @@
       "Béton et structure",
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "betonsurface-ca",
@@ -1909,20 +1988,22 @@
     "sectors": [
       "Béton et structure",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "betonchevalier-com",
-    "name": "Betonchevalier",
+    "name": "Béton Chevalier",
     "homepage": "https://betonchevalier.com",
-    "careersUrl": "https://betonchevalier.com/fr/#emplois",
-    "method": "html",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-chevalier/voir-liste-emplois",
+    "method": "jobillico",
     "region": "Capitale-Nationale",
     "rbq": "5765-3511-01",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "bgm-qc-ca",
@@ -1935,7 +2016,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "binetteventilation-ca",
@@ -1948,7 +2030,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Ventilation et réfrigération"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "blanchettepeinture-ca",
@@ -1974,7 +2058,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "boisclairetfils-ca",
@@ -1987,7 +2072,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "boisdaction-com",
@@ -2000,7 +2087,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "mouluresnova-com",
@@ -2014,7 +2102,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "boismassifquebec-com",
@@ -2040,7 +2129,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "boless-com",
@@ -2086,14 +2176,15 @@
     "id": "boucherlortie-com",
     "name": "Boucher Lortie inc.",
     "homepage": "https://boucherlortie.com",
-    "careersUrl": "https://boucherlortie.com/carriere/",
+    "careersUrl": "https://boucherlortie.com/emploi/",
     "method": "html",
     "region": "Capitale-Nationale",
     "rbq": "8308-8633-05",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "fenplast-com",
@@ -2182,7 +2273,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "brclimatisation-com",
@@ -2287,7 +2380,9 @@
     "scope": "Employeur — mécanique du bâtiment (découverte RBQ)",
     "sectors": [
       "Ventilation et réfrigération"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "emblm-com",
@@ -2313,7 +2408,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "cproulxexcavation-com",
@@ -2366,7 +2462,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "cammecanique-com",
@@ -2433,7 +2530,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "can-inspec-ca",
@@ -2460,7 +2558,9 @@
     "sectors": [
       "Commercial et institutionnel",
       "Résidentiel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "canam-com",
@@ -2486,7 +2586,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "capexcavation-com",
@@ -2610,7 +2711,8 @@
     "sectors": [
       "Commercial et institutionnel",
       "Résidentiel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "verticalsolutions-ca",
@@ -2686,14 +2788,16 @@
     "id": "ventilation-ncv-com",
     "name": "Centre de ventilation N.C.V. inc.",
     "homepage": "https://www.ventilation-ncv.com",
-    "careersUrl": "https://www.quebec.ca/emploi/perfectionner/gagner-experience/obtenir-certificat-metier-non-reglemente/apprentissage-milieu-travail",
+    "careersUrl": "https://www.ventilation-ncv.com/emplois",
     "method": "html",
     "region": "Capitale-Nationale",
     "rbq": "8109-4518-48",
     "scope": "Employeur — mécanique du bâtiment (découverte RBQ)",
     "sectors": [
       "Ventilation et réfrigération"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "centrecharpentier-com",
@@ -2814,7 +2918,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "cafortier-com",
@@ -2827,7 +2932,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "chauffagemc-com",
@@ -3000,7 +3106,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "zero-c-com",
@@ -3197,7 +3304,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "clovex-net",
@@ -3504,7 +3612,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "cfnicolaspotvin-com",
@@ -3681,7 +3790,8 @@
     "sectors": [
       "Toiture",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "constructionampro-ca",
@@ -3747,7 +3857,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "cb4s-com",
@@ -3863,8 +3974,8 @@
     "id": "constructioncitadelle-com",
     "name": "Construction Citadelle inc.",
     "homepage": "https://constructioncitadelle.com",
-    "careersUrl": "https://constructioncitadelle.com/entreprise/carriere-postes-disponibles/",
-    "method": "html",
+    "careersUrl": "https://constructioncitadelle.com/entreprise/carriere-postes-disponibles",
+    "method": "jsonld",
     "region": "Capitale-Nationale",
     "rbq": "2165-8570-83",
     "scope": "Employeur — construction (découverte RBQ)",
@@ -3984,7 +4095,7 @@
     "id": "cpboisvert-com",
     "name": "Construction Et Pavage Boisvert inc.",
     "homepage": "https://www.cpboisvert.com",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/construction-et-pavage-boisvert-incmXfzPk",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-et-pavage-boisvert-incmXfzPk/voir-liste-emplois",
     "method": "jobillico",
     "region": "Mauricie",
     "rbq": "5601-8161-01",
@@ -3993,13 +4104,14 @@
       "Génie civil",
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "cppinc-ca",
     "name": "Construction et Pavage Portneuf inc.",
     "homepage": "https://www.jobillico.com/fr/employeurs/construction-pavage-portneuf-inc-eBlqIn/voir-liste-emplois",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/construction-pavage-portneuf-inc-eBlqIn",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-pavage-portneuf-inc-eBlqIn/voir-liste-emplois",
     "method": "jobillico",
     "region": "Capitale-Nationale",
     "rbq": "2735-7771-57",
@@ -4050,7 +4162,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "g-nesis-ca",
@@ -4350,7 +4463,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "hudl-ca",
@@ -4408,7 +4522,7 @@
   },
   {
     "id": "droletconstruction-com",
-    "name": "Construction Marc Drolet inc.",
+    "name": "Drolet Construction",
     "homepage": "https://www.droletconstruction.com",
     "careersUrl": "https://www.droletconstruction.com/carrieres",
     "method": "html",
@@ -4418,7 +4532,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "constructionmada-ca",
@@ -4445,7 +4560,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "monco-dev",
@@ -4552,7 +4668,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "constructionpbm-com",
@@ -4702,7 +4819,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "germanoconstruction-com",
@@ -4852,7 +4971,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "thermicanique-ca",
@@ -5096,7 +5216,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupemetalbaie-ca",
@@ -5137,7 +5258,9 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "constructionsplacogypse-com",
@@ -5368,7 +5491,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Toiture"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "couverturesfp-com",
@@ -5546,7 +5671,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "creopeinture-ca",
@@ -5586,7 +5712,9 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "csmelectrique-com",
@@ -5599,7 +5727,9 @@
     "scope": "Employeur — entrepreneur électricien (découverte RBQ)",
     "sectors": [
       "Électricité"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "cti-isolation-com",
@@ -5680,7 +5810,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "cytechcorbin-com",
@@ -5748,20 +5879,22 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "darwinse-com",
     "name": "Darwin Solutions Énergétiques Inc.",
     "homepage": "https://www.darwinse.com",
     "careersUrl": "https://www.darwinse.com/carri%C3%A8res",
-    "method": "jsonld",
+    "method": "html",
     "region": "Capitale-Nationale",
     "rbq": "5857-7735-01",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "dbloc-ca",
@@ -5800,7 +5933,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "decarel-com",
@@ -5938,7 +6073,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "vallex-ca",
@@ -5990,7 +6126,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "derko-ca",
@@ -6003,7 +6140,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "derrigtalbot-com",
@@ -6043,7 +6181,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "electropeintre-ca",
@@ -6096,7 +6235,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "briviagroup-ca",
@@ -6152,7 +6292,9 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "dilfo-com",
@@ -6273,7 +6415,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "domoprestige-com",
@@ -6353,7 +6496,9 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "ducrorobichaud-com",
@@ -6366,7 +6511,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "dupras-com",
@@ -6643,7 +6789,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupevermeren-com",
@@ -6656,7 +6803,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "ecocuisinedesign-com",
@@ -6721,7 +6869,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "eglconstruction-ca",
@@ -6748,7 +6898,8 @@
       "Électricité",
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "eki-ca",
@@ -6776,7 +6927,8 @@
     "scope": "Employeur — entrepreneur électricien (découverte RBQ)",
     "sectors": [
       "Électricité"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "electro1983-com",
@@ -6916,7 +7068,7 @@
   },
   {
     "id": "enduitcanada-com",
-    "name": "Enduit Canada",
+    "name": "B2R",
     "homepage": "https://b2r.ca",
     "careersUrl": "https://b2r.ca/carrieres/",
     "method": "html",
@@ -6925,7 +7077,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupelml-ca",
@@ -7018,7 +7171,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "amenagex-com",
@@ -7032,7 +7186,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "courtval-com",
@@ -7045,7 +7200,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "gikar-ca",
@@ -7238,7 +7394,7 @@
     "id": "entreprisesgnp-com",
     "name": "Entreprises G.N.P. inc.",
     "homepage": "https://www.entreprisesgnp.com",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/entreprises-gnp-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/entreprises-gnp-inc/voir-liste-emplois",
     "method": "jobillico",
     "region": "Centre-du-Québec",
     "rbq": "1510-8137-48",
@@ -7246,7 +7402,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "imotion-ca",
@@ -7285,7 +7442,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "prestige-construction-ca",
@@ -7351,7 +7510,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "entretienscomoc-com",
@@ -7364,7 +7524,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "enviroconfort-com",
@@ -7470,7 +7631,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "equipementslzx-com",
@@ -7497,7 +7659,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "escaliermtl-ca",
@@ -7563,7 +7726,9 @@
     "scope": "Employeur — excavation / génie civil (découverte RBQ)",
     "sectors": [
       "Génie civil"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "excavationbergedac-com",
@@ -7607,7 +7772,8 @@
       "Génie civil",
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "civilpro-ca",
@@ -7676,7 +7842,8 @@
     "sectors": [
       "Génie civil",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupeecono-com",
@@ -7997,7 +8164,9 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "excparentclova-com",
@@ -8279,7 +8448,7 @@
   },
   {
     "id": "bsl-qc-ca",
-    "name": "Excavations FRT",
+    "name": "BSL",
     "homepage": "https://bsl.qc.ca",
     "careersUrl": "https://bsl.qc.ca/carrieres/",
     "method": "html",
@@ -8289,7 +8458,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "excavationsgal-com",
@@ -8344,7 +8514,8 @@
     "sectors": [
       "Génie civil",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "excst-cesaire-com",
@@ -8441,7 +8612,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "faxerosion-ca",
@@ -8468,7 +8640,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "fectoelectrique-com",
@@ -8536,7 +8709,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupeforgex-com",
@@ -8550,7 +8724,8 @@
     "sectors": [
       "Commercial et institutionnel"
     ],
-    "enabled": false
+    "enabled": false,
+    "verified": true
   },
   {
     "id": "ferblanterieeroy-ca",
@@ -8643,7 +8818,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "betoninnovatech-com",
@@ -8946,7 +9122,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "glmecanique-ca",
@@ -8960,20 +9137,22 @@
     "sectors": [
       "Plomberie et chauffage",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "glr-qc-ca",
     "name": "G.L.R. inc.",
     "homepage": "https://glrinc.ca",
-    "careersUrl": "https://ebcinc.zohorecruit.com/jobs/Careers",
-    "method": "zoho",
+    "careersUrl": "https://glrinc.ca/en/carrieres/#trouvez",
+    "method": "html",
     "region": "Capitale-Nationale",
     "rbq": "2347-5114-55",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "gmeelectrique-com",
@@ -8986,7 +9165,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "gtlpaysagiste-ca",
@@ -9005,14 +9186,15 @@
     "id": "gtek-ca",
     "name": "G.Tek",
     "homepage": "https://www.gtek.ca",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/g-tekcmitdf?lshs=ba4edc8f6fe3c8538a107dc9a412040d45b3471ca2da23967b4bbca1b4acdd97&ipg=1&lijn=15291532&lijp=25760233&lirk=1&lids=0&lisp=0&liet=8",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/g-tekcmitdf/voir-liste-emplois",
     "method": "jobillico",
     "region": "Laval",
     "rbq": "8107-2902-04",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "gabrielmiller-ca",
@@ -9026,7 +9208,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "vanierexcavation-com",
@@ -9120,7 +9303,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "gfpaysagiste-com",
@@ -9238,7 +9422,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "mgbassocies-com",
@@ -9398,7 +9583,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "omnisol-ca",
@@ -9472,7 +9659,7 @@
     "id": "stellaireconstruction-com",
     "name": "Gestion E.S.C. inc.",
     "homepage": "https://stellaireconstruction.com",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/stellaire-construction.yQgdGi",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/stellaire-construction.yQgdGi/voir-liste-emplois",
     "method": "jobillico",
     "region": "Capitale-Nationale",
     "rbq": "2948-3963-46",
@@ -9480,7 +9667,8 @@
     "sectors": [
       "Commercial et institutionnel",
       "Résidentiel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "blanchetteservices-ca",
@@ -9560,7 +9748,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "entreprisesbenoitdion-com",
@@ -9587,7 +9776,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "mallette-ca",
@@ -9600,7 +9791,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "fenomax-com",
@@ -9713,14 +9906,15 @@
     "id": "arpentage-com",
     "name": "Giroux ConstruXion inc.",
     "homepage": "https://www.arpentage.com",
-    "careersUrl": "https://www.arpentage.com/carrieres/",
+    "careersUrl": "https://jobs.glowinthecloud.com/arpentage",
     "method": "html",
     "region": "Capitale-Nationale",
     "rbq": "5818-2908-01",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "glea-ca",
@@ -9800,7 +9994,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "grandmont-ca",
@@ -9928,14 +10123,15 @@
     "id": "aspec-ca",
     "name": "Groupe Aspec inc.",
     "homepage": "https://aspec.ca",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/groupe-aspec",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-aspec/voir-liste-emplois",
     "method": "jobillico",
     "region": "Chaudière-Appalaches",
     "rbq": "8232-2785-18",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupebatir-com",
@@ -9989,7 +10185,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "gr-laganiere-com",
@@ -10107,7 +10305,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupedcr-com",
@@ -10174,7 +10373,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupeecobrick-com",
@@ -10294,7 +10494,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupegeotech-ca",
@@ -10368,14 +10569,15 @@
     "id": "industriecbm-com",
     "name": "Groupe Industrie CBM inc.",
     "homepage": "https://www.industriecbm.com",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/industrie-cbm.gWzcKj",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/industrie-cbm.gWzcKj/voir-liste-emplois",
     "method": "jobillico",
     "region": "Centre-du-Québec",
     "rbq": "2537-0610-89",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupeindustrielpremium-com",
@@ -10443,7 +10645,9 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "serviceslogic-ca",
@@ -10456,7 +10660,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupem2l-ca",
@@ -10495,7 +10700,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "marcillaud-ca",
@@ -10701,7 +10907,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "grouperelief-ca",
@@ -10714,7 +10921,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "grouperesq-com",
@@ -10781,7 +10989,9 @@
     "sectors": [
       "Ventilation et réfrigération",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "gsalarma-ca",
@@ -10808,7 +11018,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupehelios-com",
@@ -10900,7 +11111,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "groupegemco-ca",
@@ -10967,7 +11180,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "groupegsm-ca",
@@ -10981,7 +11195,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "guay-com",
@@ -10994,7 +11209,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "rioux-ca",
@@ -11014,14 +11230,15 @@
     "id": "hamelpropane-com",
     "name": "Hamel Propane inc.",
     "homepage": "https://hamelpropane.com",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/hamel-propane",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/hamel-propane/voir-liste-emplois",
     "method": "jobillico",
     "region": "Centre-du-Québec",
     "rbq": "5846-3167-01",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "hardy-construction-ca",
@@ -11126,7 +11343,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "huardexcavation-com",
@@ -11355,7 +11573,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "industriebillette-com",
@@ -11504,7 +11723,7 @@
     "id": "interprojet-ca",
     "name": "Interprojet",
     "homepage": "https://www.interprojet.ca",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/inter-projet-concept-paysage",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/inter-projet-concept-paysage/voir-liste-emplois",
     "method": "jobillico",
     "region": "Saguenay--Lac-Saint-Jean",
     "rbq": "5867-9580-01",
@@ -11512,7 +11731,8 @@
     "sectors": [
       "Commercial et institutionnel",
       "Résidentiel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "isofor-ca",
@@ -11927,7 +12147,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "klimfax-ca",
@@ -12009,14 +12230,15 @@
     "id": "lsmav-com",
     "name": "L. S. M. Son & Lumières inc.",
     "homepage": "https://lsmav.com",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/lsm-ambiocreateurskNzfGh",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/lsm-son-lumieres/voir-liste-emplois",
     "method": "jobillico",
     "region": "Capitale-Nationale",
     "rbq": "8005-1725-78",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "lahebert-ca",
@@ -12216,7 +12438,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "ccdc-qc-ca",
@@ -12270,7 +12493,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "lab7construction-com",
@@ -12283,7 +12507,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "lerinc-ca",
@@ -12481,7 +12707,8 @@
       "Plomberie et chauffage",
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "laureatpepin-ca",
@@ -12521,7 +12748,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "lavytechelectrique-com",
@@ -12594,15 +12822,16 @@
     "id": "jenaco-com",
     "name": "Le groupe Jenaco inc.",
     "homepage": "https://jenaco.com",
-    "careersUrl": "https://jenaco.com/fr/carrieres",
-    "method": "html",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/le-groupe-jenaco/voir-liste-emplois",
+    "method": "jobillico",
     "region": "Montérégie",
     "rbq": "5621-0891-01",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "lamestpierre-com",
@@ -12846,7 +13075,8 @@
     "scope": "Employeur — aménagement paysager (découverte RBQ)",
     "sectors": [
       "Aménagement paysager"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "sema-ca",
@@ -12955,7 +13185,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "coffragelaurentien-ca",
@@ -13089,7 +13321,9 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "lalondebelisle-com",
@@ -13117,7 +13351,9 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "constructionsldm-com",
@@ -13173,7 +13409,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "scandinaves-ca",
@@ -13349,7 +13586,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "alfredboivin-com",
@@ -13707,7 +13945,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "entjchabot-com",
@@ -13721,7 +13961,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "jslauzon-com",
@@ -13734,7 +13975,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "entreprisesjsdr-com",
@@ -13860,15 +14102,16 @@
     "id": "michaudville-com",
     "name": "Les Entreprises Michaudville inc.",
     "homepage": "https://www.michaudville.com",
-    "careersUrl": "https://www.michaudville.com/emplois",
-    "method": "html",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-entreprises-michaudville-inc-.rsyiil/voir-liste-emplois",
+    "method": "jobillico",
     "region": "Montérégie",
     "rbq": "1504-5727-24",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "morencyelectrique-com",
@@ -14220,7 +14463,8 @@
     "sectors": [
       "Construction générale"
     ],
-    "enabled": false
+    "enabled": false,
+    "verified": true
   },
   {
     "id": "lesfeuillagesduquebec-ca",
@@ -14313,7 +14557,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "maisonsbonneville-com",
@@ -14379,7 +14624,9 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "bousada-com",
@@ -14643,7 +14890,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "marcmarine-ca",
@@ -14709,7 +14957,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "multiporte-ca",
@@ -14929,7 +15178,9 @@
     "sectors": [
       "Toiture",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "toituresmartinlafleur-com",
@@ -14957,7 +15208,8 @@
     "sectors": [
       "Toiture",
       "Résidentiel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "tole-bec-com",
@@ -14985,7 +15237,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "lesageexcavation-com",
@@ -15085,14 +15339,15 @@
     "id": "logis-experts-com",
     "name": "Logis-Experts inc.",
     "homepage": "https://logis-experts.com",
-    "careersUrl": "https://logis-experts.com/emplois",
-    "method": "html",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/logis-experts/voir-liste-emplois",
+    "method": "jobillico",
     "region": "Capitale-Nationale",
     "rbq": "5712-1477-01",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "logisbourg-com",
@@ -15106,7 +15361,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "loiselle-ca",
@@ -15985,7 +16241,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Génie civil"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "mcmel-ca",
@@ -16280,7 +16538,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "metrotecpgb-com",
@@ -16345,7 +16604,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Plomberie et chauffage"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "michelgamache-com",
@@ -16358,7 +16618,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "michelguimont-com",
@@ -16864,7 +17125,7 @@
     "id": "nocr-ca",
     "name": "NOCR inc.",
     "homepage": "https://groupenoc.com",
-    "careersUrl": "https://groupenoc.com/carriere/",
+    "careersUrl": "https://groupenoc.com/carriere/#postes-disponibles",
     "method": "html",
     "region": "Laval",
     "rbq": "5817-5688-01",
@@ -16933,14 +17194,15 @@
     "id": "nordex-ca",
     "name": "Nordex",
     "homepage": "https://www.nordex.ca",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/nordex",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/nordex/voir-liste-emplois",
     "method": "jobillico",
     "region": "Saguenay--Lac-Saint-Jean",
     "rbq": "2259-9542-73",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "nordexco-com",
@@ -17076,7 +17338,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "omnifab-ca",
@@ -17162,14 +17425,15 @@
     "id": "osloconstruction-com",
     "name": "Oslo construction inc.",
     "homepage": "https://osloconstruction.com",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/oslo-construction-inc.zQxtVs",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/oslo-construction-inc.zQxtVs/voir-liste-emplois",
     "method": "jobillico",
     "region": "Lanaudière",
     "rbq": "8282-9060-43",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "otis-com",
@@ -17257,7 +17521,7 @@
     "id": "plcinc-ca",
     "name": "P.L.C. Inc",
     "homepage": "https://plcinc.ca",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/plc-inc.uYyoXp/477",
+    "careersUrl": "https://www.jobillico.com/voir-entreprise/plc-inc.uYyoXp/477/voir-liste-emplois",
     "method": "jobillico",
     "region": "Abitibi-Témiscamingue",
     "rbq": "5604-3268-01",
@@ -17265,7 +17529,9 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "groupepaco-com",
@@ -17759,7 +18025,7 @@
   },
   {
     "id": "diamantex-ca",
-    "name": "Perforoc inc.",
+    "name": "Diamantex",
     "homepage": "https://diamantex.ca",
     "careersUrl": "https://diamantex.ca/fr/emploi.html",
     "method": "html",
@@ -17769,7 +18035,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "permaroute-ca",
@@ -17840,7 +18107,7 @@
     "id": "groupepgs-ca",
     "name": "PGS experts inc.",
     "homepage": "https://www.groupepgs.ca",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/pgs-experts-inc-et-pgs-industriel-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/pgs-experts-inc-et-pgs-industriel-inc/voir-liste-emplois",
     "method": "jobillico",
     "region": "Saguenay--Lac-Saint-Jean",
     "rbq": "5599-4859-01",
@@ -17848,7 +18115,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "philiasblais-com",
@@ -17874,7 +18142,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "phoenixinc-ca",
@@ -17907,7 +18176,7 @@
     "id": "pierrenaud-com",
     "name": "Pierre Naud inc.",
     "homepage": "https://pierrenaud.com",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/bmr-pierre-naud",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/bmr-pierre-naud/voir-liste-emplois",
     "method": "jobillico",
     "region": "Mauricie",
     "rbq": "8225-6819-02",
@@ -17916,7 +18185,8 @@
       "Maçonnerie",
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "ppmec-ca",
@@ -17995,7 +18265,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "plan-a-ca",
@@ -18514,7 +18785,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "pcarch-ca",
@@ -18546,7 +18818,7 @@
     "id": "pffusion-com",
     "name": "Portes et fenêtres Fusion inc.",
     "homepage": "https://pffusion.com",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/portes-et-fenetres-fusion-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/portes-et-fenetres-fusion-inc/voir-liste-emplois",
     "method": "jobillico",
     "region": "Saguenay--Lac-Saint-Jean",
     "rbq": "5766-1746-01",
@@ -18554,7 +18826,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "constructionpraxis-ca",
@@ -18580,7 +18853,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "premaconstruction-com",
@@ -18654,14 +18929,15 @@
     "id": "safetyfirst-int-com",
     "name": "Prévention-Incendie Safety First Inc.",
     "homepage": "https://safetyfirst-int.com",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/prevention-incendie-safety-first-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/prevention-incendie-safety-first-inc/voir-liste-emplois",
     "method": "jobillico",
     "region": "Montérégie",
     "rbq": "1506-9834-15",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "ventilationscair-ca",
@@ -18858,14 +19134,15 @@
     "id": "propanegrg-com",
     "name": "Propane G.R.G. Inc.",
     "homepage": "https://propanegrg.com",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/propane-grg-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/propane-grg-inc/voir-liste-emplois",
     "method": "jobillico",
     "region": "Chaudière-Appalaches",
     "rbq": "8244-1924-52",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "prostationnement-com",
@@ -18948,14 +19225,15 @@
     "id": "incendieunik-ca",
     "name": "Protection Incendie Unik inc.",
     "homepage": "https://www.incendieunik.ca",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/protection-incendie-unik-inc?lshs=96fb09efe124b6a5d67dde4cd0de45864996b552589430882e6fcb096371de8b&ipg=1&lijn=15782069&lijp=26541164&lirk=-1&lids=1&lisp=1&liet=4",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/protection-incendie-unik-inc/voir-liste-emplois96371de8b&ipg=1&lijn=15782069&lijp=26541164&lirk=-1&lids=1&lisp=1&liet=4",
     "method": "jobillico",
     "region": "Chaudière-Appalaches",
     "rbq": "5602-5711-01",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "polygon-ca",
@@ -19083,14 +19361,15 @@
     "id": "quirionmetal-com",
     "name": "Quirion Métal Inc.",
     "homepage": "https://www.quirionmetal.com",
-    "careersUrl": "https://www.quirionmetal.com/carriere",
-    "method": "html",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/quirion-metaleyysaj/voir-liste-emplois",
+    "method": "jobillico",
     "region": "Chaudière-Appalaches",
     "rbq": "1221-7162-39",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "rglegault-com",
@@ -19177,7 +19456,7 @@
     "id": "rampesavantgarde-com",
     "name": "Rampes Avant-Garde inc.",
     "homepage": "https://www.rampesavantgarde.com",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/rampes-avant-garde",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/rampes-avant-garde/voir-liste-emplois",
     "method": "jobillico",
     "region": "Capitale-Nationale",
     "rbq": "5695-1098-01",
@@ -19185,7 +19464,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "rangementplus-com",
@@ -19641,7 +19921,7 @@
     "name": "Revenco inc.",
     "homepage": "https://revenco.ca",
     "careersUrl": "https://revenco.ca/carrieres-domaine-electricite/",
-    "method": "jsonld",
+    "method": "html",
     "region": "Capitale-Nationale",
     "rbq": "2638-3265-40",
     "scope": "Employeur — construction (découverte RBQ)",
@@ -20078,7 +20358,7 @@
     "name": "Sanfaçon Design inc.",
     "homepage": "https://sanfacondesign.ca",
     "careersUrl": "https://sanfacondesign.ca/emploi/",
-    "method": "jsonld",
+    "method": "html",
     "region": "Capitale-Nationale",
     "rbq": "2549-0129-03",
     "scope": "Employeur — construction (découverte RBQ)",
@@ -20595,14 +20875,15 @@
     "id": "kalitec-com",
     "name": "Signalisation Kalitec inc.",
     "homepage": "https://kalitec.com",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/signalisation-kalitec-inc-",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/signalisation-kalitec-inc-/voir-liste-emplois",
     "method": "jobillico",
     "region": "Laval",
     "rbq": "8005-5767-29",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "signatureap-com",
@@ -20662,14 +20943,15 @@
     "id": "silojmlambert-com",
     "name": "Silo J.M. Lambert inc.",
     "homepage": "https://www.silojmlambert.com",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/silo-jm-lambert-inc-equipement-lambert",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/silo-jm-lambert-inc-equipement-lambert/voir-liste-emplois",
     "method": "jobillico",
     "region": "Centre-du-Québec",
     "rbq": "5632-0468-01",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "silvacouvreurs-com",
@@ -20715,14 +20997,15 @@
     "id": "smlinox-com",
     "name": "SML Inox inc.",
     "homepage": "https://smlinox.com",
-    "careersUrl": "https://www.jobillico.com/voir-entreprise/sml-inox",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/sml-inox/voir-liste-emplois",
     "method": "jobillico",
     "region": "Capitale-Nationale",
     "rbq": "2390-2042-76",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "hydroquebec-com",
@@ -20884,7 +21167,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "solutionsresidentielles-com",
@@ -21527,7 +21811,8 @@
     "sectors": [
       "Résidentiel",
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "techxpert-ca",
@@ -21553,7 +21838,8 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Construction générale"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "tegsig-ca",
@@ -21624,14 +21910,15 @@
     "id": "tem-entrepreneur-ca",
     "name": "TEM Entrepreneur Général",
     "homepage": "https://tem-entrepreneur.ca",
-    "careersUrl": "https://tem-entrepreneur.ca/emplois",
-    "method": "html",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/tem-entrepreneur-general/voir-liste-emplois",
+    "method": "jobillico",
     "region": "Abitibi-Témiscamingue",
     "rbq": "8247-9791-34",
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true
   },
   {
     "id": "terexcavationgrant-com",
@@ -23021,7 +23308,9 @@
     "scope": "Employeur — construction (découverte RBQ)",
     "sectors": [
       "Commercial et institutionnel"
-    ]
+    ],
+    "verified": true,
+    "enabled": false
   },
   {
     "id": "vallieresasphalte-com",
@@ -23761,6 +24050,3332 @@
     "scope": "Employeur — réfractaire et maçonnerie industrielle",
     "sectors": [
       "Maçonnerie"
+    ]
+  },
+  {
+    "id": "Connx",
+    "name": "Conn-X",
+    "homepage": "https://www.conn-x.ca/",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/conn-x/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Terrebonne",
+    "scope": "Ajout Manuel",
+    "sectors": [
+      "Commercial et institutionnel"
+    ],
+    "verified": true
+  },
+  {
+    "id": "Legault-Dubois-inc.pSxsEq",
+    "name": "Legault-Dubois inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/Legault-Dubois-inc.pSxsEq",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/Legault-Dubois-inc.pSxsEq/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montérégie",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "acier-trimax",
+    "name": "Acier Trimax",
+    "homepage": "https://www.jobillico.com/voir-entreprise/acier-trimax",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/acier-trimax/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "2624-2768-63",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "action-estimation-inc",
+    "name": "Action Estimation inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/action-estimation-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/action-estimation-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "5753-6492-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "action-progex-inc",
+    "name": "Action Progex inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/action-progex-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/action-progex-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "5623-6391-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "aecon-group-inc",
+    "name": "Aecon Group Inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/aecon-group-inciIqaDm",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/aecon-group-inciIqaDm/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8357-1695-57",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "allen-entrepreneur-general-inc",
+    "name": "Allen Entrepreneur Général inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/allen-entrepreneur-general-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/allen-entrepreneur-general-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "2427-6784-61",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "altar-construction",
+    "name": "Altar Construction",
+    "homepage": "https://www.jobillico.com/voir-entreprise/altar-construction",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/altar-construction/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5637-1024-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "american-structures",
+    "name": "AmeriCan Structures",
+    "homepage": "https://www.jobillico.com/voir-entreprise/american-structures",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/american-structures/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "armature-du-st-laurent-inc",
+    "name": "Armature du St-Laurent inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/armature-du-st-laurent-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/armature-du-st-laurent-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5831-7934-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "art-dem-demolition-inc",
+    "name": "ART-DÉM démolition inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/art-dem-demolition-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/art-dem-demolition-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "art-massif-structure-de-bois",
+    "name": "Art Massif Structure de bois",
+    "homepage": "https://www.jobillico.com/voir-entreprise/art-massif-structure-de-bois",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/art-massif-structure-de-bois/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5615-1673-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "atelier-d-usinage-qualitech",
+    "name": "Atelier D'Usinage Qualitech",
+    "homepage": "https://www.jobillico.com/voir-entreprise/atelier-d-usinage-qualitechdFcdWx",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/atelier-d-usinage-qualitechdFcdWx/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "athom",
+    "name": "ATHOM.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/athom",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/athom/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Mauricie",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "avicor-construction.tKilVy",
+    "name": "Avicor Construction",
+    "homepage": "https://www.jobillico.com/voir-entreprise/avicor-construction.tKilVy",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/avicor-construction.tKilVy/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "baillargeon-msa",
+    "name": "Baillargeon - MSA",
+    "homepage": "https://www.jobillico.com/voir-entreprise/baillargeon-msa",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/baillargeon-msa/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montérégie",
+    "rbq": "1641-2587-14",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "barrette-et-fils-ltee",
+    "name": "Barrette et Fils ltée",
+    "homepage": "https://www.jobillico.com/voir-entreprise/barrette-et-fils-ltee",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/barrette-et-fils-ltee/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay",
+    "rbq": "8006-9578-09",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "batitech",
+    "name": "Batitech",
+    "homepage": "https://www.jobillico.com/voir-entreprise/batitech",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/batitech/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8324-3329-47",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "beaux-parterres-laurentiens",
+    "name": "Beaux Parterres Laurentiens",
+    "homepage": "https://www.jobillico.com/voir-entreprise/beaux-parterres-laurentiens",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/beaux-parterres-laurentiens/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "8329-7903-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "ben-air-fils-inc",
+    "name": "Ben-Air & Fils inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/ben-air-fils-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/ben-air-fils-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Laurentides",
+    "rbq": "8277-4837-44",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "beton-adammLgoUp",
+    "name": "Béton Adam",
+    "homepage": "https://www.jobillico.com/voir-entreprise/beton-adammLgoUp",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-adammLgoUp/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8319-8317-52",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "beton-chevalier",
+    "name": "Béton Chevalier",
+    "homepage": "https://www.jobillico.com/voir-entreprise/beton-chevalier",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-chevalier/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "enabled": false
+  },
+  {
+    "id": "beton-dagenais",
+    "name": "Béton Dagenais",
+    "homepage": "https://www.jobillico.com/voir-entreprise/beton-dagenais",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-dagenais/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Laval",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "beton-dunbrick-inc",
+    "name": "Béton Dunbrick inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/beton-dunbrick-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-dunbrick-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "beton-hebert-inc",
+    "name": "Béton Hébert inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/beton-hebert-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-hebert-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5710-8862-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "beton-prefabrique-fortier",
+    "name": "Béton Préfabriqué Fortier",
+    "homepage": "https://www.jobillico.com/voir-entreprise/beton-prefabrique-fortieraknbiv",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-prefabrique-fortieraknbiv/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "beton-surface-ouest-de-l-ile",
+    "name": "Béton Surface - Ouest-de-l’Île",
+    "homepage": "https://www.jobillico.com/voir-entreprise/beton-surface-ouest-de-l-ile",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-surface-ouest-de-l-ile/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "rbq": "5788-9859-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "betonnieres-d-arvida",
+    "name": "Bétonnières d’Arvida",
+    "homepage": "https://www.jobillico.com/voir-entreprise/betonnieres-d-arvida",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/betonnieres-d-arvida/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "rbq": "5651-3971-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "betonnieres-du-golfe",
+    "name": "Bétonnières du Golfe",
+    "homepage": "https://www.jobillico.com/voir-entreprise/betonnieres-du-golfe",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/betonnieres-du-golfe/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "blais-industries",
+    "name": "Blais Industries",
+    "homepage": "https://www.jobillico.com/voir-entreprise/blais-industries",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/blais-industries/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Abitibi-Témiscamingue",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "blocs-normand-inc",
+    "name": "Blocs Normand inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/blocs-normand-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/blocs-normand-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "borea-construction",
+    "name": "Borea Construction",
+    "homepage": "https://www.jobillico.com/voir-entreprise/borea-construction",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/borea-construction/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "8337-7853-18",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "bpdl-inc-beton-prefabrique-du-lac",
+    "name": "BPDL inc. - Béton préfabriqué du Lac",
+    "homepage": "https://www.jobillico.com/voir-entreprise/bpdl--beton-prefabrique-du-lac",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/bpdl--beton-prefabrique-du-lac/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "breton-revetements-metalliques-inc",
+    "name": "Breton Revêtements Métalliques inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/breton-revetements-metalliques-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/breton-revetements-metalliques-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "camax-2002-inc",
+    "name": "Camax 2002 inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/camax-2002-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/camax-2002-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "8316-6405-21",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "carrelages-de-montreal-ltee.rCtlSn",
+    "name": "Carrelages de Montréal ltée",
+    "homepage": "https://www.jobillico.com/voir-entreprise/carrelages-de-montreal-ltee.rCtlSn",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/carrelages-de-montreal-ltee.rCtlSn/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montérégie",
+    "rbq": "8282-9292-46",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "carriere-mont-saint-hilaire-inc",
+    "name": "Carrière Mont-Saint-Hilaire inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/carriere-mont-saint-hilaire-inc-iNspPj",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/carriere-mont-saint-hilaire-inc-iNspPj/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "carrieres-quebec-inc",
+    "name": "Carrières Québec inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/carrieres-quebec-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/carrieres-quebec-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "cczwcc",
+    "name": "Groupe Pylium",
+    "homepage": "https://www.jobillico.com/voir-entreprise/cczwcc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/cczwcc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "centrem-inc-alma",
+    "name": "Centrem inc. Alma",
+    "homepage": "https://www.jobillico.com/voir-entreprise/centrem-inc-alma",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/centrem-inc-alma/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "chantier-davie-canada-inc",
+    "name": "Chantier Davie Canada inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/chantier-davie-canada-inc-mmxwau",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/chantier-davie-canada-inc-mmxwau/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "5636-4979-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "charles-auguste-fortier-inc-caf",
+    "name": "Charles-Auguste Fortier Inc. - CAF",
+    "homepage": "https://www.jobillico.com/voir-entreprise/charles-auguste-fortier-inc-caf",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/charles-auguste-fortier-inc-caf/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "1356-0438-61",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "chevron-royal-inc",
+    "name": "Chevron Royal inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/chevron-royal-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/chevron-royal-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Estrie",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "ciment-quebec-inc",
+    "name": "Ciment Québec inc.",
+    "homepage": "http://cimentquebec.com/?lang=fr",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/ciment-quebec-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Québec",
+    "rbq": "1188-5837-00",
+    "scope": "Ajout Manuel",
+    "sectors": [
+      "Béton et structure"
+    ],
+    "verified": true
+  },
+  {
+    "id": "ciment-st-marys-usine-mcinnis",
+    "name": "Ciment St Marys, Usine McInnis",
+    "homepage": "https://www.jobillico.com/voir-entreprise/ciment-st-marys-usine-mcinnis",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/ciment-st-marys-usine-mcinnis/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "climactif-inc",
+    "name": "Climactif inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/climactif-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/climactif-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Laurentides",
+    "rbq": "5788-8315-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "climatisation-jimmy-chasse-inc",
+    "name": "Climatisation Jimmy Chassé inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/climatisation-jimmy-chasse-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/climatisation-jimmy-chasse-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montérégie",
+    "rbq": "5751-6056-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "cms-entrepreneurs-generaux",
+    "name": "CMS Entrepreneurs Généraux",
+    "homepage": "https://www.jobillico.com/voir-entreprise/cms-entrepreneurs-generaux",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/cms-entrepreneurs-generaux/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "coffrage-ld.bTtgVv",
+    "name": "Coffrage LD",
+    "homepage": "https://www.jobillico.com/voir-entreprise/coffrage-ld.bTtgVv",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/coffrage-ld.bTtgVv/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "coffrage-santco",
+    "name": "Coffrage Santco",
+    "homepage": "https://www.jobillico.com/voir-entreprise/coffrage-santco.qVwoVd",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/coffrage-santco.qVwoVd/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8313-5913-21",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "coffrage-vervilleiefltc",
+    "name": "Coffrage Verville",
+    "homepage": "https://www.jobillico.com/voir-entreprise/coffrage-vervilleiefltc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/coffrage-vervilleiefltc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "8316-1182-51",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "coffrages-regis-levesque-inc",
+    "name": "Coffrages Régis Lévesque inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/coffrages-regis-levesque-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/coffrages-regis-levesque-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8344-7847-09",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "coffrex-construction",
+    "name": "Coffrex Construction",
+    "homepage": "https://www.jobillico.com/voir-entreprise/coffrex-construction",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/coffrex-construction/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Estrie",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "colas-quebec",
+    "name": "Colas Québec",
+    "homepage": "https://www.jobillico.com/voir-entreprise/colas-quebec",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/colas-quebec/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "8006-9552-07",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "confort-expert-incmPktUm",
+    "name": "Confort Expert inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/confort-expert-incmPktUm",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/confort-expert-incmPktUm/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "rbq": "2756-4988-08",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "constrobourg",
+    "name": "Constrobourg",
+    "homepage": "https://www.jobillico.com/voir-entreprise/constrobourg",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/constrobourg/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "8103-5354-11",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "construction-3b-r-inc-9429-1945-qc-inc",
+    "name": "Construction 3B&R inc. (9429 1945 QC INC.)",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-3b-r-inc-9429-1945-qc-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-3b-r-inc-9429-1945-qc-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "construction-albert-inc",
+    "name": "Construction Albert inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-albert-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-albert-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Bas-Saint-Laurent",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "construction-daniel-emondnsslwd",
+    "name": "Construction Daniel Emond",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-daniel-emondnsslwd",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-daniel-emondnsslwd/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8309-9572-18",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "construction-des-hauteurs",
+    "name": "Construction des Hauteurs",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-des-hauteurs",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-des-hauteurs/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Laurentides",
+    "rbq": "5771-9650-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "construction-dinamo-inc.nLyoEu",
+    "name": "Construction Dinamo inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-dinamo-inc.nLyoEu",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-dinamo-inc.nLyoEu/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "2428-4515-14",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "construction-gely-inc",
+    "name": "Construction Gély inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-gely-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-gely-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "1337-2230-33",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "construction-geratek-ltee",
+    "name": "Construction Gératek ltée",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-geratek-ltee",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-geratek-ltee/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Estrie",
+    "rbq": "1840-6165-64",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "construction-guy-ricard-inckYlsGd",
+    "name": "Construction Guy Ricard inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-guy-ricard-inckYlsGd",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-guy-ricard-inckYlsGd/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "2642-4796-88",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "construction-hebert-hebert-inc",
+    "name": "Construction Hébert & Hébert inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-hebert-hebert-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-hebert-hebert-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "2861-5078-85",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "construction-jr-savard",
+    "name": "Construction JR Savard",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-jr-savard",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-jr-savard/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "construction-l-grenier-inc-iacqav",
+    "name": "Construction L. Grenier inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-l-grenier-inc-iacqav",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-l-grenier-inc-iacqav/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "1365-7366-05",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "construction-lfg-inc",
+    "name": "Construction LFG inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-lfg-inc-rdwles",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-lfg-inc-rdwles/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "construction-mahikan-inc",
+    "name": "Construction Mahikan inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-mahikan-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-mahikan-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5763-2051-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "construction-modulor-inc",
+    "name": "Construction Modulor inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-modulor-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-modulor-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "rbq": "5766-5820-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "construction-pascal-lanoue-incjiezch",
+    "name": "Construction Pascal Lanoue inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-pascal-lanoue-incjiezch",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-pascal-lanoue-incjiezch/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "rbq": "8314-8940-09",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "construction-pls",
+    "name": "Construction PLS",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-pls",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-pls/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5804-3563-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "construction-polaris-cmm-inc",
+    "name": "Construction Polaris CMM Inc",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-polaris-cmm-incbwvaqg",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-polaris-cmm-incbwvaqg/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "5759-6900-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "construction-renovation-distinction-inc",
+    "name": "Construction Rénovation Distinction inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-renovation-distinction-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-renovation-distinction-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "5705-2623-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "construction-st-arnaud-inc",
+    "name": "Construction St-Arnaud inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-st-arnaud-inc-.mGxdNs",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-st-arnaud-inc-.mGxdNs/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "2321-1642-52",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "construction-vincent",
+    "name": "Construction Vincent",
+    "homepage": "https://www.jobillico.com/voir-entreprise/construction-vincent",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/construction-vincent/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Estrie",
+    "rbq": "5624-4494-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "constructions-jean-grondin-inc",
+    "name": "Constructions Jean Grondin inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/constructions-jean-grondin-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/constructions-jean-grondin-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "constructions-pepin-et-fortin-inc-victoriaville",
+    "name": "Constructions Pépin et Fortin inc. - Victoriaville",
+    "homepage": "https://www.jobillico.com/voir-entreprise/constructions-pepin-et-fortin-inc-victoriaville",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/constructions-pepin-et-fortin-inc-victoriaville/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "1476-7891-80",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "conteneurs-pbt-inc",
+    "name": "Conteneurs PBT Inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/conteneurs-pbt-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/conteneurs-pbt-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "contracta",
+    "name": "Contracta",
+    "homepage": "https://www.jobillico.com/voir-entreprise/contracta",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/contracta/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "5707-5517-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "corner-cast-inc",
+    "name": "Corner Cast inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/corner-cast-inc-.mLanMr",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/corner-cast-inc-.mLanMr/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "cote-expert-en-mecanique-du-batiment",
+    "name": "Côté Expert en mécanique du bâtiment",
+    "homepage": "https://www.jobillico.com/voir-entreprise/cote-expert-en-mecanique-du-batiment",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/cote-expert-en-mecanique-du-batiment/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Laurentides",
+    "rbq": "5739-0965-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "crt-construction-inc",
+    "name": "CRT Construction inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/crt-construction-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/crt-construction-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "2737-4404-42",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "cuisines-laurier-inc",
+    "name": "Cuisines Laurier inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/cuisines-laurier-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/cuisines-laurier-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "2671-9286-44",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "darocha-webster-paysages",
+    "name": "DaRocha Webster Paysages",
+    "homepage": "https://www.jobillico.com/voir-entreprise/darocha-webster-paysages",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/darocha-webster-paysages/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "rbq": "5756-2746-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "decor-nature-inc-.aJugXb",
+    "name": "Décor Nature inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/decor-nature-inc-.aJugXb",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/decor-nature-inc-.aJugXb/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "demolition-excavation-demex-inc",
+    "name": "Démolition Excavation Démex inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/demolition-excavation-demex-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/demolition-excavation-demex-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "rbq": "2430-0162-08",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "denis-lavoie-et-fils-ltee",
+    "name": "Denis Lavoie et Fils ltée",
+    "homepage": "https://www.jobillico.com/voir-entreprise/denis-lavoie-et-fils-ltee",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/denis-lavoie-et-fils-ltee/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "1356-6112-85",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "dexter-quebec-inc",
+    "name": "Dexter Québec inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/dexter-quebec-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/dexter-quebec-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5609-8130-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "dj-revetement",
+    "name": "DJ Revêtement",
+    "homepage": "https://www.jobillico.com/voir-entreprise/dj-revetement",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/dj-revetement/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Centre-du-Québec",
+    "rbq": "5826-2973-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "drainage-epl-lazure",
+    "name": "Drainage Epl Lazure",
+    "homepage": "https://www.jobillico.com/voir-entreprise/drainage-epl-lazure",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/drainage-epl-lazure/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montérégie",
+    "rbq": "2731-5167-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "drainage-st-celestin-inckMyhRr",
+    "name": "Drainage St-Célestin inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/drainage-st-celestin-inckMyhRr",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/drainage-st-celestin-inckMyhRr/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "2428-2394-95",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "dube",
+    "name": "Dubé",
+    "homepage": "https://www.jobillico.com/voir-entreprise/dube",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/dube/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Abitibi-Témiscamingue",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "dutran",
+    "name": "DUTRAN",
+    "homepage": "https://www.jobillico.com/voir-entreprise/dutran",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/dutran/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "5788-0536-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "ebenisterie-audet-inc",
+    "name": "Ébénisterie Audet inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/ebenisterie-audet-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/ebenisterie-audet-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "8361-4008-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "ebenisterie-chambois",
+    "name": "Ébénisterie Chambois",
+    "homepage": "https://www.jobillico.com/voir-entreprise/ebenisterie-chambois",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/ebenisterie-chambois/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "echafaudage-industriel-inc",
+    "name": "Échafaudage Industriel inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/echafaudage-industriel-inc-.lQjyKx",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/echafaudage-industriel-inc-.lQjyKx/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "rbq": "5596-3623-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "ecolopeintres",
+    "name": "Écolopeintres",
+    "homepage": "https://www.jobillico.com/voir-entreprise/ecolopeintres",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/ecolopeintres/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "8280-6563-00",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "elecso",
+    "name": "Elecso",
+    "homepage": "https://www.jobillico.com/voir-entreprise/elecso",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/elecso/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montérégie",
+    "rbq": "8328-1758-21",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "elite-toiture",
+    "name": "Elite Toiture",
+    "homepage": "https://www.jobillico.com/voir-entreprise/elite-toiture",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/elite-toiture/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "enair-controle",
+    "name": "Enair Contrôle",
+    "homepage": "https://www.jobillico.com/voir-entreprise/enair-controle",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/enair-controle/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "5633-5532-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "entrepot-pelletier-deco-surfacescLayZi",
+    "name": "Entrepôt Pelletier Déco Surfaces",
+    "homepage": "https://www.jobillico.com/voir-entreprise/entrepot-pelletier-deco-surfacescLayZi",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/entrepot-pelletier-deco-surfacescLayZi/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "estimatek-estimation-et-service-conseil-inc",
+    "name": "Estimatek Estimation et Service Conseil inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/estimatek-estimation-et-service-conseil-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/estimatek-estimation-et-service-conseil-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Lanaudière",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "evolution-structures",
+    "name": "Évolution Structures",
+    "homepage": "https://www.jobillico.com/voir-entreprise/evolution-structures",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/evolution-structures/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Laurentides",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "excavation-alain-lemay-inc",
+    "name": "Excavation Alain Lemay inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/excavation-alain-lemay-inc.qSddAg",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/excavation-alain-lemay-inc.qSddAg/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5875-7097-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "excavation-construction-lr-inc",
+    "name": "Excavation construction LR inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/excavation-construction-lr-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/excavation-construction-lr-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "excavation-de-chicoutimi-inc",
+    "name": "Excavation de Chicoutimi inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/excavation-de-chicoutimi-inc-.xIyxBo",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/excavation-de-chicoutimi-inc-.xIyxBo/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "rbq": "1246-0754-21",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "excavation-jonda-inc",
+    "name": "Excavation Jonda inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/excavation-jonda-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/excavation-jonda-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5709-2280-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "excavation-lmr-inc",
+    "name": "Excavation LMR inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/excavation-lmr-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/excavation-lmr-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "excavation-rimouski-deneigement-nc",
+    "name": "Excavation Rimouski (Déneigement Nc)",
+    "homepage": "https://www.jobillico.com/voir-entreprise/excavation-rimouski-deneigement-nc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/excavation-rimouski-deneigement-nc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Bas-Saint-Laurent",
+    "rbq": "5685-1801-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "excavations-darche-inc",
+    "name": "Excavations Darche inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/excavations-darche-inc-.oNhoGe",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/excavations-darche-inc-.oNhoGe/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8004-3128-19",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "excavations-g-larouche-inc-.jRviGh",
+    "name": "Excavations G. Larouche inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/excavations-g-larouche-inc-.jRviGh",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/excavations-g-larouche-inc-.jRviGh/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "rbq": "2158-6730-02",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "fa-construction",
+    "name": "FA Construction",
+    "homepage": "https://www.jobillico.com/voir-entreprise/fa-construction",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/fa-construction/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Outaouais",
+    "rbq": "5753-1170-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "fabeltafJaqTb",
+    "name": "Fabelta",
+    "homepage": "https://www.jobillico.com/voir-entreprise/fabeltafJaqTb",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/fabeltafJaqTb/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Lanaudière",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "fabrication-amr-inc",
+    "name": "Fabrication AMR inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/fabrication-amr-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/fabrication-amr-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8361-0634-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "fayolle-canada",
+    "name": "Fayolle Canada",
+    "homepage": "https://www.jobillico.com/voir-entreprise/fayolle-canada",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/fayolle-canada/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "fc-geosynthetiques-inc",
+    "name": "FC Géosynthétiques inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/fc-geosynthetiques-incbRpjVb",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/fc-geosynthetiques-incbRpjVb/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "5770-9727-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "finar-batiments-d-acier",
+    "name": "FINAR Bâtiments d'acier",
+    "homepage": "https://www.jobillico.com/voir-entreprise/finar-batiments-dacier-",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/finar-batiments-dacier-/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "fma-services-construction",
+    "name": "FMA Services Construction",
+    "homepage": "https://www.jobillico.com/voir-entreprise/fma-services-construction",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/fma-services-construction/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "fmd-excavation",
+    "name": "FMD Excavation",
+    "homepage": "https://www.jobillico.com/voir-entreprise/fmd-excavation",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/fmd-excavation/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Estrie",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "frigon-electrique.gTxgZj",
+    "name": "Frigon Électrique",
+    "homepage": "https://www.jobillico.com/voir-entreprise/frigon-electrique.gTxgZj",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/frigon-electrique.gTxgZj/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "garage-prefab-une-division-de-les-cabanons-modern",
+    "name": "Garage Préfab, une division de Les Cabanons Modernes inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/garage-prefab-une-division-de-les-cabanons-modern",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/garage-prefab-une-division-de-les-cabanons-modern/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "garages-et-cabanons-domtec-inc",
+    "name": "Garages et Cabanons Domtec inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/garages-et-cabanons-domtec-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/garages-et-cabanons-domtec-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "gaston-ouellette-fils",
+    "name": "Gaston Ouellette & Fils",
+    "homepage": "https://www.jobillico.com/voir-entreprise/gaston-ouellette-fils",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/gaston-ouellette-fils/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "rbq": "1118-2904-98",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "gestion-gabriel-gagnon",
+    "name": "Gestion Gabriel Gagnon",
+    "homepage": "https://www.jobillico.com/voir-entreprise/gestion-gabriel-gagnon",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/gestion-gabriel-gagnon/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5617-3479-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "gestions-n-a-carrier",
+    "name": "Gestions N.A. Carrier",
+    "homepage": "https://www.jobillico.com/voir-entreprise/gestions-n-a-carrier",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/gestions-n-a-carrier/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "2166-3935-26",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "giroux-lessard-ltee-qjcjwy",
+    "name": "Giroux & Lessard ltée",
+    "homepage": "https://www.jobillico.com/voir-entreprise/giroux-lessard-ltee-qjcjwy",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/giroux-lessard-ltee-qjcjwy/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "1174-8217-40",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "goliathtech-inc",
+    "name": "GoliathTech inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/goliathtech-inc.lOkqDi",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/goliathtech-inc.lOkqDi/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5687-1247-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "graham-construction",
+    "name": "Graham Construction",
+    "homepage": "https://www.jobillico.com/voir-entreprise/graham-constructionkXwuMx",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/graham-constructionkXwuMx/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5861-4801-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "grillo-construction-inc",
+    "name": "Grillo Construction Inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/grillo-construction-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/grillo-construction-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "rbq": "5607-8074-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "groupe-arno",
+    "name": "Groupe ARNO",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-arno",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-arno/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Mauricie",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "groupe-deric",
+    "name": "Groupe Deric",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-deric",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-deric/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "groupe-desrochers-montpetit-gdm-entrepreneur-gener",
+    "name": "Groupe Desrochers Montpetit (GDM) Entrepreneur Général",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-desrochers-montpetit-gdm-entrepreneur-gener",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-desrochers-montpetit-gdm-entrepreneur-gener/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Estrie",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "groupe-diamantex",
+    "name": "Groupe Diamantex",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-diamantex.zWpaYb",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-diamantex.zWpaYb/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8320-4909-12",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "groupe-enixum-inc",
+    "name": "Groupe Enixum inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-enixum-inc-.yUytVg",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-enixum-inc-.yUytVg/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montérégie",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "groupe-forgex",
+    "name": "Groupe Forgex",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-forgex",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-forgex/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montérégie",
+    "rbq": "5681-6606-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "groupe-gagne-construction-inc-hvxufg",
+    "name": "Groupe Gagné Construction inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-gagne-construction-inc-hvxufg",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-gagne-construction-inc-hvxufg/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8294-0909-11",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "groupe-gestion-confort-inc",
+    "name": "Groupe Gestion Confort inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-gestion-confort-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-gestion-confort-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montérégie",
+    "rbq": "5857-4096-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "groupe-gilbert",
+    "name": "Groupe Gilbert",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-gilbert",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-gilbert/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "groupe-gnb-services-inc.bHplAy",
+    "name": "Groupe GNB Services inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-gnb-services-inc.bHplAy",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-gnb-services-inc.bHplAy/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5595-4010-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "groupe-lapalme",
+    "name": "Groupe Lapalme",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-lapalme",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-lapalme/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Estrie",
+    "rbq": "1465-4057-38",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "groupe-lefebvre-inc",
+    "name": "Groupe Lefebvre inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-lefebvre-inc-heogly",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-lefebvre-inc-heogly/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "groupe-noel-inc",
+    "name": "Groupe Noël inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-noel-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-noel-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "5748-0766-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "groupe-pro-fab-inc-1",
+    "name": "Groupe Pro-Fab inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-pro-fab-inc-1",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-pro-fab-inc-1/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8000-4872-09",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "groupe-riverin",
+    "name": "Groupe Riverin",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-riverin",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-riverin/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "groupe-riverin-maritime-inc",
+    "name": "Groupe Riverin Maritime inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-riverin-maritime-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-riverin-maritime-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "groupe-scv-inclqnnna",
+    "name": "SCV Enercor inc",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-scv-inclqnnna",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-scv-inclqnnna/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "rbq": "5581-3083-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "groupe-sm-tardif",
+    "name": "Groupe SM Tardif",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-sm-tardifcapefg",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-sm-tardifcapefg/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "groupe-soresto-trois-rivieres",
+    "name": "Groupe Soresto - Trois-Rivières",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-soresto-trois-rivieres",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-soresto-trois-rivieres/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Mauricie",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "groupe-vat-incmMkgCk",
+    "name": "Groupe V.A.T. inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-vat-incmMkgCk",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-vat-incmMkgCk/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "8294-1352-21",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "groupe-vermeren",
+    "name": "Groupe Vermeren",
+    "homepage": "https://www.jobillico.com/voir-entreprise/groupe-vermeren",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/groupe-vermeren/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "5703-2047-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "habitat-construction-jeakgj",
+    "name": "Habitat Construction",
+    "homepage": "https://www.jobillico.com/voir-entreprise/habitat-construction-jeakgj",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/habitat-construction-jeakgj/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Bas-Saint-Laurent",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "humaco",
+    "name": "Humaco",
+    "homepage": "https://www.jobillico.com/voir-entreprise/humaco",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/humaco/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "innovation-amerik-division-matane-s-e-n-c",
+    "name": "Innovation Amerik division Matane s.e.n.c.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/innovation-amerik-division-matane-s-e-n-c",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/innovation-amerik-division-matane-s-e-n-c/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Bas-Saint-Laurent",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "itc-technologies-inc",
+    "name": "ITC Technologies inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/itc-technologies-inc-.fCqsKh",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/itc-technologies-inc-.fCqsKh/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "j-n-a-leblanc-electrique-inc",
+    "name": "J.N.A. Leblanc Électrique inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/j-n-a-leblanc-electrique-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/j-n-a-leblanc-electrique-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Lanaudière",
+    "rbq": "2532-3312-20",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "jc-drolet-excavation-inc",
+    "name": "JC Drolet Excavation inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/jc-drolet-excavation-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/jc-drolet-excavation-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "kone-canada",
+    "name": "KONE Canada",
+    "homepage": "https://www.jobillico.com/voir-entreprise/kone-canada",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/kone-canada/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "kvn-fabrication-d-acier",
+    "name": "KVN fabrication d’acier",
+    "homepage": "https://www.jobillico.com/voir-entreprise/kvn-fabrication-d-acier",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/kvn-fabrication-d-acier/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "kyo-construction-design",
+    "name": "KYO Construction & Design",
+    "homepage": "https://www.jobillico.com/voir-entreprise/kyo-construction-design",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/kyo-construction-design/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "l4-construction-inc",
+    "name": "L4 Construction inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/l4-construction-incgPqmGp",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/l4-construction-incgPqmGp/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5762-8232-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "la-charpenterie-inc.aDykFm",
+    "name": "La Charpenterie inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/la-charpenterie-inc.aDykFm",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/la-charpenterie-inc.aDykFm/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "la-societe-elite-ltee",
+    "name": "La Société Élite Ltée",
+    "homepage": "https://www.jobillico.com/voir-entreprise/la-societe-elite-ltee",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/la-societe-elite-ltee/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "rbq": "1125-0511-88",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "le-groupe-construction-drumco-inc",
+    "name": "Le Groupe Construction Drumco Inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/le-groupe-construction-drumco-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/le-groupe-construction-drumco-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Centre-du-Québec",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "le-maitre-constructeur-st-jacques-inc-.uCefEe",
+    "name": "Le Maître Constructeur St-Jacques inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/le-maitre-constructeur-st-jacques-inc-.uCefEe",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/le-maitre-constructeur-st-jacques-inc-.uCefEe/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "2637-7432-92",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "ledcor",
+    "name": "Ledcor",
+    "homepage": "https://www.jobillico.com/voir-entreprise/ledcor",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/ledcor/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "legd-inc",
+    "name": "LEGD inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/legd-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/legd-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8331-7917-02",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "les-aciers-solider-inc",
+    "name": "Les Aciers Solider inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-aciers-solider-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-aciers-solider-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Centre-du-Québec",
+    "rbq": "2322-4447-10",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "les-cabanons-modernes-inc",
+    "name": "Les Cabanons Modernes inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-cabanons-modernes-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-cabanons-modernes-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "8272-5706-38",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "les-concasses-du-cap-inc.gVhnDw",
+    "name": "Les Concassés du Cap inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-concasses-du-cap-inc.gVhnDw",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-concasses-du-cap-inc.gVhnDw/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "2164-1964-99",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "les-constructions-edguy-inc",
+    "name": "Les Constructions Edguy inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-constructions-edguy-incnEtbIq",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-constructions-edguy-incnEtbIq/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "1255-6403-85",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "les-constructions-gmp-inc",
+    "name": "Les Constructions GMP inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-constructions-gmp-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-constructions-gmp-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montérégie",
+    "rbq": "5697-7853-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "les-distributions-styro-inc",
+    "name": "Les distributions Styro inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-distributions-styro-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-distributions-styro-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "1642-6496-59",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "les-entreprises-c-sauve-inc",
+    "name": "Les Entreprises C. Sauvé inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-entreprises-c-sauve-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-entreprises-c-sauve-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "1366-2648-28",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "les-entreprises-electriques-pwrline",
+    "name": "Les Entreprises Électriques PWRLINE",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-entreprises-electriques-pwrline",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-entreprises-electriques-pwrline/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "les-entreprises-genereux",
+    "name": "LES ENTREPRISES GÉNÉREUX",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-entreprises-genereux",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-entreprises-genereux/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "2319-0937-43",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "les-entreprises-gilbert-cloutier-inc",
+    "name": "Les Entreprises Gilbert Cloutier inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-entreprises-gilbert-cloutier-inc-.xFykCn",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-entreprises-gilbert-cloutier-inc-.xFykCn/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "2431-7091-30",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "les-entreprises-quebechab-ltee",
+    "name": "Les Entreprises QuébecHaB ltée",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-entreprises-quebechab-ltee",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-entreprises-quebechab-ltee/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "1725-1984-49",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "les-entreprises-steeve-couture-inc",
+    "name": "Les Entreprises Steeve Couture inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-entreprises-steeve-couture-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-entreprises-steeve-couture-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "2618-0521-98",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "les-escaliers-de-beauce-inc",
+    "name": "Les Escaliers de Beauce inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-escaliers-de-beauce-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-escaliers-de-beauce-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "2972-4960-21",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "les-excavations-g-allard-inc",
+    "name": "Les Excavations G. Allard inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-excavations-g-allard-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-excavations-g-allard-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "1365-4363-94",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "les-fondations-andre-lemaire-2012-inc",
+    "name": "Les fondations André Lemaire 2012 inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-fondations-andre-lemaire-2012-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-fondations-andre-lemaire-2012-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5650-4921-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "les-gouttieres-boivin-inc",
+    "name": "Les Gouttières Boivin inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-gouttieres-boivin-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-gouttieres-boivin-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "les-industries-perform-air-inc",
+    "name": "Les Industries Perform Air inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-industries-perform-air-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-industries-perform-air-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montérégie",
+    "rbq": "2950-2010-00",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "les-installations-electriques-r.-theberg.bWixTo",
+    "name": "Les Installations Électriques R. Théberge inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-installations-electriques-r.-theberg.bWixTo",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-installations-electriques-r.-theberg.bWixTo/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "2549-6522-52",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "les-maisons-du-saint-laurent",
+    "name": "Les Maisons du Saint-Laurent",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-maisons-du-saint-laurent",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-maisons-du-saint-laurent/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "5591-7785-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "les-peintres-urbains",
+    "name": "Les peintres Urbains",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-peintres-urbains",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-peintres-urbains/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "rbq": "5870-9833-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "les-produits-de-ciment-sherbrooke-ltee",
+    "name": "Les Produits de Ciment Sherbrooke ltée",
+    "homepage": "https://www.jobillico.com/voir-entreprise/les-produits-de-ciment-sherbrooke-ltee.sHroFt",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/les-produits-de-ciment-sherbrooke-ltee.sHroFt/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Estrie",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "lumipro-service-d-eclairage",
+    "name": "Lumipro Service d'Éclairage",
+    "homepage": "https://www.jobillico.com/voir-entreprise/lumipro-service-d-eclairage",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/lumipro-service-d-eclairage/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "maconnerie-desrosiers-de-l-estrie-inc-dekzhn",
+    "name": "Maçonnerie Desrosiers de l'Estrie inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/maconnerie-desrosiers-de-l-estrie-inc-dekzhn",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/maconnerie-desrosiers-de-l-estrie-inc-dekzhn/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Estrie",
+    "rbq": "8005-0537-59",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "maconnerie-smart-inc",
+    "name": "Maçonnerie Smart inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/maconnerie-smart-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/maconnerie-smart-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Laval",
+    "rbq": "8357-5977-38",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "magil-construction",
+    "name": "Magil Construction",
+    "homepage": "https://www.magil.com/fr",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/magil-constructionhtmmdy/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "rbq": "8114-6706-49",
+    "scope": "Ajout Manuel",
+    "sectors": [
+      "Commercial et institutionnel",
+      "Résidentiel",
+      "Industriel"
+    ],
+    "verified": true
+  },
+  {
+    "id": "maison-du-prelart-inc",
+    "name": "Maison du Prélart inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/maison-du-prelart-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/maison-du-prelart-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8275-3666-05",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "maisons-mcg",
+    "name": "Maisons MCG",
+    "homepage": "https://www.jobillico.com/voir-entreprise/maisons-mcg",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/maisons-mcg/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "5775-7304-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "malo-bernard-malo-inc",
+    "name": "MALO - Bernard Malo inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/malo-bernard-malo-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/malo-bernard-malo-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Lanaudière",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "maple-reinders.bSnqOn",
+    "name": "Maple Reinders",
+    "homepage": "https://www.jobillico.com/voir-entreprise/maple-reinders.bSnqOn",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/maple-reinders.bSnqOn/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true,
+    "enabled": false
+  },
+  {
+    "id": "maxi-drain.fFjzAz",
+    "name": "Maxi-Drain",
+    "homepage": "https://www.jobillico.com/voir-entreprise/maxi-drain.fFjzAz",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/maxi-drain.fFjzAz/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "mecanitec",
+    "name": "Mécanitec",
+    "homepage": "https://www.jobillico.com/voir-entreprise/mecanitec",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/mecanitec/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Mauricie",
+    "rbq": "8328-8076-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "metalunic",
+    "name": "Métalunic",
+    "homepage": "https://www.jobillico.com/voir-entreprise/metalunic",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/metalunic/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "mofax-electrique-lteefedssb",
+    "name": "Mofax Électrique ltée",
+    "homepage": "https://www.jobillico.com/voir-entreprise/mofax-electrique-lteefedssb",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/mofax-electrique-lteefedssb/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Laval",
+    "rbq": "1117-5635-79",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "moreau",
+    "name": "Moreau",
+    "homepage": "https://www.jobillico.com/voir-entreprise/moreau-industries",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/moreau-industries/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Abitibi-Témiscamingue",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "moreau-prs.zMnqSq",
+    "name": "Moreau PRS",
+    "homepage": "https://www.jobillico.com/voir-entreprise/moreau-prs.zMnqSq",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/moreau-prs.zMnqSq/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "moulures-alnordica",
+    "name": "Moulures Alnordica",
+    "homepage": "https://www.jobillico.com/voir-entreprise/moulures-alnordica",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/moulures-alnordica/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "mp-solutions-inc",
+    "name": "MP Solutions Inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/mp-solutions-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/mp-solutions-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Abitibi-Témiscamingue",
+    "rbq": "1478-5471-52",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "multi-soudures-bsl",
+    "name": "Multi-Soudures BSL",
+    "homepage": "https://www.jobillico.com/voir-entreprise/multi-soudures-bsl",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/multi-soudures-bsl/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Bas-Saint-Laurent",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "nexfab",
+    "name": "Nexfab",
+    "homepage": "https://www.jobillico.com/voir-entreprise/nexfab",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/nexfab/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "nmp",
+    "name": "Nmp",
+    "homepage": "https://www.jobillico.com/voir-entreprise/nmp",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/nmp/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "nouvelle-autoroute-30-s-e-n-c",
+    "name": "Nouvelle Autoroute 30 S.E.N.C",
+    "homepage": "https://www.jobillico.com/voir-entreprise/nouvelle-autoroute-30-s-e-n-c",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/nouvelle-autoroute-30-s-e-n-c/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montérégie",
+    "rbq": "5653-2666-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "nova-construction-jwejdu",
+    "name": "Nova Construction",
+    "homepage": "https://www.jobillico.com/voir-entreprise/nova-construction-jwejdu",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/nova-construction-jwejdu/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "8269-9539-23",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "novaplex-construction-inc",
+    "name": "Novaplex construction inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/novaplex-construction-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/novaplex-construction-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5857-1324-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "oikos-construction",
+    "name": "OÏKOS Construction",
+    "homepage": "https://www.jobillico.com/voir-entreprise/oikos-construction",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/oikos-construction/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "paul-davis-laurentides.kOoaJj",
+    "name": "Paul Davis Laurentides",
+    "homepage": "https://www.jobillico.com/voir-entreprise/paul-davis-laurentides.kOoaJj",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/paul-davis-laurentides.kOoaJj/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8357-2453-57",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "pavage-sartigan-ltee",
+    "name": "Pavage Sartigan ltée",
+    "homepage": "https://www.jobillico.com/voir-entreprise/pavage-sartigan-ltee.fIinTj",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/pavage-sartigan-ltee.fIinTj/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "8282-4301-05",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "pavages-d-amour-inc",
+    "name": "Pavages D'Amour inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/pavages-d-amour-inc-.yTxoLh",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/pavages-d-amour-inc-.yTxoLh/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "1637-2559-98",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "pelletier-deco-surfaces-quebec",
+    "name": "Pelletier Déco Surfaces - Québec",
+    "homepage": "https://www.jobillico.com/voir-entreprise/pelletier-deco-surfaces-quebec",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/pelletier-deco-surfaces-quebec/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "3105-4232-60",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "pelomix-inc",
+    "name": "Pélomix inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/pelomix-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/pelomix-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "pierre-boily-electrique-inc-.mKyrMx",
+    "name": "Pierre Boily Électrique inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/pierre-boily-electrique-inc-.mKyrMx",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/pierre-boily-electrique-inc-.mKyrMx/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "2966-5080-22",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "produits-boreal.uImsYb",
+    "name": "Produits Boréal",
+    "homepage": "https://www.jobillico.com/voir-entreprise/produits-boreal.uImsYb",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/produits-boreal.uImsYb/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "protection-incendie-ideal-inc-laval",
+    "name": "Protection Incendie Idéal inc. - Laval",
+    "homepage": "https://www.jobillico.com/voir-entreprise/protection-incendie-ideal-inc-laval",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/protection-incendie-ideal-inc-laval/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Laval",
+    "rbq": "2955-6875-53",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "qualite-construction-cdn-ltee.pLteBv",
+    "name": "Qualité Construction (CDN) ltée",
+    "homepage": "https://www.jobillico.com/voir-entreprise/qualite-construction-cdn-ltee.pLteBv",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/qualite-construction-cdn-ltee.pLteBv/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "raoul-beaulieu-inc",
+    "name": "Raoul Beaulieu Inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/raoul-beaulieu-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/raoul-beaulieu-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "1156-8672-58",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "rcm-modulaire-inc",
+    "name": "RCM Modulaire inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/rcm-modulaire-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/rcm-modulaire-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8275-3625-37",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "richard-levesque-cuisines-salles-de-bain",
+    "name": "Richard & Levesque Cuisines Salles de Bain",
+    "homepage": "https://www.jobillico.com/voir-entreprise/richard-levesque-cuisines-salles-de-bain",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/richard-levesque-cuisines-salles-de-bain/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "roberge-fils-inc",
+    "name": "Roberge & Fils inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/roberge-fils-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/roberge-fils-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "8269-2864-35",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "roland-grenier-construction-lteejEcsXl",
+    "name": "Roland Grenier Construction ltée",
+    "homepage": "https://www.jobillico.com/voir-entreprise/roland-grenier-construction-lteejEcsXl",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/roland-grenier-construction-lteejEcsXl/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "rbq": "1264-3201-50",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "rotamac",
+    "name": "Rotamac",
+    "homepage": "https://www.jobillico.com/voir-entreprise/rotamac",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/rotamac/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Laurentides",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "schokbeton-quebec-inc-saramac",
+    "name": "Schokbéton Québec Inc. / Saramac",
+    "homepage": "https://www.jobillico.com/voir-entreprise/schokbeton-quebec-inc-saramac-",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/schokbeton-quebec-inc-saramac-/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "service-rg-1998-inceLkoXa",
+    "name": "Service RG 1998 inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/service-rg-1998-inceLkoXa",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/service-rg-1998-inceLkoXa/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "shipshaw-electrique",
+    "name": "Shipshaw Électrique",
+    "homepage": "https://www.jobillico.com/voir-entreprise/shipshaw-electrique",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/shipshaw-electrique/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "rbq": "2327-7544-51",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "signalisation-de-montreal",
+    "name": "Signalisation de Montréal",
+    "homepage": "https://www.jobillico.com/voir-entreprise/signalisation-de-montreal",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/signalisation-de-montreal/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "rbq": "5678-8136-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "signature-jm-xtreme-inc",
+    "name": "Signature JM Xtrême inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/signature-jm-xtreme-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/signature-jm-xtreme-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5610-7147-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "solariums-zytco",
+    "name": "Solariums Zytco",
+    "homepage": "https://www.jobillico.com/voir-entreprise/solariums-zytco",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/solariums-zytco/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Laurentides",
+    "rbq": "5817-0887-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "soudure-df-saguenay-inc",
+    "name": "Soudure DF Saguenay Inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/soudure-df-saguenay-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/soudure-df-saguenay-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "soudure-et-mecanique-plan-b-inc",
+    "name": "Soudure et Mécanique Plan B inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/soudure-et-mecanique-plan-b-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/soudure-et-mecanique-plan-b-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5817-0150-01",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "stc-acoustique-2015-inc",
+    "name": "STC Acoustique 2015 Inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/stc-acoustique-2015-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/stc-acoustique-2015-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Lanaudière",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "structure-cd",
+    "name": "Structure CD",
+    "homepage": "https://www.jobillico.com/voir-entreprise/structure-cd",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/structure-cd/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "structures-rbr",
+    "name": "Structures RBR",
+    "homepage": "https://www.jobillico.com/voir-entreprise/structures-rbr",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/structures-rbr/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
+    "id": "style-habitat-inc",
+    "name": "Style-Habitat inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/style-habitat-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/style-habitat-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "rbq": "5845-0099-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "symco-construction",
+    "name": "SYMCO Construction",
+    "homepage": "https://www.jobillico.com/voir-entreprise/symco-construction",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/symco-construction/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "tardif-metal",
+    "name": "Tardif Métal",
+    "homepage": "https://www.jobillico.com/voir-entreprise/tardif-metal",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/tardif-metal/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "8000-0250-56",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "tbc-fabrication",
+    "name": "TBC Fabrication",
+    "homepage": "https://www.jobillico.com/voir-entreprise/tbc-fabrication",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/tbc-fabrication/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montérégie",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "tci",
+    "name": "TCI+",
+    "homepage": "https://www.jobillico.com/voir-entreprise/tci",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/tci/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Laval",
+    "rbq": "2623-4039-29",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "techvac-environnement-inc",
+    "name": "Techvac Environnement inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/techvac-environnement-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/techvac-environnement-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "temlac-ltee",
+    "name": "Temlac Ltée",
+    "homepage": "https://www.jobillico.com/voir-entreprise/temlac-ltee",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/temlac-ltee/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "temlac-ltee-rouyn-noranda",
+    "name": "Temlac Ltée Rouyn-Noranda",
+    "homepage": "https://www.jobillico.com/voir-entreprise/temlac-ltee-rouyn-noranda",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/temlac-ltee-rouyn-noranda/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Abitibi-Témiscamingue",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "terrain-dev-construction",
+    "name": "Terrain Dev Construction",
+    "homepage": "https://www.jobillico.com/voir-entreprise/terrain-dev-construction",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/terrain-dev-construction/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "5697-3100-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "terrassement-portugais-inc",
+    "name": "Terrassement Portugais inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/terrassement-portugais-incgXhvSe",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/terrassement-portugais-incgXhvSe/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "1464-8398-08",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "thermafix-inc",
+    "name": "Thermafix inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/thermafix-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/thermafix-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "thermo-rad-incivdaag",
+    "name": "Thermo-Rad Inc",
+    "homepage": "https://www.jobillico.com/voir-entreprise/thermo-rad-incivdaag",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/thermo-rad-incivdaag/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "rbq": "5711-3565-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "tisseur-inc",
+    "name": "Tisseur inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/tisseur-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/tisseur-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "rbq": "5756-5483-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "tms-systeme-inc",
+    "name": "T.M.S. Système inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/tms-systeme-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/tms-systeme-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "toiture-quebec.bIfgHo",
+    "name": "Toiture Québec",
+    "homepage": "https://www.jobillico.com/voir-entreprise/toiture-quebec.bIfgHo",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/toiture-quebec.bIfgHo/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "5656-7910-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "toitures-frontenac-inc",
+    "name": "Toitures Frontenac inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/toitures-frontenac-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/toitures-frontenac-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Chaudière-Appalaches",
+    "rbq": "5697-6525-01",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "toitures-r--martin-ltee.uDpkKg",
+    "name": "Toitures R. Martin ltée",
+    "homepage": "https://www.jobillico.com/voir-entreprise/toitures-r--martin-ltee.uDpkKg",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/toitures-r--martin-ltee.uDpkKg/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "1156-3152-28",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "toitures-steeve-arbourbGyfQy",
+    "name": "Toitures Steeve Arbour",
+    "homepage": "https://www.jobillico.com/voir-entreprise/toitures-steeve-arbourbGyfQy",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/toitures-steeve-arbourbGyfQy/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "rbq": "8354-9113-09",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "toitures-tpl-inc",
+    "name": "Toitures TPL inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/toitures-tpl-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/toitures-tpl-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "toiturex.oUuhOe",
+    "name": "Toiturex",
+    "homepage": "https://www.jobillico.com/voir-entreprise/toiturex.oUuhOe",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/toiturex.oUuhOe/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montérégie",
+    "rbq": "8002-8996-10",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "urbex-construction-inc-oKjvAs",
+    "name": "Urbex Construction Inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/urbex-construction-inc-oKjvAs",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/urbex-construction-inc-oKjvAs/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Montréal",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ],
+    "verified": true
+  },
+  {
+    "id": "usi-fab-express",
+    "name": "Usi-Fab Express",
+    "homepage": "https://www.jobillico.com/voir-entreprise/usi-fab-express",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/usi-fab-express/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Saguenay–Lac-Saint-Jean",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "vcc-entrepreneur-general",
+    "name": "VCC Entrepreneur Général",
+    "homepage": "https://www.jobillico.com/voir-entreprise/vcc-entrepreneur-general",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/vcc-entrepreneur-general/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Abitibi-Témiscamingue",
+    "rbq": "8307-1688-29",
+    "scope": "Employeur — construction résidentielle et commerciale (Jobillico)",
+    "sectors": [
+      "Résidentiel et commercial"
+    ]
+  },
+  {
+    "id": "ventilation-cf-inc",
+    "name": "Ventilation CF inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/ventilation-cf-inc-.vZzvNv",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/ventilation-cf-inc-.vZzvNv/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Capitale-Nationale",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
+    ]
+  },
+  {
+    "id": "ventilation-volmair-inc",
+    "name": "Ventilation Volmair inc.",
+    "homepage": "https://www.jobillico.com/voir-entreprise/ventilation-volmair-inc",
+    "careersUrl": "https://www.jobillico.com/fr/employeurs/ventilation-volmair-inc/voir-liste-emplois",
+    "method": "jobillico",
+    "region": "Laurentides",
+    "rbq": "3087-3418-89",
+    "scope": "Employeur — construction (Jobillico)",
+    "sectors": [
+      "Construction générale"
     ]
   }
 ]
