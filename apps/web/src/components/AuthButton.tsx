@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useAuth, signInWithEmail, signOut } from "@/lib/auth";
 import { cn } from "@/lib/format";
 
@@ -64,8 +65,24 @@ export function AuthButton() {
               <div className="flex flex-col gap-2">
                 <p className="text-slate-600">
                   Connecté en tant que <span className="font-medium text-slate-900">{user.email}</span>. Tes
-                  favoris sont synchronisés sur tous tes appareils.
+                  favoris et alertes sont synchronisés sur tous tes appareils.
                 </p>
+                <div className="flex flex-col">
+                  <Link
+                    href="/favoris"
+                    onClick={() => setOpen(false)}
+                    className="rounded-lg px-2 py-1.5 font-medium text-slate-700 hover:bg-slate-100"
+                  >
+                    ♥ Mes favoris
+                  </Link>
+                  <Link
+                    href="/alertes"
+                    onClick={() => setOpen(false)}
+                    className="rounded-lg px-2 py-1.5 font-medium text-slate-700 hover:bg-slate-100"
+                  >
+                    🔔 Mes alertes
+                  </Link>
+                </div>
                 <button
                   onClick={() => {
                     void signOut();

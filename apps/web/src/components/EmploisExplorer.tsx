@@ -21,6 +21,8 @@ import { Badge } from "./Badge";
 import { SponsorBanner } from "./SponsorBanner";
 import { isSponsoredEmployer } from "@/lib/sponsors";
 import { cn } from "@/lib/format";
+import { useAuth } from "@/lib/auth";
+import { createAlert, filterQuery } from "@/lib/alerts";
 
 const PAGE_SIZE = 20;
 
@@ -89,6 +91,8 @@ export function EmploisExplorer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const { user, enabled: authEnabled } = useAuth();
+  const [alertMsg, setAlertMsg] = useState<string | null>(null);
 
   // Amorce les filtres depuis l'URL (liens profonds depuis l'accueil).
   useEffect(() => {
@@ -172,6 +176,30 @@ export function EmploisExplorer() {
     (salaryMin ? 1 : 0) +
     (postedWithinDays ? 1 : 0);
 
+  // Libellé lisible de la recherche courante (pour nommer une alerte).
+  const alertLabel = (): string => {
+    const parts: string[] = [];
+    if (dq) parts.push(`« ${dq} »`);
+    if (dcity) parts.push(dcity);
+    sel.categories.forEach((id) => parts.push(labelForCategory(id) ?? id));
+    sel.regions.forEach((id) => parts.push(labelForRegion(id) ?? id));
+    return parts.join(" · ") || "Toutes les offres";
+  };
+
+  const onCreateAlert = async () => {
+    if (!user) {
+      setAlertMsg("Connecte-toi (bouton « Se connecter » en haut) pour créer une alerte.");
+      return;
+    }
+    setAlertMsg("Création…");
+    const { error: e } = await createAlert(alertLabel(), filterQuery(query));
+    setAlertMsg(
+      e
+        ? `Erreur : ${e}`
+        : "✅ Alerte créée — tu recevras un courriel quand de nouvelles offres correspondront.",
+    );
+  };
+
   const facets = result?.facets;
 
   // Offres « en vedette » (commanditées) remontées en tête de la page courante.
@@ -224,6 +252,16 @@ export function EmploisExplorer() {
               </option>
             ))}
           </select>
+          {authEnabled && (
+            <button
+              type="button"
+              onClick={onCreateAlert}
+              title="Recevoir un courriel quand de nouvelles offres correspondent à cette recherche"
+              className="rounded-lg border border-brand-300 px-3 py-2.5 text-sm font-medium text-brand-700 hover:bg-brand-50"
+            >
+              🔔 Créer une alerte
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setShowFilters((v) => !v)}
@@ -260,6 +298,7 @@ export function EmploisExplorer() {
             </button>
           </div>
         )}
+        {alertMsg && <p className="mt-2 text-xs text-slate-600">{alertMsg}</p>}
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[260px_1fr]">
