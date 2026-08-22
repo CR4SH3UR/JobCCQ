@@ -133,6 +133,15 @@ const MARKETING_PREFIX =
 const TRAILING_CTA =
   /\s+(voir (le |l['’]|ce )?(poste|offre|emploi|d[ée]tails?)|voir (plus|d[ée]tails?)|postuler( maintenant| ici)?|en savoir (plus|\+)|plus de d[ée]tails|d[ée]tails|apply( now)?|read more|learn more|lire la suite)\s*$/i;
 
+/**
+ * Étiquette « Offre d'emploi – … » collée en tête d'un intitulé de carte
+ * (fréquent sur les pages WordPress : le titre de la fiche est « Offre d'emploi
+ * – Technicien en géomatique »). On la retire pour ne garder que le métier.
+ * Exige un séparateur (– — : - |) après l'étiquette → ne touche pas « Emploi
+ * étudiant » ni « Offre spéciale ».
+ */
+const LEADING_JOB_LABEL = /^\s*offres?\s+d['’]emplois?\s*[–—:|-]\s*/i;
+
 /** Pathname d'une URL, ou "" si invalide. */
 function safePath(u: string): string {
   try {
@@ -279,6 +288,7 @@ function parseHtmlCareers(
     // sans séparateur (« …aux comptes recevablesSherbrooke, Qc »). On retire un
     // suffixe « Ville, QC » terminal (déclenché seulement s'il finit par , QC).
     title = title
+      .replace(LEADING_JOB_LABEL, "")
       .replace(TRAILING_CTA, "")
       .replace(
         /([a-zà-ÿ])([A-ZÀ-Ÿ][a-zà-ÿ]+(?:[\s-][A-ZÀ-Ÿ][a-zà-ÿ]+)*,\s*(?:QC|Qc|Québec|Quebec))\s*$/,
@@ -393,6 +403,7 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
 
   const add = (title: string, href?: string) => {
     const t = cleanText(title.replace(/^[-–—•*\s]+/, "").replace(/[\s*•·]+$/, ""))
+      .replace(LEADING_JOB_LABEL, "")
       .replace(TRAILING_CTA, "")
       .trim();
     if (t.length < 4 || t.length > 110) return;
@@ -604,7 +615,21 @@ export function makeCareersScraper(config: CareersScraperConfig): Scraper {
 
     parseList(html: string, baseUrl: string): RawJob[] {
       const jsonld = extractJsonLdJobs(html, config.id, baseUrl);
-      if (jsonld.length > 0) return jsonld;
+      if (jsonld.length > 0) {
+        // JSON-LD sans URL réelle par offre (toutes résolues en #fragment de la
+        // page carrières) = données structurées incomplètes/décoratives : la page
+        // n'expose qu'une partie des postes ainsi, les vraies fiches vivant en
+        // sous-pages (ex. can-explore : 2 offres en JSON-LD, 9 vraies fiches
+        // /carrieres/<slug>/). Si l'extraction par liens trouve STRICTEMENT plus
+        // de postes (vraies URLs), on la préfère ; sinon on garde le JSON-LD
+        // (plus riche : lieu, salaire, description).
+        const allHashUrls = jsonld.every((j) => j.url.includes("#"));
+        if (allHashUrls) {
+          const links = parseHtmlCareers(html, baseUrl, config.careersUrl, config.id, config.company);
+          if (links.length > jsonld.length) return links;
+        }
+        return jsonld;
+      }
       const wix = parseWixRepeaters(html, baseUrl, config.careersUrl, config.id, config.company);
       if (wix.length > 0) return wix;
       // Gabarit ATS « jobs-listing » (glowinthecloud & co.) : liens
