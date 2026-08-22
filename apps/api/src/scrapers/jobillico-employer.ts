@@ -54,13 +54,61 @@ export function parseEmployerItemList(html: string): Listed[] {
   return [...out.values()];
 }
 
+/** Slug de l'employeur dans l'URL (…/employeurs/<slug>/…). */
+function employerSlug(listUrl: string): string | undefined {
+  return listUrl.match(/\/employeurs\/([^/]+)\//)?.[1];
+}
+
+/**
+ * Nettoie les intitulés bruités poussés par certains ATS via Jobillico, du type
+ * « Carpenter Foreman Job Details | Aecon » → « Carpenter Foreman ». N'affecte
+ * pas un intitulé normal (sans « Job Details » ni suffixe « | … »).
+ */
+export function cleanJobillicoTitle(t: string): string {
+  const s = cleanText(t).replace(/\s*job details\s*(\|.*)?$/i, "").trim();
+  return s || cleanText(t);
+}
+
+/**
+ * Repli : certaines pages employeur (ex. Aecon) n'émettent PAS de JSON-LD
+ * `ItemList`. Les postes y sont de simples cartes
+ * `<a href="/fr/offre-d-emploi/<slug>/…/<id>">Titre</a>`. On ne retient que les
+ * liens de CET employeur (slug) se terminant par un id numérique, pour éviter
+ * les sections « emplois similaires » d'autres entreprises.
+ */
+export function parseEmployerCards(html: string, slug: string): Listed[] {
+  const $ = cheerio.load(html);
+  const out = new Map<string, Listed>();
+  $(`a[href*="/offre-d-emploi/${slug}/"]`).each((_, el) => {
+    const href = $(el).attr("href");
+    if (!href) return;
+    const path = href.split("?")[0]!;
+    if (!/\/\d{4,}$/.test(path)) return;
+    const url = path.startsWith("http") ? path : `https://www.jobillico.com${path}`;
+    if (!out.has(url)) {
+      out.set(url, { url, name: cleanJobillicoTitle($(el).attr("title") || $(el).text()) });
+    }
+  });
+  return [...out.values()];
+}
+
+/** Postes de la page employeur : JSON-LD `ItemList` d'abord, repli cartes HTML. */
+function listEmployerPostings(html: string, listUrl: string): Listed[] {
+  const viaLd = parseEmployerItemList(html);
+  if (viaLd.length > 0) return viaLd;
+  const slug = employerSlug(listUrl);
+  return slug ? parseEmployerCards(html, slug) : [];
+}
+
 export function makeJobillicoEmployerScraper(config: JobillicoEmployerConfig): Scraper {
   return {
     id: config.id,
     parseList(html: string, baseUrl: string): RawJob[] {
       const detail = extractJsonLdJobs(html, config.id, baseUrl);
-      if (detail.length > 0) return detail.map((j) => ({ ...j, company: config.company }));
-      return parseEmployerItemList(html).map((l) => ({
+      if (detail.length > 0) {
+        return detail.map((j) => ({ ...j, title: cleanJobillicoTitle(j.title), company: config.company }));
+      }
+      return listEmployerPostings(html, config.listUrl).map((l) => ({
         sourceId: config.id,
         url: l.url,
         title: l.name || "Poste",
@@ -77,7 +125,7 @@ export function makeJobillicoEmployerScraper(config: JobillicoEmployerConfig): S
         ctx.log(`${config.id} — échec : ${(err as Error).message}`);
         return [];
       }
-      const listed = parseEmployerItemList(html);
+      const listed = listEmployerPostings(html, config.listUrl);
       ctx.log(`${config.id} — ${listed.length} poste(s) listé(s)`);
 
       const cap = config.detailCap ?? 40;
@@ -99,7 +147,11 @@ export function makeJobillicoEmployerScraper(config: JobillicoEmployerConfig): S
         try {
           const detailHtml = await ctx.fetchHtml(l.url);
           const detail = extractJsonLdJobs(detailHtml, config.id, l.url);
-          out.push(detail[0] ? { ...detail[0], url: l.url, company: config.company } : shallow);
+          out.push(
+            detail[0]
+              ? { ...detail[0], url: l.url, title: cleanJobillicoTitle(detail[0].title), company: config.company }
+              : shallow,
+          );
         } catch {
           out.push(shallow);
         }
