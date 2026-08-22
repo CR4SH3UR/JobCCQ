@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { DISCOVERED_EMPLOYERS, type DiscoveredMethod } from "@jobccq/shared";
-import { API_URL, getStats } from "@/lib/data";
+import { API_URL, getStats, searchJobs, buildQuery } from "@/lib/data";
 import { Badge } from "./Badge";
 
 type Employer = {
@@ -24,12 +24,21 @@ type Mode = "loading" | "api" | "static" | "turso";
 type ScrapeState = { status: "run" | "ok" | "err"; found?: number; error?: string; sample?: { title: string; city?: string }[] };
 /** Dernière exécution de scraping connue pour un employeur (table ScrapeRun). */
 type LastRun = { status: string; at: number | null; found: number; error?: string };
+/** Une offre affichée dans l'aperçu déroulant d'un employeur. */
+type OfferRow = { title: string; city?: string; url: string; postedAt: number | null };
+type OffersState = { loading: boolean; rows: OfferRow[]; error?: string };
+/** Une ligne du flux d'activité (exécutions de scraping récentes, toutes sources). */
+type ActivityRow = {
+  id: number; sourceId: string; status: string;
+  found: number; inserted: number; updated: number; error?: string; at: number | null;
+};
 
 const METHODS: DiscoveredMethod[] = [
   "html", "jsonld", "zoho", "bamboohr", "greenhouse", "lever",
   "recruitee", "smartrecruiters", "teamtailor", "ultipro", "jobillico",
 ];
 const PAGE_SIZE = 40;
+const PAGE_SIZES = [40, 100, 250] as const;
 const LS_EDITS = "admin:edits";
 const LS_VERIF = "admin:verified";
 const LS_TOKEN = "admin:ghtoken";
@@ -39,6 +48,8 @@ const LS_SEARCH = "admin:search";
 const LS_FILTER = "admin:filter";
 const LS_SORT = "admin:sort";
 const LS_METHOD = "admin:method";
+const LS_REGION = "admin:region";
+const LS_PAGESIZE = "admin:pagesize";
 const DISCOVERED_PATH = "packages/shared/src/discovered.json";
 
 /** Filtres du tableau (persistés dans le navigateur → survivent au rafraîchissement). */
@@ -226,6 +237,11 @@ export function AdminExplorer() {
   const [reloading, setReloading] = useState(false);
   const [sort, setSort] = useState<SortKey>("name");
   const [methodFilter, setMethodFilter] = useState<"all" | DiscoveredMethod>("all");
+  const [regionFilter, setRegionFilter] = useState<"all" | string>("all");
+  const [pageSize, setPageSize] = useState<number>(PAGE_SIZE);
+  const [openOffers, setOpenOffers] = useState<Set<string>>(new Set());
+  const [offersData, setOffersData] = useState<Record<string, OffersState>>({});
+  const [activity, setActivity] = useState<{ loading: boolean; rows: ActivityRow[]; error?: string }>({ loading: false, rows: [] });
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [addOpen, setAddOpen] = useState(false);
   const [form, setForm] = useState<{ id: string; name: string; careersUrl: string; homepage: string; method: DiscoveredMethod; region: string }>(
@@ -248,6 +264,10 @@ export function AdminExplorer() {
       if (srt && (SORT_KEYS as readonly string[]).includes(srt)) setSort(srt as SortKey);
       const mth = localStorage.getItem(LS_METHOD);
       if (mth) setMethodFilter(mth as "all" | DiscoveredMethod);
+      const rgn = localStorage.getItem(LS_REGION);
+      if (rgn) setRegionFilter(rgn);
+      const ps = Number(localStorage.getItem(LS_PAGESIZE));
+      if (ps && ps >= 40) setPageSize(ps);
     } catch {
       /* stockage indisponible */
     }
@@ -304,6 +324,22 @@ export function AdminExplorer() {
     setMethodFilter(v);
     try {
       localStorage.setItem(LS_METHOD, v);
+    } catch {
+      /* stockage indisponible */
+    }
+  };
+  const changeRegionFilter = (v: string) => {
+    setRegionFilter(v);
+    try {
+      v && v !== "all" ? localStorage.setItem(LS_REGION, v) : localStorage.removeItem(LS_REGION);
+    } catch {
+      /* stockage indisponible */
+    }
+  };
+  const changePageSize = (v: number) => {
+    setPageSize(v);
+    try {
+      localStorage.setItem(LS_PAGESIZE, String(v));
     } catch {
       /* stockage indisponible */
     }
@@ -412,6 +448,81 @@ export function AdminExplorer() {
       };
     }
     setLastRuns(m);
+  };
+
+  // Flux d'activité : les 30 dernières exécutions de scraping, toutes sources
+  // confondues (mode Turso). Vue chronologique complémentaire de la pastille
+  // « dernier scrape » par ligne. Chargé à l'ouverture du panneau.
+  const loadActivity = async () => {
+    const tUrl = tursoUrl || readLS(LS_TURSO_URL);
+    const tTok = tursoToken || readLS(LS_TURSO_TOKEN);
+    if (mode !== "turso" || !tUrl || !tTok) return;
+    setActivity((a) => ({ ...a, loading: true, error: undefined }));
+    try {
+      const raw = await tursoRows(
+        tUrl,
+        tTok,
+        "SELECT id, sourceId, status, found, inserted, updated, error, finishedAt, startedAt FROM ScrapeRun ORDER BY id DESC LIMIT 30",
+      );
+      const rows: ActivityRow[] = raw.map((r) => ({
+        id: Number(r.id),
+        sourceId: String(r.sourceId),
+        status: String(r.status ?? ""),
+        found: Number(r.found ?? 0),
+        inserted: Number(r.inserted ?? 0),
+        updated: Number(r.updated ?? 0),
+        error: r.error ? String(r.error) : undefined,
+        at: whenMs(r.finishedAt ?? r.startedAt),
+      }));
+      setActivity({ loading: false, rows });
+    } catch (err) {
+      setActivity({ loading: false, rows: [], error: (err as Error).message });
+    }
+  };
+
+  // Aperçu déroulant des offres d'un employeur (titres + villes + liens). En
+  // mode Turso on lit EN DIRECT la table Job ; sinon via la couche de données
+  // (API locale ou instantané statique). Résultat mis en cache par employeur.
+  const toggleOffers = async (id: string) => {
+    const willOpen = !openOffers.has(id);
+    setOpenOffers((s) => {
+      const n = new Set(s);
+      n.has(id) ? n.delete(id) : n.add(id);
+      return n;
+    });
+    if (!willOpen) return; // on referme : rien à charger
+    if (offersData[id] && !offersData[id].error) return; // déjà en cache
+    setOffersData((d) => ({ ...d, [id]: { loading: true, rows: [] } }));
+    try {
+      let rows: OfferRow[] = [];
+      if (mode === "turso") {
+        const tUrl = tursoUrl || readLS(LS_TURSO_URL);
+        const tTok = tursoToken || readLS(LS_TURSO_TOKEN);
+        const raw = await tursoRows(
+          tUrl,
+          tTok,
+          "SELECT title, city, url, postedAt FROM Job WHERE sourceId=? ORDER BY id DESC LIMIT 60",
+          [id],
+        );
+        rows = raw.map((r) => ({
+          title: String(r.title ?? ""),
+          city: r.city ? String(r.city) : undefined,
+          url: String(r.url ?? ""),
+          postedAt: whenMs(r.postedAt),
+        }));
+      } else {
+        const res = await searchJobs(buildQuery({ sources: [id], pageSize: 60, sort: "recent" }));
+        rows = res.items.map((j) => ({
+          title: j.title,
+          city: j.city,
+          url: j.url,
+          postedAt: whenMs(j.postedAt ?? null),
+        }));
+      }
+      setOffersData((d) => ({ ...d, [id]: { loading: false, rows } }));
+    } catch (err) {
+      setOffersData((d) => ({ ...d, [id]: { loading: false, rows: [], error: (err as Error).message } }));
+    }
   };
 
   // (Re)charge les compteurs + le dernier scrape dès que le mode est connu
@@ -769,6 +880,19 @@ export function AdminExplorer() {
   }, [employers]);
   const isDup = (e: Employer) => dupUrls.has(e.careersUrl.trim().replace(/\/+$/, "").toLowerCase());
 
+  // Régions distinctes présentes (alimente le filtre par région).
+  const regions = useMemo(() => {
+    const s = new Set<string>();
+    for (const e of employers) if (e.region) s.add(e.region);
+    return [...s].sort((a, b) => a.localeCompare(b, "fr"));
+  }, [employers]);
+  // id → nom, pour étiqueter le flux d'activité.
+  const nameById = useMemo(() => {
+    const m: Record<string, string> = {};
+    for (const e of employers) m[e.id] = e.name;
+    return m;
+  }, [employers]);
+
   // --- Sélection multiple + actions groupées -------------------------------
   const toggleSelect = (id: string) =>
     setSelected((s) => {
@@ -802,6 +926,29 @@ export function AdminExplorer() {
       return n;
     });
     setBulkMsg(`Offres vidées pour ${withJobs.length} employeur(s).`);
+  };
+  const bulkSetVerified = async (ids: string[], verified: boolean) => {
+    for (const id of ids) await patchEmployer(id, { verified });
+    setBulkMsg(`${ids.length} employeur(s) ${verified ? "marqué(s) vérifié(s)" : "démarqué(s)"}.`);
+  };
+  const bulkDelete = async (ids: string[]) => {
+    if (!ids.length) return;
+    if (!window.confirm(`Supprimer DÉFINITIVEMENT ${ids.length} employeur(s) et TOUTES leurs offres ?\n\nAction irréversible.`)) return;
+    for (const id of ids) {
+      if (mode === "turso") {
+        await tursoRows(tursoUrl, tursoToken, "DELETE FROM Job WHERE sourceId=?", [id]).catch(() => {});
+        await tursoRows(tursoUrl, tursoToken, "DELETE FROM Employer WHERE id=?", [id]).catch(() => {});
+      } else if (mode === "api") {
+        await fetch(`${API_URL}/admin/employers/${id}`, { method: "DELETE" }).catch(() => {});
+      } else {
+        delete editsRef.current[id];
+        saveLS(LS_EDITS, editsRef.current);
+      }
+    }
+    const gone = new Set(ids);
+    setEmployers((list) => list.filter((e) => !gone.has(e.id)));
+    setSelected(new Set());
+    setBulkMsg(`${ids.length} employeur(s) supprimé(s).`);
   };
 
   // --- Ajout / suppression d'un employeur ----------------------------------
@@ -885,13 +1032,14 @@ export function AdminExplorer() {
       if (filter === "duplicates" && !isDup(e)) return false;
       if (filter === "errors" && lastRuns[e.id]?.status !== "error") return false;
       if (methodFilter !== "all" && e.method !== methodFilter) return false;
+      if (regionFilter !== "all" && (e.region ?? "") !== regionFilter) return false;
       if (!q) return true;
       return (e.name + " " + e.careersUrl + " " + e.homepage + " " + e.method + " " + (e.region ?? ""))
         .toLowerCase()
         .includes(q);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [employers, search, filter, methodFilter, counts, dupUrls, lastRuns]);
+  }, [employers, search, filter, methodFilter, regionFilter, counts, dupUrls, lastRuns]);
 
   const sorted = useMemo(() => {
     const arr = [...filtered];
@@ -930,13 +1078,13 @@ export function AdminExplorer() {
   const errorCount = employers.filter((e) => lastRuns[e.id]?.status === "error").length;
   const totalOffers = employers.reduce((s, e) => s + (counts[e.id] ?? 0), 0);
   const scrapeEnabled = mode === "api" || !!ghToken;
-  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
-  const pageItems = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const pageItems = sorted.slice((page - 1) * pageSize, page * pageSize);
   const pageIds = pageItems.map((e) => e.id);
   const selectedList = [...selected];
   const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
 
-  useEffect(() => setPage(1), [search, filter, methodFilter, sort]);
+  useEffect(() => setPage(1), [search, filter, methodFilter, regionFilter, sort, pageSize]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -1130,6 +1278,50 @@ export function AdminExplorer() {
             ))}
           </div>
 
+          {mode === "turso" && (
+            <details
+              className="card mb-4 p-3 text-sm"
+              onToggle={(ev) => {
+                if ((ev.currentTarget as HTMLDetailsElement).open && activity.rows.length === 0 && !activity.loading) loadActivity();
+              }}
+            >
+              <summary className="cursor-pointer font-medium text-slate-700">📊 Activité récente (derniers scrapes)</summary>
+              <div className="mt-2">
+                <div className="mb-2">
+                  <button
+                    onClick={loadActivity}
+                    disabled={activity.loading}
+                    className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-medium hover:bg-slate-100 disabled:opacity-50"
+                  >
+                    {activity.loading ? "Chargement…" : "🔄 Actualiser"}
+                  </button>
+                </div>
+                {activity.error ? (
+                  <p className="text-red-600">Erreur : {activity.error}</p>
+                ) : activity.rows.length === 0 && !activity.loading ? (
+                  <p className="text-slate-500">Aucune exécution enregistrée.</p>
+                ) : (
+                  <ul className="divide-y divide-slate-100">
+                    {activity.rows.map((r) => (
+                      <li key={r.id} className="flex flex-wrap items-center gap-x-2 py-1 text-xs">
+                        <span className="shrink-0">{r.status === "error" ? "❌" : r.status === "running" ? "⏳" : "✅"}</span>
+                        <span className="font-medium text-slate-700">{nameById[r.sourceId] ?? r.sourceId}</span>
+                        <span className="text-slate-400">{relTime(r.at)}</span>
+                        {r.status === "error" ? (
+                          <span className="truncate text-red-600" title={r.error}>{r.error}</span>
+                        ) : (
+                          <span className="text-slate-500">
+                            {r.found} trouvée(s){r.inserted ? ` · +${r.inserted}` : ""}{r.updated ? ` · ~${r.updated}` : ""}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </details>
+          )}
+
           <div className="card mb-4 flex flex-col gap-2 p-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <input
@@ -1162,6 +1354,19 @@ export function AdminExplorer() {
                   <option key={m} value={m}>{m}</option>
                 ))}
               </select>
+              {regions.length > 0 && (
+                <select
+                  value={regionFilter}
+                  onChange={(e) => changeRegionFilter(e.target.value)}
+                  title="Filtrer par région"
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-400"
+                >
+                  <option value="all">Toutes régions</option>
+                  {regions.map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              )}
               <select
                 value={sort}
                 onChange={(e) => changeSort(e.target.value as SortKey)}
@@ -1239,6 +1444,34 @@ export function AdminExplorer() {
             <span>
               {sorted.length} résultat{sorted.length > 1 ? "s" : ""} · vérifiés {verifiedCount}/{employers.length}
             </span>
+            {sorted.length > 0 && (
+              <button
+                onClick={() =>
+                  setSelected((s) => {
+                    const n = new Set(s);
+                    const all = sorted.every((e) => n.has(e.id));
+                    sorted.forEach((e) => (all ? n.delete(e.id) : n.add(e.id)));
+                    return n;
+                  })
+                }
+                className="rounded border border-slate-200 px-2 py-0.5 text-xs font-medium hover:bg-slate-100"
+              >
+                {sorted.every((e) => selected.has(e.id)) ? "Tout désélectionner" : `Tout sélectionner (${sorted.length})`}
+              </button>
+            )}
+            <label className="ml-auto flex items-center gap-1.5 text-xs" title="Nombre d'employeurs par page">
+              <span>Par page :</span>
+              <select
+                value={pageSize}
+                onChange={(ev) => changePageSize(Number(ev.target.value))}
+                className="rounded border border-slate-200 px-1.5 py-0.5 text-xs"
+              >
+                {PAGE_SIZES.map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+                <option value={100000}>Tout</option>
+              </select>
+            </label>
           </div>
 
           {selected.size > 0 && (
@@ -1255,9 +1488,20 @@ export function AdminExplorer() {
               <button onClick={() => bulkSetEnabled(selectedList, false)} className="rounded-lg border border-red-300 bg-white px-2.5 py-1 font-semibold text-red-600 hover:bg-red-50">
                 🚫 Désactiver
               </button>
+              <button onClick={() => bulkSetVerified(selectedList, true)} className="rounded-lg border border-green-300 bg-white px-2.5 py-1 font-semibold text-green-700 hover:bg-green-50">
+                ✔ Vérifier
+              </button>
+              <button onClick={() => bulkSetVerified(selectedList, false)} className="rounded-lg border border-slate-300 bg-white px-2.5 py-1 font-semibold text-slate-600 hover:bg-slate-100">
+                ✖ Dévérifier
+              </button>
               {(mode === "turso" || mode === "api") && (
                 <button onClick={() => bulkPurge(selectedList)} className="rounded-lg border border-red-300 bg-white px-2.5 py-1 font-semibold text-red-600 hover:bg-red-50">
                   🗑 Vider les offres
+                </button>
+              )}
+              {(mode === "turso" || mode === "api" || mode === "static") && (
+                <button onClick={() => bulkDelete(selectedList)} className="rounded-lg border border-red-400 bg-white px-2.5 py-1 font-semibold text-red-700 hover:bg-red-50">
+                  ✕ Supprimer
                 </button>
               )}
               <button onClick={() => setSelected(new Set())} className="rounded-lg border border-slate-300 bg-white px-2.5 py-1 hover:bg-slate-100">
@@ -1279,11 +1523,14 @@ export function AdminExplorer() {
                 selected={selected.has(e.id)}
                 duplicate={isDup(e)}
                 lastRun={lastRuns[e.id]}
+                offersOpen={openOffers.has(e.id)}
+                offers={offersData[e.id]}
                 onToggleSelect={toggleSelect}
                 onPatch={patchEmployer}
                 onScrape={scrapeOne}
                 onPurge={purgeOffers}
                 onDelete={deleteEmployer}
+                onToggleOffers={toggleOffers}
               />
             ))}
           </div>
@@ -1306,7 +1553,7 @@ export function AdminExplorer() {
 }
 
 function Row({
-  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, onToggleSelect, onPatch, onScrape, onPurge, onDelete,
+  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, onToggleSelect, onPatch, onScrape, onPurge, onDelete, onToggleOffers,
 }: {
   e: Employer;
   count: number;
@@ -1317,11 +1564,14 @@ function Row({
   selected: boolean;
   duplicate: boolean;
   lastRun?: LastRun;
+  offersOpen: boolean;
+  offers?: OffersState;
   onToggleSelect: (id: string) => void;
   onPatch: (id: string, patch: Partial<Employer>) => void;
   onScrape: (id: string) => void;
   onPurge: (id: string) => void;
   onDelete: (id: string) => void;
+  onToggleOffers: (id: string) => void;
 }) {
   const [url, setUrl] = useState(e.careersUrl);
   const [name, setName] = useState(e.name);
@@ -1426,6 +1676,15 @@ function Row({
         <a href={url} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" title="Ouvrir">
           Ouvrir ↗
         </a>
+        {count > 0 && (
+          <button
+            onClick={() => onToggleOffers(e.id)}
+            title="Afficher les offres actuellement en base pour cet employeur"
+            className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-medium hover:bg-slate-100"
+          >
+            {offersOpen ? "▴ Offres" : "▾ Offres"}
+          </button>
+        )}
         <button
           disabled={!dirty}
           onClick={() => onPatch(e.id, { careersUrl: url.trim(), name: name.trim() })}
@@ -1470,6 +1729,36 @@ function Row({
           </button>
         )}
       </div>
+
+      {offersOpen && (
+        <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-2 text-xs">
+          {!offers || offers.loading ? (
+            <span className="text-slate-500">Chargement des offres…</span>
+          ) : offers.error ? (
+            <span className="text-red-600">Erreur : {offers.error}</span>
+          ) : offers.rows.length === 0 ? (
+            <span className="text-slate-500">Aucune offre en base pour cet employeur.</span>
+          ) : (
+            <>
+              <ul className="space-y-1">
+                {offers.rows.map((o, i) => (
+                  <li key={i} className="flex items-baseline justify-between gap-2">
+                    <a href={o.url} target="_blank" rel="noopener noreferrer" className="truncate text-brand-700 hover:underline">
+                      {o.title || "(sans titre)"}
+                    </a>
+                    <span className="shrink-0 text-slate-400">
+                      {o.city ?? ""}{o.postedAt ? `${o.city ? " · " : ""}${relTime(o.postedAt)}` : ""}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-1 text-right text-[10px] text-slate-400">
+                {offers.rows.length} affichée(s){count > offers.rows.length ? ` sur ${count}` : ""}
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       {scrape && scrape.status !== "run" && (
         <div className="mt-2 text-xs">
