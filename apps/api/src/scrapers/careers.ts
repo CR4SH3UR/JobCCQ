@@ -116,14 +116,14 @@ function parseWixRepeaters(
 }
 
 const NAV_LABELS =
-  /^(carrières|carrieres|postuler|postuler maintenant|je postule|postule[rz]?|en savoir plus|en savoir \+|voir|voir l'offre|voir l'emploi|voir ce poste|voir le poste|voir les postes?( disponibles?)?|voir (tous|toutes) les (postes?|emplois?|offres?)( disponibles?)?|voir les offres?( d'emploi)?|voir les d[ée]tails?( du poste)?|voir plus|voir tout|voir d[ée]tails?|d[ée]tails?( du poste)?|plus de d[ée]tails|consulter|lire( la suite| plus)?|accueil|contact|nous joindre|nous rejoindre|contactez-nous|rejoignez-nous|joindre l'équipe|emplois|emploi|postes?|carrière|english|anglais|fran[çc]ais|home|apply|apply now|view|view job|view details|read more|learn more|more|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations|site|plan du site|travaux|projets|candidature spontan[ée]e|postulez( ici| maintenant)?|jobillico|indeed|linkedin|workday|glassdoor|neuvoo|monster|talentu?p|retour( [àa] la liste| aux (offres|emplois|postes))?|[«»‹›<>→←\s]*(?:pr[ée]c[ée]dent|suivant)[«»‹›<>→←\s]*|postes?( actuellement)? (disponibles?|ouverts?|[àa] (combler|pourvoir)|en recrutement( continu)?)|(postes? en )?recrutement continu|postes? [àa] pourvoir|partager|partage|partagez|share|[ÉéEe]quipements?|produits?|nos produits)$/i;
+  /^(carrières|carrieres|postuler|postuler maintenant|je postule|postule[rz]?|en savoir plus|en savoir \+|voir|voir l'offre|voir l'emploi|voir ce poste|voir le poste|voir les postes?( disponibles?)?|voir (tous|toutes) les (postes?|emplois?|offres?)( disponibles?)?|voir les offres?( d'emploi)?|voir les d[ée]tails?( du poste)?|voir plus|voir tout|voir d[ée]tails?|d[ée]tails?( du poste)?|plus de d[ée]tails|consulter|lire( la suite| plus)?|accueil|contact|nous joindre|nous rejoindre|contactez-nous|rejoignez-nous|joindre l'équipe|emplois|emploi|postes?|carrière|english|anglais|fran[çc]ais|home|apply|apply now|view|view job|view details|read more|learn more|more|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations|site|plan du site|travaux|projets|candidature spontan[ée]e|postulez( ici| maintenant)?|jobillico|indeed|linkedin|workday|glassdoor|neuvoo|monster|talentu?p|retour( [àa] la liste| aux (offres|emplois|postes))?|[«»‹›<>→←\s]*(?:pr[ée]c[ée]dent|suivant)[«»‹›<>→←\s]*|postes?( actuellement)? (disponibles?|ouverts?|[àa] (combler|pourvoir)|en recrutement( continu)?)|(postes? en )?recrutement continu|postes? [àa] pourvoir|partager|partage|partagez|share|[ÉéEe]quipements?|produits?|nos produits|emplois?\s+(?:temps\s+plein|temps\s+partiel|t[ée]l[ée]travail|[ée]tudiants?|permanents?|saisonniers?|occasionnels?|contractuels?)|guide\s+carri[èe]re|eoe|eeo|faq|eng)$/i;
 
 /**
  * Débuts de phrase « marketing » : une accroche (« Un emploi de plombier à
  * échelle humaine », « Pourquoi nous rejoindre ») n'est pas un titre de poste.
  */
 const MARKETING_PREFIX =
-  /^(un |une |notre |nos |nous |pourquoi|rejoign|joins|deviens|devenez|faites|envie|pr[êe]t|viens|es-tu|as-tu|ton |ta |tes |vos |votre |vous |tu ne|[àa] la recherche|travaille[rz]|construis|b[âa]tis|joignez|d[ée]couvr(ir|e|ez|ons)|candidature spontan[ée]e?|postuler (pour|à|au|aux|en|comme)|postule[rz] (pour|à|au|aux)|appliquer (pour|sur|à)|apply (for|to|now)|voir (tout|tous|toutes|nos)\b|zones? (de|du|d['’])|c[âa]bles? (pour|de|d['’])|connecteurs? (pour|de|d['’])|pour (parler|nous|en savoir|prendre|obtenir|discuter|contacter|planifier|r[ée]server))/i;
+  /^(un |une |notre |nos |nous |pourquoi|rejoign|joins|deviens|devenez|faites|envie|pr[êe]t|viens|es-tu|as-tu|ton |ta |tes |vos |votre |vous |tu ne|[àa] la recherche|travaille[rz]|construis|b[âa]tis|joignez|d[ée]couvr(ir|e|ez|ons)|candidature spontan[ée]e?|postuler (pour|à|au|aux|en|comme)|postule[rz] (pour|à|au|aux)|appliquer (pour|sur|à)|apply (for|to|now)|voir (tout|tous|toutes|nos)\b|zones? (de|du|d['’])|c[âa]bles? (pour|de|d['’])|connecteurs? (pour|de|d['’])|pour (parler|nous|en savoir|prendre|obtenir|discuter|contacter|planifier|r[ée]server)|rejoins|tu |offrez|restez|abonnez|click here|start your)/i;
 
 /**
  * Bouton d'action collé à la fin d'un intitulé de carte (« Représentant au
@@ -131,7 +131,7 @@ const MARKETING_PREFIX =
  * titre propre, quel que soit le chemin d'extraction.
  */
 const TRAILING_CTA =
-  /\s+(voir (le |l['’]|ce )?(poste|offre|emploi|d[ée]tails?)|voir (plus|d[ée]tails?)|postuler( maintenant| ici)?|en savoir (plus|\+)|plus de d[ée]tails|d[ée]tails|apply( now)?|read more|learn more|lire la suite)\s*$/i;
+  /\s+(voir (le |l['’]|ce )?(poste|offre|emploi|d[ée]tails?)|voir (plus|d[ée]tails?|les)|voir l['’]offre( d['’]emploi)?|d[ée]tails? du poste|consulter le poste|postuler( maintenant| ici)?|postuler|appliquer|en savoir (plus|\+)|plus de d[ée]tails|d[ée]tails|apply( now)?|read more|learn more|lire la suite)\s*$/i;
 
 /**
  * Étiquette « Offre d'emploi – … » collée en tête d'un intitulé de carte
@@ -284,6 +284,27 @@ function parseHtmlCareers(
       const near = nearestHeading($, el);
       if (near && !NAV_LABELS.test(near) && !MARKETING_PREFIX.test(near)) title = near;
     }
+    // Titre = URL brute (lien Jobillico intégré sans texte d'ancre exploitable) :
+    // on récupère l'intitulé voisin, sinon on déduit le libellé du slug de l'URL
+    // Jobillico (/offre-d-emploi/<entreprise>/<slug>/<id>).
+    if (/^https?:\/\//i.test(title)) {
+      const near = nearestHeading($, el);
+      if (near && !NAV_LABELS.test(near) && !MARKETING_PREFIX.test(near)) {
+        title = near;
+      } else {
+        const jm = title.match(/jobillico\.com\/(?:[a-z]{2}\/)?offre-d-emploi\/[^/]+\/([^/?#]+)/i);
+        title = jm ? deslugify(jm[1]!) : "";
+      }
+    }
+    // Titre très long = souvent tout le texte d'une carte (titre + lieu + type +
+    // statut collés, sans séparateur). Si la carte porte un intitulé (h1-h6) plus
+    // court et valable, on le préfère au texte fourre-tout.
+    if (title.length > 90) {
+      const near = nearestHeading($, el);
+      if (near && near.length < title.length && !NAV_LABELS.test(near) && !MARKETING_PREFIX.test(near)) {
+        title = near;
+      }
+    }
     // Certaines listes (widgets Jobillico intégrés) collent le lieu au titre
     // sans séparateur (« …aux comptes recevablesSherbrooke, Qc »). On retire un
     // suffixe « Ville, QC » terminal (déclenché seulement s'il finit par , QC).
@@ -297,6 +318,8 @@ function parseHtmlCareers(
       .trim();
     if (!title || title.length < 3 || title.length > 120) return;
     if (NAV_LABELS.test(title) || MARKETING_PREFIX.test(title)) return;
+    if (/[!?]\s*$/.test(title)) return; // phrase interro/exclamative = accroche marketing, pas un poste
+    if (/poste\s+combl[ée]|poste\s+pourvu|position filled/i.test(title)) return; // poste déjà comblé
 
     seen.add(dedupKey);
     jobs.push({ sourceId: id, url, title, company, tags: [] });
@@ -446,6 +469,8 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     if (/\b(recherch(?:e|é|è|ez|ons|ent|ait)s?|recrutons|embauchons|cherchons)\b/i.test(probe)) return;
     if (/[.!?]$/.test(t) && probe.split(/\s+/).filter((w) => /[A-Za-zÀ-ÿ]/.test(w)).length >= 3)
       return;
+    if (/[!?]$/.test(t)) return; // interro/exclamatif (accroche/CTA), jamais un intitulé
+    if (/poste\s+combl[ée]|poste\s+pourvu/i.test(probe)) return; // poste déjà comblé
     const url = href || `${base}#${slugify(t)}`;
     if (!out.has(url)) out.set(url, { sourceId: id, url, title: t, company, tags: [] });
   };
