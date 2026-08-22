@@ -97,18 +97,6 @@
       ]
     },
     {
-      "id": "beton-chevalier",
-      "name": "Béton Chevalier",
-      "homepage": "https://www.jobillico.com/voir-entreprise/beton-chevalier",
-      "careersUrl": "https://www.jobillico.com/fr/employeurs/beton-chevalier/voir-liste-emplois",
-      "method": "jobillico",
-      "region": "Capitale-Nationale",
-      "scope": "Employeur — construction (Jobillico)",
-      "sectors": [
-        "Construction générale"
-      ]
-    },
-    {
       "id": "le-groupe-construction-drumco-inc",
       "name": "Le Groupe Construction Drumco Inc.",
       "homepage": "https://www.jobillico.com/voir-entreprise/le-groupe-construction-drumco-inc",
@@ -1208,5 +1196,8 @@
     "conn-x",
     "beton-chevalier",
     "betonchevalier-com"
+  ],
+  "disable": [
+    "beton-chevalier"
   ]
 }
