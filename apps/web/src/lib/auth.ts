@@ -37,6 +37,21 @@ function redirectUrl(): string {
   return `${window.location.origin}${base}/favoris`;
 }
 
+/** Traduit les erreurs d'authentification Supabase en messages clairs (FR). */
+function friendlyAuthError(raw: string): string {
+  const m = raw.toLowerCase();
+  if (/rate limit|too many|only request this after|\bafter \d+ seconds\b/.test(m)) {
+    return "Trop de demandes de connexion pour l'instant. Patiente quelques minutes, puis réessaie.";
+  }
+  if (/invalid|valid email|unable to validate/.test(m)) {
+    return "Adresse courriel invalide. Vérifie et réessaie.";
+  }
+  if (/signups? not allowed|disabled/.test(m)) {
+    return "Les inscriptions sont désactivées pour le moment.";
+  }
+  return "Connexion impossible pour le moment. Réessaie dans quelques minutes.";
+}
+
 /** Envoie un lien magique à l'adresse fournie. */
 export async function signInWithEmail(email: string): Promise<{ error?: string }> {
   if (!supabase) return { error: "Comptes non configurés." };
@@ -44,7 +59,10 @@ export async function signInWithEmail(email: string): Promise<{ error?: string }
     email: email.trim(),
     options: { emailRedirectTo: redirectUrl() },
   });
-  return error ? { error: error.message } : {};
+  if (!error) return {};
+  // Message brut conservé en console pour le débogage ; message clair à l'écran.
+  console.warn("Supabase auth:", error.message);
+  return { error: friendlyAuthError(error.message) };
 }
 
 export async function signOut(): Promise<void> {
