@@ -46,4 +46,7 @@ jobs:
           ls -la rbq_data
 
       - name: Enrichir les numéros RBQ dans Turso
-        run: RBQ_CSV="$(ls rbq_data/*.csv | head -n1)" npm run enrich:rbq -w @jobccq/api
+        run: |
+          CSV="$(ls "$PWD"/rbq_data/*.csv | head -n1)"
+          echo "Registre RBQ : $CSV"
+          RBQ_CSV="$CSV" npm run enrich:rbq -w @jobccq/api
