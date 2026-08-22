@@ -1,0 +1,4 @@
+User-Agent: *
+Allow: /
+
+Sitemap: https://cr4sh3ur.github.io/JobCCQ/sitemap.xml
