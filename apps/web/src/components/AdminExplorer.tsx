@@ -27,6 +27,8 @@ type LastRun = { status: string; at: number | null; found: number; error?: strin
 /** Une offre affichée dans l'aperçu déroulant d'un employeur. */
 type OfferRow = { title: string; city?: string; url: string; postedAt: number | null };
 type OffersState = { loading: boolean; rows: OfferRow[]; error?: string };
+/** Retour d'enregistrement d'une fiche employeur (mode Turso/API/local). */
+type SaveState = { s: "saving" | "ok" | "local" | "err"; msg?: string };
 /** Une ligne du flux d'activité (exécutions de scraping récentes, toutes sources). */
 type ActivityRow = {
   id: number; sourceId: string; status: string;
@@ -93,6 +95,22 @@ async function tursoRows(
   });
   const res = await client.execute({ sql, args: args as never[] });
   return res.rows as unknown as Record<string, unknown>[];
+}
+
+/**
+ * Exécute une écriture Turso (UPDATE/INSERT/DELETE) et renvoie le nombre de
+ * lignes affectées. Sert à distinguer un vrai succès d'un « 0 ligne » (jeton en
+ * lecture seule, id introuvable) — un jeton en lecture seule fait de toute façon
+ * lever `execute`, capté par l'appelant.
+ */
+async function tursoExec(url: string, token: string, sql: string, args: unknown[] = []): Promise<number> {
+  const { createClient } = await import("@libsql/client/web");
+  const client = createClient({
+    url: url.trim().replace(/^libsql:\/\//i, "https://"),
+    authToken: token.trim(),
+  });
+  const res = await client.execute({ sql, args: args as never[] });
+  return res.rowsAffected ?? 0;
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -250,6 +268,10 @@ export function AdminExplorer() {
   );
   const [bulkMsg, setBulkMsg] = useState("");
   const [lastRuns, setLastRuns] = useState<Record<string, LastRun>>({});
+  // État d'enregistrement par employeur : retour visuel « en cours / enregistré /
+  // échec » pour que l'admin sache si une modif a VRAIMENT été persistée (une
+  // écriture Turso qui échoue n'est plus avalée silencieusement).
+  const [saveState, setSaveState] = useState<Record<string, SaveState>>({});
   const latestRef = useRef<Employer[] | null>(null);
 
   useEffect(() => {
@@ -572,15 +594,46 @@ export function AdminExplorer() {
     }
   };
 
+  // Efface l'indicateur d'enregistrement d'un employeur après un délai.
+  const clearSaveLater = (id: string, ms = 2500) => {
+    setTimeout(() => setSaveState((s) => {
+      const n = { ...s };
+      delete n[id];
+      return n;
+    }), ms);
+  };
+
   const patchEmployer = async (id: string, patch: Partial<Employer>) => {
+    // Valeurs précédentes des champs touchés → permet d'annuler l'affichage si
+    // l'écriture échoue (sinon la modif « optimiste » laisse croire à un succès).
+    const prev = employers.find((e) => e.id === id);
+    const before: Record<string, unknown> = {};
+    for (const k of Object.keys(patch)) before[k] = (prev as Record<string, unknown> | undefined)?.[k];
+    const revert = () =>
+      setEmployers((list) => list.map((e) => (e.id === id ? ({ ...e, ...before } as Employer) : e)));
+
+    // Mise à jour optimiste immédiate (réactivité).
     setEmployers((list) => list.map((e) => (e.id === id ? { ...e, ...patch } : e)));
+
     if (mode === "api") {
-      await fetch(`${API_URL}/admin/employers/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(patch),
-      }).catch(() => {});
-    } else if (mode === "turso") {
+      setSaveState((s) => ({ ...s, [id]: { s: "saving" } }));
+      try {
+        const res = await fetch(`${API_URL}/admin/employers/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(patch),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        setSaveState((s) => ({ ...s, [id]: { s: "ok" } }));
+        clearSaveLater(id);
+      } catch (err) {
+        revert();
+        setSaveState((s) => ({ ...s, [id]: { s: "err", msg: (err as Error).message } }));
+      }
+      return;
+    }
+
+    if (mode === "turso") {
       // Écriture directe dans la table Employer (base partagée), en direct.
       const cols: string[] = [];
       const args: unknown[] = [];
@@ -598,23 +651,42 @@ export function AdminExplorer() {
         cols.push("enabled=?");
         args.push(patch.enabled === false ? 0 : 1);
       }
-      if (cols.length) {
-        cols.push("updatedAt=?");
-        args.push(new Date().toISOString());
-        args.push(id);
-        await tursoRows(tursoUrl, tursoToken, `UPDATE Employer SET ${cols.join(",")} WHERE id=?`, args).catch(
-          () => {},
+      if (!cols.length) return; // rien de persistable dans ce patch
+      cols.push("updatedAt=?");
+      args.push(new Date().toISOString());
+      args.push(id);
+      setSaveState((s) => ({ ...s, [id]: { s: "saving" } }));
+      try {
+        // libSQL renvoie le nombre de lignes modifiées : 0 = rien écrit (jeton en
+        // lecture seule, id introuvable…) → on le signale au lieu de faire croire
+        // à un succès. Un jeton en lecture seule fait de toute façon lever l'appel.
+        const affected = await tursoExec(
+          tursoUrl,
+          tursoToken,
+          `UPDATE Employer SET ${cols.join(",")} WHERE id=?`,
+          args,
         );
+        if (affected === 0) throw new Error("0 ligne modifiée (jeton en lecture seule ou id introuvable ?)");
+        setSaveState((s) => ({ ...s, [id]: { s: "ok" } }));
+        clearSaveLater(id);
+      } catch (err) {
+        revert();
+        setSaveState((s) => ({ ...s, [id]: { s: "err", msg: (err as Error).message } }));
       }
-    } else {
-      editsRef.current[id] = { ...editsRef.current[id], ...patch };
-      saveLS(LS_EDITS, editsRef.current);
-      const verified = new Set(loadLS<string[]>(LS_VERIF, []));
-      if ("verified" in patch) {
-        patch.verified ? verified.add(id) : verified.delete(id);
-        saveLS(LS_VERIF, [...verified]);
-      }
+      return;
     }
+
+    // Mode lecture/statique : pas de base joignable → édition LOCALE seulement
+    // (ce navigateur), jamais publiée. On le signale clairement.
+    editsRef.current[id] = { ...editsRef.current[id], ...patch };
+    saveLS(LS_EDITS, editsRef.current);
+    const verified = new Set(loadLS<string[]>(LS_VERIF, []));
+    if ("verified" in patch) {
+      patch.verified ? verified.add(id) : verified.delete(id);
+      saveLS(LS_VERIF, [...verified]);
+    }
+    setSaveState((s) => ({ ...s, [id]: { s: "local" } }));
+    clearSaveLater(id, 4000);
   };
 
   const rescrape = async (id: string) => {
@@ -1209,8 +1281,10 @@ export function AdminExplorer() {
             ) : (
               <div className="flex flex-col gap-2">
                 <span>
-                  ⚠️ <strong>Mode lecture</strong> (API non détectée). Connecte un jeton GitHub pour <strong>scraper</strong> et
-                  <strong> publier</strong> directement depuis cette page, ou lance l'API en local (<code>npm run dev:api</code>).
+                  ⚠️ <strong>Mode lecture</strong> (API non détectée). Les modifications de fiches sont{" "}
+                  <strong>locales à ce navigateur</strong> et ne sont <strong>pas enregistrées dans la base partagée</strong> —
+                  connecte <strong>Turso</strong> ci-dessous pour éditer les employeurs pour de vrai. (Le jeton GitHub sert, lui, à
+                  <strong> scraper</strong> et <strong>publier</strong>.)
                 </span>
                 <div className="flex flex-wrap items-center gap-2">
                   <button onClick={() => setGhOpen((v) => !v)} className="rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-xs font-semibold hover:bg-amber-100">
@@ -1623,6 +1697,7 @@ export function AdminExplorer() {
                 offersOpen={openOffers.has(e.id)}
                 offers={offersData[e.id]}
                 forceEnabled={!!ghToken}
+                save={saveState[e.id]}
                 onToggleSelect={toggleSelect}
                 onPatch={patchEmployer}
                 onScrape={scrapeOne}
@@ -1651,8 +1726,25 @@ export function AdminExplorer() {
   );
 }
 
+/** Petit indicateur d'enregistrement affiché à côté du bouton « Enregistrer ». */
+function SaveBadge({ save }: { save: SaveState }) {
+  if (save.s === "saving") return <span className="text-xs text-slate-500">💾 Enregistrement…</span>;
+  if (save.s === "ok") return <span className="text-xs font-semibold text-green-700">✓ Enregistré</span>;
+  if (save.s === "local")
+    return (
+      <span className="text-xs font-semibold text-amber-700" title="Modification locale à ce navigateur : connecte Turso pour l'enregistrer dans la base partagée.">
+        ⚠ Local seulement
+      </span>
+    );
+  return (
+    <span className="text-xs font-semibold text-red-600" title={save.msg}>
+      ✗ Échec — non enregistré{save.msg ? ` (${save.msg})` : ""}
+    </span>
+  );
+}
+
 function Row({
-  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, forceEnabled, onToggleSelect, onPatch, onScrape, onScrapeForce, onPurge, onDelete, onToggleOffers,
+  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, forceEnabled, save, onToggleSelect, onPatch, onScrape, onScrapeForce, onPurge, onDelete, onToggleOffers,
 }: {
   e: Employer;
   count: number;
@@ -1666,6 +1758,7 @@ function Row({
   offersOpen: boolean;
   offers?: OffersState;
   forceEnabled: boolean;
+  save?: SaveState;
   onToggleSelect: (id: string) => void;
   onPatch: (id: string, patch: Partial<Employer>) => void;
   onScrape: (id: string) => void;
@@ -1813,6 +1906,7 @@ function Row({
         >
           Enregistrer
         </button>
+        {save && <SaveBadge save={save} />}
         {scrapeEnabled && !disabled && (
           <button
             onClick={() => onScrape(e.id)}
