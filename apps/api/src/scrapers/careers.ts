@@ -116,14 +116,14 @@ function parseWixRepeaters(
 }
 
 const NAV_LABELS =
-  /^(carrières|carrieres|postuler|postuler maintenant|je postule|postule[rz]?|en savoir plus|en savoir \+|voir|voir l'offre|voir l'emploi|voir ce poste|voir le poste|voir les postes?( disponibles?)?|voir (tous|toutes) les (postes?|emplois?|offres?)( disponibles?)?|voir les offres?( d'emploi)?|voir les d[ée]tails?( du poste)?|voir plus|voir tout|voir d[ée]tails?|d[ée]tails?( du poste)?|plus de d[ée]tails|consulter|lire( la suite| plus)?|accueil|contact|nous joindre|nous rejoindre|contactez-nous|rejoignez-nous|joindre l'équipe|emplois|emploi|postes?|carrière|english|anglais|fran[çc]ais|home|apply|apply now|view|view job|view details|read more|learn more|more|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations|site|plan du site|travaux|projets|candidature spontan[ée]e|postulez( ici| maintenant)?|jobillico|indeed|linkedin|workday|glassdoor|neuvoo|monster|talentu?p|retour( [àa] la liste| aux (offres|emplois|postes))?|[«»‹›<>→←\s]*(?:pr[ée]c[ée]dent|suivant)[«»‹›<>→←\s]*|postes?( actuellement)? (disponibles?|ouverts?|[àa] (combler|pourvoir)|en recrutement( continu)?)|(postes? en )?recrutement continu|postes? [àa] pourvoir|partager|partage|partagez|share|[ÉéEe]quipements?|produits?|nos produits|emplois?\s+(?:temps\s+plein|temps\s+partiel|t[ée]l[ée]travail|[ée]tudiants?|permanents?|saisonniers?|occasionnels?|contractuels?)|guide\s+carri[èe]re|eoe|eeo|faq|eng)$/i;
+  /^(carrières|carrieres|postuler|postuler maintenant|postuler ici|postulez ici|description|description du poste|description de poste|description de l'emploi|je postule|postule[rz]?|en savoir plus|en savoir \+|voir|voir l'offre|voir l'emploi|voir ce poste|voir le poste|voir les postes?( disponibles?)?|voir (tous|toutes) les (postes?|emplois?|offres?)( disponibles?)?|voir les offres?( d'emploi)?|voir les d[ée]tails?( du poste)?|voir plus|voir tout|voir d[ée]tails?|d[ée]tails?( du poste)?|plus de d[ée]tails|consulter|lire( la suite| plus)?|accueil|contact|nous joindre|nous rejoindre|contactez-nous|rejoignez-nous|joindre l'équipe|emplois|emploi|postes?|carrière|english|anglais|fran[çc]ais|home|apply|apply now|view|view job|view details|read more|learn more|more|à propos|a propos|services|blogue?|soumission|équipe|equipe|réalisations|realisations|site|plan du site|travaux|projets|candidature spontan[ée]e|postulez( ici| maintenant)?|jobillico|indeed|linkedin|workday|glassdoor|neuvoo|monster|talentu?p|retour( [àa] la liste| aux (offres|emplois|postes))?|[«»‹›<>→←\s]*(?:pr[ée]c[ée]dent|suivant)[«»‹›<>→←\s]*|postes?( actuellement)? (disponibles?|ouverts?|[àa] (combler|pourvoir)|en recrutement( continu)?)|(postes? en )?recrutement continu|postes? [àa] pourvoir|partager|partage|partagez|share|[ÉéEe]quipements?|produits?|nos produits|emplois?\s+(?:temps\s+plein|temps\s+partiel|t[ée]l[ée]travail|[ée]tudiants?|permanents?|saisonniers?|occasionnels?|contractuels?)|guide\s+carri[èe]re|eoe|eeo|faq|eng)$/i;
 
 /**
  * Débuts de phrase « marketing » : une accroche (« Un emploi de plombier à
  * échelle humaine », « Pourquoi nous rejoindre ») n'est pas un titre de poste.
  */
 const MARKETING_PREFIX =
-  /^(un |une |notre |nos |nous |pourquoi|rejoign|joins|deviens|devenez|faites|envie|pr[êe]t|viens|es-tu|as-tu|ton |ta |tes |vos |votre |vous |tu ne|[àa] la recherche|travaille[rz]|construis|b[âa]tis|joignez|d[ée]couvr(ir|e|ez|ons)|candidature spontan[ée]e?|postuler (pour|à|au|aux|en|comme)|postule[rz] (pour|à|au|aux)|appliquer (pour|sur|à)|apply (for|to|now)|voir (tout|tous|toutes|nos)\b|zones? (de|du|d['’])|c[âa]bles? (pour|de|d['’])|connecteurs? (pour|de|d['’])|pour (parler|nous|en savoir|prendre|obtenir|discuter|contacter|planifier|r[ée]server)|rejoins|tu |offrez|restez|abonnez|click here|start your)/i;
+  /^(un |une |notre |nos |nous |pourquoi|rejoign|joins|deviens|devenez|faites|envie|pr[êe]t|viens|es-tu|as-tu|ton |ta |tes |vos |votre |vous |tu ne|[àa] la recherche|travaille[rz]|construis|b[âa]tis|joignez|d[ée]couvr(ir|e|ez|ons)|candidature spontan[ée]e?|postuler (pour|à|au|aux|en|comme)|postule[rz] (pour|à|au|aux)|appliquer (pour|sur|à)|apply (for|to|now)|voir (tout|tous|toutes|nos)\b|zones? (de|du|d['’])|c[âa]bles? (pour|de|d['’])|connecteurs? (pour|de|d['’])|pour (parler|nous|en savoir|prendre|obtenir|discuter|contacter|planifier|r[ée]server)|rejoins|tu |offrez|restez|abonnez|click here|start your|je d[ée]sire|je veux)/i;
 
 /**
  * Bouton d'action collé à la fin d'un intitulé de carte (« Représentant au
@@ -159,12 +159,19 @@ function safePath(u: string): string {
  */
 const JOB_DETAIL_SEG =
   /(?:^|\/)(?:emplois?|offres?|postes?|carri[eè]res?|jobs?|careers?|opportunit[eé]s?|opportunit(?:y|ies)|vacatures?)\/[^/]+/i;
+/**
+ * Slug de fiche **préfixé** par un mot-clé emploi (ex. /portfolio/emploi-charge-de-projet,
+ * /nos-postes/poste-soudeur) : ici le mot-clé fait partie du slug final, pas d'un
+ * segment séparé — fréquent sur les CPT WordPress (/portfolio/emploi-…).
+ */
+const KEYWORD_JOB_SLUG = /^(?:emplois?|offres?|postes?|jobs?|carri[eè]res?|opportunit[eé]s?)[-_].{2,}/i;
 function looksLikeJobDetail(urlPath: string, careersPath: string): boolean {
   if (!urlPath || urlPath === careersPath) return false;
   const segs = urlPath.split("/").filter(Boolean);
-  if (segs.length < 2) return false; // besoin d'un mot-clé + un slug
   const last = segs[segs.length - 1] ?? "";
   if (last.length < 3) return false;
+  if (KEYWORD_JOB_SLUG.test(last)) return true; // slug préfixé mot-clé (parent quelconque)
+  if (segs.length < 2) return false; // sinon : un segment mot-clé + un slug
   return JOB_DETAIL_SEG.test(urlPath);
 }
 
@@ -232,6 +239,7 @@ function parseHtmlCareers(
     if (jobPathPattern && !jobPathPattern.test(href)) return;
     const url = absolute((href.split("#")[0] ?? "").trim(), baseUrl);
     if (sameUrl(url, careersUrl)) return; // ignore la page index elle-même
+    if (/candidature[-_]?spontan|spontane[eé]?[-_/]?$/i.test(url)) return; // candidature spontanée ≠ poste
     // Clé de déduplication insensible au « / » final : /emplois/foo/ et
     // /emplois/foo (bouton « Voir le poste » vs carte cliquable) = même offre.
     const dedupKey = url.replace(/\/+$/, "");
@@ -269,7 +277,13 @@ function parseHtmlCareers(
       if (near && !NAV_LABELS.test(near) && !MARKETING_PREFIX.test(near)) {
         title = near;
       } else {
-        const derived = deslugify(lastSeg).replace(
+        // Retire un préfixe mot-clé du slug (emploi-…, poste-…) avant de le rendre
+        // lisible, sinon le titre garde « Emploi … ».
+        const cleanSlug = lastSeg.replace(
+          /^(?:emplois?|offres?|postes?|jobs?|carri[eè]res?|opportunit[eé]s?)[-_]/i,
+          "",
+        );
+        const derived = deslugify(cleanSlug).replace(
           /\b(de|du|des|la|le|les|aux?|et|en|sur|pour)\b/gi,
           (w) => w.toLowerCase(),
         );
@@ -320,6 +334,8 @@ function parseHtmlCareers(
     if (NAV_LABELS.test(title) || MARKETING_PREFIX.test(title)) return;
     if (/[!?]\s*$/.test(title)) return; // phrase interro/exclamative = accroche marketing, pas un poste
     if (/poste\s+combl[ée]|poste\s+pourvu|position filled/i.test(title)) return; // poste déjà comblé
+    if (SERVICE_LED.test(title)) return; // « Déneigement de… » = service, pas un poste
+    if (/^[«»‹›\s]*actualiser\b/i.test(title)) return; // lien de pagination « Actualiser »
 
     seen.add(dedupKey);
     jobs.push({ sourceId: id, url, title, company, tags: [] });
@@ -340,7 +356,7 @@ function parseHtmlCareers(
 // (« Google Tag Manager »). Les vrais postes de ces domaines ont un mot de
 // métier (« Technicien en ventilation », « Manœuvre en excavation »).
 const JOB_TITLE_HINT =
-  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|chef\s+de\s+chantier|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|stagiaire|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|surintendant|coordonnateur|contr[ôo]leur|adjoint|agent|commis|acheteur|magasinier|conducteur|d[ée]neigement|paveur|briqueteur|ma[çc]on(?!nerie)|foreman|dessinateur|designer|cuisiniste|tuyauteur|mineur|ferblantier|frigoriste|chauffagiste|calorifugeur|monteur|instal{2,3}ateur|serrurier|vitrier|peintre|pl[âa]trier|[ée]b[ée]niste(?!rie)|assembleur|directeur|gestionnaire|conseiller|repr[ée]sentant|foreuse|d[ée]bosseleur|carrossier|technician|labou?rer|carpenter|welder|electrician|plumber|operator|apprentice|internship|trainee|installer|mechanic|estimator|supervisor|helper|roofer|superintendent|millwright|ironworker|fitter|painter|surveyor|foreperson/i;
+  /op[ée]rateur|man(?:œ|oe)uvre|contrema[iî]tre|chef\s+d['’]?\s*[ée]quipe|chef\s+de\s+chantier|estimateur|charg[ée] de projet|m[ée]canicien|charpentier|menuisier|arpenteur|camionneur|chauffeur|journalier|soudeur|grutier|coffreur|cimentier|ferrailleur|foreur|signaleur|apprenti|compagnon|stagiaire|[ée]lectricien|plombier|couvreur|poseur|technicien|ing[ée]nieur|superviseur|surintendant|coordonnateur|contr[ôo]leur|adjoint|agent|commis|acheteur|magasinier|conducteur|r[ée]partiteur|d[ée]neigement|paveur|briqueteur|ma[çc]on(?!nerie)|foreman|dessinateur|designer|cuisiniste|tuyauteur|mineur|ferblantier|frigoriste|chauffagiste|calorifugeur|monteur|instal{2,3}ateur|serrurier|vitrier|peintre|pl[âa]trier|[ée]b[ée]niste(?!rie)|assembleur|directeur|gestionnaire|conseiller|repr[ée]sentant|foreuse|d[ée]bosseleur|carrossier|technician|labou?rer|carpenter|welder|electrician|plumber|operator|apprentice|internship|trainee|installer|mechanic|estimator|supervisor|helper|roofer|superintendent|millwright|ironworker|fitter|painter|surveyor|foreperson/i;
 
 /** Suffixe de raison sociale — un « titre » qui finit ainsi est un nom d'entreprise, pas un poste. */
 const COMPANY_SUFFIX = /\b(inc|lt[ée]e|ltd|limit[ée]e|senc|enr|corp)\.?$/i;
@@ -356,6 +372,16 @@ const SECTION_LABEL =
  */
 const SERVICE_ONLY =
   /^(d[ée]neigement|excavation|am[ée]nagement(\s+paysager)?|pavage|ventilation|terrassement|paysagement|maintenance|entretien(\s+(d['’]espaces?\s+verts?|paysager|m[ée]nager))?|toiture|charpente|ma[çc]onnerie|plomberie|[ée]lectricit[ée]|r[ée]novation|construction)(\s+(m[ée]canique|manuel(?:le)?|commerciale?|r[ée]sidentiell?e?|industrielle?)e?)?$/i;
+
+/**
+ * Phrase de **service** menée par un mot d'activité (« Déneigement de voies
+ * publiques », « Réparation et modifications mineures », « Rénovation de
+ * cuisines ») : c'est une prestation, pas un poste. Un vrai intitulé commence
+ * par un mot de métier (« Opérateur de déneigement »), jamais par l'activité
+ * seule suivie d'un connecteur.
+ */
+const SERVICE_LED =
+  /^(d[ée]neigement|excavation|pavage|terrassement|paysagement|am[ée]nagement|entretien|r[ée]novation|toiture|ma[çc]onnerie|plomberie|[ée]lectricit[ée]|ventilation|r[ée]paration|d[ée]molition|forage|remorquage|d[ée]bosselage|nettoyage|installation)\s+(?:de|des|du|d['’]|et|aux?|pour)\b/i;
 
 /**
  * La page déclare-t-elle explicitement **aucun poste ouvert** ? (« Désolé, il
@@ -422,7 +448,9 @@ function underDetailSection($: cheerio.CheerioAPI, el: AnyNode): boolean {
 function parseHeadingJobs(html: string, careersUrl: string, id: string, company: string): RawJob[] {
   const $ = cheerio.load(html);
   const out = new Map<string, RawJob>();
-  const base = careersUrl.replace(/\/+$/, "");
+  // On retire un éventuel #fragment de l'URL carrières (ex. « …/#carrieres ») avant
+  // d'y accoler le slug du poste, sinon on obtient une URL à double « # ».
+  const base = careersUrl.replace(/#.*$/, "").replace(/\/+$/, "");
 
   const add = (title: string, href?: string) => {
     const t = cleanText(title.replace(/^[-–—•*\s]+/, "").replace(/[\s*•·]+$/, ""))
@@ -448,6 +476,8 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     if (COMPANY_SUFFIX.test(probe)) return; // « … inc./ltée » = nom d'entreprise, pas un poste
     if (MARKETING_PREFIX.test(probe)) return; // accroche marketing, pas un poste
     if (SERVICE_ONLY.test(probe)) return; // « Déneigement », « Excavation »… = service, pas un poste
+    if (SERVICE_LED.test(probe)) return; // « Déneigement de voies publiques »… = service, pas un poste
+    if (/^[«»‹›\s]*actualiser\b/i.test(t)) return; // « Actualiser la page » = lien de pagination
     if (/\b[A-Z][A-Z0-9]*_[A-Z0-9]/.test(t)) return; // code produit/SKU (« CMMB_AS »), pas un poste
     // Rejet des **phrases** (puces de responsabilités « Installer et superviser
     // les systèmes… ») sans écarter les vrais intitulés qui contiennent « et »
@@ -485,11 +515,20 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     // d'un niveau/lieu (« Frigoriste - Compagnon ou apprenti - Rive-Sud de
     // Montréal ») : le découper le réduirait à des fragments (« Compagnon ou
     // apprenti »), donc on garde l'intitulé entier.
-    const parts = raw.split(/\s+[-–—•|]\s+/).filter(Boolean);
+    const parts = raw.split(/\s+[-–—•|/]\s+/).filter(Boolean);
     const looksLikeTrade = (s: string) =>
       JOB_TITLE_HINT.test(s.replace(/\s*\([^)]*\)/g, "").replace(/\s+/g, " ").trim());
     if (parts.length > 1 && parts.every(looksLikeTrade)) parts.forEach((p) => add(p));
     else add(raw);
+  });
+  // Titres d'accordéon / onglets Elementor (fréquent sur WordPress : les postes
+  // sont dépliables et leur intitulé vit dans un <div>/<span> de classe dédiée,
+  // pas dans un h1-h5). add() filtre sur les mots de métier → pas les FAQ.
+  $(
+    ".e-n-accordion-item-title-text, .elementor-accordion-title, .elementor-tab-title, .e-n-tab-title-text",
+  ).each((_, el) => {
+    const raw = cleanText($(el).text());
+    if (raw.length >= 4) add(raw);
   });
   // <li> : risqué (puces d'exigences, cartes). On n'accepte qu'un intitulé
   // court et propre (peu de mots, sans chiffres ni marqueurs de phrase FR/EN).
@@ -688,6 +727,12 @@ export function makeCareersScraper(config: CareersScraperConfig): Scraper {
       const heads = pageDeclaresNoOpenings(html)
         ? []
         : parseHeadingJobs(html, config.careersUrl, config.id, config.company);
+      // Les vraies fiches (URLs réelles, hors #fragment) sont un signal plus fort
+      // que le repli « titres » en #fragment (qui capte souvent une vitrine de
+      // métiers en plus des vrais postes). On les préfère dès qu'elles couvrent
+      // quasi autant de postes (à un près).
+      const realDetail = links.filter((j) => !j.url.includes("#")).length;
+      if (realDetail > 0 && realDetail + 1 >= heads.length) return links;
       if (links.length > 0 && links.length >= heads.length) return links;
       if (heads.length > 0) return heads;
       return links;
