@@ -229,6 +229,7 @@ export function AdminExplorer() {
   const [page, setPage] = useState(1);
   const [scrapes, setScrapes] = useState<Record<string, ScrapeState>>({});
   const [publish, setPublish] = useState<{ status: "idle" | "run" | "ok" | "err"; message?: string }>({ status: "idle" });
+  const [scrapeAll, setScrapeAll] = useState<{ status: "idle" | "run" | "ok" | "err"; message?: string }>({ status: "idle" });
   const [ghToken, setGhToken] = useState("");
   const [ghOpen, setGhOpen] = useState(false);
   const [tursoUrl, setTursoUrl] = useState("");
@@ -771,13 +772,17 @@ export function AdminExplorer() {
   };
 
   // --- Mode statique : agir sur GitHub via le jeton personnel du navigateur ---
-  const ghScrape = async (sourceId: string) => {
+  // `opts.force` outrepasse le garde-fou anti-purge (remplace les offres même si
+  // le site en renvoie moins/zéro) — pour un employeur mal configuré.
+  const ghScrape = async (sourceId: string, opts?: { force?: boolean; maxPages?: number }) => {
     const { owner, repo } = ghRepo();
     setScrapes((s) => ({ ...s, [sourceId]: { status: "run" } }));
     try {
+      const inputs: Record<string, string> = { sourceId, maxPages: String(opts?.maxPages ?? 2) };
+      if (opts?.force) inputs.force = sourceId;
       const r = await fetch(
         `https://api.github.com/repos/${owner}/${repo}/actions/workflows/scrape.yml/dispatches`,
-        { method: "POST", headers: GH_HEADERS(ghToken), body: JSON.stringify({ ref: "main", inputs: { sourceId, maxPages: "2" } }) },
+        { method: "POST", headers: GH_HEADERS(ghToken), body: JSON.stringify({ ref: "main", inputs }) },
       );
       if (r.status === 204) {
         setScrapes((s) => ({ ...s, [sourceId]: { status: "ok", error: "launched" } }));
@@ -789,6 +794,48 @@ export function AdminExplorer() {
       }
     } catch (e) {
       setScrapes((s) => ({ ...s, [sourceId]: { status: "err", error: (e as Error).message } }));
+    }
+  };
+
+  // Re-scrape FORCÉ d'un employeur (ignore l'anti-purge). Confirmation requise.
+  const scrapeForce = (id: string) => {
+    const name = employers.find((e) => e.id === id)?.name ?? id;
+    if (
+      !window.confirm(
+        `Re-scraper « ${name} » en mode FORCÉ ?\n\n` +
+          `Le garde-fou anti-purge est ignoré : les offres actuelles seront remplacées ` +
+          `par ce que le site renvoie maintenant (même moins, ou zéro). ` +
+          `À utiliser pour un employeur mal configuré.`,
+      )
+    )
+      return;
+    void ghScrape(id, { force: true });
+  };
+
+  // Scrape COMPLET (toutes les sources) via le workflow GitHub (sourceId vide).
+  const ghScrapeAll = async () => {
+    if (
+      !window.confirm(
+        "Lancer un scrape COMPLET de toutes les sources ?\n\n" +
+          "Cela déclenche le workflow GitHub (peut durer ~1 h). Les compteurs se " +
+          "mettront à jour au fil de l'eau ; suis l'avancement dans « Activité récente ».",
+      )
+    )
+      return;
+    const { owner, repo } = ghRepo();
+    setScrapeAll({ status: "run" });
+    try {
+      const r = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/actions/workflows/scrape.yml/dispatches`,
+        { method: "POST", headers: GH_HEADERS(ghToken), body: JSON.stringify({ ref: "main", inputs: { sourceId: "", maxPages: "2" } }) },
+      );
+      setScrapeAll(
+        r.status === 204
+          ? { status: "ok", message: "🚀 Scrape complet lancé — voir « Activité récente »." }
+          : { status: "err", message: `HTTP ${r.status}` },
+      );
+    } catch (e) {
+      setScrapeAll({ status: "err", message: (e as Error).message });
     }
   };
 
@@ -1420,6 +1467,19 @@ export function AdminExplorer() {
               >
                 ➕ Ajouter un employeur
               </button>
+              {ghToken && (
+                <button
+                  onClick={ghScrapeAll}
+                  disabled={scrapeAll.status === "run"}
+                  title="Lancer un scrape complet de toutes les sources (workflow GitHub, ~1 h)"
+                  className="rounded-lg border border-brand-300 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50 disabled:opacity-50"
+                >
+                  {scrapeAll.status === "run" ? "Lancement…" : "🚀 Scrape complet"}
+                </button>
+              )}
+              {scrapeAll.status !== "idle" && scrapeAll.status !== "run" && (
+                <span className={`text-xs ${scrapeAll.status === "ok" ? "text-green-700" : "text-red-600"}`}>{scrapeAll.message}</span>
+              )}
               {mode === "static" && (
                 <button onClick={exportJson} className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:bg-slate-100">
                   ⬇ JSON
@@ -1562,9 +1622,11 @@ export function AdminExplorer() {
                 lastRun={lastRuns[e.id]}
                 offersOpen={openOffers.has(e.id)}
                 offers={offersData[e.id]}
+                forceEnabled={!!ghToken}
                 onToggleSelect={toggleSelect}
                 onPatch={patchEmployer}
                 onScrape={scrapeOne}
+                onScrapeForce={scrapeForce}
                 onPurge={purgeOffers}
                 onDelete={deleteEmployer}
                 onToggleOffers={toggleOffers}
@@ -1590,7 +1652,7 @@ export function AdminExplorer() {
 }
 
 function Row({
-  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, onToggleSelect, onPatch, onScrape, onPurge, onDelete, onToggleOffers,
+  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, forceEnabled, onToggleSelect, onPatch, onScrape, onScrapeForce, onPurge, onDelete, onToggleOffers,
 }: {
   e: Employer;
   count: number;
@@ -1603,9 +1665,11 @@ function Row({
   lastRun?: LastRun;
   offersOpen: boolean;
   offers?: OffersState;
+  forceEnabled: boolean;
   onToggleSelect: (id: string) => void;
   onPatch: (id: string, patch: Partial<Employer>) => void;
   onScrape: (id: string) => void;
+  onScrapeForce: (id: string) => void;
   onPurge: (id: string) => void;
   onDelete: (id: string) => void;
   onToggleOffers: (id: string) => void;
@@ -1857,7 +1921,7 @@ function Row({
               ))}
             </div>
           )}
-          <div className="mt-2">
+          <div className="mt-2 flex flex-wrap items-center gap-2">
             <button
               disabled={!advDirty}
               onClick={() => onPatch(e.id, { region: region.trim(), homepage: homepage.trim(), scope: scope.trim() })}
@@ -1865,6 +1929,15 @@ function Row({
             >
               Enregistrer les détails
             </button>
+            {forceEnabled && !disabled && (
+              <button
+                onClick={() => onScrapeForce(e.id)}
+                title="Re-scraper en ignorant le garde-fou anti-purge (remplace les offres même si le site en renvoie moins/zéro). Pour un employeur mal configuré."
+                className="rounded-lg border border-amber-400 px-2.5 py-1 font-semibold text-amber-700 hover:bg-amber-50"
+              >
+                ⚡ Re-scraper (forcé)
+              </button>
+            )}
           </div>
         </div>
       )}
