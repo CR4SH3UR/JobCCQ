@@ -333,6 +333,8 @@ function parseHtmlCareers(
     if (NAV_LABELS.test(title) || MARKETING_PREFIX.test(title)) return;
     if (/[!?]\s*$/.test(title)) return; // phrase interro/exclamative = accroche marketing, pas un poste
     if (/poste\s+combl[ée]|poste\s+pourvu|position filled/i.test(title)) return; // poste déjà comblé
+    if (SERVICE_LED.test(title)) return; // « Déneigement de… » = service, pas un poste
+    if (/^[«»‹›\s]*actualiser\b/i.test(title)) return; // lien de pagination « Actualiser »
 
     seen.add(dedupKey);
     jobs.push({ sourceId: id, url, title, company, tags: [] });
@@ -369,6 +371,16 @@ const SECTION_LABEL =
  */
 const SERVICE_ONLY =
   /^(d[ée]neigement|excavation|am[ée]nagement(\s+paysager)?|pavage|ventilation|terrassement|paysagement|maintenance|entretien(\s+(d['’]espaces?\s+verts?|paysager|m[ée]nager))?|toiture|charpente|ma[çc]onnerie|plomberie|[ée]lectricit[ée]|r[ée]novation|construction)(\s+(m[ée]canique|manuel(?:le)?|commerciale?|r[ée]sidentiell?e?|industrielle?)e?)?$/i;
+
+/**
+ * Phrase de **service** menée par un mot d'activité (« Déneigement de voies
+ * publiques », « Réparation et modifications mineures », « Rénovation de
+ * cuisines ») : c'est une prestation, pas un poste. Un vrai intitulé commence
+ * par un mot de métier (« Opérateur de déneigement »), jamais par l'activité
+ * seule suivie d'un connecteur.
+ */
+const SERVICE_LED =
+  /^(d[ée]neigement|excavation|pavage|terrassement|paysagement|am[ée]nagement|entretien|r[ée]novation|toiture|ma[çc]onnerie|plomberie|[ée]lectricit[ée]|ventilation|r[ée]paration|d[ée]molition|forage|remorquage|d[ée]bosselage|nettoyage|installation)\s+(?:de|des|du|d['’]|et|aux?|pour)\b/i;
 
 /**
  * La page déclare-t-elle explicitement **aucun poste ouvert** ? (« Désolé, il
@@ -463,6 +475,8 @@ function parseHeadingJobs(html: string, careersUrl: string, id: string, company:
     if (COMPANY_SUFFIX.test(probe)) return; // « … inc./ltée » = nom d'entreprise, pas un poste
     if (MARKETING_PREFIX.test(probe)) return; // accroche marketing, pas un poste
     if (SERVICE_ONLY.test(probe)) return; // « Déneigement », « Excavation »… = service, pas un poste
+    if (SERVICE_LED.test(probe)) return; // « Déneigement de voies publiques »… = service, pas un poste
+    if (/^[«»‹›\s]*actualiser\b/i.test(t)) return; // « Actualiser la page » = lien de pagination
     if (/\b[A-Z][A-Z0-9]*_[A-Z0-9]/.test(t)) return; // code produit/SKU (« CMMB_AS »), pas un poste
     // Rejet des **phrases** (puces de responsabilités « Installer et superviser
     // les systèmes… ») sans écarter les vrais intitulés qui contiennent « et »
