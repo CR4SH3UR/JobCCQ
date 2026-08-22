@@ -1189,5 +1189,24 @@
       "id": "nordex-ca",
       "careersUrl": "https://www.jobillico.com/fr/employeurs/nordex/voir-liste-emplois"
     }
+  ],
+  "reactivate": [
+    {
+      "id": "conn-x",
+      "name": "Conn-X",
+      "homepage": "https://www.jobillico.com/voir-entreprise/conn-x",
+      "careersUrl": "https://www.jobillico.com/fr/employeurs/conn-x/voir-liste-emplois",
+      "method": "jobillico",
+      "region": "Lanaudière",
+      "scope": "Employeur — construction (Jobillico)",
+      "sectors": [
+        "Construction générale"
+      ]
+    }
+  ],
+  "inspect": [
+    "conn-x",
+    "beton-chevalier",
+    "betonchevalier-com"
   ]
 }

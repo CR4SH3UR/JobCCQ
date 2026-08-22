@@ -34,6 +34,16 @@ interface EmpIn {
 interface Changeset {
   upsert: EmpIn[];
   fixUrl: { id: string; careersUrl: string }[];
+  /**
+   * Employeurs à **réactiver** : on force `enabled = true` (+ méthode / lien
+   * Jobillico) même s'ils existaient déjà désactivés en base. Sert aux cas où un
+   * employeur Jobillico avait été désactivé lors d'un lot précédent alors qu'il a
+   * bien des offres ouvertes — sans réactivation, le registre l'ignore
+   * (« Scraper introuvable ») et ses offres n'apparaissent jamais.
+   */
+  reactivate?: EmpIn[];
+  /** Ids dont on journalise l'état courant (diagnostic, aucune écriture). */
+  inspect?: string[];
 }
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -44,7 +54,23 @@ async function main() {
     console.log("TURSO_DATABASE_URL manquant — import ignoré (rien à faire hors Turso).");
     return;
   }
-  const { upsert, fixUrl } = JSON.parse(await readFile(FILE, "utf-8")) as Changeset;
+  const { upsert, fixUrl, reactivate = [], inspect = [] } = JSON.parse(
+    await readFile(FILE, "utf-8"),
+  ) as Changeset;
+
+  // Diagnostic (lecture seule) : état courant des ids sous surveillance.
+  if (inspect.length) {
+    const rows = await prisma.employer.findMany({
+      where: { id: { in: inspect } },
+      select: { id: true, name: true, method: true, enabled: true, careersUrl: true },
+    });
+    const seen = new Set(rows.map((r) => r.id));
+    console.log("État courant (inspect) :");
+    for (const r of rows) {
+      console.log(`  ${r.id} — enabled=${r.enabled}, method=${r.method}, careersUrl=${r.careersUrl}`);
+    }
+    for (const id of inspect) if (!seen.has(id)) console.log(`  ${id} — ABSENT de la base`);
+  }
 
   // Un seul aller-retour pour connaître l'existant (id → careersUrl).
   const existing = new Map(
@@ -99,9 +125,33 @@ async function main() {
     fixed++;
   }
 
+  // Réactivation : (ré)active des employeurs et corrige méthode / lien. Idempotent
+  // — fonctionne que l'employeur soit absent (création), désactivé ou déjà actif.
+  let reactivated = 0;
+  for (const e of reactivate) {
+    await prisma.employer.upsert({
+      where: { id: e.id },
+      create: {
+        id: e.id,
+        name: e.name,
+        homepage: e.homepage,
+        careersUrl: e.careersUrl,
+        method: e.method,
+        region: e.region ?? null,
+        rbq: e.rbq ?? null,
+        scope: e.scope ?? null,
+        sectors: JSON.stringify(e.sectors ?? []),
+        enabled: true,
+      },
+      update: { enabled: true, method: e.method, careersUrl: e.careersUrl },
+    });
+    reactivated++;
+  }
+
   console.log(
     `Employeurs — créés: ${created}, careersUrl mis à jour: ${urlUpdated}, ` +
-      `correctifs fixUrl: ${fixed}, inchangés: ${unchanged}, fixUrl introuvables: ${fixSkipped}`,
+      `correctifs fixUrl: ${fixed}, réactivés: ${reactivated}, ` +
+      `inchangés: ${unchanged}, fixUrl introuvables: ${fixSkipped}`,
   );
   const total = await prisma.employer.count();
   console.log(`Total employeurs en base : ${total}`);
