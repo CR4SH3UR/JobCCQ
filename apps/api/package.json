@@ -15,6 +15,7 @@
     "scrape": "tsx src/scrape.ts",
     "notify": "tsx src/notify.ts",
     "import:snapshot": "tsx src/import-snapshot.ts",
+    "import:employers": "tsx src/import-employers.ts",
     "turso:migrate": "tsx src/turso-migrate.ts",
     "export:employers": "tsx src/export-employers.ts",
     "export:static": "tsx src/export-static.ts",
