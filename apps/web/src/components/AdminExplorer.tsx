@@ -832,19 +832,30 @@ export function AdminExplorer() {
             pendingRef.current.delete(id);
           }
         }
-        // Garde-fou : sources dont la fenêtre est écoulée (exécution morte/bloquée).
+        // Garde-fou : sources dont la fenêtre est écoulée (exécution morte/lente).
+        // On ne laisse PAS la ligne bloquée sur « Scraping… » : on arrête le
+        // spinner et on invite à rafraîchir (le scrape a pu aboutir en base
+        // après la fenêtre — fréquent pour Jobillico, plus lent via le proxy).
         for (const [id, info] of [...pendingRef.current]) {
-          if (Date.now() > info.deadline) pendingRef.current.delete(id);
+          if (Date.now() > info.deadline) {
+            pendingRef.current.delete(id);
+            setScrapes((s) => ({ ...s, [id]: { status: "ok", error: "timeout" } }));
+          }
         }
       }
     } finally {
       pollingRef.current = false;
+      // Resynchronise les compteurs depuis la base (source de vérité), même si
+      // un poll a expiré : le badge d'offres reflète alors l'état réel.
+      void refreshCounts();
     }
   };
 
   // Ajoute une source re-scrapée à la file suivie et (re)lance la boucle unique.
+  // Fenêtre large : un scrape Jobillico (proxy + fiches détaillées) + la file
+  // d'attente du workflow GitHub peut dépasser 3 min avant d'apparaître en base.
   const queuePoll = (sourceId: string) => {
-    pendingRef.current.set(sourceId, { deadline: Date.now() + 180_000 });
+    pendingRef.current.set(sourceId, { deadline: Date.now() + 360_000 });
     void runPollLoop();
   };
 
@@ -2128,6 +2139,11 @@ function Row({
           ) : scrape.status === "ok" && scrape.error === "updated" ? (
             <span className="text-green-700">
               ✅ Compteur à jour : {scrape.found} offre{(scrape.found ?? 0) > 1 ? "s" : ""} (base rafraîchie, sans recharger).
+            </span>
+          ) : scrape.status === "ok" && scrape.error === "timeout" ? (
+            <span className="text-amber-700">
+              ⏳ Le scrape prend plus de temps que prévu (Jobillico est plus lent). Il se termine en arrière-plan —
+              le compteur ci-dessus a été resynchronisé depuis la base ; recharge dans une minute s'il n'a pas bougé.
             </span>
           ) : scrape.status === "ok" ? (
             <div className={scrape.found ? "text-green-700" : "text-amber-700"}>
