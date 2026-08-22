@@ -1,9 +1,11 @@
 "use client";
 
 import {
+  getEmployer,
   getSource,
   labelForCategory,
   labelForEmployment,
+  labelForLanguage,
   labelForRegion,
   labelForRemote,
   sourceName,
@@ -22,6 +24,13 @@ export function JobCard({ job }: { job: Job }) {
   const posted = timeAgo(job.postedAt ?? job.scrapedAt);
   const sectors = getSource(job.sourceId)?.sectors ?? [];
   const sponsored = isSponsoredEmployer(job.sourceId);
+  const rbq = getEmployer(job.sourceId)?.rbq;
+  const languages = job.languages ?? [];
+  // Lieu : ville, puis région administrative si elle apporte une précision.
+  const place =
+    job.city && region && !region.toLowerCase().includes(job.city.toLowerCase())
+      ? `${job.city} · ${region}`
+      : (job.city ?? region);
 
   return (
     <article
@@ -52,9 +61,7 @@ export function JobCard({ job }: { job: Job }) {
 
           <p className="mt-0.5 text-sm text-slate-600">
             <span className="font-medium text-slate-800">{job.company}</span>
-            {(job.city || region) && (
-              <span className="text-slate-500"> · {job.city ?? region}</span>
-            )}
+            {place && <span className="text-slate-500"> · {place}</span>}
           </p>
 
           <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
@@ -70,6 +77,9 @@ export function JobCard({ job }: { job: Job }) {
               <Badge tone={REMOTE_TONE[job.remote]}>{labelForRemote(job.remote)}</Badge>
             )}
             {salary && <Badge tone="green">{salary}</Badge>}
+            {languages.map((l) => (
+              <Badge key={l}>{labelForLanguage(l)}</Badge>
+            ))}
           </div>
 
           {job.description && (
@@ -77,7 +87,17 @@ export function JobCard({ job }: { job: Job }) {
           )}
 
           <div className="mt-3 flex items-center justify-between">
-            <span className="text-xs text-slate-400">via {sourceName(job.sourceId)}</span>
+            <span className="text-xs text-slate-400">
+              via {sourceName(job.sourceId)}
+              {rbq && (
+                <>
+                  {" · "}
+                  <span className="font-medium text-slate-500" title="Licence RBQ">
+                    RBQ {rbq}
+                  </span>
+                </>
+              )}
+            </span>
             <a
               href={job.url}
               target="_blank"

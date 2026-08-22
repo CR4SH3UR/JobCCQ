@@ -133,6 +133,14 @@ const SOURCE_BY_ID: Record<string, JobSource> = Object.fromEntries(
 export const getSource = (id?: string | null): JobSource | undefined =>
   id ? SOURCE_BY_ID[id] : undefined;
 
+const EMPLOYER_BY_ID: Record<string, DiscoveredEmployer> = Object.fromEntries(
+  DISCOVERED_EMPLOYERS.map((e) => [e.id, e]),
+);
+
+/** Fiche employeur (registre RBQ) pour un id de source — porte `rbq`, `region`, `sectors`. */
+export const getEmployer = (id?: string | null): DiscoveredEmployer | undefined =>
+  id ? EMPLOYER_BY_ID[id] : undefined;
+
 export const sourceName = (id?: string | null): string =>
   (id && SOURCE_BY_ID[id]?.name) || id || "Source inconnue";
 
