@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/format";
 import { ThemeToggle } from "./ThemeToggle";
+import { AuthButton } from "./AuthButton";
+import { useFavorites } from "@/lib/favorites";
 
 const LINKS = [
   { href: "/", label: "Accueil" },
@@ -43,9 +45,36 @@ export function Header() {
               </Link>
             );
           })}
+          <FavLink active={pathname.startsWith("/favoris")} />
           <ThemeToggle />
+          <AuthButton />
         </nav>
       </div>
     </header>
+  );
+}
+
+/** Lien « Favoris » avec le compteur d'offres sauvegardées (navigateur). */
+function FavLink({ active }: { active: boolean }) {
+  const count = useFavorites().size;
+  return (
+    <Link
+      href="/favoris"
+      title="Mes favoris"
+      className={cn(
+        "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+        active
+          ? "bg-brand-50 text-brand-700"
+          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+      )}
+    >
+      <span className={active ? "text-red-500" : ""}>{count > 0 ? "♥" : "♡"}</span>
+      <span className="hidden sm:inline">Favoris</span>
+      {count > 0 && (
+        <span className="grid min-w-[1.25rem] place-items-center rounded-full bg-brand-600 px-1 text-xs font-semibold text-white">
+          {count}
+        </span>
+      )}
+    </Link>
   );
 }
