@@ -120,7 +120,11 @@ export const guayScraper: Scraper = {
     return parseGuay(html);
   },
   async scrape(params: ScrapeParams, ctx: ScrapeContext): Promise<RawJob[]> {
-    const maxPages = Math.max(1, params.maxPages ?? 20);
+    // La pagination AJAX s'arrête d'elle-même (bouton « Suivant » désactivé) :
+    // le plafond n'est qu'un garde-fou anti-boucle. On ignore un `maxPages` trop
+    // bas — la CI passe 2 pour brider les listings génériques — afin de ne pas
+    // tronquer un site qui a légitimement plusieurs pages (Guay en a 3).
+    const maxPages = Math.max(params.maxPages ?? 20, 40);
     const all = new Map<string, RawJob>();
     let way = "filters"; // 1er appel : charge la page 1
     let offset = 0;
