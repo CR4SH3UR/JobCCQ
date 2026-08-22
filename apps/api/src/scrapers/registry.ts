@@ -19,6 +19,7 @@ import { canamScraper, groupeCanamDuplicateScraper } from "./canam.js";
 import { revencoScraper } from "./revenco.js";
 import { lescharpentistesScraper } from "./lescharpentistes.js";
 import { stefetmaxScraper } from "./stefetmax.js";
+import { droletConstructionScraper } from "./droletconstruction.js";
 import { buildDiscoveredScraper } from "./discovered.js";
 
 /**
@@ -51,6 +52,7 @@ const BESPOKE: Record<string, Scraper> = {
   [revencoScraper.id]: revencoScraper,
   [lescharpentistesScraper.id]: lescharpentistesScraper,
   [stefetmaxScraper.id]: stefetmaxScraper,
+  [droletConstructionScraper.id]: droletConstructionScraper,
 };
 
 /**
