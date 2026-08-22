@@ -637,11 +637,16 @@ export function AdminExplorer() {
       // Écriture directe dans la table Employer (base partagée), en direct.
       const cols: string[] = [];
       const args: unknown[] = [];
-      for (const k of ["name", "careersUrl", "method", "homepage", "region", "scope"] as const) {
+      for (const k of ["name", "careersUrl", "method", "homepage", "region", "scope", "rbq"] as const) {
         if (k in patch) {
           cols.push(`${k}=?`);
           args.push((patch as Record<string, unknown>)[k]);
         }
+      }
+      if ("sectors" in patch) {
+        // Colonne stockée en JSON dans Turso.
+        cols.push("sectors=?");
+        args.push(JSON.stringify(patch.sectors ?? []));
       }
       if ("verified" in patch) {
         cols.push("verified=?");
@@ -1010,6 +1015,12 @@ export function AdminExplorer() {
     const m: Record<string, string> = {};
     for (const e of employers) m[e.id] = e.name;
     return m;
+  }, [employers]);
+  // Union des secteurs existants → suggestions du menu à cocher (édition de fiche).
+  const sectorOptions = useMemo(() => {
+    const s = new Set<string>();
+    for (const e of employers) for (const sec of e.sectors ?? []) if (sec) s.add(sec);
+    return [...s].sort((a, b) => a.localeCompare(b, "fr"));
   }, [employers]);
 
   // --- Sélection multiple + actions groupées -------------------------------
@@ -1698,6 +1709,7 @@ export function AdminExplorer() {
                 offers={offersData[e.id]}
                 forceEnabled={!!ghToken}
                 save={saveState[e.id]}
+                sectorOptions={sectorOptions}
                 onToggleSelect={toggleSelect}
                 onPatch={patchEmployer}
                 onScrape={scrapeOne}
@@ -1744,7 +1756,7 @@ function SaveBadge({ save }: { save: SaveState }) {
 }
 
 function Row({
-  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, forceEnabled, save, onToggleSelect, onPatch, onScrape, onScrapeForce, onPurge, onDelete, onToggleOffers,
+  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, forceEnabled, save, sectorOptions, onToggleSelect, onPatch, onScrape, onScrapeForce, onPurge, onDelete, onToggleOffers,
 }: {
   e: Employer;
   count: number;
@@ -1759,6 +1771,7 @@ function Row({
   offers?: OffersState;
   forceEnabled: boolean;
   save?: SaveState;
+  sectorOptions: string[];
   onToggleSelect: (id: string) => void;
   onPatch: (id: string, patch: Partial<Employer>) => void;
   onScrape: (id: string) => void;
@@ -1779,12 +1792,33 @@ function Row({
   const [region, setRegion] = useState(e.region ?? "");
   const [homepage, setHomepage] = useState(e.homepage ?? "");
   const [scope, setScope] = useState(e.scope ?? "");
+  const [rbq, setRbq] = useState(e.rbq ?? "");
+  const [sectors, setSectors] = useState<string[]>(e.sectors ? [...e.sectors] : []);
+  const [secOpen, setSecOpen] = useState(false);
+  const [newSec, setNewSec] = useState("");
+  const eSectorsKey = (e.sectors ?? []).join("|");
   useEffect(() => {
     setRegion(e.region ?? "");
     setHomepage(e.homepage ?? "");
     setScope(e.scope ?? "");
-  }, [e.region, e.homepage, e.scope]);
-  const advDirty = region !== (e.region ?? "") || homepage !== (e.homepage ?? "") || scope !== (e.scope ?? "");
+    setRbq(e.rbq ?? "");
+    setSectors(e.sectors ? [...e.sectors] : []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [e.region, e.homepage, e.scope, e.rbq, eSectorsKey]);
+  const sectorsDirty = [...sectors].sort().join("|") !== [...(e.sectors ?? [])].sort().join("|");
+  const advDirty =
+    region !== (e.region ?? "") ||
+    homepage !== (e.homepage ?? "") ||
+    scope !== (e.scope ?? "") ||
+    rbq !== (e.rbq ?? "") ||
+    sectorsDirty;
+  const toggleSector = (s: string) =>
+    setSectors((cur) => (cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]));
+  const addSector = () => {
+    const v = newSec.trim();
+    if (v && !sectors.includes(v)) setSectors((cur) => [...cur, v]);
+    setNewSec("");
+  };
 
   const disabled = e.enabled === false;
   return (
@@ -1987,11 +2021,6 @@ function Row({
             >
               ⧉ copier
             </button>
-            {e.rbq && (
-              <span className="text-slate-500">
-                RBQ : <span className="font-mono text-slate-700">{e.rbq}</span>
-              </span>
-            )}
           </div>
           <div className="grid gap-2 sm:grid-cols-3">
             <label className="flex flex-col gap-0.5">
@@ -2006,23 +2035,79 @@ function Row({
               <span className="text-slate-500">Portée (scope)</span>
               <input value={scope} onChange={(ev) => setScope(ev.target.value)} className="rounded border border-slate-300 px-2 py-1" />
             </label>
+            <label className="flex flex-col gap-0.5">
+              <span className="text-slate-500">N° RBQ</span>
+              <input
+                value={rbq}
+                onChange={(ev) => setRbq(ev.target.value)}
+                spellCheck={false}
+                placeholder="1234-5678-90"
+                className="rounded border border-slate-300 px-2 py-1 font-mono"
+              />
+            </label>
           </div>
-          {e.sectors && e.sectors.length > 0 && (
-            <div className="mt-2 flex flex-wrap items-center gap-1">
-              <span className="text-slate-500">Secteurs :</span>
-              {e.sectors.map((s) => (
-                <span key={s} className="rounded bg-white px-1.5 py-0.5 text-[11px] text-slate-600 ring-1 ring-slate-200">{s}</span>
+
+          {/* Secteurs : menu déroulant à cocher (plusieurs) + puces retirables. */}
+          <div className="relative mt-2">
+            <span className="text-slate-500">Secteurs</span>
+            <div className="mt-0.5 flex flex-wrap items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setSecOpen((v) => !v)}
+                className="rounded-lg border border-slate-300 bg-white px-2 py-1 font-medium hover:bg-slate-100"
+              >
+                {sectors.length ? `${sectors.length} secteur${sectors.length > 1 ? "s" : ""}` : "Choisir…"} ▾
+              </button>
+              {sectors.map((s) => (
+                <span key={s} className="inline-flex items-center gap-1 rounded bg-white px-1.5 py-0.5 text-[11px] text-slate-600 ring-1 ring-slate-200">
+                  {s}
+                  <button type="button" onClick={() => toggleSector(s)} title="Retirer" className="text-slate-400 hover:text-red-600">×</button>
+                </span>
               ))}
             </div>
-          )}
+            {secOpen && (
+              <>
+                <button aria-hidden tabIndex={-1} onClick={() => setSecOpen(false)} className="fixed inset-0 z-10 cursor-default" />
+                <div className="absolute left-0 z-20 mt-1 max-h-64 w-72 overflow-auto rounded-lg border border-slate-200 bg-white p-2 shadow-lg">
+                  {sectorOptions.length === 0 && <p className="px-1 py-0.5 text-slate-400">Aucun secteur connu — ajoute le premier ci-dessous.</p>}
+                  {sectorOptions.map((s) => (
+                    <label key={s} className="flex items-center gap-2 rounded px-1 py-0.5 hover:bg-slate-50">
+                      <input type="checkbox" checked={sectors.includes(s)} onChange={() => toggleSector(s)} className="h-3.5 w-3.5 accent-brand-600" />
+                      <span>{s}</span>
+                    </label>
+                  ))}
+                  <div className="mt-1 flex gap-1 border-t border-slate-100 pt-1">
+                    <input
+                      value={newSec}
+                      onChange={(ev) => setNewSec(ev.target.value)}
+                      onKeyDown={(ev) => { if (ev.key === "Enter") { ev.preventDefault(); addSector(); } }}
+                      placeholder="Ajouter un secteur…"
+                      className="min-w-0 flex-1 rounded border border-slate-300 px-1.5 py-0.5"
+                    />
+                    <button type="button" onClick={addSector} className="rounded border border-slate-300 px-2 py-0.5 font-semibold hover:bg-slate-100">+</button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <button
               disabled={!advDirty}
-              onClick={() => onPatch(e.id, { region: region.trim(), homepage: homepage.trim(), scope: scope.trim() })}
+              onClick={() =>
+                onPatch(e.id, {
+                  region: region.trim(),
+                  homepage: homepage.trim(),
+                  scope: scope.trim(),
+                  rbq: rbq.trim(),
+                  sectors,
+                })
+              }
               className="rounded-lg bg-brand-600 px-2.5 py-1 font-semibold text-white disabled:opacity-30"
             >
               Enregistrer les détails
             </button>
+            {save && <SaveBadge save={save} />}
             {forceEnabled && !disabled && (
               <button
                 onClick={() => onScrapeForce(e.id)}

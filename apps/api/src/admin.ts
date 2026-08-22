@@ -60,7 +60,7 @@ async function writeAll(list: Employer[]): Promise<void> {
   await writeFile(DP, JSON.stringify(list, null, 2) + "\n");
 }
 
-const EDITABLE = new Set(["name", "careersUrl", "method", "homepage", "region", "scope", "verified", "enabled"]);
+const EDITABLE = new Set(["name", "careersUrl", "method", "homepage", "region", "scope", "rbq", "sectors", "verified", "enabled"]);
 
 export function registerAdminRoutes(app: FastifyInstance): void {
   // Liste de tous les employeurs découverts (données fraîches du fichier).
@@ -86,9 +86,10 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       if (USE_TURSO) {
         // Écriture directe dans la table Employer (base partagée).
         const data: Record<string, unknown> = {};
-        for (const k of ["name", "careersUrl", "method", "homepage", "region", "scope"]) {
+        for (const k of ["name", "careersUrl", "method", "homepage", "region", "scope", "rbq"]) {
           if (k in patch) data[k] = patch[k];
         }
+        if ("sectors" in patch) data.sectors = JSON.stringify(patch.sectors ?? []);
         if ("verified" in patch) data.verified = !!patch.verified;
         if ("enabled" in patch) data.enabled = patch.enabled !== false;
         const updated = await prisma.employer
