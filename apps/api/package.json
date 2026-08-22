@@ -13,6 +13,7 @@
     "start": "tsx src/index.ts",
     "seed": "tsx src/seed.ts",
     "scrape": "tsx src/scrape.ts",
+    "notify": "tsx src/notify.ts",
     "import:snapshot": "tsx src/import-snapshot.ts",
     "turso:migrate": "tsx src/turso-migrate.ts",
     "export:employers": "tsx src/export-employers.ts",
@@ -25,6 +26,7 @@
     "@libsql/client": "^0.8.1",
     "@prisma/adapter-libsql": "^7.9.1",
     "@prisma/client": "^7.9.1",
+    "@supabase/supabase-js": "^2.112.3",
     "cheerio": "^1.0.0",
     "fastify": "^5.1.0",
     "zod": "^3.23.8"

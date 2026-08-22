@@ -73,3 +73,62 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
   puis tout est synchronisé via la table `favorites`.
 - localStorage reste un cache : l'UI est instantanée et marche hors ligne ; la synchro
   se fait en arrière-plan.
+
+---
+
+# Notifications par courriel (alertes emploi) — Resend
+
+Un utilisateur connecté enregistre une **recherche** comme alerte (bouton « 🔔 Créer une
+alerte » sur la page des offres, gérées sur `/alertes`). Après chaque scraping, un
+workflow (`.github/workflows/notify.yml`) cherche les **nouvelles** offres qui
+correspondent et envoie un courriel via **Resend**. Dormant tant que ce n'est pas
+configuré (le script sort proprement).
+
+## 1. Table des alertes (SQL, en plus de `favorites`)
+
+```sql
+create table if not exists public.job_alerts (
+  id               uuid        primary key default gen_random_uuid(),
+  user_id          uuid        not null references auth.users (id) on delete cascade,
+  label            text,
+  query            jsonb       not null default '{}'::jsonb,
+  created_at       timestamptz not null default now(),
+  last_notified_at timestamptz not null default now()
+);
+
+alter table public.job_alerts enable row level security;
+
+create policy "read own alerts"   on public.job_alerts for select using (auth.uid() = user_id);
+create policy "insert own alerts" on public.job_alerts for insert with check (auth.uid() = user_id);
+create policy "delete own alerts" on public.job_alerts for delete using (auth.uid() = user_id);
+```
+
+> L'envoi tourne côté CI avec la **clé `service_role`** (hors RLS) : il lit toutes les
+> alertes et résout l'adresse courriel de façon fiable via l'API admin (jamais une
+> adresse fournie par le client).
+
+## 2. Compte Resend
+
+1. https://resend.com → crée une clé API (**API Keys**).
+2. Expéditeur : soit `onboarding@resend.dev` (test), soit **vérifie ton domaine**
+   (Domains) pour envoyer depuis `alertes@ton-domaine.com` (recommandé en production).
+
+## 3. Secrets / variables GitHub (Actions)
+
+| Nom | Type | Valeur |
+| --- | --- | --- |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Secret** | clé `service_role` (Supabase → Project Settings → API) |
+| `RESEND_API_KEY` | **Secret** | clé API Resend |
+| `NOTIFY_FROM` | Variable | ex. `JobCCQ <alertes@ton-domaine.com>` (ou `JobCCQ <onboarding@resend.dev>`) |
+
+> `NEXT_PUBLIC_SUPABASE_URL` (déjà ajoutée pour les comptes) est réutilisée par l'envoi.
+> `TURSO_DATABASE_URL` / `TURSO_AUTH_TOKEN` (déjà présentes pour le scraping) donnent
+> accès aux offres.
+
+## 4. Déclenchement
+
+`notify.yml` s'exécute **après chaque scraping réussi** (`workflow_run`) et peut être
+lancé à la main (onglet **Actions → Notifier les alertes emploi → Run workflow**). Seules
+les offres créées **depuis le dernier envoi** de chaque alerte sont incluses (pas de
+doublon, pas de spam d'anciennes offres).
+
