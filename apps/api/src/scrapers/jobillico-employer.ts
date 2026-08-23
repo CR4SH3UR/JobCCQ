@@ -28,8 +28,22 @@ interface Listed {
   location?: string;
 }
 
-/** Extrait les postes de l'ItemList (URL + titre). */
-export function parseEmployerItemList(html: string): Listed[] {
+/** Slug de l'employeur dans une URL de fiche (…/offre-d-emploi/<slug>/…). */
+function offerEmployerSlug(url: string): string | undefined {
+  return url.match(/\/offre-d?-?emploi\/([^/]+)\//i)?.[1];
+}
+
+/**
+ * Extrait les postes de l'ItemList (URL + titre).
+ *
+ * `ownSlug` (le slug de l'employeur scrapé) filtre les fiches pour ne garder que
+ * celles de CET employeur : certaines pages Jobillico affichent aussi les offres
+ * d'une entreprise sœur partageant le compte recruteur (ex. « Action Progex »
+ * liste les postes d'« Action Estimation »). Sans ce filtre, l'offre serait
+ * rattachée au mauvais employeur (l'id d'offre venant de l'URL, c'est le dernier
+ * scrape qui gagne). Omettre `ownSlug` conserve l'ancien comportement.
+ */
+export function parseEmployerItemList(html: string, ownSlug?: string): Listed[] {
   const $ = cheerio.load(html);
   const out = new Map<string, Listed>();
   $('script[type="application/ld+json"]').each((_, el) => {
@@ -48,6 +62,8 @@ export function parseEmployerItemList(html: string): Listed[] {
       for (const it of items as Array<Record<string, unknown>>) {
         const href = typeof it.url === "string" ? it.url : undefined;
         if (!href || !/offre-d?-?emploi/i.test(href)) continue;
+        // Écarte les fiches d'un AUTRE employeur cross-listées sur la page.
+        if (ownSlug && offerEmployerSlug(href) !== ownSlug) continue;
         const url = href.split("?")[0]!;
         out.set(url, { url, name: cleanText(typeof it.name === "string" ? it.name : "") });
       }
@@ -123,9 +139,9 @@ export function parseEmployerCards(html: string, slug: string): Listed[] {
 
 /** Postes de la page employeur : JSON-LD `ItemList` d'abord, repli cartes HTML. */
 function listEmployerPostings(html: string, listUrl: string): Listed[] {
-  const viaLd = parseEmployerItemList(html);
-  if (viaLd.length > 0) return viaLd;
   const slug = employerSlug(listUrl);
+  const viaLd = parseEmployerItemList(html, slug);
+  if (viaLd.length > 0) return viaLd;
   return slug ? parseEmployerCards(html, slug) : [];
 }
 
