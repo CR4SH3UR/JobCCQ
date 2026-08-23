@@ -198,6 +198,18 @@ export function makeJobillicoEmployerScraper(config: JobillicoEmployerConfig): S
         }
         if (added === 0) break; // plus aucun nouveau poste → fin de la liste
       }
+      // Page récupérée (site joignable, la page 1 n'a pas échoué — sinon on
+      // serait déjà sorti plus haut) mais AUCUNE offre propre à l'employeur :
+      // ex. une entreprise sœur qui n'a plus de poste, ou dont les offres sont
+      // désormais listées ailleurs. On le signale (reachableEmpty) pour purger
+      // les offres périmées d'une petite source, au lieu de garder un état
+      // obsolète (sans quoi des offres mal attribuées y resteraient indéfiniment,
+      // l'upsert par URL ne réécrivant jamais le sourceId).
+      if (listed.length === 0) {
+        ctx.log(`${config.id} — aucune offre propre à l'employeur`);
+        ctx.markNoOpenings?.(false);
+        return [];
+      }
       // Filtre Québec : on écarte les postes clairement hors QC (le lieu de la
       // carte suffit pour la plupart), AVANT de récupérer les fiches détaillées.
       const before = listed.length;
