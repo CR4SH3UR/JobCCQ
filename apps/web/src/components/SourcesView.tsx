@@ -38,7 +38,7 @@ export function SourcesView() {
       <header className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Répertoire des sources</h1>
         <p className="mt-1 max-w-2xl text-slate-600">
-          Tous les sites d'emploi surveillés par JobCCQ. Chaque source peut être branchée
+          Tous les sites d'emploi surveillés par JobCCQc. Chaque source peut être branchée
           individuellement — celles marquées « Répertorié » attendent leur scraper.
         </p>
       </header>

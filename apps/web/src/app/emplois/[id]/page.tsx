@@ -31,11 +31,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const job = jobById(id);
-  if (!job) return { title: "Offre introuvable — JobCCQ" };
+  if (!job) return { title: "Offre introuvable — JobCCQc" };
   const region = labelForRegion(job.regionId);
-  const title = `${job.title} — ${job.company}${region ? ` (${region})` : ""} | JobCCQ`;
+  const title = `${job.title} — ${job.company}${region ? ` (${region})` : ""} | JobCCQc`;
   const description = job.description?.slice(0, 155) ??
-    `Offre d'emploi ${job.title} chez ${job.company}${region ? ` en ${region}` : " au Québec"}. Détails et candidature sur JobCCQ.`;
+    `Offre d'emploi ${job.title} chez ${job.company}${region ? ` en ${region}` : " au Québec"}. Détails et candidature sur JobCCQc.`;
   const url = siteUrl(`/emplois/${job.id}/`);
   return {
     title,

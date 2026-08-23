@@ -22,9 +22,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const profile = employerProfile(slug);
-  if (!profile) return { title: "Employeur introuvable — JobCCQ" };
+  if (!profile) return { title: "Employeur introuvable — JobCCQc" };
   const n = profile.jobs.length;
-  const title = `Emplois chez ${profile.name} | JobCCQ`;
+  const title = `Emplois chez ${profile.name} | JobCCQc`;
   const description = `${n} offre${n > 1 ? "s" : ""} d'emploi chez ${profile.name}${
     profile.employer?.rbq ? ` (RBQ ${profile.employer.rbq})` : ""
   }. Consultez les postes ouverts et postulez.`;

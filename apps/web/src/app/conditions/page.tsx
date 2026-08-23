@@ -4,8 +4,8 @@ import { LEGAL } from "@/lib/legal";
 
 // ⚠️ Gabarit — à faire relire par un·e juriste avant un lancement public.
 export const metadata: Metadata = {
-  title: "Conditions d'utilisation — JobCCQ",
-  description: "Conditions d'utilisation du service d'agrégation d'offres d'emploi JobCCQ.",
+  title: "Conditions d'utilisation — JobCCQc",
+  description: "Conditions d'utilisation du service d'agrégation d'offres d'emploi JobCCQc.",
 };
 
 export default function ConditionsPage() {

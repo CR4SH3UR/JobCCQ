@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AlertesView } from "@/components/AlertesView";
 
 export const metadata: Metadata = {
-  title: "Mes alertes — JobCCQ",
+  title: "Mes alertes — JobCCQc",
   description: "Recevez un courriel quand de nouvelles offres correspondent à vos recherches.",
 };
 

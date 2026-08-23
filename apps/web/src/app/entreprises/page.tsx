@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { CompaniesExplorer } from "@/components/CompaniesExplorer";
 
 export const metadata: Metadata = {
-  title: "Qui recrute — JobCCQ",
+  title: "Qui recrute — JobCCQc",
   description: "Découvrez les entreprises qui recrutent au Québec et au Canada.",
 };
 

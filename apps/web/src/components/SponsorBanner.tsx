@@ -197,7 +197,7 @@ function Logo({ s, size, gold }: { s: Sponsor; size: "sm" | "md" | "lg"; gold: b
 
 /** Encart « Votre entreprise ici » quand aucun commanditaire n'est configuré. */
 function EmptyPrompt({ className }: { className: string }) {
-  const subject = encodeURIComponent("Commandite JobCCQ");
+  const subject = encodeURIComponent("Commandite JobCCQc");
   return (
     <a
       href={`mailto:${SPONSOR_CONTACT_EMAIL}?subject=${subject}`}
@@ -213,7 +213,7 @@ function EmptyPrompt({ className }: { className: string }) {
         <div>
           <p className="font-semibold text-slate-800">Votre entreprise ici</p>
           <p className="text-slate-500">
-            Rejoignez une audience de la construction au Québec — commanditez JobCCQ.
+            Rejoignez une audience de la construction au Québec — commanditez JobCCQc.
           </p>
         </div>
       </div>
