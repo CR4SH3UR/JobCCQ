@@ -70,7 +70,11 @@ jobs:
         env:
           BUILD_STATIC: "1"
           NEXT_PUBLIC_STATIC_DATA: "1"
-          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+          # Domaine personnalisé (jobccqc.ca) : le site est servi à la RACINE,
+          # donc pas de basePath. L'origine sert aux URL absolues (canoniques,
+          # sitemap, JSON-LD). Le fichier apps/web/public/CNAME configure Pages.
+          NEXT_PUBLIC_BASE_PATH: ""
+          NEXT_PUBLIC_SITE_URL: https://jobccqc.ca
           # Comptes + favoris synchronisés (Supabase). Clés publiques « anon » :
           # sûres à intégrer au bundle (la sécurité vient des règles RLL/RLS).
           # Vides si non définies → l'app retombe sur les favoris locaux.
