@@ -8,7 +8,7 @@
 export const LEGAL = {
   siteName: "JobCCQc",
   /** Courriel de contact (vie privée + demandes de retrait). */
-  contactEmail: "dickie1719@gmail.com",
+  contactEmail: "contact@jobccqc.ca",
   /** Responsable de la protection des renseignements personnels (Loi 25). */
   privacyOfficer: "Responsable de la protection des renseignements personnels",
   /** Date de dernière mise à jour affichée sur les pages légales. */
