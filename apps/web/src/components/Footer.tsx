@@ -6,7 +6,7 @@ export function Footer() {
     <footer className="border-t border-slate-200 bg-white">
       <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-slate-500">
         <p className="font-semibold text-slate-700">
-          Job<span className="text-brand-600">CCQ</span>
+          Job<span className="text-brand-600">CCQc</span>
         </p>
         <p className="mt-1 max-w-xl">
           Agrégateur d'offres d'emploi de la construction au Québec. Les offres proviennent de
@@ -38,7 +38,7 @@ export function Footer() {
           </Link>
         </nav>
 
-        <p className="mt-4 text-xs text-slate-400">© {year} JobCCQ</p>
+        <p className="mt-4 text-xs text-slate-400">© {year} JobCCQc</p>
       </div>
     </footer>
   );

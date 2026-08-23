@@ -24,7 +24,7 @@ export function Header() {
             J
           </span>
           <span className="text-lg font-bold tracking-tight">
-            Job<span className="text-brand-600">CCQ</span>
+            Job<span className="text-brand-600">CCQc</span>
           </span>
         </Link>
         <nav className="flex items-center gap-1">

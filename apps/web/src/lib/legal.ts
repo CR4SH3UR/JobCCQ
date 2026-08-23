@@ -6,7 +6,7 @@
  * Ajuste ici le nom, le courriel de contact, le responsable et la date de MAJ.
  */
 export const LEGAL = {
-  siteName: "JobCCQ",
+  siteName: "JobCCQc",
   /** Courriel de contact (vie privée + demandes de retrait). */
   contactEmail: "dickie1719@gmail.com",
   /** Responsable de la protection des renseignements personnels (Loi 25). */

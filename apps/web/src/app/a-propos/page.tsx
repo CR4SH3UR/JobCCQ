@@ -3,9 +3,9 @@ import { LegalShell } from "@/components/LegalShell";
 import { LEGAL } from "@/lib/legal";
 
 export const metadata: Metadata = {
-  title: "À propos — JobCCQ",
+  title: "À propos — JobCCQc",
   description:
-    "JobCCQ, agrégateur indépendant d'offres d'emploi de la construction au Québec. Sources, données et contact.",
+    "JobCCQc, agrégateur indépendant d'offres d'emploi de la construction au Québec. Sources, données et contact.",
 };
 
 export default function AProposPage() {

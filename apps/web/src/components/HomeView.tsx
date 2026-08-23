@@ -80,7 +80,7 @@ export function HomeView() {
             Qui recrute au <span className="text-brand-600">Québec</span> ?
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
-            JobCCQ regroupe les offres d'emploi de centaines d'entreprises québécoises. Trouvez qui
+            JobCCQc regroupe les offres d'emploi de centaines d'entreprises québécoises. Trouvez qui
             embauche, pour quels postes, et postulez directement à la source.
           </p>
 

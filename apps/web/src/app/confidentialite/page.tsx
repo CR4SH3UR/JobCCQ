@@ -4,9 +4,9 @@ import { LEGAL } from "@/lib/legal";
 
 // ⚠️ Gabarit conforme à l'esprit de la Loi 25 (Québec) — à faire relire par un·e juriste.
 export const metadata: Metadata = {
-  title: "Politique de confidentialité — JobCCQ",
+  title: "Politique de confidentialité — JobCCQc",
   description:
-    "Comment JobCCQ recueille, utilise et protège vos renseignements personnels (Loi 25 — Québec).",
+    "Comment JobCCQc recueille, utilise et protège vos renseignements personnels (Loi 25 — Québec).",
 };
 
 export default function ConfidentialitePage() {

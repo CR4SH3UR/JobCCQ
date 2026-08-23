@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { FavorisView } from "@/components/FavorisView";
 
 export const metadata: Metadata = {
-  title: "Mes favoris — JobCCQ",
+  title: "Mes favoris — JobCCQc",
   description: "Vos offres d'emploi sauvegardées.",
 };
 
