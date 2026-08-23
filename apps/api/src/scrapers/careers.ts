@@ -38,6 +38,11 @@ function sameUrl(a: string, b: string): boolean {
   return a.replace(/\/+$/, "") === b.replace(/\/+$/, "");
 }
 
+/** Retire la chaîne de requête et le fragment (`?…`, `#…`) d'une URL. */
+function stripQuery(u: string): string {
+  return u.replace(/[?#].*$/, "");
+}
+
 /** Mots-clés qui trahissent un type de poste (donc une carte d'offre). */
 const JOB_TYPE_RE =
   /temps\s*plein|temps\s*partiel|permanent|contractuel|contrat|saisonnier|temporaire|\d+\s*h\b|\d+\s*heures|\bstage\b|\bccq\b/i;
@@ -673,6 +678,76 @@ function singleJobDetailOffer(
   return { sourceId: id, url: careersUrl, title: uniq[0] as string, company, tags: [] };
 }
 
+/**
+ * Détecte un contenu **binaire** servi en dur (PDF, doc…) : décodé en texte,
+ * cheerio en extrait du charabia (« %PDF-1.5 %���� … »). On le rejette pour ne
+ * pas polluer les descriptions.
+ */
+function looksBinary(html: string): boolean {
+  const head = html.slice(0, 2000);
+  if (/^\s*%PDF-/.test(head)) return true;
+  let bad = 0;
+  for (let i = 0; i < head.length; i++) {
+    const c = head.charCodeAt(i);
+    // caractère de remplacement (0xFFFD) ou contrôle non imprimable
+    if (c === 0xfffd || c < 9 || (c > 13 && c < 32)) bad++;
+  }
+  return bad / Math.max(1, head.length) > 0.02;
+}
+
+/**
+ * Texte du **contenu principal** d'une fiche de poste — sert de description
+ * quand la page n'expose pas de JSON-LD. On retire la navigation/pied de page,
+ * puis on prend le plus grand conteneur de contenu (article/main/.entry-content…).
+ */
+function mainContentText(html: string): string | undefined {
+  if (looksBinary(html)) return undefined;
+  const $ = cheerio.load(html);
+  $(
+    "script,style,nav,header,footer,form,svg,noscript,aside,.menu,.nav,.navbar,.header,.footer,.breadcrumb,.cookie,.share,.social,.related",
+  ).remove();
+  const candidates = [
+    "[class*=job-description]",
+    "[class*=job_description]",
+    "[class*=offre-emploi]",
+    "article",
+    "main",
+    "[role=main]",
+    ".entry-content",
+    ".single-content",
+    ".post-content",
+    ".content",
+    "#content",
+  ];
+  let best = "";
+  for (const sel of candidates) {
+    $(sel).each((_, el) => {
+      const t = cleanText($(el).text());
+      if (t.length > best.length) best = t;
+    });
+    if (best.length >= 400) break;
+  }
+  if (best.length < 200) best = cleanText($("body").text());
+  // Retire les amorces de navigation récurrentes en tête de contenu
+  // (« Aller au contenu », « Postuler », « Skip to content », « Offre d'emploi »…),
+  // de façon itérative car elles s'enchaînent souvent.
+  const leadNoise =
+    /^\s*(aller au contenu|passer au contenu|skip to (main )?content|postuler( dès maintenant| now)?|partager(\s+l['’]offre)?|offres?\s+d['’]emplois?)\s*/i;
+  let prev: string;
+  do {
+    prev = best;
+    best = best.replace(leadNoise, "").trim();
+  } while (best !== prev);
+  if (best.length < 120) return undefined; // trop court → probablement pas une description
+  return best.length > 1200 ? `${best.slice(0, 1199)}…` : best;
+}
+
+/** Description d'une fiche : JSON-LD JobPosting d'abord, sinon contenu principal. */
+function extractDetailDescription(html: string, sourceId: string, url: string): string | undefined {
+  const fromLd = extractJsonLdJobs(html, sourceId, url).find((j) => j.description)?.description;
+  return fromLd ?? mainContentText(html);
+}
+
 export function makeCareersScraper(config: CareersScraperConfig): Scraper {
   return {
     id: config.id,
@@ -748,6 +823,37 @@ export function makeCareersScraper(config: CareersScraperConfig): Scraper {
         return [];
       }
       const jobs = this.parseList!(html, config.careersUrl);
+
+      // Enrichissement des descriptions : pour les offres à URL réelle (fiche)
+      // sans description, on récupère la fiche et on en extrait la description
+      // (JSON-LD sinon contenu principal). Borné par employeur (politesse/temps).
+      const DETAIL_CAP = 15;
+      let enriched = 0;
+      for (const job of jobs) {
+        if (enriched >= DETAIL_CAP) break;
+        if (job.description) continue;
+        if (!/^https?:\/\//i.test(job.url) || job.url.includes("#")) continue;
+        // Fiche = page HTML : on évite les fichiers (PDF, doc, image…) — cheerio
+        // n'en tirerait que du binaire illisible.
+        if (/\.(pdf|docx?|xlsx?|pptx?|zip|rar|jpe?g|png|gif|webp|svg|mp4|mov)(\?|$)/i.test(job.url)) continue;
+        // Même *chemin* que la page carrières (variante `?poste=…` d'une appli
+        // côté client) : ce n'est pas une vraie fiche — la récupérer renverrait
+        // le même contenu générique pour toutes les offres.
+        if (sameUrl(stripQuery(job.url), stripQuery(config.careersUrl))) continue;
+        enriched++;
+        try {
+          const detailHtml = await ctx.fetchHtml(job.url);
+          const desc = extractDetailDescription(detailHtml, config.id, job.url);
+          if (desc) job.description = desc;
+        } catch {
+          /* fiche inaccessible → on garde l'offre sans description */
+        }
+      }
+      if (enriched > 0) {
+        const n = jobs.filter((j) => j.description).length;
+        ctx.log(`${config.id} — descriptions : ${n}/${jobs.length}`);
+      }
+
       if (jobs.length === 0) {
         // Page carrières **récupérée** (site joignable) et sans aucune offre. On
         // le signale pour permettre la purge des offres périmées. `explicit` = la
