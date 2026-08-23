@@ -2,11 +2,16 @@
  * Accès aux données **au moment du build** (composants serveur / SSG).
  *
  * Contrairement à `data.ts` (qui `fetch` l'instantané côté navigateur), ce
- * module lit `public/data/jobs.json` directement sur le disque : il alimente
+ * module lit l'instantané directement sur le disque : il alimente
  * `generateStaticParams`, les métadonnées et le rendu des pages de détail
  * pré-générées. À n'importer que depuis des composants serveur.
+ *
+ * On privilégie `data/jobs.full.json` (descriptions **entières**) pour que les
+ * pages de détail et le JSON-LD affichent le texte complet ; à défaut (build
+ * hors Turso), on retombe sur l'instantané client `public/data/jobs.json`
+ * (descriptions tronquées).
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   DISABLED_SOURCE_IDS,
@@ -20,7 +25,9 @@ let cache: Job[] | null = null;
 /** Toutes les offres de l'instantané (sources désactivées exclues). */
 export function allJobs(): Job[] {
   if (!cache) {
-    const path = join(process.cwd(), "public", "data", "jobs.json");
+    const fullPath = join(process.cwd(), "data", "jobs.full.json");
+    const clientPath = join(process.cwd(), "public", "data", "jobs.json");
+    const path = existsSync(fullPath) ? fullPath : clientPath;
     const jobs = JSON.parse(readFileSync(path, "utf8")) as Job[];
     cache = DISABLED_SOURCE_IDS.size
       ? jobs.filter((j) => !DISABLED_SOURCE_IDS.has(j.sourceId))

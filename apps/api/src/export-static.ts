@@ -11,7 +11,16 @@ import { effectiveRegionId, type Job } from "@jobccq/shared";
 import { SEED_JOBS } from "./seed-data.js";
 import { seedToJob } from "./seed-transform.js";
 
+// Instantané **client** (chargé dans le navigateur pour la recherche/les
+// filtres) : descriptions tronquées à un extrait, pour garder la charge légère.
 const OUT = resolve(process.cwd(), "../web/public/data/jobs.json");
+// Instantané **complet** (descriptions entières) : lu au build pour pré-générer
+// les pages de détail (SEO + lecture) ; non publié (hors `public/`).
+const OUT_FULL = resolve(process.cwd(), "../web/data/jobs.full.json");
+// Longueur de l'extrait de description embarqué dans l'instantané client :
+// suffisant pour l'aperçu des cartes et la pertinence de la recherche plein
+// texte, sans embarquer des milliers de fiches complètes.
+const CLIENT_DESC_MAX = 240;
 
 async function main() {
   const fromDb = process.argv.includes("--from-db");
@@ -43,13 +52,27 @@ async function main() {
     }
   }
   const withRegion = jobs.filter((j) => j.regionId).length;
+  const withDesc = jobs.filter((j) => j.description).length;
 
+  // Instantané complet (descriptions entières) → pages de détail au build.
+  await mkdir(dirname(OUT_FULL), { recursive: true });
+  await writeFile(OUT_FULL, JSON.stringify(jobs));
+
+  // Instantané client : on tronque les descriptions à un court extrait.
+  const clientJobs = jobs.map((j) => {
+    if (!j.description || j.description.length <= CLIENT_DESC_MAX) return j;
+    return { ...j, description: `${j.description.slice(0, CLIENT_DESC_MAX - 1)}…` };
+  });
   await mkdir(dirname(OUT), { recursive: true });
-  await writeFile(OUT, JSON.stringify(jobs));
-  console.log(`✅ ${jobs.length} offres exportées vers ${OUT}`);
+  await writeFile(OUT, JSON.stringify(clientJobs));
+
+  console.log(`✅ ${jobs.length} offres exportées.`);
+  console.log(`   • Client (extraits) → ${OUT}`);
+  console.log(`   • Complet (fiches)  → ${OUT_FULL}`);
   console.log(
     `📍 Régions : ${withRegion}/${jobs.length} renseignées (${filled} complétées via la région RBQ de l'employeur).`,
   );
+  console.log(`📝 Descriptions : ${withDesc}/${jobs.length} renseignées.`);
 }
 
 main().catch((err) => {

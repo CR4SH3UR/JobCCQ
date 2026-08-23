@@ -135,7 +135,7 @@ function mapNode(node: Record<string, unknown>, sourceId: string, baseUrl: strin
     salaryMin,
     salaryMax,
     salaryPeriod,
-    description: htmlToText(asString(node.description)),
+    description: htmlToText(asString(node.description), 1200),
     postedAt: asString(node.datePosted),
     tags: [],
     ...(logo ? { companyLogoUrl: logo } : {}),
