@@ -3,8 +3,8 @@ name: Scraper les offres
 # Deux déclenchements :
 #  - manuel (onglet Actions → « Scraper les offres » → « Run workflow ») : un
 #    employeur précis (champ « sourceId ») ou tous (champ vide) ;
-#  - planifié (cron hebdomadaire) : re-scrape tous les sites pour garder
-#    l'instantané frais (évite les offres périmées / manquantes).
+#  - planifié (2×/semaine, lundi + jeudi) : re-scrape tous les sites pour
+#    garder l'instantané frais (évite les offres périmées / manquantes).
 #
 # Dans tous les cas on repart de l'instantané en ligne (jobs.json), puis le
 # scraping se fait en mode « sync » : il retire les postes comblés MAIS ne
@@ -27,8 +27,8 @@ on:
         required: false
         default: ""
   schedule:
-    # Tous les lundis à 08:00 UTC (~3–4 h du matin, heure du Québec).
-    - cron: "0 8 * * 1"
+    # Lundi et jeudi à 08:00 UTC (~3–4 h du matin, heure du Québec).
+    - cron: "0 8 * * 1,4"
 
 permissions:
   contents: write
