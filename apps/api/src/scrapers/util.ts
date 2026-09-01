@@ -15,9 +15,15 @@ export function absolute(base: string, href: string): string {
   }
 }
 
-/** Compacte les espaces (y compris insécables) et coupe. */
+/**
+ * Compacte les espaces (y compris insécables) et coupe. Retire aussi les
+ * fragments de balises HTML résiduels (ex. « <span …> » issus d'un
+ * `&lt;span…&gt;` échappé dans le contenu puis décodé en texte par cheerio) —
+ * sans toucher aux « < »/« > » mathématiques : le motif exige une lettre juste
+ * après « < », donc « expérience < 5 ans » est préservé.
+ */
 export function cleanText(s?: string | null): string {
-  return (s ?? "").replace(/ /g, " ").replace(/\s+/g, " ").trim();
+  return (s ?? "").replace(/<\/?[a-z][^>]*>/gi, " ").replace(/ /g, " ").replace(/\s+/g, " ").trim();
 }
 
 /** « Charpentier(ère) CCQ » → « charpentier-ere-ccq » (pour une URL/ancre stable). */
