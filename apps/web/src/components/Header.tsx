@@ -5,8 +5,6 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/format";
 import { ThemeToggle } from "./ThemeToggle";
 import { AuthButton } from "./AuthButton";
-import { useFavorites } from "@/lib/favorites";
-import { useApplications } from "@/lib/applications";
 
 const LINKS = [
   { href: "/", label: "Accueil" },
@@ -15,8 +13,12 @@ const LINKS = [
   { href: "/sources", label: "Sources" },
 ];
 
+/** Routes de l'espace utilisateur (menu latéral commun). */
+const COMPTE = ["/candidatures", "/favoris", "/alertes"];
+
 export function Header() {
   const pathname = usePathname();
+  const compteActive = COMPTE.some((h) => pathname.startsWith(h));
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
@@ -46,62 +48,23 @@ export function Header() {
               </Link>
             );
           })}
-          <AppliedLink active={pathname.startsWith("/candidatures")} />
-          <FavLink active={pathname.startsWith("/favoris")} />
+          <Link
+            href="/candidatures"
+            title="Mon espace — candidatures, favoris, alertes"
+            className={cn(
+              "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+              compteActive
+                ? "bg-brand-50 text-brand-700"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
+            )}
+          >
+            <span aria-hidden>👤</span>
+            <span className="hidden sm:inline">Mon espace</span>
+          </Link>
           <ThemeToggle />
           <AuthButton />
         </nav>
       </div>
     </header>
-  );
-}
-
-/** Lien « Candidatures » avec le compteur d'offres où l'on a postulé (crochet vert). */
-function AppliedLink({ active }: { active: boolean }) {
-  const count = useApplications().size;
-  return (
-    <Link
-      href="/candidatures"
-      title="Mes candidatures"
-      className={cn(
-        "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-        active
-          ? "bg-brand-50 text-brand-700"
-          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
-      )}
-    >
-      <span className={count > 0 ? "text-green-600" : "text-slate-400"}>✓</span>
-      <span className="hidden sm:inline">Candidatures</span>
-      {count > 0 && (
-        <span className="grid min-w-[1.25rem] place-items-center rounded-full bg-green-600 px-1 text-xs font-semibold text-white">
-          {count}
-        </span>
-      )}
-    </Link>
-  );
-}
-
-/** Lien « Favoris » avec le compteur d'offres sauvegardées (navigateur). */
-function FavLink({ active }: { active: boolean }) {
-  const count = useFavorites().size;
-  return (
-    <Link
-      href="/favoris"
-      title="Mes favoris"
-      className={cn(
-        "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-        active
-          ? "bg-brand-50 text-brand-700"
-          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
-      )}
-    >
-      <span className={active ? "text-red-500" : ""}>{count > 0 ? "♥" : "♡"}</span>
-      <span className="hidden sm:inline">Favoris</span>
-      {count > 0 && (
-        <span className="grid min-w-[1.25rem] place-items-center rounded-full bg-brand-600 px-1 text-xs font-semibold text-white">
-          {count}
-        </span>
-      )}
-    </Link>
   );
 }
