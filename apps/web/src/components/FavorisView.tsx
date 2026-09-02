@@ -37,7 +37,7 @@ export function FavorisView() {
   const missing = allJobs ? favorites.size - items.length : 0;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6">
+    <div>
       {enabled && (
         <div
           className={`card mb-4 p-3 text-sm ${

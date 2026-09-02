@@ -41,7 +41,7 @@ export function AlertesView() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6">
+    <div>
       {!enabled ? (
         <div className="card p-6 text-center text-slate-500">
           Les alertes par courriel ne sont pas encore activées sur ce site.
