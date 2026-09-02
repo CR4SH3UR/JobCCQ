@@ -34,6 +34,30 @@ create policy "insert own favorites" on public.favorites for insert with check (
 create policy "delete own favorites" on public.favorites for delete using (auth.uid() = user_id);
 ```
 
+### Table des candidatures (« j'ai postulé »)
+
+Même principe que les favoris : un crochet vert sur les offres où la personne a
+postulé, retrouvables sur la page **« Mes candidatures »**. Colle et exécute aussi :
+
+```sql
+create table if not exists public.applications (
+  user_id    uuid        not null references auth.users (id) on delete cascade,
+  job_id     text        not null,
+  created_at timestamptz not null default now(),
+  primary key (user_id, job_id)
+);
+
+alter table public.applications enable row level security;
+
+-- Chacun ne lit / ajoute / retire QUE ses propres candidatures.
+create policy "read own applications"   on public.applications for select using (auth.uid() = user_id);
+create policy "insert own applications" on public.applications for insert with check (auth.uid() = user_id);
+create policy "delete own applications" on public.applications for delete using (auth.uid() = user_id);
+```
+
+> Tant que cette table n'existe pas, la fonctionnalité marche quand même en
+> **local** (localStorage) — la synchro entre appareils s'active dès la table créée.
+
 ## 3. Activer le lien magique + les URLs de retour
 
 1. **Authentication → Providers → Email** : activé (c'est le cas par défaut). Le lien

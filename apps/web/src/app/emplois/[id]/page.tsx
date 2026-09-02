@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/Badge";
 import { JobCard } from "@/components/JobCard";
 import { FavoriteButton } from "@/components/FavoriteButton";
+import { AppliedButton } from "@/components/AppliedButton";
 import { formatSalary, initials, timeAgo } from "@/lib/format";
 import { jobById, allJobs, similarJobs } from "@/lib/static-data";
 import { jobPostingLd, ldJson } from "@/lib/jsonld";
@@ -129,6 +130,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
               >
                 Postuler sur {sourceName(job.sourceId)} →
               </a>
+              <AppliedButton id={job.id} />
               <FavoriteButton id={job.id} />
             </div>
           </div>

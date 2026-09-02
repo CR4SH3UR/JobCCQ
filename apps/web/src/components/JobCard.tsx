@@ -16,6 +16,7 @@ import { Badge } from "./Badge";
 import { cn, formatSalary, initials, timeAgo } from "@/lib/format";
 import { isSponsoredEmployer } from "@/lib/sponsors";
 import { toggleFavorite, useIsFavorite } from "@/lib/favorites";
+import { toggleApplied, useHasApplied } from "@/lib/applications";
 
 const REMOTE_TONE = { teletravail: "green", hybride: "violet", presentiel: "slate" } as const;
 
@@ -25,6 +26,7 @@ export function JobCard({ job }: { job: Job }) {
   const posted = timeAgo(job.postedAt ?? job.scrapedAt);
   const sectors = getSource(job.sourceId)?.sectors ?? [];
   const sponsored = isSponsoredEmployer(job.sourceId);
+  const applied = useHasApplied(job.id);
   const rbq = getEmployer(job.sourceId)?.rbq;
   const languages = job.languages ?? [];
   // Lieu : ville, puis région administrative si elle apporte une précision.
@@ -51,6 +53,7 @@ export function JobCard({ job }: { job: Job }) {
             </h3>
             <div className="flex shrink-0 items-center gap-1.5">
               {posted && <span className="text-xs text-slate-400">{posted}</span>}
+              <AppliedCheck id={job.id} />
               <FavButton id={job.id} />
             </div>
           </div>
@@ -66,6 +69,7 @@ export function JobCard({ job }: { job: Job }) {
           </p>
 
           <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+            {applied && <Badge tone="green">✓ Postulé</Badge>}
             {sponsored && <Badge tone="amber">★ Commandité</Badge>}
             {job.categoryId && <Badge tone="brand">{labelForCategory(job.categoryId)}</Badge>}
             {sectors.slice(0, 2).map((s) => (
@@ -136,6 +140,28 @@ function FavButton({ id }: { id: string }) {
       )}
     >
       {fav ? "♥" : "♡"}
+    </button>
+  );
+}
+
+/** Crochet « postulé » : marque/retire l'offre de vos candidatures (crochet vert). */
+function AppliedCheck({ id }: { id: string }) {
+  const applied = useHasApplied(id);
+  return (
+    <button
+      type="button"
+      onClick={() => toggleApplied(id)}
+      aria-pressed={applied}
+      aria-label={applied ? "Retirer de mes candidatures" : "Marquer comme postulé"}
+      title={applied ? "Retirer de mes candidatures" : "Marquer comme postulé"}
+      className={cn(
+        "grid h-7 w-7 shrink-0 place-items-center rounded-full text-sm font-bold leading-none transition-colors",
+        applied
+          ? "bg-green-100 text-green-600 hover:bg-green-200"
+          : "text-slate-300 hover:bg-slate-100 hover:text-green-500",
+      )}
+    >
+      ✓
     </button>
   );
 }
