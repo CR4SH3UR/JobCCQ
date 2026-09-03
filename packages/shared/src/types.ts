@@ -100,6 +100,8 @@ export const JobQuerySchema = z.object({
   languages: z.array(z.enum(["fr", "en", "bilingue"])).optional(),
   salaryMin: z.coerce.number().nonnegative().optional(),
   postedWithinDays: z.coerce.number().int().positive().optional(),
+  /** Ne garder que les métiers reconnus CCQ (détection par intitulé). */
+  ccqOnly: z.coerce.boolean().optional(),
   sort: z.enum(SORT_OPTIONS).default("recent"),
   page: z.coerce.number().int().positive().default(1),
   pageSize: z.coerce.number().int().positive().max(100).default(20),

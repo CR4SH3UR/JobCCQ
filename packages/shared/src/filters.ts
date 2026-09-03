@@ -20,6 +20,7 @@ import {
   labelForRemote,
 } from "./taxonomy.js";
 import { sourceName } from "./sources.js";
+import { isCcqTrade } from "./ccq.js";
 
 const norm = (s: string): string =>
   s
@@ -92,6 +93,7 @@ export function matchesQuery(job: Job, query: JobQuery): boolean {
     const d = daysSince(job.postedAt);
     if (d == null || d > query.postedWithinDays) return false;
   }
+  if (query.ccqOnly && !isCcqTrade(job.title)) return false;
   return true;
 }
 

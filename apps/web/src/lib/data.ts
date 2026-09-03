@@ -97,6 +97,7 @@ function toParams(q: JobQuery): URLSearchParams {
   if (q.languages?.length) p.set("languages", q.languages.join(","));
   if (q.salaryMin != null) p.set("salaryMin", String(q.salaryMin));
   if (q.postedWithinDays != null) p.set("postedWithinDays", String(q.postedWithinDays));
+  if (q.ccqOnly) p.set("ccqOnly", "1");
   p.set("sort", q.sort);
   p.set("page", String(q.page));
   p.set("pageSize", String(q.pageSize));
