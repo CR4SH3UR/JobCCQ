@@ -1086,16 +1086,34 @@ export function AdminExplorer() {
     }
   };
 
-  // URLs de carrières utilisées par PLUSIEURS employeurs (doublons, ex. Canam).
-  const dupUrls = useMemo(() => {
-    const seen = new Map<string, number>();
+  // Doublons : employeurs partageant soit la MÊME URL de carrières (ex. Canam),
+  // soit le MÊME NOM normalisé (même entreprise saisie deux fois — ex. une fiche
+  // Jobillico + une fiche site propre, ou deux graphies « … inc. »/« … Inc »).
+  const dupKey = (e: Employer) => e.careersUrl.trim().replace(/\/+$/, "").toLowerCase();
+  const normName = (s: string) =>
+    (s || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "") // accents
+      .replace(/[.,'’"()]/g, " ")
+      .replace(/\b(inc|ltee|ltd|ltee?|enr|senc|cie|co|corp|corporation|incorporee?)\b/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  const { dupUrls, dupNames } = useMemo(() => {
+    const urls = new Map<string, number>();
+    const names = new Map<string, number>();
     for (const e of employers) {
-      const u = e.careersUrl.trim().replace(/\/+$/, "").toLowerCase();
-      if (u) seen.set(u, (seen.get(u) ?? 0) + 1);
+      const u = dupKey(e);
+      if (u) urls.set(u, (urls.get(u) ?? 0) + 1);
+      const n = normName(e.name);
+      if (n) names.set(n, (names.get(n) ?? 0) + 1);
     }
-    return new Set([...seen.entries()].filter(([, n]) => n > 1).map(([u]) => u));
+    return {
+      dupUrls: new Set([...urls].filter(([, n]) => n > 1).map(([u]) => u)),
+      dupNames: new Set([...names].filter(([, n]) => n > 1).map(([n]) => n)),
+    };
   }, [employers]);
-  const isDup = (e: Employer) => dupUrls.has(e.careersUrl.trim().replace(/\/+$/, "").toLowerCase());
+  const isDup = (e: Employer) => dupUrls.has(dupKey(e)) || dupNames.has(normName(e.name));
 
   // Régions distinctes présentes (alimente le filtre par région).
   const regions = useMemo(() => {
