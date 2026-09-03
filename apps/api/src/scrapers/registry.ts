@@ -64,6 +64,7 @@ const BESPOKE: Record<string, Scraper> = {
   [excavationsRsrScraper.id]: excavationsRsrScraper,
   [galileeScraper.id]: galileeScraper,
   [intermatScraper.id]: intermatScraper,
+  [riouxScraper.id]: riouxScraper,
 };
 
 /**
