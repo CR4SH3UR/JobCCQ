@@ -9,6 +9,7 @@ import {
   labelForRegion,
   labelForRemote,
   sectorsForJob,
+  ccqTradeLabel,
   sourceName,
   type Job,
 } from "@jobccq/shared";
@@ -27,6 +28,7 @@ export function JobCard({ job }: { job: Job }) {
   const sectors = sectorsForJob(job);
   const sponsored = isSponsoredEmployer(job.sourceId);
   const applied = useHasApplied(job.id);
+  const ccq = ccqTradeLabel(job.title);
   const rbq = getEmployer(job.sourceId)?.rbq;
   const languages = job.languages ?? [];
   // Lieu : ville, puis région administrative si elle apporte une précision.
@@ -70,6 +72,7 @@ export function JobCard({ job }: { job: Job }) {
 
           <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
             {applied && <Badge tone="green">✓ Postulé</Badge>}
+            {ccq && <Badge tone="violet">CCQ</Badge>}
             {sponsored && <Badge tone="amber">★ Commandité</Badge>}
             {job.categoryId && <Badge tone="brand">{labelForCategory(job.categoryId)}</Badge>}
             {sectors.slice(0, 2).map((s) => (

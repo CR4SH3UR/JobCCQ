@@ -84,6 +84,7 @@ export function EmploisExplorer() {
   const [sel, setSel] = useState<Record<MultiKey, string[]>>(EMPTY_SEL);
   const [salaryMin, setSalaryMin] = useState("");
   const [postedWithinDays, setPostedWithinDays] = useState("");
+  const [ccqOnly, setCcqOnly] = useState(false);
   const [sort, setSort] = useState<SortOption>("recent");
   const [page, setPage] = useState(1);
 
@@ -131,11 +132,12 @@ export function EmploisExplorer() {
         languages: sel.languages.length ? (sel.languages as JobQuery["languages"]) : undefined,
         salaryMin: salaryMin ? Number(salaryMin) : undefined,
         postedWithinDays: postedWithinDays ? Number(postedWithinDays) : undefined,
+        ccqOnly: ccqOnly || undefined,
         sort,
         page,
         pageSize: PAGE_SIZE,
       }),
-    [dq, dcity, sel, salaryMin, postedWithinDays, sort, page],
+    [dq, dcity, sel, salaryMin, postedWithinDays, ccqOnly, sort, page],
   );
 
   useEffect(() => {
@@ -165,6 +167,7 @@ export function EmploisExplorer() {
     setSel(EMPTY_SEL);
     setSalaryMin("");
     setPostedWithinDays("");
+    setCcqOnly(false);
     setSort("recent");
     setPage(1);
   };
@@ -174,7 +177,8 @@ export function EmploisExplorer() {
     (q ? 1 : 0) +
     (city ? 1 : 0) +
     (salaryMin ? 1 : 0) +
-    (postedWithinDays ? 1 : 0);
+    (postedWithinDays ? 1 : 0) +
+    (ccqOnly ? 1 : 0);
 
   // Libellé lisible de la recherche courante (pour nommer une alerte).
   const alertLabel = (): string => {
@@ -289,6 +293,7 @@ export function EmploisExplorer() {
                 {POSTED_OPTIONS.find((o) => o.value === postedWithinDays)?.label}
               </Chip>
             )}
+            {ccqOnly && <Chip onClear={() => setCcqOnly(false)}>Métiers CCQ</Chip>}
             <button
               type="button"
               onClick={resetAll}
@@ -317,6 +322,25 @@ export function EmploisExplorer() {
                 </button>
               )}
             </div>
+
+            {/* Métiers CCQ */}
+            <label className="flex cursor-pointer items-center gap-2 border-b border-slate-100 py-3">
+              <input
+                type="checkbox"
+                checked={ccqOnly}
+                onChange={(e) => {
+                  setCcqOnly(e.target.checked);
+                  setPage(1);
+                }}
+                className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-300"
+              />
+              <span className="text-sm font-medium text-slate-700">
+                Métiers CCQ seulement
+                <span className="mt-0.5 block text-xs font-normal text-slate-400">
+                  Métiers reconnus des conventions (électricien, charpentier…)
+                </span>
+              </span>
+            </label>
 
             {/* Salaire */}
             <div className="border-b border-slate-100 py-3">
