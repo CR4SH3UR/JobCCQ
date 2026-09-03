@@ -8,6 +8,7 @@ import {
   labelForLanguage,
   labelForRegion,
   labelForRemote,
+  sectorsForJob,
   sourceName,
 } from "@jobccq/shared";
 import { Badge } from "@/components/Badge";
@@ -57,7 +58,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const region = labelForRegion(job.regionId);
   const salary = formatSalary(job);
   const posted = timeAgo(job.postedAt ?? job.scrapedAt);
-  const sectors = employer?.sectors ?? [];
+  const sectors = sectorsForJob(job);
   const languages = job.languages ?? [];
   const similar = similarJobs(job);
   const place =

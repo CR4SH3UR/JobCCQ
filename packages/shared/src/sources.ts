@@ -63,7 +63,7 @@ export type JobSourceId = (typeof JOB_SOURCES)[number]["id"];
 // --- Employeurs découverts automatiquement (registre RBQ) ------------------
 
 import discoveredRaw from "./discovered.json";
-import { regionIdFromName } from "./taxonomy.js";
+import { isLandscapingOrSnow, regionIdFromName } from "./taxonomy.js";
 
 /** Méthode d'accès détectée pour un employeur découvert. */
 export type DiscoveredMethod =
@@ -141,6 +141,17 @@ const EMPLOYER_BY_ID: Record<string, DiscoveredEmployer> = Object.fromEntries(
 /** Fiche employeur (registre RBQ) pour un id de source — porte `rbq`, `region`, `sectors`. */
 export const getEmployer = (id?: string | null): DiscoveredEmployer | undefined =>
   id ? EMPLOYER_BY_ID[id] : undefined;
+
+/**
+ * Secteurs à AFFICHER pour une offre : les secteurs de l'employeur, mais on
+ * retire « Construction… » pour une offre d'entretien paysager / déneigement
+ * (déneigement, tonte de pelouse) — elle ne relève pas de la construction.
+ */
+export function sectorsForJob(job: { sourceId?: string | null; title?: string | null }): string[] {
+  const sectors = [...(getSource(job.sourceId)?.sectors ?? [])];
+  if (isLandscapingOrSnow(job.title)) return sectors.filter((s) => !/construction/i.test(s));
+  return sectors;
+}
 
 /** Id de région (référentiel) de l'employeur, dérivé de sa région administrative RBQ. */
 export const employerRegionId = (sourceId?: string | null): string | undefined =>
