@@ -1,6 +1,6 @@
 import { RawJobSchema, type Job } from "@jobccq/shared";
 import { prisma } from "./db.js";
-import { normalizeRawJob } from "./normalize.js";
+import { normalizeRawJob, isJunkTitle } from "./normalize.js";
 import { syncSourceJobs, upsertJobs } from "./repository.js";
 import { createHttpContext } from "./scrapers/http.js";
 import { getScraper, listScraperIds } from "./scrapers/registry.js";
@@ -59,8 +59,18 @@ export async function runScraperInstance(
     const jobs: Job[] = [];
     for (const candidate of raw) {
       const parsed = RawJobSchema.safeParse(candidate);
-      if (parsed.success) jobs.push(normalizeRawJob(parsed.data));
-      else log(`offre ignorée (invalide) : ${parsed.error.issues[0]?.message ?? "?"}`);
+      if (!parsed.success) {
+        log(`offre ignorée (invalide) : ${parsed.error.issues[0]?.message ?? "?"}`);
+        continue;
+      }
+      const job = normalizeRawJob(parsed.data);
+      // Écarte les intitulés parasites (reste de CSS/SVG, boutons, compteurs,
+      // « Appliquez | Indeed »…) pour ne pas polluer le catalogue.
+      if (isJunkTitle(job.title)) {
+        log(`offre ignorée (titre parasite) : ${job.title.slice(0, 60)}`);
+        continue;
+      }
+      jobs.push(job);
     }
 
     const { inserted, updated } =
