@@ -8,6 +8,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { effectiveRegionId, type Job } from "@jobccq/shared";
+import { inferCategory } from "./normalize.js";
 import { SEED_JOBS } from "./seed-data.js";
 import { seedToJob } from "./seed-transform.js";
 
@@ -37,6 +38,21 @@ async function main() {
     }
   } else {
     jobs = SEED_JOBS.map(seedToJob);
+  }
+
+  // Catégorie recalculée depuis l'intitulé au moment de l'export : `categoryId`
+  // est une pure fonction du titre (jamais saisie à la main), donc on applique
+  // ici la dernière version de la taxonomie sans avoir à re-scraper toutes les
+  // sources — les corrections de classement (ex. « Peintre commercial » →
+  // construction, « Déneigement commercial » ≠ vente) prennent effet au prochain
+  // déploiement.
+  let recategorized = 0;
+  for (const job of jobs) {
+    const cat = inferCategory(job.title, job.tags);
+    if (cat !== job.categoryId) {
+      job.categoryId = cat;
+      recategorized++;
+    }
   }
 
   // Région manquante (localisation non fournie par le site) : on retombe sur la
@@ -73,6 +89,7 @@ async function main() {
     `📍 Régions : ${withRegion}/${jobs.length} renseignées (${filled} complétées via la région RBQ de l'employeur).`,
   );
   console.log(`📝 Descriptions : ${withDesc}/${jobs.length} renseignées.`);
+  console.log(`🏷️  Catégories : ${recategorized} recalculées depuis l'intitulé.`);
 }
 
 main().catch((err) => {
