@@ -824,14 +824,15 @@ export function makeCareersScraper(config: CareersScraperConfig): Scraper {
       }
       const jobs = this.parseList!(html, config.careersUrl);
 
-      // Enrichissement des descriptions : pour les offres à URL réelle (fiche)
-      // sans description, on récupère la fiche et on en extrait la description
-      // (JSON-LD sinon contenu principal). Borné par employeur (politesse/temps).
+      // Enrichissement par la fiche : pour les offres à URL réelle sans
+      // description OU sans lieu, on récupère la fiche et on complète depuis son
+      // JSON-LD (description, lieu, salaire, type, date) — sinon on tire au moins
+      // la description du contenu principal. Borné par employeur (politesse).
       const DETAIL_CAP = 15;
       let enriched = 0;
       for (const job of jobs) {
         if (enriched >= DETAIL_CAP) break;
-        if (job.description) continue;
+        if (job.description && job.location) continue;
         if (!/^https?:\/\//i.test(job.url) || job.url.includes("#")) continue;
         // Fiche = page HTML : on évite les fichiers (PDF, doc, image…) — cheerio
         // n'en tirerait que du binaire illisible.
@@ -843,10 +844,20 @@ export function makeCareersScraper(config: CareersScraperConfig): Scraper {
         enriched++;
         try {
           const detailHtml = await ctx.fetchHtml(job.url);
-          const desc = extractDetailDescription(detailHtml, config.id, job.url);
-          if (desc) job.description = desc;
+          const ld = extractJsonLdJobs(detailHtml, config.id, job.url).find((j) => j.description || j.location);
+          if (!job.description) job.description = ld?.description ?? mainContentText(detailHtml);
+          if (ld) {
+            if (!job.location && ld.location) job.location = ld.location;
+            if (job.salaryMin == null && ld.salaryMin != null) {
+              job.salaryMin = ld.salaryMin;
+              job.salaryMax = ld.salaryMax;
+              job.salaryPeriod = ld.salaryPeriod;
+            }
+            if (!job.employmentType && ld.employmentType) job.employmentType = ld.employmentType;
+            if (!job.postedAt && ld.postedAt) job.postedAt = ld.postedAt;
+          }
         } catch {
-          /* fiche inaccessible → on garde l'offre sans description */
+          /* fiche inaccessible → on garde l'offre en l'état */
         }
       }
       if (enriched > 0) {

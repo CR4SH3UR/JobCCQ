@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { isLandscapingOrSnow } from "@jobccq/shared";
 import type { Job, RawJob } from "@jobccq/shared";
 
 /** Retire les accents et met en minuscules (comparaisons tolérantes). */
@@ -8,6 +9,50 @@ function fold(s: string): string {
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
     .trim();
+}
+
+/** Retire les balises HTML résiduelles d'un texte (descriptions, titres). */
+function stripHtml(s?: string | null): string {
+  return (s ?? "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Nettoie un intitulé d'offre extrait : balises/accolades résiduelles, amorces
+ * (« Voir détails », « Postuler »…) et suffixes de carte (« Mise en ligne le… »,
+ * salaire en fin) qui polluent certains gabarits de listing.
+ */
+export function cleanTitle(raw: string): string {
+  let t = stripHtml(raw).replace(/[{}<>]/g, " ");
+  t = t.replace(
+    /^\s*(voir\s+d[ée]tails?|postuler|appliquez?|voir\s+l['’]offre|en\s+savoir\s+plus)\b[\s:|>«»–-]*/i,
+    "",
+  );
+  t = t.replace(/\s*mise\s+en\s+ligne\s+le\s*:.*$/i, "");
+  t = t.replace(/\s+\d{1,3}[.,]\d{2}\s*\$?\s*$/i, ""); // salaire horaire en fin de libellé
+  return t.replace(/\s+/g, " ").trim();
+}
+
+/**
+ * Vrai si l'intitulé n'est PAS un vrai poste : reste de CSS/SVG, compteur
+ * (« 37 jobs »), bouton (« Show 17 more », « Appliquez | Indeed »), amorce
+ * d'action, ou libellé sans mot réel. Ces offres parasites sont écartées.
+ */
+export function isJunkTitle(t: string): boolean {
+  const s = (t ?? "").trim();
+  if (s.length < 3) return true;
+  if (/fill:\s*#|\.st\d|@media|[{}]/i.test(s)) return true;
+  if (/^\d+\s+(jobs?|postes?|offres?|emplois?)$/i.test(s)) return true;
+  if (/^(show|voir|afficher)\s+\d+\s+(more|de\s+plus|autres?)\b/i.test(s)) return true;
+  if (/\bindeed\b/i.test(s)) return true;
+  if (/^(postuler|appliquez?|voir(\s+l['’])?\s*offre|en\s+savoir\s+plus|d[ée]tails?|apply)\b/i.test(s))
+    return true;
+  if (!/[a-zà-ÿ]{3}/i.test(s)) return true; // aucun vrai mot
+  return false;
 }
 
 /** Identifiant stable et déterministe d'une offre. */
@@ -101,6 +146,12 @@ const CATEGORY_KEYWORDS: Array<[string, RegExp]> = [
 export function inferCategory(title: string, tags: string[] = []): string | undefined {
   // Normalise les ligatures (œ→oe, æ→ae) : « Manœuvre » doit matcher « manoeuvre ».
   const hay = `${title} ${tags.join(" ")}`.replace(/œ/gi, "oe").replace(/æ/gi, "ae");
+  // Entretien paysager / déneigement : NE PAS classer en construction (même si
+  // l'intitulé contient un mot de métier proche). On tente les autres domaines.
+  if (isLandscapingOrSnow(title)) {
+    for (const [cat, re] of CATEGORY_KEYWORDS) if (cat !== "construction" && re.test(hay)) return cat;
+    return undefined;
+  }
   for (const [cat, re] of CATEGORY_KEYWORDS) if (re.test(hay)) return cat;
   return undefined;
 }
@@ -192,7 +243,7 @@ export function normalizeRawJob(raw: RawJob, now = new Date()): Job {
     id: jobId(raw.sourceId, raw.url),
     sourceId: raw.sourceId,
     url: raw.url,
-    title: raw.title.trim(),
+    title: cleanTitle(raw.title),
     company: raw.company.trim(),
     companyLogoUrl: raw.companyLogoUrl,
     location: raw.location?.trim(),
@@ -204,7 +255,7 @@ export function normalizeRawJob(raw: RawJob, now = new Date()): Job {
     salaryMax: raw.salaryMax ?? salaryFromText?.salaryMax,
     salaryPeriod: raw.salaryPeriod ?? salaryFromText?.salaryPeriod,
     currency: "CAD",
-    description: raw.description?.trim(),
+    description: raw.description ? stripHtml(raw.description) || undefined : undefined,
     tags,
     languages: detectLanguages(text),
     postedAt,
