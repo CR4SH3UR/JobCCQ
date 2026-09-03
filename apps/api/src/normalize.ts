@@ -127,10 +127,19 @@ const CATEGORY_KEYWORDS: Array<[string, RegExp]> = [
   // « préposé » seul est trop large (préposé à la cour, à l'entretien…) : on
   // exige le contexte « bénéficiaire »/soins pour rester dans la santé.
   ["sante", /infirmi|pr[ée]pos[ée]+\s+(?:aux?\s+)?b[ée]n[ée]fic|beneficiaire|bénéficiaire|medecin|médecin|pharmac|dentaire|physio|ergotherapeu|ergothérapeu|inhalotherapeu|psycholog|travailleu(?:r|se) social|soins|clinique|hospitali|nurse|health care|healthcare|medical|caregiver|orderly|personal support worker/i],
-  ["construction", /electricien|électricien|plombier|charpentier|menuisier|macon|maçon|grutier|chantier|construction|manoeuvre|cimentier|signaleur|poseur de tuyau|soudeur|couvreu|ferblantier|arpenteu|estimateu|monteur de lign|monteuse de lign|monteur de structure|monteur-assembleur|homme de cour|electrician|plumber|carpenter|welder|roofer|labourer|lineman|heavy equipment/i],
+  // Métiers du bâtiment. « commercial » / « résidentiel » ne sont que des
+  // qualificatifs de secteur : un « Peintre commercial » ou une « Excavation
+  // résidentielle » reste de la construction (d'où aussi le resserrement de
+  // « commercial » dans « vente » plus bas). `\bma[çc]on` (borne de mot) évite
+  // de capter des noms propres comme « Permacon ».
+  ["construction", /electricien|électricien|plombier|charpentier|menuisier|\bma[çc]on|grutier|chantier|construction|manoeuvre|manœuvre|cimentier|signaleur|poseur de tuyau|soudeu|couvreu|ferblantier|arpenteu|estimateu|monteur de lign|monteuse de lign|monteur de structure|monteur-assembleur|homme de cour|peintre|frigoriste|r[ée]frig[ée]ra|climatisation|chauffage|\bcvac\b|\bcvc\b|ventilation|calorifugeu|carreleu|carrelage|pl[âa]trier|briqueteu|tuyauteu|tuyauterie|serrurier|vitrier|toiture|toit plat|coffreu|coffrage|b[ée]ton|pavage|paveu|excavati|terrassement|terrassier|[ée]chafaud|contrema[îi]tre|surintendant|installateu|gicleur|protection incendie|m[ée]canicien de chantier|op[ée]rateur (?:de |d')?(?:pelle|machinerie|chargeu|[ée]quipement)|electrician|plumber|carpenter|welder|roofer|labourer|lineman|heavy equipment/i],
   ["finance", /comptab|financ|fiscal|controleu|contrôleu|analyste financier|actuaire|assurance|banque|credit|crédit|paie|verificateu|vérificateu|tresorerie|trésorerie|account(?:ant|ing)|financial|bookkeep|payroll|auditor|banking|investment|comptes? payable|accounts payable/i],
   ["admin", /adjoint|secretai|secrétai|réceptionn|receptionn|commis|soutien administratif|bureautique|coordonnateu(?:r|rice) administra|administrative|administratif|receptionist|clerk|office assistant|data entry|secretary/i],
-  ["vente", /vente|vendeu|conseiller (?:en vente|aux ventes)|representant|représentant|caissier|service (?:à la clientele|a la clientele|client)|commercial(?:e)?\b|\bsales\b|cashier|retail|customer service|account executive/i],
+  // « commercial » seul (adjectif de secteur) déclassait à tort des offres de
+  // construction et de déneigement en « vente ». On n'accepte plus le mot que
+  // dans un vrai rôle de vente (« développement / directeur / gestionnaire
+  // commercial ») ; « représentant », « vente », « sales »… restent captés.
+  ["vente", /vente|vendeu|conseiller (?:en vente|aux ventes)|representant|représentant|caissier|service (?:à la clientele|a la clientele|client)|d[ée]veloppement commercial|directeu(?:r|rice) commercial|gestionnaire commercial|\bsales\b|cashier|retail|customer service|account executive/i],
   ["marketing", /marketing|communication|redacteu|rédacteu|contenu|médias sociaux|medias sociaux|publicit|relations publiques|growth|seo|social media|copywriter|content (?:writer|creator)/i],
   ["rh", /ressources humaines|recruteu|recrutement|recruitment|talent|conseiller rh|paie et avantages|dotation|human resources|recruiter|\bhr\b/i],
   ["education", /enseignant|professeu|educateu|éducateu|formateu|pedagog|pédagog|scolaire|garderie|cpe|orthopedagog|teacher|professor|educator|instructor|\btutor\b|early childhood/i],
