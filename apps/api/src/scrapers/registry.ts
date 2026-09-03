@@ -25,6 +25,7 @@ import { glrScraper } from "./glr.js";
 import { excavationsRsrScraper } from "./excavationsrsr.js";
 import { galileeScraper } from "./galilee.js";
 import { intermatScraper } from "./intermat.js";
+import { riouxScraper } from "./rioux.js";
 import { buildDiscoveredScraper } from "./discovered.js";
 
 /**
