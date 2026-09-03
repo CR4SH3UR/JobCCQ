@@ -3,12 +3,12 @@
 import Link from "next/link";
 import {
   getEmployer,
-  getSource,
   labelForCategory,
   labelForEmployment,
   labelForLanguage,
   labelForRegion,
   labelForRemote,
+  sectorsForJob,
   sourceName,
   type Job,
 } from "@jobccq/shared";
@@ -24,7 +24,7 @@ export function JobCard({ job }: { job: Job }) {
   const salary = formatSalary(job);
   const region = labelForRegion(job.regionId);
   const posted = timeAgo(job.postedAt ?? job.scrapedAt);
-  const sectors = getSource(job.sourceId)?.sectors ?? [];
+  const sectors = sectorsForJob(job);
   const sponsored = isSponsoredEmployer(job.sourceId);
   const applied = useHasApplied(job.id);
   const rbq = getEmployer(job.sourceId)?.rbq;

@@ -6,7 +6,6 @@ import type { Job } from "@jobccq/shared";
 import { searchJobs, buildQuery } from "@/lib/data";
 import { JobCard } from "./JobCard";
 import { useFavorites } from "@/lib/favorites";
-import { useAuth } from "@/lib/auth";
 
 /**
  * Page « Mes favoris » : les offres sauvegardées par le visiteur (stockées dans
@@ -16,7 +15,6 @@ import { useAuth } from "@/lib/auth";
  */
 export function FavorisView() {
   const favorites = useFavorites();
-  const { user, enabled } = useAuth();
   const [allJobs, setAllJobs] = useState<Job[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,20 +36,6 @@ export function FavorisView() {
 
   return (
     <div>
-      {enabled && (
-        <div
-          className={`card mb-4 p-3 text-sm ${
-            user ? "border-green-200 bg-green-50 text-green-800" : "border-brand-200 bg-brand-50 text-brand-800"
-          }`}
-        >
-          {user ? (
-            <>✅ Favoris <strong>synchronisés</strong> sur tous tes appareils · {user.email}</>
-          ) : (
-            <>☁️ Connecte-toi (bouton <strong>« Se connecter »</strong> en haut) pour synchroniser tes favoris sur tous tes appareils. Sinon ils restent sur ce navigateur.</>
-          )}
-        </div>
-      )}
-
       {error && (
         <div className="card border-red-200 bg-red-50 p-4 text-sm text-red-700">
           Impossible de charger les offres : {error}

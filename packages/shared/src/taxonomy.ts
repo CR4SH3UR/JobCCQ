@@ -99,6 +99,17 @@ export const SALARY_PERIODS = [
 
 export type SalaryPeriodId = (typeof SALARY_PERIODS)[number]["id"];
 
+/**
+ * Offre d'**entretien paysager / déneigement** (et non de construction) d'après
+ * son intitulé : sert à ne pas la classer dans « Construction générale ».
+ */
+export function isLandscapingOrSnow(title?: string | null): boolean {
+  if (!title) return false;
+  return /d[ée]neigement|tonte\s+de\s+(?:la\s+)?(?:pelouse|gazon)|tonte\s+de\s+pelouse|entretien\s+paysager|paysagement/i.test(
+    title,
+  );
+}
+
 // --- Utilitaires de recherche de libellés ---------------------------------
 
 function indexBy(items: readonly TaxonomyItem[]): Record<string, string> {
