@@ -2,31 +2,21 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useAuth, signInWithEmail, signOut } from "@/lib/auth";
+import { useAuth, signOut } from "@/lib/auth";
 import { cn } from "@/lib/format";
+import { LoginForm } from "./LoginForm";
 
 /**
- * Contrôle de connexion (lien magique). Rendu uniquement si Supabase est
+ * Contrôle de connexion de l'en-tête. Rendu uniquement si Supabase est
  * configuré ; sinon rien (les favoris restent locaux). Déconnecté → formulaire
- * courriel ; connecté → adresse + déconnexion.
+ * courriel + mot de passe (ou lien magique) via `LoginForm` ; connecté →
+ * adresse + déconnexion.
  */
 export function AuthButton() {
   const { user, loading, enabled } = useAuth();
   const [open, setOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<{ kind: "idle" | "sending" | "sent" | "error"; msg?: string }>({
-    kind: "idle",
-  });
 
   if (!enabled || loading) return null;
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim()) return;
-    setStatus({ kind: "sending" });
-    const { error } = await signInWithEmail(email);
-    setStatus(error ? { kind: "error", msg: error } : { kind: "sent" });
-  };
 
   return (
     <div className="relative">
@@ -93,45 +83,8 @@ export function AuthButton() {
                   Se déconnecter
                 </button>
               </div>
-            ) : status.kind === "sent" ? (
-              <div className="text-slate-700">
-                ✅ Lien envoyé à <span className="font-medium">{email}</span>. Ouvre ton courriel et clique sur
-                le lien pour te connecter.
-              </div>
             ) : (
-              <form onSubmit={submit} className="flex flex-col gap-2">
-                <p className="text-slate-600">
-                  Connecte-toi pour <strong>synchroniser tes favoris</strong> sur tous tes appareils. On
-                  t'envoie un lien magique — aucun mot de passe.
-                </p>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ton@courriel.com"
-                  className="rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
-                />
-                <button
-                  type="submit"
-                  disabled={status.kind === "sending"}
-                  className="rounded-lg bg-brand-600 px-3 py-2 font-semibold text-white disabled:opacity-50"
-                >
-                  {status.kind === "sending" ? "Envoi…" : "Envoyer le lien magique"}
-                </button>
-                <p className="text-xs text-slate-400">
-                  En continuant, tu acceptes notre{" "}
-                  <Link href="/confidentialite" onClick={() => setOpen(false)} className="underline hover:text-brand-600">
-                    politique de confidentialité
-                  </Link>{" "}
-                  et nos{" "}
-                  <Link href="/conditions" onClick={() => setOpen(false)} className="underline hover:text-brand-600">
-                    conditions
-                  </Link>
-                  .
-                </p>
-                {status.kind === "error" && <p className="text-red-600">{status.msg}</p>}
-              </form>
+              <LoginForm onNavigate={() => setOpen(false)} />
             )}
           </div>
         </>

@@ -1,94 +1,107 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { useAuth, signInWithEmail, signOut } from "@/lib/auth";
+import { useAuth, updatePassword, signOut } from "@/lib/auth";
+import { LoginForm } from "./LoginForm";
 
 /**
- * Connexion **intégrée à l'espace utilisateur** (colonne de droite) : au lieu de
- * renvoyer vers le bouton d'en-tête, on peut se connecter directement ici par
- * lien magique. Rendu seulement si Supabase est configuré ; sinon rien (les
- * données restent locales au navigateur).
+ * Connexion **intégrée à l'espace utilisateur** (colonne de droite). Déconnecté
+ * → formulaire courriel + mot de passe (ou lien magique), via `LoginForm`.
+ * Connecté → adresse, déconnexion et définition/changement du mot de passe.
+ * Rendu seulement si Supabase est configuré ; sinon rien (données locales).
  */
 export function AccountAuthPanel() {
   const { user, loading, enabled } = useAuth();
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<{ kind: "idle" | "sending" | "sent" | "error"; msg?: string }>({
-    kind: "idle",
-  });
 
   if (!enabled || loading) return null;
-
-  if (user) {
-    return (
-      <div className="card mb-5 flex flex-wrap items-center justify-between gap-3 border-green-200 bg-green-50 p-3 text-sm">
-        <span className="flex items-center gap-2 text-green-800">
-          <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
-          Connecté · <strong className="font-semibold">{user.email}</strong> · synchronisé sur tous tes appareils
-        </span>
-        <button
-          onClick={() => void signOut()}
-          className="rounded-lg border border-green-300 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50"
-        >
-          Se déconnecter
-        </button>
-      </div>
-    );
-  }
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim()) return;
-    setStatus({ kind: "sending" });
-    const { error } = await signInWithEmail(email);
-    setStatus(error ? { kind: "error", msg: error } : { kind: "sent" });
-  };
-
-  if (status.kind === "sent") {
-    return (
-      <div className="card mb-5 border-green-200 bg-green-50 p-4 text-sm text-green-800">
-        ✅ Lien envoyé à <strong>{email}</strong>. Ouvre ton courriel et clique sur le lien pour te connecter —
-        tes favoris, candidatures et alertes seront synchronisés.
-      </div>
-    );
-  }
+  if (user) return <ConnectedBar email={user.email ?? ""} />;
 
   return (
     <div className="card mb-5 border-brand-200 bg-brand-50 p-4">
-      <p className="text-sm font-semibold text-brand-900">Connecte-toi pour synchroniser ton espace</p>
-      <p className="mt-1 text-sm text-brand-800/80">
-        Retrouve tes favoris, candidatures et alertes sur tous tes appareils. On t'envoie un lien magique —
-        aucun mot de passe.
-      </p>
-      <form onSubmit={submit} className="mt-3 flex flex-col gap-2 sm:flex-row">
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="ton@courriel.com"
-          className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
-        />
-        <button
-          type="submit"
-          disabled={status.kind === "sending"}
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
-        >
-          {status.kind === "sending" ? "Envoi…" : "Recevoir le lien"}
-        </button>
-      </form>
+      <LoginForm />
+    </div>
+  );
+}
+
+type Status = { kind: "idle" | "busy" | "error"; msg?: string };
+
+const inputCls =
+  "min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100";
+
+/** Barre « connecté » + possibilité de définir/changer son mot de passe. */
+function ConnectedBar({ email }: { email: string }) {
+  const [open, setOpen] = useState(false);
+  const [password, setPassword] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [status, setStatus] = useState<Status>({ kind: "idle" });
+
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password.length < 6) {
+      setStatus({ kind: "error", msg: "Le mot de passe doit contenir au moins 6 caractères." });
+      return;
+    }
+    setStatus({ kind: "busy" });
+    const { error } = await updatePassword(password);
+    if (error) setStatus({ kind: "error", msg: error });
+    else {
+      setStatus({ kind: "idle" });
+      setPassword("");
+      setOpen(false);
+    }
+  };
+
+  return (
+    <div className="card mb-5 border-green-200 bg-green-50 p-3 text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span className="flex items-center gap-2 text-green-800">
+          <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
+          Connecté · <strong className="font-semibold">{email}</strong> · synchronisé sur tous tes appareils
+        </span>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="rounded-lg border border-green-300 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50"
+          >
+            {open ? "Annuler" : "Mot de passe"}
+          </button>
+          <button
+            onClick={() => void signOut()}
+            className="rounded-lg border border-green-300 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Se déconnecter
+          </button>
+        </div>
+      </div>
+
+      {open && (
+        <form onSubmit={save} className="mt-3 flex flex-col gap-2 border-t border-green-200 pt-3 sm:flex-row">
+          <input
+            type={showPw ? "text" : "password"}
+            required
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Nouveau mot de passe (min. 6)"
+            className={inputCls}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPw((v) => !v)}
+            className="shrink-0 rounded-lg border border-slate-300 bg-white px-3 text-xs font-medium text-slate-600 hover:bg-slate-50"
+          >
+            {showPw ? "Cacher" : "Afficher"}
+          </button>
+          <button
+            type="submit"
+            disabled={status.kind === "busy"}
+            className="shrink-0 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+          >
+            {status.kind === "busy" ? "…" : "Enregistrer"}
+          </button>
+        </form>
+      )}
       {status.kind === "error" && <p className="mt-2 text-sm text-red-600">{status.msg}</p>}
-      <p className="mt-2 text-xs text-slate-500">
-        En continuant, tu acceptes notre{" "}
-        <Link href="/confidentialite" className="underline hover:text-brand-700">
-          politique de confidentialité
-        </Link>{" "}
-        et nos{" "}
-        <Link href="/conditions" className="underline hover:text-brand-700">
-          conditions
-        </Link>
-        .
-      </p>
     </div>
   );
 }
