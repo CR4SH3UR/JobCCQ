@@ -41,7 +41,9 @@ export function JobCard({ job }: { job: Job }) {
     <article
       className={cn(
         "card group p-4 transition-shadow hover:shadow-md",
-        sponsored && "ring-2 ring-amber-300",
+        // Offre déjà postulée : contour vert (prioritaire sur le liseré
+        // « commandité » ambre). Sinon, liseré ambre pour les commandités.
+        applied ? "ring-2 ring-green-400" : sponsored && "ring-2 ring-amber-300",
       )}
     >
       <div className="flex gap-3">
