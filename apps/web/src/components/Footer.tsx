@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LEGAL } from "@/lib/legal";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -33,6 +34,12 @@ export function Footer() {
           <Link href="/sources" className="hover:text-brand-600 hover:underline">
             Sources
           </Link>
+          <a
+            href={`mailto:${LEGAL.contactEmail}?subject=${encodeURIComponent("Retour — JobCCQc")}`}
+            className="hover:text-brand-600 hover:underline"
+          >
+            Nous écrire
+          </a>
           <Link href="/admin" className="hover:text-brand-600 hover:underline">
             Admin
           </Link>

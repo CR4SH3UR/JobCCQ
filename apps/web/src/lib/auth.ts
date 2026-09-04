@@ -39,6 +39,12 @@ function redirectUrl(): string {
   return `${window.location.origin}${base}/favoris`;
 }
 
+/** URL de retour du lien de réinitialisation de mot de passe. */
+function resetRedirectUrl(): string {
+  const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+  return `${window.location.origin}${base}/reinitialiser`;
+}
+
 /** Traduit les erreurs d'authentification Supabase en messages clairs (FR). */
 function friendlyAuthError(raw: string): string {
   const m = raw.toLowerCase();
@@ -64,6 +70,18 @@ function friendlyAuthError(raw: string): string {
     return "Les inscriptions sont désactivées pour le moment.";
   }
   return "Connexion impossible pour le moment. Réessaie dans quelques minutes.";
+}
+
+/** Connexion via un fournisseur OAuth (redirige la page). Ex. GitHub. */
+export async function signInWithGitHub(): Promise<{ error?: string }> {
+  if (!supabase) return { error: "Comptes non configurés." };
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "github",
+    options: { redirectTo: redirectUrl() },
+  });
+  if (!error) return {}; // succès → le navigateur est redirigé vers GitHub
+  console.warn("Supabase auth:", error.message);
+  return { error: friendlyAuthError(error.message) };
 }
 
 /** Envoie un lien magique à l'adresse fournie. */
@@ -111,6 +129,21 @@ export async function signUpWithPassword(
     return { error: friendlyAuthError(error.message) };
   }
   return { needsConfirmation: !data.session };
+}
+
+/**
+ * Envoie un courriel de réinitialisation de mot de passe. Le lien reçu ramène
+ * sur `/reinitialiser` avec une session de récupération (voir ResetPasswordView).
+ * Réponse volontairement neutre côté UI (pas d'énumération des comptes).
+ */
+export async function resetPassword(email: string): Promise<{ error?: string }> {
+  if (!supabase) return { error: "Comptes non configurés." };
+  const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+    redirectTo: resetRedirectUrl(),
+  });
+  if (!error) return {};
+  console.warn("Supabase auth:", error.message);
+  return { error: friendlyAuthError(error.message) };
 }
 
 /** Définit ou change le mot de passe de l'utilisateur connecté. */
