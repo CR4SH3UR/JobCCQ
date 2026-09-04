@@ -5,8 +5,10 @@ import type { User } from "@supabase/supabase-js";
 import { supabase, supabaseEnabled } from "./supabase";
 
 /**
- * Authentification par **lien magique** (courriel, sans mot de passe).
- * `useAuth` expose l'utilisateur courant ; `signInWithEmail` envoie le lien ;
+ * Authentification : **courriel + mot de passe** ou **lien magique** (sans mot
+ * de passe). `useAuth` expose l'utilisateur courant ; `signInWithPassword` /
+ * `signUpWithPassword` gèrent le mot de passe ; `signInWithEmail` envoie un lien
+ * magique ; `updatePassword` (dé)définit le mot de passe une fois connecté ;
  * `signOut` déconnecte. Tout est no-op si Supabase n'est pas configuré.
  */
 export function useAuth(): { user: User | null; loading: boolean; enabled: boolean } {
@@ -43,6 +45,18 @@ function friendlyAuthError(raw: string): string {
   if (/rate limit|too many|only request this after|\bafter \d+ seconds\b/.test(m)) {
     return "Trop de demandes de connexion pour l'instant. Patiente quelques minutes, puis réessaie.";
   }
+  if (/invalid login credentials|invalid credentials/.test(m)) {
+    return "Courriel ou mot de passe incorrect.";
+  }
+  if (/already registered|already been registered|user already exists/.test(m)) {
+    return "Un compte existe déjà avec ce courriel. Connecte-toi plutôt.";
+  }
+  if (/password.*(6|at least|too short|should be)|weak password/.test(m)) {
+    return "Le mot de passe doit contenir au moins 6 caractères.";
+  }
+  if (/email not confirmed|not confirmed/.test(m)) {
+    return "Confirme d'abord ton courriel : ouvre le lien qu'on t'a envoyé.";
+  }
   if (/invalid|valid email|unable to validate/.test(m)) {
     return "Adresse courriel invalide. Vérifie et réessaie.";
   }
@@ -61,6 +75,49 @@ export async function signInWithEmail(email: string): Promise<{ error?: string }
   });
   if (!error) return {};
   // Message brut conservé en console pour le débogage ; message clair à l'écran.
+  console.warn("Supabase auth:", error.message);
+  return { error: friendlyAuthError(error.message) };
+}
+
+/** Connexion par courriel + mot de passe. */
+export async function signInWithPassword(
+  email: string,
+  password: string,
+): Promise<{ error?: string }> {
+  if (!supabase) return { error: "Comptes non configurés." };
+  const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+  if (!error) return {};
+  console.warn("Supabase auth:", error.message);
+  return { error: friendlyAuthError(error.message) };
+}
+
+/**
+ * Création d'un compte par courriel + mot de passe. Retourne
+ * `needsConfirmation: true` si Supabase exige une confirmation par courriel
+ * (aucune session ouverte tant que le lien n'est pas cliqué).
+ */
+export async function signUpWithPassword(
+  email: string,
+  password: string,
+): Promise<{ error?: string; needsConfirmation?: boolean }> {
+  if (!supabase) return { error: "Comptes non configurés." };
+  const { data, error } = await supabase.auth.signUp({
+    email: email.trim(),
+    password,
+    options: { emailRedirectTo: redirectUrl() },
+  });
+  if (error) {
+    console.warn("Supabase auth:", error.message);
+    return { error: friendlyAuthError(error.message) };
+  }
+  return { needsConfirmation: !data.session };
+}
+
+/** Définit ou change le mot de passe de l'utilisateur connecté. */
+export async function updatePassword(password: string): Promise<{ error?: string }> {
+  if (!supabase) return { error: "Comptes non configurés." };
+  const { error } = await supabase.auth.updateUser({ password });
+  if (!error) return {};
   console.warn("Supabase auth:", error.message);
   return { error: friendlyAuthError(error.message) };
 }
