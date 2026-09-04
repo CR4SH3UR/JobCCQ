@@ -5,9 +5,9 @@
   "type": "module",
   "description": "API JobCCQ — scraping, normalisation et recherche d'offres d'emploi",
   "scripts": {
-    "prisma:generate": "DATABASE_URL=file:./prisma/dev.db prisma generate",
-    "db:push": "DATABASE_URL=file:./prisma/dev.db prisma db push",
-    "db:reset": "DATABASE_URL=file:./prisma/dev.db prisma db push --force-reset --accept-data-loss",
+    "prisma:generate": "node scripts/prisma-env.mjs generate",
+    "db:push": "node scripts/prisma-env.mjs db push",
+    "db:reset": "node scripts/prisma-env.mjs db push --force-reset --accept-data-loss",
     "setup": "npm run prisma:generate && npm run db:push",
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { LEGAL } from "@/lib/legal";
 
+const adminEnabled = process.env.NEXT_PUBLIC_ENABLE_ADMIN === "1";
+
 export function Footer() {
   const year = new Date().getFullYear();
   return (
@@ -13,14 +15,11 @@ export function Footer() {
           Agrégateur d'offres d'emploi de la construction au Québec. Les offres proviennent de
           sources tierces et appartiennent à leurs éditeurs respectifs.
         </p>
-
-        {/* Non-affiliation (organisme officiel) */}
         <p className="mt-2 max-w-xl text-xs text-slate-400">
           Service indépendant, non affilié à la Commission de la construction du Québec (CCQ) ni à la
           Régie du bâtiment du Québec (RBQ). Numéros RBQ indicatifs, dérivés de Données Québec.
         </p>
 
-        {/* Liens légaux */}
         <nav className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-slate-500">
           <Link href="/a-propos" className="hover:text-brand-600 hover:underline">
             À propos
@@ -40,9 +39,11 @@ export function Footer() {
           >
             Nous écrire
           </a>
-          <Link href="/admin" className="hover:text-brand-600 hover:underline">
-            Admin
-          </Link>
+          {adminEnabled && (
+            <Link href="/admin" className="hover:text-brand-600 hover:underline">
+              Admin
+            </Link>
+          )}
         </nav>
 
         <p className="mt-4 text-xs text-slate-400">© {year} JobCCQc</p>
