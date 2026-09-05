@@ -20,6 +20,7 @@ export interface SearchFilters {
   sources: string[];
   languages: string[];
   salaryMin: string;
+  salaryListed: boolean;
   postedWithinDays: string;
   ccqOnly: boolean;
   sort: SortOption;
@@ -36,6 +37,7 @@ export const EMPTY_FILTERS: SearchFilters = {
   sources: [],
   languages: [],
   salaryMin: "",
+  salaryListed: false,
   postedWithinDays: "",
   ccqOnly: false,
   sort: "recent",
@@ -57,6 +59,7 @@ export function hasActiveFilters(f: SearchFilters): boolean {
     !!f.q ||
     !!f.city ||
     !!f.salaryMin ||
+    f.salaryListed ||
     !!f.postedWithinDays ||
     f.ccqOnly ||
     MULTI_KEYS.some((k) => f[k].length > 0)
@@ -70,6 +73,7 @@ export function filtersToParams(f: SearchFilters): URLSearchParams {
   if (f.city) p.set("cities", f.city);
   for (const k of MULTI_KEYS) if (f[k].length) p.set(k, f[k].join(","));
   if (f.salaryMin) p.set("salaryMin", f.salaryMin);
+  if (f.salaryListed) p.set("salaryListed", "1");
   if (f.postedWithinDays) p.set("postedWithinDays", f.postedWithinDays);
   if (f.ccqOnly) p.set("ccqOnly", "1");
   if (f.sort && f.sort !== "recent") p.set("sort", f.sort);
@@ -103,6 +107,7 @@ export function parseFilters(params: URLSearchParams): SearchFilters {
     sources: splitList(params.get("sources")),
     languages: splitList(params.get("languages")),
     salaryMin: params.get("salaryMin") ?? "",
+    salaryListed: params.get("salaryListed") === "1",
     postedWithinDays: params.get("postedWithinDays") ?? "",
     ccqOnly: params.get("ccqOnly") === "1",
     sort,

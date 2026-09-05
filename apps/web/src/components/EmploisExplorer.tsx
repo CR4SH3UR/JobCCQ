@@ -52,11 +52,14 @@ const SORT_LABELS: Record<SortOption, string> = {
 
 const POSTED_OPTIONS = [
   { value: "", label: "N'importe quand" },
+  { value: "visit", label: "Depuis ma dernière visite" },
   { value: "1", label: "Dernières 24 h" },
   { value: "7", label: "7 derniers jours" },
   { value: "14", label: "14 derniers jours" },
   { value: "30", label: "30 derniers jours" },
 ];
+
+const LS_LAST_VISIT = "jobccq:last-visit";
 
 type MultiKey = "regions" | "categories" | "employmentTypes" | "remote" | "sources" | "languages";
 const EMPTY_SEL: Record<MultiKey, string[]> = {
@@ -99,7 +102,9 @@ export function EmploisExplorer() {
   const [city, setCity] = useState("");
   const [sel, setSel] = useState<Record<MultiKey, string[]>>(EMPTY_SEL);
   const [salaryMin, setSalaryMin] = useState("");
+  const [salaryListed, setSalaryListed] = useState(false);
   const [postedWithinDays, setPostedWithinDays] = useState("");
+  const [lastVisit, setLastVisit] = useState<string | null>(null);
   const [ccqOnly, setCcqOnly] = useState(false);
   const [sort, setSort] = useState<SortOption>("recent");
   const [page, setPage] = useState(1);
@@ -126,6 +131,7 @@ export function EmploisExplorer() {
       languages: f.languages,
     });
     setSalaryMin(f.salaryMin);
+    setSalaryListed(f.salaryListed);
     setPostedWithinDays(f.postedWithinDays);
     setCcqOnly(f.ccqOnly);
     setSort(f.sort);
@@ -139,6 +145,22 @@ export function EmploisExplorer() {
     applyFilters(parseFilters(new URLSearchParams(window.location.search)));
     seededRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Mémorise l'instant de cette visite pour le filtre « nouveautés » de la prochaine.
+  useEffect(() => {
+    try {
+      setLastVisit(localStorage.getItem(LS_LAST_VISIT));
+    } catch {
+      /* ignore */
+    }
+    return () => {
+      try {
+        localStorage.setItem(LS_LAST_VISIT, new Date().toISOString());
+      } catch {
+        /* ignore */
+      }
+    };
   }, []);
 
   // Vocabulaire d'autocomplétion (entreprises + villes) — chargé une fois.
@@ -177,13 +199,16 @@ export function EmploisExplorer() {
         sources: sel.sources.length ? sel.sources : undefined,
         languages: sel.languages.length ? (sel.languages as JobQuery["languages"]) : undefined,
         salaryMin: salaryMin ? Number(salaryMin) : undefined,
-        postedWithinDays: postedWithinDays ? Number(postedWithinDays) : undefined,
+        salaryListed: salaryListed || undefined,
+        postedWithinDays:
+          postedWithinDays && postedWithinDays !== "visit" ? Number(postedWithinDays) : undefined,
+        postedSince: postedWithinDays === "visit" && lastVisit ? lastVisit : undefined,
         ccqOnly: ccqOnly || undefined,
         sort,
         page,
         pageSize: PAGE_SIZE,
       }),
-    [dq, dcity, sel, salaryMin, postedWithinDays, ccqOnly, sort, page],
+    [dq, dcity, sel, salaryMin, salaryListed, postedWithinDays, lastVisit, ccqOnly, sort, page],
   );
 
   // État des filtres courant (immédiat) — pour enregistrer une recherche et
@@ -199,12 +224,13 @@ export function EmploisExplorer() {
       sources: sel.sources,
       languages: sel.languages,
       salaryMin,
+      salaryListed,
       postedWithinDays,
       ccqOnly,
       sort,
       page,
     }),
-    [q, city, sel, salaryMin, postedWithinDays, ccqOnly, sort, page],
+    [q, city, sel, salaryMin, salaryListed, postedWithinDays, ccqOnly, sort, page],
   );
 
   // URL partageable : on reflète les filtres (débounce sur mot-clé/ville) dans la
@@ -269,6 +295,7 @@ export function EmploisExplorer() {
     setCity("");
     setSel(EMPTY_SEL);
     setSalaryMin("");
+    setSalaryListed(false);
     setPostedWithinDays("");
     setCcqOnly(false);
     setSort("recent");
@@ -280,6 +307,7 @@ export function EmploisExplorer() {
     (q ? 1 : 0) +
     (city ? 1 : 0) +
     (salaryMin ? 1 : 0) +
+    (salaryListed ? 1 : 0) +
     (postedWithinDays ? 1 : 0) +
     (ccqOnly ? 1 : 0);
 
@@ -427,6 +455,7 @@ export function EmploisExplorer() {
               )),
             )}
             {salaryMin && <Chip onClear={() => setSalaryMin("")}>≥ {salaryMin} $/an</Chip>}
+            {salaryListed && <Chip onClear={() => setSalaryListed(false)}>Salaire affiché</Chip>}
             {postedWithinDays && (
               <Chip onClear={() => setPostedWithinDays("")}>
                 {POSTED_OPTIONS.find((o) => o.value === postedWithinDays)?.label}
@@ -527,6 +556,18 @@ export function EmploisExplorer() {
                 placeholder="ex. 60000"
                 className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm outline-none focus:border-brand-400"
               />
+              <label className="mt-2 flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  checked={salaryListed}
+                  onChange={(e) => {
+                    setSalaryListed(e.target.checked);
+                    setPage(1);
+                  }}
+                  className="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-300"
+                />
+                <span className="text-sm font-medium text-slate-700">Salaire renseigné uniquement</span>
+              </label>
             </div>
 
             {/* Date de publication */}
@@ -542,7 +583,7 @@ export function EmploisExplorer() {
                 }}
                 className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm outline-none focus:border-brand-400"
               >
-                {POSTED_OPTIONS.map((o) => (
+                {POSTED_OPTIONS.filter((o) => o.value !== "visit" || lastVisit).map((o) => (
                   <option key={o.value} value={o.value}>
                     {o.label}
                   </option>

@@ -104,3 +104,37 @@ describe("suggest — classement des suggestions", () => {
     assert.ok(s.some((x) => x.value === "Charpentier-menuisier"));
   });
 });
+
+describe("filtres — salaire renseigné et date", () => {
+  const withPay = job("Électricien", { salaryMin: 35, salaryPeriod: "heure" });
+  const noPay = job("Manœuvre");
+  const old = job("Peintre", {
+    postedAt: new Date(Date.now() - 10 * 86_400_000).toISOString(),
+    scrapedAt: new Date(Date.now() - 10 * 86_400_000).toISOString(),
+  });
+  const fresh = job("Grutier", {
+    postedAt: new Date().toISOString(),
+    scrapedAt: new Date().toISOString(),
+  });
+
+  it("salaryListed écarte les offres sans salaire", () => {
+    const r = applyQuery([withPay, noPay], {
+      salaryListed: true,
+      sort: "recent",
+      page: 1,
+      pageSize: 50,
+    });
+    assert.deepEqual(r.items.map((j) => j.title), ["Électricien"]);
+  });
+
+  it("postedSince ne garde que les offres plus récentes que le seuil", () => {
+    const since = new Date(Date.now() - 2 * 86_400_000).toISOString();
+    const r = applyQuery([old, fresh], {
+      postedSince: since,
+      sort: "recent",
+      page: 1,
+      pageSize: 50,
+    });
+    assert.deepEqual(r.items.map((j) => j.title), ["Grutier"]);
+  });
+});

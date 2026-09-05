@@ -100,6 +100,10 @@ export const JobQuerySchema = z.object({
   languages: z.array(z.enum(["fr", "en", "bilingue"])).optional(),
   salaryMin: z.coerce.number().nonnegative().optional(),
   postedWithinDays: z.coerce.number().int().positive().optional(),
+  /** ISO : offres publiées/scrapées après cette date (filtre « depuis ma dernière visite »). */
+  postedSince: z.string().optional(),
+  /** Ne garder que les offres qui affichent un salaire. */
+  salaryListed: z.coerce.boolean().optional(),
   /** Ne garder que les métiers reconnus CCQ (détection par intitulé). */
   ccqOnly: z.coerce.boolean().optional(),
   sort: z.enum(SORT_OPTIONS).default("recent"),

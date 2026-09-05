@@ -43,5 +43,6 @@ describe("search-url — codec des filtres", () => {
     assert.equal(hasActiveFilters({ ...EMPTY_FILTERS, sort: "company", page: 4 }), false);
     assert.equal(hasActiveFilters({ ...EMPTY_FILTERS, q: "peintre" }), true);
     assert.equal(hasActiveFilters({ ...EMPTY_FILTERS, regions: ["laval"] }), true);
+    assert.equal(hasActiveFilters({ ...EMPTY_FILTERS, salaryListed: true }), true);
   });
 });

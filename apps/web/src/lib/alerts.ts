@@ -23,7 +23,9 @@ export function filterQuery(q: JobQuery): Partial<JobQuery> {
   if (q.sources?.length) out.sources = q.sources;
   if (q.languages?.length) out.languages = q.languages;
   if (q.salaryMin != null) out.salaryMin = q.salaryMin;
+  if (q.salaryListed) out.salaryListed = true;
   if (q.postedWithinDays != null) out.postedWithinDays = q.postedWithinDays;
+  if (q.postedSince) out.postedSince = q.postedSince;
   return out as Partial<JobQuery>;
 }
 

@@ -203,13 +203,13 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [ ] 2. Carte interactive des offres (Leaflet/MapLibre) par région/ville
 - [x] 3. Autocomplétion dans la barre de recherche (métiers, entreprises, villes)
 - [x] 4. Correction de fautes de frappe + synonymes de métiers (« charpentier » ↔ « menuisier »)
-- [ ] 5. Filtre « nouveautés » (offres ajoutées depuis ma dernière visite)
+- [x] 5. Filtre « nouveautés » (offres ajoutées depuis ma dernière visite)
 - [ ] 6. Tri par distance (en plus de pertinence / date / salaire)
 - [x] 7. Recherches enregistrées (combinaison de filtres nommée — dans ce navigateur)
 - [x] 8. URL de recherche partageables (filtres encodés dans l'URL)
 - [x] 9. Pages de résultats préconstruites SEO (`/emplois/region/monteregie`, `/emplois/metier/electricien`)
 - [ ] 10. Comparateur d'offres (2-3 offres côte à côte : salaire, région, type)
-- [ ] 51. Filtre « salaire renseigné uniquement » (s'appuie sur le filtre salaire déjà là)
+- [x] 51. Filtre « salaire renseigné uniquement » (s'appuie sur le filtre salaire déjà là)
 - [ ] 52. « Offres similaires » sur la fiche (même métier / région / employeur)
 - [ ] 53. Filtre quart de travail (jour / soir / nuit) quand la description le dit
 

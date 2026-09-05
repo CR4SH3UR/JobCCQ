@@ -230,7 +230,9 @@ function toParams(q: JobQuery): URLSearchParams {
   if (q.sources?.length) p.set("sources", q.sources.join(","));
   if (q.languages?.length) p.set("languages", q.languages.join(","));
   if (q.salaryMin != null) p.set("salaryMin", String(q.salaryMin));
+  if (q.salaryListed) p.set("salaryListed", "1");
   if (q.postedWithinDays != null) p.set("postedWithinDays", String(q.postedWithinDays));
+  if (q.postedSince) p.set("postedSince", q.postedSince);
   if (q.ccqOnly) p.set("ccqOnly", "1");
   p.set("sort", q.sort);
   p.set("page", String(q.page));

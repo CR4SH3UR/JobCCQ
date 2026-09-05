@@ -100,9 +100,15 @@ export function matchesQuery(job: Job, query: JobQuery): boolean {
     const s = annualizedSalary(job);
     if (s == null || s < query.salaryMin) return false;
   }
+  if (query.salaryListed && job.salaryMin == null && job.salaryMax == null) return false;
   if (query.postedWithinDays != null) {
-    const d = daysSince(job.postedAt);
+    const d = daysSince(job.postedAt ?? job.scrapedAt);
     if (d == null || d > query.postedWithinDays) return false;
+  }
+  if (query.postedSince) {
+    const since = Date.parse(query.postedSince);
+    const t = Date.parse(job.postedAt ?? job.scrapedAt ?? "");
+    if (Number.isNaN(since) || Number.isNaN(t) || t < since) return false;
   }
   if (query.ccqOnly && !isCcqTrade(job.title)) return false;
   return true;
