@@ -1,22 +1,4 @@
-import type { Job } from "@jobccq/shared";
-import { labelForSalaryPeriod } from "@jobccq/shared";
-
-const nf = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 0 });
-
-/** Formate une fourchette salariale, ex. « 55 000 $ – 75 000 $ / an ». */
-export function formatSalary(job: Pick<Job, "salaryMin" | "salaryMax" | "salaryPeriod">): string | null {
-  const { salaryMin, salaryMax, salaryPeriod } = job;
-  if (salaryMin == null && salaryMax == null) return null;
-  const period = labelForSalaryPeriod(salaryPeriod) ?? "";
-  const money = (n: number) => `${nf.format(n)} $`;
-  let amount: string;
-  if (salaryMin != null && salaryMax != null && salaryMin !== salaryMax) {
-    amount = `${money(salaryMin)} – ${money(salaryMax)}`;
-  } else {
-    amount = money((salaryMax ?? salaryMin)!);
-  }
-  return period ? `${amount} ${period}` : amount;
-}
+export { formatSalary } from "@jobccq/shared";
 
 /** Date relative en français, ex. « il y a 3 jours ». */
 export function timeAgo(iso?: string): string | null {

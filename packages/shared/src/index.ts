@@ -14,3 +14,4 @@ export * from "./suggest.js";
 export * from "./rss.js";
 export * from "./csv.js";
 export * from "./completeness.js";
+export * from "./salary.js";

@@ -23,24 +23,9 @@ import { sourceName } from "./sources.js";
 import { isCcqTrade, ccqTradeOf } from "./ccq.js";
 import { normalizeText, fuzzyIncludes } from "./text.js";
 import { expandTerm } from "./synonyms.js";
+import { annualizedSalary } from "./salary.js";
 
 const norm = normalizeText;
-
-/** Salaire comparable (on ramène tout à un montant annuel approximatif). */
-function annualizedSalary(job: Job): number | undefined {
-  const base = job.salaryMax ?? job.salaryMin;
-  if (base == null) return undefined;
-  switch (job.salaryPeriod) {
-    case "heure":
-      return base * 35 * 52;
-    case "semaine":
-      return base * 52;
-    case "mois":
-      return base * 12;
-    default:
-      return base; // "annee" ou inconnu
-  }
-}
 
 function daysSince(iso?: string): number | undefined {
   if (!iso) return undefined;

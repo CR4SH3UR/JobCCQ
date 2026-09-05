@@ -4,23 +4,49 @@
  */
 import { labelForSalaryPeriod, type Job } from "./shared";
 
+const HOURS_PER_YEAR = 35 * 52;
 const nf = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 0 });
 
-/** Formate une fourchette salariale, ex. « 55 000 $ – 75 000 $ / an ». */
+function toAnnual(amount: number, period?: Job["salaryPeriod"]): number {
+  switch (period) {
+    case "heure":
+      return amount * HOURS_PER_YEAR;
+    case "semaine":
+      return amount * 52;
+    case "mois":
+      return amount * 12;
+    default:
+      return amount;
+  }
+}
+
+function toHourly(amount: number, period?: Job["salaryPeriod"]): number {
+  return Math.round(toAnnual(amount, period) / HOURS_PER_YEAR);
+}
+
+function money(n: number): string {
+  return `${nf.format(n)} $`;
+}
+
+function range(min?: number, max?: number): string {
+  if (min != null && max != null && min !== max) return `${money(min)} – ${money(max)}`;
+  return money((max ?? min)!);
+}
+
+/** Fourchette salariale avec équivalent horaire et annuel. */
 export function formatSalary(
   job: Pick<Job, "salaryMin" | "salaryMax" | "salaryPeriod">,
 ): string | null {
   const { salaryMin, salaryMax, salaryPeriod } = job;
   if (salaryMin == null && salaryMax == null) return null;
   const period = labelForSalaryPeriod(salaryPeriod) ?? "";
-  const money = (n: number) => `${nf.format(n)} $`;
-  let amount: string;
-  if (salaryMin != null && salaryMax != null && salaryMin !== salaryMax) {
-    amount = `${money(salaryMin)} – ${money(salaryMax)}`;
-  } else {
-    amount = money((salaryMax ?? salaryMin)!);
-  }
-  return period ? `${amount} ${period}` : amount;
+  const primary = period ? `${range(salaryMin, salaryMax)} ${period}` : range(salaryMin, salaryMax);
+  if (!salaryPeriod) return primary;
+  const conv = (n: number) => (salaryPeriod === "heure" ? toAnnual(n, "heure") : toHourly(n, salaryPeriod));
+  const otherLabel = labelForSalaryPeriod(salaryPeriod === "heure" ? "annee" : "heure") ?? "";
+  const cMin = salaryMin != null ? conv(salaryMin) : undefined;
+  const cMax = salaryMax != null ? conv(salaryMax) : undefined;
+  return `${primary} (≈ ${range(cMin, cMax)} ${otherLabel})`;
 }
 
 /** Date relative en français, ex. « il y a 3 jours ». */
