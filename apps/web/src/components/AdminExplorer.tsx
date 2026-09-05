@@ -1271,6 +1271,22 @@ export function AdminExplorer() {
     for (const id of ids) await patchEmployer(id, { method });
     setBulkMsg(`Méthode « ${method} » appliquée à ${ids.length} employeur(s).`);
   };
+  const bulkCopyUrls = async (ids: string[]) => {
+    const urls = employers
+      .filter((e) => ids.includes(e.id))
+      .map((e) => e.careersUrl)
+      .filter(Boolean);
+    if (!urls.length) {
+      setBulkMsg("Aucune URL à copier dans la sélection.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(urls.join("\n"));
+      setBulkMsg(`${urls.length} URL(s) copiée(s) dans le presse-papiers.`);
+    } catch {
+      setBulkMsg("Échec de la copie (presse-papiers non accessible).");
+    }
+  };
 
   // --- Ajout / suppression d'un employeur ----------------------------------
   const addEmployer = async () => {
@@ -1926,6 +1942,13 @@ export function AdminExplorer() {
                   <option key={m} value={m}>{m}</option>
                 ))}
               </select>
+              <button
+                onClick={() => bulkCopyUrls(selectedList)}
+                title="Copier les URLs carrières des employeurs sélectionnés"
+                className="rounded-lg border border-slate-300 bg-white px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-100"
+              >
+                📋 Copier URLs
+              </button>
               {(mode === "turso" || mode === "api") && (
                 <button onClick={() => bulkPurge(selectedList)} className="rounded-lg border border-red-300 bg-white px-2.5 py-1 font-semibold text-red-600 hover:bg-red-50">
                   🗑 Vider les offres
