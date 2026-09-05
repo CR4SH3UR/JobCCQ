@@ -28,6 +28,10 @@ type Status = { kind: "idle" | "busy" | "error"; msg?: string };
 const inputCls =
   "min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100";
 
+/** Bouton clair : `bg-white` est remappé en surface sombre, d'où `bg-[white]`. */
+const ghostBtn =
+  "rounded-lg border border-green-300 bg-[white] px-3 py-1.5 font-medium text-slate-700 hover:bg-green-50 dark:bg-[rgb(255_255_255_/_0.14)]";
+
 /** Barre « connecté » + possibilité de définir/changer son mot de passe. */
 function ConnectedBar({ email }: { email: string }) {
   const [open, setOpen] = useState(false);
@@ -61,13 +65,13 @@ function ConnectedBar({ email }: { email: string }) {
         <div className="flex gap-2">
           <button
             onClick={() => setOpen((v) => !v)}
-            className="rounded-lg border border-green-300 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50 dark:border-green-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+            className={ghostBtn}
           >
             {open ? "Annuler" : "Mot de passe"}
           </button>
           <button
             onClick={() => void signOut()}
-            className="rounded-lg border border-green-300 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50 dark:border-green-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+            className={ghostBtn}
           >
             Se déconnecter
           </button>
