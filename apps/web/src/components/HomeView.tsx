@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -11,6 +11,7 @@ import {
   type Job,
 } from "@jobccq/shared";
 import { searchCompanies, searchJobs, getStats, buildQuery, type Stats } from "@/lib/data";
+import { useLivePoll } from "@/lib/live";
 import { SPONSORED_EMPLOYERS } from "@/lib/sponsors";
 import { initials } from "@/lib/format";
 import { JobCard } from "./JobCard";
@@ -27,7 +28,7 @@ export function HomeView() {
   const [latest, setLatest] = useState<Job[]>([]);
   const [offline, setOffline] = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     Promise.all([
       getStats(),
       searchCompanies(buildQuery({})),
@@ -40,6 +41,12 @@ export function HomeView() {
       })
       .catch(() => setOffline(true));
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  useLivePoll(load);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();

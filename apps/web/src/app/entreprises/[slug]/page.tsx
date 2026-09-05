@@ -1,19 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { labelForRegion } from "@jobccq/shared";
+import { getEmployer, labelForRegion } from "@jobccq/shared";
 import { Badge } from "@/components/Badge";
 import { JobCard } from "@/components/JobCard";
 import { initials } from "@/lib/format";
-import { employerIdsWithJobs, employerProfile } from "@/lib/static-data";
+import { getJobsBySource } from "@/lib/data";
 import { organizationLd, ldJson } from "@/lib/jsonld";
 import { siteUrl } from "@/lib/site";
 
-export const dynamicParams = false;
-
-export function generateStaticParams(): { slug: string }[] {
-  return employerIdsWithJobs().map((slug) => ({ slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -21,12 +17,14 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const profile = employerProfile(slug);
-  if (!profile) return { title: "Employeur introuvable — JobCCQc" };
-  const n = profile.jobs.length;
-  const title = `Emplois chez ${profile.name} | JobCCQc`;
-  const description = `${n} offre${n > 1 ? "s" : ""} d'emploi chez ${profile.name}${
-    profile.employer?.rbq ? ` (RBQ ${profile.employer.rbq})` : ""
+  const employer = getEmployer(slug);
+  const jobs = await getJobsBySource(slug);
+  if (jobs.length === 0 && !employer) return { title: "Employeur introuvable — JobCCQc" };
+  const name = employer?.name ?? jobs[0]?.company ?? slug;
+  const n = jobs.length;
+  const title = `Emplois chez ${name} | JobCCQc`;
+  const description = `${n} offre${n > 1 ? "s" : ""} d'emploi chez ${name}${
+    employer?.rbq ? ` (RBQ ${employer.rbq})` : ""
   }. Consultez les postes ouverts et postulez.`;
   const url = siteUrl(`/entreprises/${slug}/`);
   return {
@@ -39,10 +37,11 @@ export async function generateMetadata({
 
 export default async function EmployerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const profile = employerProfile(slug);
-  if (!profile) notFound();
+  const employer = getEmployer(slug);
+  const jobs = await getJobsBySource(slug);
+  if (jobs.length === 0 && !employer) notFound();
 
-  const { name, employer, jobs } = profile;
+  const name = employer?.name ?? jobs[0]?.company ?? slug;
   const region = employer?.region;
   const sectors = employer?.sectors ?? [];
 

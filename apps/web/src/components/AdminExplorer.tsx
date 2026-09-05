@@ -6,6 +6,7 @@ import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, hasCustomScraper, type Discovered
 import { API_URL, getStats, searchJobs, buildQuery, adminFetch } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { encryptJson, decryptJson, saveVault, loadVault, clearVault, type AdminSecrets } from "@/lib/vault";
+import { notifyJobsChanged } from "@/lib/live";
 import { Badge } from "./Badge";
 import { AdminOfferEditor, type OfferPatch, type OfferRow, type SaveState } from "./AdminOfferEditor";
 
@@ -2509,6 +2510,7 @@ function OfferRowItem({
         }
         onMutate(id, patch);
         setSave({ s: "ok" });
+        notifyJobsChanged();
       } catch (err) {
         setSave({ s: "err", msg: (err as Error).message });
       }

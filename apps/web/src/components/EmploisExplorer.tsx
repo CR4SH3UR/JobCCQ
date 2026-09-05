@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   labelForCategory,
   labelForEmployment,
@@ -14,6 +14,7 @@ import {
   type SortOption,
 } from "@jobccq/shared";
 import { searchJobs, buildQuery } from "@/lib/data";
+import { useLivePoll } from "@/lib/live";
 import { JobCard } from "./JobCard";
 import { FacetGroup } from "./FacetGroup";
 import { Pagination } from "./Pagination";
@@ -152,6 +153,14 @@ export function EmploisExplorer() {
       alive = false;
     };
   }, [query]);
+
+  // Rafraîchissement silencieux (polling + notification admin cross-onglet).
+  const refresh = useCallback(() => {
+    searchJobs(query)
+      .then((r) => setResult(r))
+      .catch(() => {});
+  }, [query]);
+  useLivePoll(refresh);
 
   const toggle = (key: MultiKey, id: string) => {
     setPage(1);

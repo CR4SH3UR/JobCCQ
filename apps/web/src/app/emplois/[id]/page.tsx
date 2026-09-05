@@ -16,15 +16,11 @@ import { JobCard } from "@/components/JobCard";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { AppliedButton } from "@/components/AppliedButton";
 import { formatSalary, initials, timeAgo } from "@/lib/format";
-import { jobById, allJobs, similarJobs } from "@/lib/static-data";
+import { getJobById, getSimilarJobs } from "@/lib/data";
 import { jobPostingLd, ldJson } from "@/lib/jsonld";
 import { siteUrl } from "@/lib/site";
 
-export const dynamicParams = false;
-
-export function generateStaticParams(): { id: string }[] {
-  return allJobs().map((j) => ({ id: j.id }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -32,7 +28,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const job = jobById(id);
+  const job = await getJobById(id);
   if (!job) return { title: "Offre introuvable — JobCCQc" };
   const region = labelForRegion(job.regionId);
   const title = `${job.title} — ${job.company}${region ? ` (${region})` : ""} | JobCCQc`;
@@ -51,7 +47,7 @@ const REMOTE_TONE = { teletravail: "green", hybride: "violet", presentiel: "slat
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const job = jobById(id);
+  const job = await getJobById(id);
   if (!job) notFound();
 
   const employer = getEmployer(job.sourceId);
@@ -60,7 +56,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const posted = timeAgo(job.postedAt ?? job.scrapedAt);
   const sectors = sectorsForJob(job);
   const languages = job.languages ?? [];
-  const similar = similarJobs(job);
+  const similar = await getSimilarJobs(job);
   const place =
     job.city && region && !region.toLowerCase().includes(job.city.toLowerCase())
       ? `${job.city} · ${region}`

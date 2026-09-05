@@ -170,6 +170,53 @@ export async function searchJobs(query: JobQuery): Promise<JobSearchResult> {
   return apiGet<JobSearchResult>("/api/jobs", toParams(query));
 }
 
+export async function getJobById(id: string): Promise<Job | null> {
+  if (STATIC) {
+    const jobs = await loadSnapshot();
+    return jobs.find((j) => j.id === id) ?? null;
+  }
+  try {
+    return await apiGet<Job>(`/api/jobs/${encodeURIComponent(id)}`);
+  } catch {
+    return null;
+  }
+}
+
+export async function getSimilarJobs(job: Job, limit = 6): Promise<Job[]> {
+  const candidates = await searchJobs(
+    buildQuery({
+      regions: job.regionId ? [job.regionId] : undefined,
+      categories: job.categoryId ? [job.categoryId] : undefined,
+      pageSize: 100,
+    }),
+  );
+  const scored = candidates.items
+    .filter((j) => j.id !== job.id)
+    .map((j) => {
+      let score = 0;
+      if (job.regionId && j.regionId === job.regionId) score += 2;
+      if (job.categoryId && j.categoryId === job.categoryId) score += 2;
+      if (j.sourceId === job.sourceId) score += 1;
+      return { j, score };
+    })
+    .filter((s) => s.score > 0)
+    .sort((a, b) => b.score - a.score);
+  return scored.slice(0, limit).map((s) => s.j);
+}
+
+export async function getJobsBySource(sourceId: string): Promise<Job[]> {
+  if (STATIC) {
+    const jobs = await loadSnapshot();
+    return jobs
+      .filter((j) => j.sourceId === sourceId)
+      .sort((a, b) => (b.postedAt ?? b.scrapedAt).localeCompare(a.postedAt ?? a.scrapedAt));
+  }
+  const result = await searchJobs(
+    buildQuery({ sources: [sourceId], sort: "recent", pageSize: 1_000 }),
+  );
+  return result.items;
+}
+
 export async function searchCompanies(
   query: JobQuery,
 ): Promise<{ companies: HiringCompany[]; total: number }> {
