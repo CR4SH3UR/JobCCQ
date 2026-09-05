@@ -20,6 +20,12 @@ type UsersState = {
   error?: string;
 };
 
+type UsersResponse = {
+  users?: AdminUserRow[];
+  total?: number;
+  error?: string;
+};
+
 function formatDate(value: string | null): string {
   if (!value) return "—";
   const date = new Date(value);
@@ -33,6 +39,24 @@ function formatDate(value: string | null): string {
 export function AdminUsers() {
   const [state, setState] = useState<UsersState>({ loading: false, users: [], total: 0 });
 
+  const loadFromApi = async (token: string): Promise<UsersResponse> => {
+    const res = await fetch(`${API_URL}/admin/users?perPage=200`, {
+      cache: "no-store",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const body = (await res.json().catch(() => ({}))) as UsersResponse;
+    if (!res.ok) throw new Error(body.error ?? `API admin HTTP ${res.status}`);
+    return body;
+  };
+
+  const loadFromEdgeFunction = async (): Promise<UsersResponse> => {
+    const { data, error } = await supabase!.functions.invoke<UsersResponse>("admin-users", {
+      method: "GET",
+    });
+    if (error) throw new Error(error.message);
+    return data ?? {};
+  };
+
   const loadUsers = async () => {
     setState((current) => ({ ...current, loading: true, error: undefined }));
     try {
@@ -40,16 +64,16 @@ export function AdminUsers() {
       const token = data.session?.access_token;
       if (!token) throw new Error("Session Supabase absente. Reconnecte-toi au panel admin.");
 
-      const res = await fetch(`${API_URL}/admin/users?perPage=200`, {
-        cache: "no-store",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const body = (await res.json().catch(() => ({}))) as {
-        users?: AdminUserRow[];
-        total?: number;
-        error?: string;
-      };
-      if (!res.ok) throw new Error(body.error ?? `API admin HTTP ${res.status}`);
+      let body: UsersResponse;
+      try {
+        body = await loadFromApi(token);
+      } catch (apiError) {
+        try {
+          body = await loadFromEdgeFunction();
+        } catch (edgeError) {
+          throw new Error(`${(edgeError as Error).message} (${(apiError as Error).message})`);
+        }
+      }
       setState({
         loading: false,
         users: body.users ?? [],
@@ -74,7 +98,7 @@ export function AdminUsers() {
         <div>
           <h2 className="text-base font-bold text-slate-900">Utilisateurs</h2>
           <p className="mt-1 text-xs text-slate-600">
-            Comptes créés dans Supabase Auth. Visible seulement dans le panel admin.
+            Comptes créés dans Supabase Auth. Appel sécurisé côté serveur.
           </p>
         </div>
         <button
