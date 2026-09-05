@@ -22,9 +22,12 @@ export function Header() {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-600 font-bold text-white">
-            J
+        <Link href="/" className="flex items-center gap-2" aria-label="JobCCQc — accueil">
+          <span
+            className="grid h-9 w-9 place-items-center rounded-xl bg-brand-600 text-sm font-extrabold tracking-tight text-white"
+            aria-hidden
+          >
+            JC
           </span>
           <span className="text-lg font-bold tracking-tight">
             Job<span className="text-brand-600">CCQc</span>
