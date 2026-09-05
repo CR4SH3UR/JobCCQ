@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, hasCustomScraper, type DiscoveredMethod, type Job } from "@jobccq/shared";
 import { API_URL, getStats, searchJobs, buildQuery, adminFetch, invalidateJobOverrides } from "@/lib/data";
+import { previewEmployer, fetchEmployerHtml } from "@/lib/admin-preview";
 import { useAuth } from "@/lib/auth";
 import { encryptJson, decryptJson, saveVault, loadVault, clearVault, type AdminSecrets } from "@/lib/vault";
 import { notifyJobsChanged } from "@/lib/live";
@@ -2748,18 +2749,24 @@ function Row({
             setPreviewMsg("aperçu…");
             setPreviewSample([]);
             try {
-              const r = await adminFetch(`${API_URL}/admin/employers/${e.id}/preview`, { method: "POST" });
-              const d = await r.json();
-              if (d.error) {
-                setPreviewMsg(d.error);
-                return;
-              }
+              const d = await previewEmployer(e.id, url.trim() || e.careersUrl);
+              const via =
+                d.via === "api"
+                  ? d.usedParseList
+                    ? "parseList"
+                    : "scrape"
+                  : "JSON-LD/RSS";
               setPreviewMsg(
-                `Aperçu (${d.usedParseList ? "parseList" : "scrape"}) : ${d.count} poste(s) — non enregistré`,
+                `Aperçu (${via}) : ${d.count} poste(s) — non enregistré`,
               );
-              setPreviewSample(Array.isArray(d.sample) ? d.sample : []);
-            } catch {
-              setPreviewMsg("API injoignable — aperçu indisponible hors API locale.");
+              setPreviewSample(d.sample);
+              if (d.via === "supabase" && d.count === 0) {
+                setPreviewMsg(
+                  "Page récupérée, 0 offre en JSON-LD/RSS. Le parseur sur mesure n'est dispo qu'avec l'API locale (`npm run dev:api`).",
+                );
+              }
+            } catch (err) {
+              setPreviewMsg((err as Error).message);
             }
           }}
           className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
@@ -2771,19 +2778,15 @@ function Row({
           title="Télécharger le HTML de la page carrières (fixture de test)"
           onClick={async () => {
             try {
-              const r = await adminFetch(`${API_URL}/admin/employers/${e.id}/fixture`);
-              if (!r.ok) {
-                setPreviewMsg("Téléchargement HTML échoué.");
-                return;
-              }
-              const blob = await r.blob();
+              const { html, filename } = await fetchEmployerHtml(e.id, url.trim() || e.careersUrl);
+              const blob = new Blob([html], { type: "text/html;charset=utf-8" });
               const a = document.createElement("a");
               a.href = URL.createObjectURL(blob);
-              a.download = `${e.id}.html`;
+              a.download = filename;
               a.click();
               URL.revokeObjectURL(a.href);
-            } catch {
-              setPreviewMsg("API injoignable — HTML indisponible hors API locale.");
+            } catch (err) {
+              setPreviewMsg((err as Error).message);
             }
           }}
           className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"

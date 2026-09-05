@@ -232,6 +232,16 @@ déclenche cette fonction. La fonction exige :
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `ADMIN_EMAILS` avec le ou les courriels autorisés
 
+Aperçu parseur et fixture HTML hors API Fastify (GitHub Pages / Turso) :
+
+```bash
+supabase functions deploy admin-preview
+```
+
+`admin-preview` récupère le HTML d'une page carrières **sans CORS**. Même secrets
+que l'import. Dans `/admin`, **Aperçu parseur** utilise d'abord `parseList` via
+l'API locale si elle tourne, sinon JSON-LD / RSS dans le navigateur.
+
 ---
 
 # Éditions d'offres en direct (sans redéploiement)
