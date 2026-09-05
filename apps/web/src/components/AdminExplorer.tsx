@@ -2767,6 +2767,30 @@ function Row({
           Aperçu parseur
         </button>
         <button
+          type="button"
+          title="Télécharger le HTML de la page carrières (fixture de test)"
+          onClick={async () => {
+            try {
+              const r = await adminFetch(`${API_URL}/admin/employers/${e.id}/fixture`);
+              if (!r.ok) {
+                setPreviewMsg("Téléchargement HTML échoué.");
+                return;
+              }
+              const blob = await r.blob();
+              const a = document.createElement("a");
+              a.href = URL.createObjectURL(blob);
+              a.download = `${e.id}.html`;
+              a.click();
+              URL.revokeObjectURL(a.href);
+            } catch {
+              setPreviewMsg("API injoignable — HTML indisponible hors API locale.");
+            }
+          }}
+          className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+        >
+          HTML fixture
+        </button>
+        <button
           onClick={() => onPatch(e.id, { enabled: disabled })}
           className={`rounded-lg border px-2.5 py-1 text-xs font-semibold ${
             disabled

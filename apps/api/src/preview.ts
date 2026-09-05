@@ -22,3 +22,9 @@ export function toPreviewSample(raw: RawJob[]): PreviewItem[] {
   }
   return out;
 }
+
+/** Nom de fichier sûr pour une fixture HTML (`boless.html`). */
+export function fixtureFilename(id: string): string {
+  const slug = id.replace(/[^a-z0-9-]+/gi, "").toLowerCase() || "source";
+  return `${slug}.html`;
+}

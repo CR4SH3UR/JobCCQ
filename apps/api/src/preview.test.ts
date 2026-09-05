@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { toPreviewSample } from "./preview.js";
+import { toPreviewSample, fixtureFilename } from "./preview.js";
 
 describe("toPreviewSample", () => {
   it("écarte les titres parasites et garde les vrais postes", () => {
@@ -12,5 +12,12 @@ describe("toPreviewSample", () => {
     assert.equal(out.length, 1);
     assert.equal(out[0]?.title, "Électricien");
     assert.equal(out[0]?.url, "https://acme.ca/jobs/1");
+  });
+});
+
+describe("fixtureFilename", () => {
+  it("normalise l'id en nom de fichier html", () => {
+    assert.equal(fixtureFilename("Boless Inc!"), "bolessinc.html");
+    assert.equal(fixtureFilename("atwill-morin"), "atwill-morin.html");
   });
 });

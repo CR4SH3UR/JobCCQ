@@ -12,7 +12,7 @@ import { runScraperInstance } from "./orchestrator.js";
 import { prisma } from "./db.js";
 import { rowToJob } from "./repository.js";
 import { fetchHtml, createHttpContext } from "./scrapers/http.js";
-import { toPreviewSample } from "./preview.js";
+import { toPreviewSample, fixtureFilename } from "./preview.js";
 
 /**
  * Routes de la **console d'administration** (usage local, API branchée).
@@ -356,6 +356,26 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       }
       const sample = toPreviewSample(raw);
       return { count: sample.length, usedParseList, sample: sample.slice(0, 20) };
+    } catch (err) {
+      reply.code(502);
+      return { error: err instanceof Error ? err.message : String(err) };
+    }
+  });
+
+  // Télécharge le HTML brut de la page carrières (fixture pour les tests parseList).
+  app.get<{ Params: { id: string } }>("/admin/employers/:id/fixture", { preHandler: adminGuard }, async (req, reply) => {
+    const list = await readAll();
+    const employer = list.find((e) => e.id === req.params.id);
+    if (!employer) {
+      reply.code(404);
+      return { error: "Employeur introuvable" };
+    }
+    try {
+      const html = await fetchHtml(employer.careersUrl, { timeoutMs: 15_000, retries: 1 });
+      return reply
+        .header("Content-Disposition", `attachment; filename="${fixtureFilename(employer.id)}"`)
+        .type("text/html; charset=utf-8")
+        .send(html);
     } catch (err) {
       reply.code(502);
       return { error: err instanceof Error ? err.message : String(err) };
