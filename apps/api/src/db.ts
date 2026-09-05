@@ -18,7 +18,7 @@ function makeClient(): PrismaClient {
   const tursoUrl = process.env.TURSO_DATABASE_URL;
   const adapter = tursoUrl
     ? new PrismaLibSql({ url: tursoUrl, authToken: process.env.TURSO_AUTH_TOKEN })
-    : new PrismaLibSql({ url: process.env.DATABASE_URL ?? "file:./prisma/dev.db" });
+    : new PrismaLibSql({ url: process.env.DATABASE_URL ?? "file:./dev.db" });
   return new PrismaClient({ adapter, log: logLevels });
 }
 

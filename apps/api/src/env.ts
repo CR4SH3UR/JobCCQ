@@ -1,6 +1,6 @@
 // Valeur par défaut pour un démarrage « zéro configuration » en développement.
 // (Le chemin est relatif au dossier apps/api, cwd des scripts npm du workspace.)
-process.env.DATABASE_URL ||= "file:./prisma/dev.db";
+process.env.DATABASE_URL ||= "file:./dev.db";
 
 export const env = {
   PORT: Number(process.env.PORT ?? 4000),
