@@ -14,6 +14,8 @@ import {
   ALL_SOURCES,
   DISCOVERED_EMPLOYERS,
   DISABLED_SOURCE_IDS,
+  municipalityRegionMap,
+  normMunicipality,
   type HiringCompany,
   type Job,
   type JobQuery,
@@ -92,12 +94,41 @@ function loadSnapshot(): Promise<Job[]> {
       .then((jobs) =>
         DISABLED_SOURCE_IDS.size ? jobs.filter((j) => !DISABLED_SOURCE_IDS.has(j.sourceId)) : jobs,
       )
+      // Reclassement **municipalité → région** en direct depuis Supabase : une
+      // offre dont la ville figure dans la table éditable (console admin) est
+      // reclassée dans la bonne région ici, au chargement — donc un changement
+      // s'applique sans redéploiement. Filtres, facettes et stats en héritent
+      // (tout passe par cet instantané). Dégrade proprement si indisponible.
+      .then(reclassifyByMunicipality)
       .catch((err) => {
         snapshotCache = null;
         throw err;
       });
   }
   return snapshotCache;
+}
+
+/**
+ * Applique la table éditable municipalité → région (Supabase, lue en direct) sur
+ * l'instantané : la ville d'une offre (`city`, sinon 1er segment de `location`)
+ * qui figure dans la table force sa région. Aucun réseau bloquant : en cas
+ * d'erreur ou de table absente, on renvoie l'instantané inchangé.
+ */
+async function reclassifyByMunicipality(jobs: Job[]): Promise<Job[]> {
+  try {
+    const { fetchMunicipalities } = await import("./municipalities");
+    const map = municipalityRegionMap(await fetchMunicipalities());
+    if (!map.size) return jobs;
+    for (const job of jobs) {
+      const cityRaw = job.city || (job.location ? job.location.split(/[,(]/)[0]! : "");
+      if (!cityRaw.trim()) continue;
+      const rid = map.get(normMunicipality(cityRaw));
+      if (rid && rid !== job.regionId) job.regionId = rid;
+    }
+  } catch {
+    /* Supabase indisponible : on garde les régions de l'instantané. */
+  }
+  return jobs;
 }
 
 // --- Sérialisation d'une requête vers l'API --------------------------------
