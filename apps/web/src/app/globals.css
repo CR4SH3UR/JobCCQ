@@ -173,6 +173,22 @@ body {
   border-color: #34d399;
 }
 
+/*
+ * `dark:text-slate-{50–300}` visent un texte pâle (palette Tailwind sombre
+ * classique). L'échelle remappée en fait des fonds/bordures — illisibles.
+ */
+[data-theme="dark"] .dark\:text-slate-50,
+[data-theme="dark"] .dark\:text-slate-100 {
+  color: #eef4ff;
+}
+[data-theme="dark"] .dark\:text-slate-200,
+.dark\:text-slate-200:where([data-theme="dark"], [data-theme="dark"] *) {
+  color: #dae9ff;
+}
+[data-theme="dark"] .dark\:text-slate-300 {
+  color: #c5d8f0;
+}
+
 [data-theme="dark"] .bg-amber-50 {
   background-color: rgb(245 158 11 / 0.16);
 }

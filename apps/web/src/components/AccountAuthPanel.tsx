@@ -30,7 +30,7 @@ const inputCls =
 
 /** Bouton clair : `bg-white` est remappé en surface sombre, d'où `bg-[white]`. */
 const ghostBtn =
-  "rounded-lg border border-green-300 bg-[white] px-3 py-1.5 font-medium text-slate-700 hover:bg-green-50 dark:bg-[rgb(255_255_255_/_0.14)]";
+  "rounded-lg border border-green-300 bg-[white] px-3 py-1.5 font-medium text-slate-700 hover:bg-green-50 dark:bg-[rgb(255_255_255_/_0.14)] dark:text-slate-200";
 
 /** Barre « connecté » + possibilité de définir/changer son mot de passe. */
 function ConnectedBar({ email }: { email: string }) {
@@ -58,7 +58,7 @@ function ConnectedBar({ email }: { email: string }) {
   return (
     <div className="card mb-5 border-green-200 bg-green-50 p-3 text-sm dark:border-green-500/40 dark:bg-green-950/50">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="flex items-center gap-2 text-green-800 dark:text-green-200">
+        <span className="flex items-center gap-2 text-green-800 dark:text-slate-200">
           <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
           Connecté · <strong className="font-semibold">{email}</strong> · synchronisé sur tous tes appareils
         </span>
