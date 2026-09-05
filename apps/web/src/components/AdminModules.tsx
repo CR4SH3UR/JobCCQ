@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { AdminExplorer } from "@/components/AdminExplorer";
+import { AdminRegions } from "@/components/AdminRegions";
 import { AdminSponsors } from "@/components/AdminSponsors";
 import { AdminUsers } from "@/components/AdminUsers";
 
-type AdminModuleKey = "overview" | "users" | "sources" | "sponsors";
+type AdminModuleKey = "overview" | "users" | "sources" | "sponsors" | "regions";
 
 const MODULES: Array<{
   key: AdminModuleKey;
@@ -35,6 +36,12 @@ const MODULES: Array<{
     key: "sponsors",
     title: "Sponsors",
     description: "Commandites et employeurs en vedette.",
+    action: "Gérer",
+  },
+  {
+    key: "regions",
+    title: "Régions & municipalités",
+    description: "Associer une ville à sa région administrative.",
     action: "Gérer",
   },
 ];
@@ -79,6 +86,7 @@ export function AdminModules() {
       {active === "users" ? <AdminUsers /> : null}
       {active === "sources" ? <AdminExplorer /> : null}
       {active === "sponsors" ? <AdminSponsors /> : null}
+      {active === "regions" ? <AdminRegions /> : null}
     </div>
   );
 }
