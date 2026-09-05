@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ContactEmailButton } from "@/components/ContactEmailButton";
 import { LegalShell } from "@/components/LegalShell";
 import { LEGAL } from "@/lib/legal";
 
@@ -9,7 +10,6 @@ export const metadata: Metadata = {
 };
 
 export default function AProposPage() {
-  const mail = `mailto:${LEGAL.contactEmail}`;
   return (
     <LegalShell title="À propos">
       <p>
@@ -54,8 +54,12 @@ export default function AProposPage() {
       <h2>Signaler une erreur ou demander un retrait</h2>
       <p>
         Une information est inexacte, ou vous souhaitez qu'une offre ou une fiche soit corrigée ou
-        retirée ? Écrivez-nous à <a href={mail}>{LEGAL.contactEmail}</a> — nous traiterons votre
-        demande rapidement.
+        retirée ? Écrivez-nous à{" "}
+        <ContactEmailButton
+          label={LEGAL.contactEmail}
+          className="text-brand-600 underline underline-offset-2 hover:text-brand-700"
+        />{" "}
+        — nous traiterons votre demande rapidement.
       </p>
 
       <h2>En savoir plus</h2>

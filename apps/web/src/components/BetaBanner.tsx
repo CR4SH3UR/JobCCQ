@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LEGAL } from "@/lib/legal";
+import { ContactEmailButton } from "@/components/ContactEmailButton";
 
 /**
  * Mince bandeau « beta » : rappelle la fréquence de mise à jour des offres et
@@ -23,7 +23,6 @@ export function BetaBanner() {
 
   if (hidden) return null;
 
-  const mail = `mailto:${LEGAL.contactEmail}?subject=${encodeURIComponent("Retour beta — JobCCQc")}`;
   const dismiss = () => {
     try {
       localStorage.setItem(KEY, "1");
@@ -39,9 +38,11 @@ export function BetaBanner() {
         <span className="flex-1">
           🚧 <strong>Version beta</strong> — les offres sont mises à jour 2×/semaine. Une idée ou un
           problème ?{" "}
-          <a href={mail} className="font-semibold underline underline-offset-2 hover:opacity-80">
-            Écris-nous
-          </a>
+          <ContactEmailButton
+            label="Écris-nous"
+            subject="Retour beta — JobCCQc"
+            className="font-semibold underline underline-offset-2 hover:opacity-80"
+          />
           .
         </span>
         <button

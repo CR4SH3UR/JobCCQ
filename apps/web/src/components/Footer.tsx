@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LEGAL } from "@/lib/legal";
+import { ContactEmailButton } from "@/components/ContactEmailButton";
 
 const adminEnabled = process.env.NEXT_PUBLIC_ENABLE_ADMIN === "1";
 
@@ -33,12 +33,11 @@ export function Footer() {
           <Link href="/sources" className="hover:text-brand-600 hover:underline">
             Sources
           </Link>
-          <a
-            href={`mailto:${LEGAL.contactEmail}?subject=${encodeURIComponent("Retour — JobCCQc")}`}
+          <ContactEmailButton
+            label="Nous écrire"
+            subject="Retour — JobCCQc"
             className="hover:text-brand-600 hover:underline"
-          >
-            Nous écrire
-          </a>
+          />
           {adminEnabled && (
             <Link href="/admin" className="hover:text-brand-600 hover:underline">
               Admin

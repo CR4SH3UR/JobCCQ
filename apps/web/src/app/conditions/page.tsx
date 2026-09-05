@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ContactEmailButton } from "@/components/ContactEmailButton";
 import { LegalShell } from "@/components/LegalShell";
 import { LEGAL } from "@/lib/legal";
 
@@ -9,7 +10,6 @@ export const metadata: Metadata = {
 };
 
 export default function ConditionsPage() {
-  const mail = `mailto:${LEGAL.contactEmail}`;
   return (
     <LegalShell title="Conditions d'utilisation">
       <p>
@@ -62,8 +62,11 @@ export default function ConditionsPage() {
       <p>
         Vous êtes un employeur, un site source ou un titulaire de droits et souhaitez qu'une offre ou
         une fiche soit <strong>corrigée ou retirée</strong> ? Écrivez-nous à{" "}
-        <a href={mail}>{LEGAL.contactEmail}</a> en précisant l'URL concernée ; nous traiterons la
-        demande dans les meilleurs délais.
+        <ContactEmailButton
+          label={LEGAL.contactEmail}
+          className="text-brand-600 underline underline-offset-2 hover:text-brand-700"
+        />{" "}
+        en précisant l'URL concernée ; nous traiterons la demande dans les meilleurs délais.
       </p>
 
       <h2>7. Non-affiliation</h2>

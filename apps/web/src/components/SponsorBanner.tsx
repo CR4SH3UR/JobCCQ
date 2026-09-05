@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ContactEmailButton } from "@/components/ContactEmailButton";
 import { SPONSORS, SPONSOR_CONTACT_EMAIL, type Sponsor } from "@/lib/sponsors";
 import { cn, initials } from "@/lib/format";
 
@@ -197,12 +198,13 @@ function Logo({ s, size, gold }: { s: Sponsor; size: "sm" | "md" | "lg"; gold: b
 
 /** Encart « Votre entreprise ici » quand aucun commanditaire n'est configuré. */
 function EmptyPrompt({ className }: { className: string }) {
-  const subject = encodeURIComponent("Commandite JobCCQc");
   return (
-    <a
-      href={`mailto:${SPONSOR_CONTACT_EMAIL}?subject=${subject}`}
+    <ContactEmailButton
+      email={SPONSOR_CONTACT_EMAIL}
+      label="Devenir commanditaire"
+      subject="Commandite JobCCQc"
       className={cn(
-        "card group flex items-center justify-between gap-4 border-dashed p-4 text-sm transition-colors hover:border-brand-400 hover:bg-brand-50/40",
+        "card group flex w-full items-center justify-between gap-4 border-dashed p-4 text-left text-sm transition-colors hover:border-brand-400 hover:bg-brand-50/40",
         className,
       )}
     >
@@ -220,6 +222,6 @@ function EmptyPrompt({ className }: { className: string }) {
       <span className="hidden shrink-0 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white transition-transform group-hover:scale-105 sm:inline">
         Devenir commanditaire
       </span>
-    </a>
+    </ContactEmailButton>
   );
 }
