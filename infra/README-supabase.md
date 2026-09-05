@@ -262,6 +262,8 @@ donc **visible immédiatement pour tous les visiteurs, sans redéploiement**.
 - Le patch est **durable** : re-appliqué à chaque chargement, il survit même à un
   re-scrape qui réécrirait l'offre en base — la correction admin l'emporte tant
   qu'un admin ne la change pas.
+- Le flag `offConstruction` (case **Hors construction** dans l'éditeur d'offre)
+  masque l'offre du site public tout en la laissant visible dans `/admin`.
 
 > En mode Turso/API, l'admin écrit dans la base (source de vérité) **et** dans cet
 > overlay. En mode statique (aucun jeton Turso), l'overlay suffit à publier

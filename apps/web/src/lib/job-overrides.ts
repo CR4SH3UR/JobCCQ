@@ -20,7 +20,7 @@
  * aucun overlay, l'instantané est servi tel quel (rien ne casse).
  */
 import type { Job } from "@jobccq/shared";
-import type { OfferPatch } from "@/components/AdminOfferEditor";
+import type { OfferPatch } from "../components/AdminOfferEditor";
 
 /**
  * Champs d'offre éditables dans la console (miroir de `AdminOfferEditor`).
@@ -55,6 +55,39 @@ interface Row {
 
 /** Un patch stocké : valeur par champ éditable (`null` = champ effacé). */
 export type StoredPatch = Record<string, unknown>;
+
+/** Flag admin : offre hors construction, masquée du site public. */
+export function isOffConstruction(patch?: StoredPatch | null): boolean {
+  return patch?.offConstruction === true;
+}
+
+/**
+ * Overlay admin sans masquer : sert la console (pour dé-flagger une offre).
+ */
+export function overlayJobs(jobs: Job[], overrides: Map<string, StoredPatch>): Job[] {
+  if (!overrides.size) return jobs;
+  return jobs.map((j) => {
+    const patch = overrides.get(j.id);
+    return patch ? applyPatch(j, patch) : j;
+  });
+}
+
+/**
+ * Instantané + overlay, sans les offres flaggées « hors construction ».
+ * Sert le site public (recherche, fiches, stats).
+ */
+export function publicJobs(jobs: Job[], overrides: Map<string, StoredPatch>): Job[] {
+  return overlayJobs(jobs, overrides).filter((j) => !isOffConstruction(overrides.get(j.id)));
+}
+
+/** Pose le flag overlay sur des lignes admin (l'offre reste visible dans la console). */
+export function attachOffConstruction<T extends { id: string }>(
+  rows: T[],
+  overrides: Map<string, StoredPatch>,
+): (T & { offConstruction: boolean })[] {
+  if (!overrides.size) return rows.map((r) => ({ ...r, offConstruction: false }));
+  return rows.map((r) => ({ ...r, offConstruction: isOffConstruction(overrides.get(r.id)) }));
+}
 
 /**
  * Lit tous les patchs d'offres (lecture publique). Renvoie une Map vide si
@@ -110,6 +143,7 @@ function normalizePatch(patch: OfferPatch): StoredPatch {
     const v = (patch as Record<string, unknown>)[k];
     out[k] = v === undefined ? null : v;
   }
+  out.offConstruction = patch.offConstruction === true;
   return out;
 }
 

@@ -3,12 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, hasCustomScraper, type DiscoveredMethod, type Job } from "@jobccq/shared";
-import { API_URL, getStats, searchJobs, buildQuery, adminFetch, invalidateJobOverrides } from "@/lib/data";
+import { API_URL, getStats, searchAdminJobs, buildQuery, adminFetch, invalidateJobOverrides } from "@/lib/data";
 import { previewEmployer, fetchEmployerHtml } from "@/lib/admin-preview";
 import { useAuth } from "@/lib/auth";
 import { encryptJson, decryptJson, saveVault, loadVault, clearVault, type AdminSecrets } from "@/lib/vault";
 import { notifyJobsChanged } from "@/lib/live";
-import { upsertJobOverride } from "@/lib/job-overrides";
+import { upsertJobOverride, fetchJobOverrides, attachOffConstruction } from "@/lib/job-overrides";
 import { supabaseEnabled } from "@/lib/supabase";
 import { logAudit, setAuditActor, useAuditLog, clearAudit } from "@/lib/admin-audit";
 import { ensureTursoAdminColumns } from "@/lib/admin-turso";
@@ -823,8 +823,14 @@ export function AdminExplorer() {
         const raw = await tursoRows(tUrl, tTok, OFFERS_SQL, [id]);
         rows = raw.map(tursoToOfferRow);
       } else {
-        const res = await searchJobs(buildQuery({ sources: [id], pageSize: 60, sort: "recent" }));
+        const res = await searchAdminJobs(buildQuery({ sources: [id], pageSize: 60, sort: "recent" }));
         rows = res.items.map(jobToOfferRow);
+      }
+      try {
+        const ov = await fetchJobOverrides();
+        rows = attachOffConstruction(rows, ov);
+      } catch {
+        /* overlay absent */
       }
       setOffersData((d) => ({ ...d, [id]: { loading: false, rows } }));
     } catch (err) {
@@ -3197,6 +3203,7 @@ function OfferRowItem({
       >
         <span className="truncate text-brand-700">{o.title || "(sans titre)"}</span>
         <span className="shrink-0 text-slate-400">
+          {o.offConstruction ? "hors construction · " : ""}
           {o.city ?? ""}{o.postedAt ? `${o.city ? " · " : ""}${relTime(o.postedAt)}` : ""}
         </span>
       </button>

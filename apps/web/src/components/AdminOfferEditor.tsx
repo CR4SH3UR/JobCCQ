@@ -35,6 +35,8 @@ export type OfferRow = {
   languages: string[];
   postedAt: number | null;
   companyLogoUrl?: string;
+  /** Masquée du site public (construction hors sujet). */
+  offConstruction?: boolean;
 };
 
 export type OfferPatch = Partial<Omit<OfferRow, "id">>;
@@ -88,6 +90,7 @@ export function AdminOfferEditor({
   const [languages, setLanguages] = useState<string[]>([...offer.languages]);
   const [postedAt, setPostedAt] = useState(toLocalInput(offer.postedAt));
   const [companyLogoUrl, setCompanyLogoUrl] = useState(offer.companyLogoUrl ?? "");
+  const [offConstruction, setOffConstruction] = useState(!!offer.offConstruction);
   // Retour de la déduction « ville → région ».
   const [regionHint, setRegionHint] = useState<{ tone: "ok" | "err"; msg: string } | null>(null);
   const [detecting, setDetecting] = useState(false);
@@ -116,6 +119,7 @@ export function AdminOfferEditor({
     setLanguages([...offer.languages]);
     setPostedAt(toLocalInput(offer.postedAt));
     setCompanyLogoUrl(offer.companyLogoUrl ?? "");
+    setOffConstruction(!!offer.offConstruction);
     setRegionHint(null);
     setLastAutoCity((offer.city ?? "").trim().toLowerCase());
   }, [offer]);
@@ -189,6 +193,7 @@ export function AdminOfferEditor({
       languages,
       postedAt: postedAt ? new Date(postedAt).getTime() : null,
       companyLogoUrl: companyLogoUrl.trim() || undefined,
+      offConstruction,
     });
   };
 
@@ -293,6 +298,15 @@ export function AdminOfferEditor({
           </label>
         ))}
       </div>
+      <label className="mt-2 flex items-center gap-1.5 text-slate-700">
+        <input
+          type="checkbox"
+          checked={offConstruction}
+          onChange={(e) => setOffConstruction(e.target.checked)}
+          className="accent-brand-600"
+        />
+        Hors construction — masquée du site public
+      </label>
       {field(
         "Description",
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={6} className={`${inputCls} mt-0.5 w-full`} />,

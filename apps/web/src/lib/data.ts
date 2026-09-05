@@ -160,14 +160,11 @@ export function invalidateJobsCache(): void {
  * Instantané + overlay des éditions admin appliqué. Ne mute pas l'instantané
  * partagé : seules les offres patchées sont copiées.
  */
-async function loadJobs(): Promise<Job[]> {
+async function loadJobs(opts?: { includeOffConstruction?: boolean }): Promise<Job[]> {
   const [jobs, overrides] = await Promise.all([loadSnapshot(), loadOverrides()]);
   if (!overrides.size) return jobs;
-  const { applyPatch } = await import("./job-overrides");
-  return jobs.map((j) => {
-    const patch = overrides.get(j.id);
-    return patch ? applyPatch(j, patch) : j;
-  });
+  const { overlayJobs, publicJobs } = await import("./job-overrides");
+  return opts?.includeOffConstruction ? overlayJobs(jobs, overrides) : publicJobs(jobs, overrides);
 }
 
 /**
@@ -253,6 +250,15 @@ async function apiGet<T>(path: string, params?: URLSearchParams): Promise<T> {
 export async function searchJobs(query: JobQuery): Promise<JobSearchResult> {
   if (STATIC) {
     const jobs = await loadJobs();
+    return applyQuery(jobs, query);
+  }
+  return apiGet<JobSearchResult>("/api/jobs", toParams(query));
+}
+
+/** Même recherche, y compris les offres « hors construction » (console admin). */
+export async function searchAdminJobs(query: JobQuery): Promise<JobSearchResult> {
+  if (STATIC) {
+    const jobs = await loadJobs({ includeOffConstruction: true });
     return applyQuery(jobs, query);
   }
   return apiGet<JobSearchResult>("/api/jobs", toParams(query));

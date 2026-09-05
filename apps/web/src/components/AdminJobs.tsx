@@ -1,17 +1,27 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { API_URL, adminFetch, searchJobs, buildQuery } from "@/lib/data";
+import { API_URL, adminFetch, searchAdminJobs, buildQuery, invalidateJobOverrides } from "@/lib/data";
 import type { Job } from "@jobccq/shared";
 import { ensureTursoAdminColumns, tursoCreds, tursoExec, tursoRows } from "@/lib/admin-turso";
 import { AdminOfferEditor, type OfferPatch, type OfferRow, type SaveState } from "./AdminOfferEditor";
 import { logAudit } from "@/lib/admin-audit";
+import { attachOffConstruction, fetchJobOverrides, upsertJobOverride } from "@/lib/job-overrides";
+import { supabaseEnabled } from "@/lib/supabase";
 
 function whenMs(v: unknown): number | null {
   if (v == null) return null;
   if (typeof v === "number") return v > 1e12 ? v : v * 1000;
   const t = Date.parse(String(v));
   return Number.isNaN(t) ? null : t;
+}
+
+async function withFlags<T extends OfferRow>(rows: T[]): Promise<(T & { offConstruction: boolean })[]> {
+  try {
+    return attachOffConstruction(rows, await fetchJobOverrides());
+  } catch {
+    return rows.map((r) => ({ ...r, offConstruction: false }));
+  }
 }
 
 function jobToRow(j: Job): OfferRow {
@@ -107,7 +117,7 @@ export function AdminJobs() {
           const d = (await r.json()) as { total: number; jobs: Job[] };
           setMode("api");
           setTotal(d.total);
-          setRows(d.jobs.map(jobToRow));
+          setRows(await withFlags(d.jobs.map(jobToRow)));
           return;
         }
       } catch {
@@ -132,13 +142,13 @@ export function AdminJobs() {
         );
         setMode("turso");
         setTotal(Number(countRows[0]?.n ?? 0));
-        setRows(raw.map(tursoToRow));
+        setRows(await withFlags(raw.map(tursoToRow)));
         return;
       }
-      const res = await searchJobs(buildQuery({ q: query, page: p, pageSize, sort: "recent" }));
+      const res = await searchAdminJobs(buildQuery({ q: query, page: p, pageSize, sort: "recent" }));
       setMode("static");
       setTotal(res.total);
-      setRows(res.items.map(jobToRow));
+      setRows(await withFlags(res.items.map(jobToRow)));
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -203,13 +213,19 @@ export function AdminJobs() {
           cols.push("postedAt=?");
           args.push(patch.postedAt ? new Date(patch.postedAt).toISOString() : null);
         }
-        if (!cols.length) return;
-        cols.push("updatedAt=?");
-        args.push(new Date().toISOString());
-        args.push(id);
-        await tursoExec(creds.url, creds.token, `UPDATE Job SET ${cols.join(",")} WHERE id=?`, args);
-      } else {
-        throw new Error("Édition indisponible en mode statique (sans API/Turso).");
+        if (!cols.length && !supabaseEnabled) return;
+        if (cols.length) {
+          cols.push("updatedAt=?");
+          args.push(new Date().toISOString());
+          args.push(id);
+          await tursoExec(creds.url, creds.token, `UPDATE Job SET ${cols.join(",")} WHERE id=?`, args);
+        }
+      } else if (!supabaseEnabled) {
+        throw new Error("Édition indisponible en mode statique (sans API/Turso/Supabase).");
+      }
+      if (supabaseEnabled) {
+        await upsertJobOverride(id, patch);
+        invalidateJobOverrides();
       }
       setRows((list) => list.map((o) => (o.id === id ? { ...o, ...patch } : o)));
       setSaves((s) => ({ ...s, [id]: { s: "ok" } }));
@@ -284,6 +300,11 @@ export function AdminJobs() {
               <button type="button" className="flex-1 text-left" onClick={() => setOpenId(openId === o.id ? null : o.id)}>
                 <span className="font-semibold">{o.title}</span>
                 <span className="ml-2 text-slate-500">{o.company}{o.city ? ` · ${o.city}` : ""}</span>
+                {o.offConstruction && (
+                  <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">
+                    hors construction
+                  </span>
+                )}
               </button>
               <a href={o.url} target="_blank" rel="noreferrer" className="text-xs text-brand-700 hover:underline">
                 Source
@@ -302,7 +323,7 @@ export function AdminJobs() {
               <div className="mt-3 border-t border-slate-100 pt-3 dark:border-slate-800">
                 <AdminOfferEditor
                   offer={o}
-                  persistEnabled={mode === "api" || mode === "turso"}
+                  persistEnabled={mode === "api" || mode === "turso" || supabaseEnabled}
                   save={saves[o.id]}
                   onSave={persistPatch}
                 />

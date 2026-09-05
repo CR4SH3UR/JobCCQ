@@ -228,7 +228,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [ ] 20. Historique d'une offre (salaire modifié, réactivée…)
 - [x] 54. Extraire contacts RH publics (courriel / téléphone) dans la fiche
 - [x] 55. Extraire avantages (REER, assurances, camion fourni) à côté des exigences
-- [ ] 56. Flag admin « hors construction » → masquée du site public
+- [x] 56. Flag admin « hors construction » → masquée du site public
 
 ### 🏢 Entreprises / employeurs
 
