@@ -20,7 +20,9 @@ import {
   getEmployer,
   labelForRegion,
   QUEBEC_REGIONS,
+  rankHiringCompanies,
   type DiscoveredEmployer,
+  type HiringCompany,
   type Job,
 } from "@jobccq/shared";
 
@@ -139,4 +141,14 @@ export function similarJobs(job: Job, limit = 6): Job[] {
     .filter((s) => s.score > 0)
     .sort((a, b) => b.score - a.score);
   return scored.slice(0, limit).map((s) => s.j);
+}
+
+/** Classement des employeurs qui recrutent dans une région. */
+export function companiesByRegion(regionId: string): HiringCompany[] {
+  return rankHiringCompanies(allJobs(), { regionId });
+}
+
+/** Classement des employeurs qui recrutent pour un métier CCQ. */
+export function companiesByTrade(tradeId: string): HiringCompany[] {
+  return rankHiringCompanies(allJobs(), { tradeId });
 }

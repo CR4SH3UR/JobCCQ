@@ -234,7 +234,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 
 - [x] 21. Fiche employeur enrichie (logo, RBQ, nb d'offres actives, régions, métiers, lien carrières)
 - [x] 22. Suivre une entreprise + alerte quand elle publie
-- [ ] 23. Classement « qui recrute le plus » par région et par métier
+- [x] 23. Classement « qui recrute le plus » par région et par métier
 - [x] 24. Badge « vérifié » exposé côté site (champ `verified` de l'admin)
 - [x] 25. Lien licence RBQ vers le registre public (recherche de licence)
 - [x] 26. Employeurs similaires sur une fiche (même région/secteur)

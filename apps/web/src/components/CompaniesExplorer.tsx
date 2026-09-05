@@ -180,8 +180,11 @@ function CompanyCard({ company: c }: { company: HiringCompany }) {
 
       <div className="mt-auto flex items-center justify-between pt-3 text-xs text-slate-400">
         {latest ? <span>Dernière offre {latest}</span> : <span />}
-        <Link href="/emplois" className="font-semibold text-brand-600 hover:underline">
-          Voir les offres →
+        <Link
+          href={c.sources[0] ? `/entreprises/${c.sources[0]}/` : "/emplois"}
+          className="font-semibold text-brand-600 hover:underline"
+        >
+          Voir la fiche →
         </Link>
       </div>
     </article>

@@ -20,7 +20,7 @@ import {
   labelForRemote,
 } from "./taxonomy.js";
 import { sourceName } from "./sources.js";
-import { isCcqTrade } from "./ccq.js";
+import { isCcqTrade, ccqTradeOf } from "./ccq.js";
 import { normalizeText, fuzzyIncludes } from "./text.js";
 import { expandTerm } from "./synonyms.js";
 
@@ -285,6 +285,20 @@ export function similarEmployers(
     .sort((a, b) => b.score - a.score || b.c.openings - a.c.openings)
     .slice(0, limit)
     .map((s) => s.c);
+}
+
+/** Classement « qui recrute le plus » (optionnellement borné région / métier / domaine). */
+export function rankHiringCompanies(
+  jobs: Job[],
+  opts?: { regionId?: string; categoryId?: string; tradeId?: string },
+): HiringCompany[] {
+  const filtered = jobs.filter((j) => {
+    if (opts?.regionId && j.regionId !== opts.regionId) return false;
+    if (opts?.categoryId && j.categoryId !== opts.categoryId) return false;
+    if (opts?.tradeId && ccqTradeOf(j.title)?.id !== opts.tradeId) return false;
+    return true;
+  });
+  return toHiringCompanies(filtered);
 }
 
 // Réexport des libellés utiles côté logique de filtrage.

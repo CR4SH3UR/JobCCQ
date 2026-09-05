@@ -17,6 +17,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: siteUrl("/emplois/region/"), changeFrequency: "weekly", priority: 0.6 },
     { url: siteUrl("/emplois/metier/"), changeFrequency: "weekly", priority: 0.6 },
     { url: siteUrl("/entreprises/"), changeFrequency: "weekly", priority: 0.7 },
+    { url: siteUrl("/entreprises/region/"), changeFrequency: "weekly", priority: 0.6 },
+    { url: siteUrl("/entreprises/metier/"), changeFrequency: "weekly", priority: 0.6 },
     { url: siteUrl("/sources/"), changeFrequency: "monthly", priority: 0.3 },
     { url: siteUrl("/alertes/"), changeFrequency: "monthly", priority: 0.3 },
     { url: siteUrl("/a-propos/"), changeFrequency: "monthly", priority: 0.3 },
@@ -43,11 +45,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: "daily",
     priority: 0.6,
   }));
+  const hiringRegions: MetadataRoute.Sitemap = regionsWithCounts().map((r) => ({
+    url: siteUrl(`/entreprises/region/${r.id}/`),
+    changeFrequency: "weekly",
+    priority: 0.55,
+  }));
   const trades: MetadataRoute.Sitemap = tradesWithCounts().map((t) => ({
     url: siteUrl(`/emplois/metier/${t.id}/`),
     changeFrequency: "daily",
     priority: 0.6,
   }));
+  const hiringTrades: MetadataRoute.Sitemap = tradesWithCounts().map((t) => ({
+    url: siteUrl(`/entreprises/metier/${t.id}/`),
+    changeFrequency: "weekly",
+    priority: 0.55,
+  }));
 
-  return [...pages, ...regions, ...trades, ...jobs, ...employers];
+  return [...pages, ...regions, ...hiringRegions, ...trades, ...hiringTrades, ...jobs, ...employers];
 }
