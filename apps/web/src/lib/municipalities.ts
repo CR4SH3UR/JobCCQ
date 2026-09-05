@@ -59,16 +59,31 @@ export async function resolveRegionForCity(city: string): Promise<string | null>
   return map.get(key) ?? null;
 }
 
-/** Lit toutes les municipalités (lecture publique). Renvoie [] si indisponible. */
+/**
+ * Lit **toutes** les municipalités (lecture publique). Renvoie [] si indisponible.
+ *
+ * PostgREST/Supabase plafonne un `select` à ~1000 lignes : la table dépasse ce
+ * seuil (municipalités + alias), donc on **pagine** par tranches (tri sur `norm`,
+ * clé primaire → pagination stable) sinon les villes tardives dans l'alphabet
+ * (Trois-Rivières, Sherbrooke, Victoriaville…) sont silencieusement absentes.
+ */
 export async function fetchMunicipalities(): Promise<Municipality[]> {
   const { supabase } = await import("./supabase");
   if (!supabase) return [];
-  const { data, error } = await supabase
-    .from("municipalities")
-    .select("name, region_id")
-    .order("name");
-  if (error || !data) return [];
-  return (data as Row[]).map((r) => ({ name: r.name, regionId: r.region_id }));
+  const PAGE = 1000;
+  const out: Municipality[] = [];
+  // Garde-fou (50 pages) : évite toute boucle infinie si `range` était ignoré.
+  for (let from = 0; from < PAGE * 50; from += PAGE) {
+    const { data, error } = await supabase
+      .from("municipalities")
+      .select("name, region_id")
+      .order("norm")
+      .range(from, from + PAGE - 1);
+    if (error || !data) break;
+    for (const r of data as Row[]) out.push({ name: r.name, regionId: r.region_id });
+    if (data.length < PAGE) break; // dernière page atteinte
+  }
+  return out;
 }
 
 /** Ajoute ou met à jour une municipalité (admin ; contrôle d'accès par RLS). */
