@@ -188,14 +188,12 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
               <ul className="mt-3 space-y-1 text-sm">
                 {job.alsoOn.map((a) => (
                   <li key={a.id}>
-                    <a
-                      href={a.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <ApplyLink
+                      job={{ id: a.id, sourceId: a.sourceId, title: job.title, url: a.url }}
                       className="font-medium text-brand-700 hover:underline"
                     >
                       Aussi sur {sourceName(a.sourceId)} ↗
-                    </a>
+                    </ApplyLink>
                   </li>
                 ))}
               </ul>

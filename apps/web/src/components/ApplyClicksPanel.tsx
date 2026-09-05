@@ -2,28 +2,41 @@
 
 import { useEffect, useState } from "react";
 import { sourceName } from "@jobccq/shared";
-import { fetchApplyClickStats, type ApplyClickStats } from "@/lib/apply-clicks";
+import {
+  fetchApplyClickStats,
+  useLocalApplyClickStats,
+  type ApplyClickStats,
+} from "@/lib/apply-clicks";
 
 /** Top clics « Postuler » (table Supabase, sinon ce navigateur). */
 export function ApplyClicksPanel() {
-  const [stats, setStats] = useState<ApplyClickStats | null>(null);
+  const local = useLocalApplyClickStats();
+  const [remote, setRemote] = useState<ApplyClickStats | null>(null);
   const [source, setSource] = useState<"supabase" | "local">("local");
 
   useEffect(() => {
     void fetchApplyClickStats().then((r) => {
-      setStats(r.stats);
-      setSource(r.source);
+      if (r.source === "supabase") {
+        setRemote(r.stats);
+        setSource("supabase");
+      }
     });
-  }, []);
+  }, [local.total]);
 
-  if (!stats) return <p className="text-sm text-slate-500">Chargement des clics…</p>;
+  const stats = remote && remote.total > 0 ? remote : local;
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
       <h2 className="text-sm font-bold">Clics « Postuler »</h2>
       <p className="mt-0.5 text-xs text-slate-500">
         {stats.total} clic{stats.total > 1 ? "s" : ""} ·{" "}
-        {source === "supabase" ? "tous les visiteurs" : "ce navigateur (table distante vide ou RLS)"}
+        {source === "supabase" && remote && remote.total > 0
+          ? "tous les visiteurs"
+          : "ce navigateur (table distante vide ou RLS)"}
+      </p>
+      <p className="mt-1 text-xs text-slate-400">
+        Compte le bouton <span className="font-medium">Postuler</span> (site de l'employeur), pas
+        « Marquer comme postulé ».
       </p>
       {stats.total === 0 ? (
         <p className="mt-2 text-sm text-slate-500">Aucun clic enregistré pour le moment.</p>

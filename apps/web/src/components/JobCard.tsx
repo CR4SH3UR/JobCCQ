@@ -23,6 +23,7 @@ import { isSponsoredEmployer } from "@/lib/sponsors";
 import { toggleFavorite, useIsFavorite } from "@/lib/favorites";
 import { toggleApplied, useHasApplied } from "@/lib/applications";
 import { COMPARE_MAX, toggleCompare, useCompareIds, useIsCompared } from "@/lib/compare";
+import { ApplyLink } from "./ApplyLink";
 
 const REMOTE_TONE = { teletravail: "green", hybride: "violet", presentiel: "slate" } as const;
 
@@ -138,15 +139,23 @@ export function JobCard({ job }: { job: Job }) {
                 )}
               </span>
             </span>
-            <Link
-              href={`/emplois/${job.id}/`}
-              className={cn(
-                "rounded-lg px-3 py-1 text-xs font-semibold",
-                "bg-brand-600 text-white opacity-0 transition-opacity group-hover:opacity-100",
-              )}
-            >
-              Détails →
-            </Link>
+            <span className="flex shrink-0 items-center gap-2">
+              <ApplyLink
+                job={job}
+                className="rounded-lg bg-brand-600 px-3 py-1 text-xs font-semibold text-white hover:bg-brand-700"
+              >
+                Postuler
+              </ApplyLink>
+              <Link
+                href={`/emplois/${job.id}/`}
+                className={cn(
+                  "rounded-lg px-3 py-1 text-xs font-semibold",
+                  "bg-slate-100 text-slate-700 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-slate-800 dark:text-slate-200",
+                )}
+              >
+                Détails →
+              </Link>
+            </span>
           </div>
         </div>
       </div>
