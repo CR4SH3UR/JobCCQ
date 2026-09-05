@@ -27,7 +27,8 @@ permissions:
 
 concurrency:
   group: deploy-pages
-  cancel-in-progress: true
+  cancel-in-progress: false
+  queue: max
 
 jobs:
   deploy:
