@@ -16,6 +16,7 @@ import {
   type Job,
 } from "@jobccq/shared";
 import { Badge } from "./Badge";
+import { MatchBadge } from "./MatchBadge";
 import { cn, formatSalary, initials, timeAgo } from "@/lib/format";
 import { isSponsoredEmployer } from "@/lib/sponsors";
 import { toggleFavorite, useIsFavorite } from "@/lib/favorites";
@@ -85,6 +86,7 @@ export function JobCard({ job }: { job: Job }) {
 
           <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
             {applied && <Badge tone="green">✓ Postulé</Badge>}
+            <MatchBadge job={job} />
             {ccq && <Badge tone="violet">CCQ</Badge>}
             {sponsored && <Badge tone="amber">★ Commandité</Badge>}
             {job.categoryId && <Badge tone="brand">{labelForCategory(job.categoryId)}</Badge>}

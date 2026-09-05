@@ -140,7 +140,7 @@ npm run scrape -- pomerleau         # une source
 | `GET` | `/api/meta` | Taxonomies (pour construire l'UI) |
 | `POST` | `/api/scrape` | Déclenche un scraping |
 
-Filtres de `/api/jobs` : `q`, `company`, `regions`, `cities`, `categories`, `employmentTypes`, `remote`, `sources`, `languages`, `salaryMin`, `postedWithinDays`, `sort`, `page`, `pageSize` (les tableaux sont séparés par des virgules).
+Filtres de `/api/jobs` : `q`, `company`, `regions`, `cities`, `categories`, `employmentTypes`, `remote`, `sources`, `languages`, `salaryMin`, `postedWithinDays`, `sort`, `page`, `pageSize`, `trades`, `shifts` (les tableaux sont séparés par des virgules).
 
 ---
 
@@ -257,10 +257,10 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 33. Statuts de candidature (à postuler / postulé / entrevue / refusé / accepté)
 - [x] 34. Notes & rappels par candidature (relancer dans N jours)
 - [x] 35. Export CSV des favoris et candidatures
-- [ ] 36. Profil métier (mes métiers/régions → accueil personnalisé)
-- [ ] 37. Onboarding rapide (métier, région, mobilité → filtres pré-remplis)
+- [x] 36. Profil métier (mes métiers/régions → accueil personnalisé)
+- [x] 37. Onboarding rapide (métier, région, mobilité → filtres pré-remplis)
 - [x] 61. Marquer « déjà postulé » depuis la fiche (compte existant)
-- [ ] 62. Score d'adéquation offre ↔ profil (métiers / régions du compte)
+- [x] 62. Score d'adéquation offre ↔ profil (métiers / régions du compte)
 
 ### 🕷️ Scraping, sources & pipeline
 

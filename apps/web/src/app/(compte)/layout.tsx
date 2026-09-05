@@ -3,7 +3,7 @@ import { AccountSidebar } from "@/components/AccountSidebar";
 import { AccountAuthPanel } from "@/components/AccountAuthPanel";
 
 /**
- * Disposition de l'**espace utilisateur** (candidatures, favoris, alertes) :
+ * Disposition de l'**espace utilisateur** (profil, candidatures, favoris, alertes) :
  * un menu latéral commun à gauche + le contenu de la page à droite (empilé sur
  * mobile). Le groupe de routes `(compte)` ne change pas les URL (/favoris, etc.).
  */

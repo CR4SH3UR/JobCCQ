@@ -7,6 +7,8 @@ import {
   getEmployer,
   labelForCategory,
   labelForRegion,
+  profileIsSet,
+  rankJobsByProfile,
   type HiringCompany,
   type Job,
 } from "@jobccq/shared";
@@ -16,6 +18,9 @@ import { SPONSORED_EMPLOYERS } from "@/lib/sponsors";
 import { initials } from "@/lib/format";
 import { JobCard } from "./JobCard";
 import { SponsorBanner } from "./SponsorBanner";
+import { OnboardingCard } from "./OnboardingCard";
+import { useProfile } from "@/lib/profile";
+import { filtersToQueryString, profileToFilters } from "@/lib/search-url";
 
 /** Régions « fourre-tout » à ne pas proposer comme raccourci de navigation. */
 const SKIP_REGIONS = new Set(["autre", "canada-autre", "teletravail", ""]);
@@ -26,21 +31,36 @@ export function HomeView() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [companies, setCompanies] = useState<HiringCompany[]>([]);
   const [latest, setLatest] = useState<Job[]>([]);
+  const [forYou, setForYou] = useState<Job[]>([]);
   const [offline, setOffline] = useState(false);
+  const profile = useProfile();
 
   const load = useCallback(() => {
+    const personalized = profileIsSet(profile);
     Promise.all([
       getStats(),
       searchCompanies(buildQuery({})),
       searchJobs(buildQuery({ sort: "recent", pageSize: 6 })),
+      personalized
+        ? searchJobs(
+            buildQuery({
+              trades: profile.trades.length ? profile.trades : undefined,
+              regions: profile.regions.length ? profile.regions : undefined,
+              remote: profile.remote.length ? profile.remote : undefined,
+              sort: "recent",
+              pageSize: 40,
+            }),
+          )
+        : Promise.resolve(null),
     ])
-      .then(([s, c, j]) => {
+      .then(([s, c, j, mine]) => {
         setStats(s);
         setCompanies(c.companies.slice(0, 8));
         setLatest(j.items.slice(0, 6));
+        setForYou(mine ? rankJobsByProfile(mine.items, profile).slice(0, 6) : []);
       })
       .catch(() => setOffline(true));
-  }, []);
+  }, [profile]);
 
   useEffect(() => {
     load();
@@ -144,6 +164,8 @@ export function HomeView() {
         </div>
       </section>
 
+      <OnboardingCard />
+
       {/* Statistiques */}
       <section className="mx-auto max-w-6xl px-4 py-10">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -198,6 +220,26 @@ export function HomeView() {
                 </Link>
               );
             })}
+          </div>
+        </section>
+      )}
+
+      {/* Offres pour le profil visiteur */}
+      {forYou.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 pb-4">
+          <div className="mb-4 flex items-end justify-between">
+            <h2 className="text-xl font-bold tracking-tight">Pour toi</h2>
+            <Link
+              href={`/emplois?${filtersToQueryString(profileToFilters(profile))}`}
+              className="text-sm font-semibold text-brand-600 hover:underline"
+            >
+              Voir toutes →
+            </Link>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            {forYou.map((job) => (
+              <JobCard key={job.id} job={job} />
+            ))}
           </div>
         </section>
       )}

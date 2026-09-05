@@ -45,5 +45,12 @@ describe("search-url — codec des filtres", () => {
     assert.equal(hasActiveFilters({ ...EMPTY_FILTERS, regions: ["laval"] }), true);
     assert.equal(hasActiveFilters({ ...EMPTY_FILTERS, salaryListed: true }), true);
     assert.equal(hasActiveFilters({ ...EMPTY_FILTERS, shifts: ["nuit"] }), true);
+    assert.equal(hasActiveFilters({ ...EMPTY_FILTERS, trades: ["electricien"] }), true);
+  });
+
+  it("encode et décode les métiers CCQ (trades)", () => {
+    const qs = filtersToQueryString({ ...EMPTY_FILTERS, trades: ["electricien", "plombier"] });
+    assert.equal(parseFiltersFromQueryString(qs).trades.join(","), "electricien,plombier");
+    assert.equal(filtersToQueryString(parseFiltersFromQueryString(qs)), qs);
   });
 });

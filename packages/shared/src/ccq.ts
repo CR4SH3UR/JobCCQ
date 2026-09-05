@@ -58,3 +58,10 @@ export function isCcqTrade(title?: string | null): boolean {
 export function ccqTradeLabel(title?: string | null): string | undefined {
   return ccqTradeOf(title)?.label;
 }
+
+const TRADE_BY_ID = new Map(CCQ_TRADES.map((t) => [t.id, t]));
+
+/** Métier CCQ par identifiant stable (profil, URL `trades=`). */
+export function ccqTradeById(id: string): CcqTrade | undefined {
+  return TRADE_BY_ID.get(id);
+}

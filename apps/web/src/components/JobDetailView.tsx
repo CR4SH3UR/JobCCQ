@@ -17,10 +17,12 @@ import {
   extractRequirements,
   extractBenefits,
   summarizeDescription,
+  matchJobToProfile,
   type Job,
 } from "@jobccq/shared";
 import { Badge } from "./Badge";
 import { JobCard } from "./JobCard";
+import { MatchBadge } from "./MatchBadge";
 import { FavoriteButton } from "./FavoriteButton";
 import { AppliedButton } from "./AppliedButton";
 import { formatSalary, initials, timeAgo } from "@/lib/format";
@@ -29,6 +31,7 @@ import { mergeLiveJob } from "@/lib/merge-job";
 import { useLivePoll } from "@/lib/live";
 import { jobPostingLd, ldJson } from "@/lib/jsonld";
 import { COMPARE_MAX, toggleCompare, useCompareIds, useIsCompared } from "@/lib/compare";
+import { useProfile } from "@/lib/profile";
 
 const REMOTE_TONE = { teletravail: "green", hybride: "violet", presentiel: "slate" } as const;
 
@@ -156,8 +159,10 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
               {languages.map((l) => (
                 <Badge key={l}>{labelForLanguage(l)}</Badge>
               ))}
+              <MatchBadge job={job} />
             </div>
             <CompletenessNote job={job} />
+            <MatchNote job={job} />
 
             <div className="mt-6 flex flex-wrap gap-3">
               <a
@@ -375,6 +380,17 @@ function CompletenessNote({ job }: { job: Job }) {
   return (
     <p className="mt-3 text-xs text-slate-500">
       Fiche {c.score}/{c.max} — manque {c.missing.join(", ")}.
+    </p>
+  );
+}
+
+function MatchNote({ job }: { job: Job }) {
+  const m = matchJobToProfile(job, useProfile());
+  if (!m) return null;
+  return (
+    <p className="mt-1 text-xs text-slate-500">
+      {m.score}&nbsp;% d'adéquation
+      {m.reasons.length ? ` — ${m.reasons.join(" · ")}` : " — peu d'axes du profil collent"}.
     </p>
   );
 }

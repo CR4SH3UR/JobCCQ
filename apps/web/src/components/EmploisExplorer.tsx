@@ -11,6 +11,8 @@ import {
   CCQ_TRADES,
   SORT_OPTIONS,
   WORK_SHIFT_FILTERS,
+  ccqTradeById,
+  profileIsSet,
   type JobQuery,
   type JobSearchResult,
   type SortOption,
@@ -27,6 +29,8 @@ import {
   type SearchFilters,
 } from "@/lib/search-url";
 import { useSavedSearches } from "@/lib/saved-searches";
+import { useProfile } from "@/lib/profile";
+import { profileToFilters } from "@/lib/search-url";
 import { JobCard } from "./JobCard";
 import { SearchAutocomplete } from "./SearchAutocomplete";
 import { FacetGroup } from "./FacetGroup";
@@ -109,6 +113,7 @@ export function EmploisExplorer() {
   const [postedWithinDays, setPostedWithinDays] = useState("");
   const [lastVisit, setLastVisit] = useState<string | null>(null);
   const [ccqOnly, setCcqOnly] = useState(false);
+  const [trades, setTrades] = useState<string[]>([]);
   const [shifts, setShifts] = useState<string[]>([]);
   const [sort, setSort] = useState<SortOption>("recent");
   const [page, setPage] = useState(1);
@@ -138,6 +143,7 @@ export function EmploisExplorer() {
     setSalaryListed(f.salaryListed);
     setPostedWithinDays(f.postedWithinDays);
     setCcqOnly(f.ccqOnly);
+    setTrades(f.trades);
     setShifts(f.shifts);
     setSort(f.sort);
     setPage(f.page);
@@ -209,12 +215,13 @@ export function EmploisExplorer() {
           postedWithinDays && postedWithinDays !== "visit" ? Number(postedWithinDays) : undefined,
         postedSince: postedWithinDays === "visit" && lastVisit ? lastVisit : undefined,
         ccqOnly: ccqOnly || undefined,
+        trades: trades.length ? trades : undefined,
         shifts: shifts.length ? (shifts as JobQuery["shifts"]) : undefined,
         sort,
         page,
         pageSize: PAGE_SIZE,
       }),
-    [dq, dcity, sel, salaryMin, salaryListed, postedWithinDays, lastVisit, ccqOnly, shifts, sort, page],
+    [dq, dcity, sel, salaryMin, salaryListed, postedWithinDays, lastVisit, ccqOnly, trades, shifts, sort, page],
   );
 
   // État des filtres courant (immédiat) — pour enregistrer une recherche et
@@ -233,11 +240,12 @@ export function EmploisExplorer() {
       salaryListed,
       postedWithinDays,
       ccqOnly,
+      trades,
       shifts,
       sort,
       page,
     }),
-    [q, city, sel, salaryMin, salaryListed, postedWithinDays, ccqOnly, shifts, sort, page],
+    [q, city, sel, salaryMin, salaryListed, postedWithinDays, ccqOnly, trades, shifts, sort, page],
   );
 
   // URL partageable : on reflète les filtres (débounce sur mot-clé/ville) dans la
@@ -254,6 +262,7 @@ export function EmploisExplorer() {
 
   // Recherches enregistrées (localStorage, ce navigateur).
   const { searches: savedSearches, save: saveSearch, remove: removeSearch } = useSavedSearches();
+  const profile = useProfile();
 
   useEffect(() => {
     let alive = true;
@@ -305,6 +314,7 @@ export function EmploisExplorer() {
     setSalaryListed(false);
     setPostedWithinDays("");
     setCcqOnly(false);
+    setTrades([]);
     setShifts([]);
     setSort("recent");
     setPage(1);
@@ -318,6 +328,7 @@ export function EmploisExplorer() {
     (salaryListed ? 1 : 0) +
     (postedWithinDays ? 1 : 0) +
     (ccqOnly ? 1 : 0) +
+    trades.length +
     shifts.length;
 
   // Libellé lisible de la recherche courante (pour nommer une alerte).
@@ -494,6 +505,14 @@ export function EmploisExplorer() {
               </Chip>
             )}
             {ccqOnly && <Chip onClear={() => setCcqOnly(false)}>Métiers CCQ</Chip>}
+            {trades.map((id) => (
+              <Chip
+                key={`trade-${id}`}
+                onClear={() => setTrades((s) => s.filter((x) => x !== id))}
+              >
+                {ccqTradeById(id)?.label ?? id}
+              </Chip>
+            ))}
             {shifts.map((id) => (
               <Chip
                 key={id}
@@ -511,10 +530,21 @@ export function EmploisExplorer() {
             </button>
           </div>
         )}
-        {/* Recherches enregistrées (ce navigateur) */}
-        {savedSearches.length > 0 && (
+        {/* Profil + recherches enregistrées (ce navigateur) */}
+        {(profileIsSet(profile) || savedSearches.length > 0) && (
           <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-3">
-            <span className="text-xs font-medium text-slate-500">💾 Mes recherches :</span>
+            {profileIsSet(profile) && (
+              <button
+                type="button"
+                onClick={() => applyFilters(profileToFilters(profile))}
+                className="rounded-full border border-brand-200 bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-800 hover:bg-brand-100"
+              >
+                Appliquer mon profil
+              </button>
+            )}
+            {savedSearches.length > 0 && (
+              <span className="text-xs font-medium text-slate-500">💾 Mes recherches :</span>
+            )}
             {savedSearches.map((s) => (
               <span
                 key={s.id}

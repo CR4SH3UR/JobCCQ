@@ -26,6 +26,7 @@ export function filterQuery(q: JobQuery): Partial<JobQuery> {
   if (q.salaryListed) out.salaryListed = true;
   if (q.postedWithinDays != null) out.postedWithinDays = q.postedWithinDays;
   if (q.postedSince) out.postedSince = q.postedSince;
+  if (q.trades?.length) out.trades = q.trades;
   if (q.shifts?.length) out.shifts = q.shifts;
   return out as Partial<JobQuery>;
 }

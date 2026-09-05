@@ -10,8 +10,9 @@ import { useAlerts } from "@/lib/alerts";
 
 type Tone = "green" | "red" | "amber";
 
-const ICON: Record<string, string> = { "/candidatures": "✓", "/favoris": "♥", "/alertes": "🔔" };
+const ICON: Record<string, string> = { "/profil": "👤", "/candidatures": "✓", "/favoris": "♥", "/alertes": "🔔" };
 const NAV: { href: string; label: string; hint: string; tone: Tone }[] = [
+  { href: "/profil", label: "Mon profil", hint: "Métiers, régions, mobilité", tone: "green" },
   { href: "/candidatures", label: "Mes candidatures", hint: "Où j'ai postulé", tone: "green" },
   { href: "/favoris", label: "Mes favoris", hint: "Offres sauvegardées", tone: "red" },
   { href: "/alertes", label: "Mes alertes", hint: "Courriels de nouvelles offres", tone: "amber" },

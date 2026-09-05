@@ -15,7 +15,7 @@ const LINKS = [
 ];
 
 /** Routes de l'espace utilisateur (menu latéral commun). */
-const COMPTE = ["/candidatures", "/favoris", "/alertes"];
+const COMPTE = ["/candidatures", "/favoris", "/alertes", "/profil"];
 
 export function Header() {
   const pathname = usePathname();
@@ -92,7 +92,7 @@ export function Header() {
           })}
           <Link
             href="/candidatures"
-            title="Mon espace — candidatures, favoris, alertes"
+            title="Mon espace — profil, candidatures, favoris, alertes"
             className={cn(
               "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
               compteActive
