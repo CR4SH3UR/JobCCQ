@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import type { FastifyInstance } from "fastify";
+import { createClient, type User } from "@supabase/supabase-js";
 import type { DiscoveredEmployer } from "@jobccq/shared";
 import { buildDiscoveredScraper } from "./scrapers/discovered.js";
 import { bespokeScraper } from "./scrapers/registry.js";
@@ -25,8 +26,25 @@ const REL_DP = "packages/shared/src/discovered.json";
 const exec = promisify(execFile);
 
 const USE_TURSO = !!process.env.TURSO_DATABASE_URL;
+const SUPABASE_URL = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_VERIFY_KEY =
+  process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_ADMIN_KEY = process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SITE_URL = (process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "https://jobccqc.ca").replace(/\/+$/, "");
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "")
+  .split(",")
+  .map((s) => s.trim().toLowerCase())
+  .filter(Boolean);
 
 type Employer = DiscoveredEmployer & { verified?: boolean };
+type AdminUserRow = {
+  id: string;
+  email: string;
+  createdAt: string | null;
+  lastSignInAt: string | null;
+  confirmedAt: string | null;
+  providers: string[];
+};
 
 /** Ligne Prisma Employer → forme DiscoveredEmployer de l'API. */
 function rowToEmployer(row: {
@@ -60,9 +78,108 @@ async function writeAll(list: Employer[]): Promise<void> {
   await writeFile(DP, JSON.stringify(list, null, 2) + "\n");
 }
 
+function userToRow(user: User): AdminUserRow {
+  const providers = new Set<string>();
+  if (typeof user.app_metadata?.provider === "string") providers.add(user.app_metadata.provider);
+  const appProviders = user.app_metadata?.providers;
+  if (Array.isArray(appProviders)) appProviders.forEach((p) => providers.add(String(p)));
+  user.identities?.forEach((identity) => providers.add(identity.provider));
+  return {
+    id: user.id,
+    email: user.email ?? user.phone ?? "(sans courriel)",
+    createdAt: user.created_at ?? null,
+    lastSignInAt: user.last_sign_in_at ?? null,
+    confirmedAt: user.email_confirmed_at ?? user.confirmed_at ?? null,
+    providers: [...providers].sort(),
+  };
+}
+
+function normalizeEmail(value: unknown): string {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+async function requireAdminUser(req: { headers: { authorization?: string } }, reply: { code: (statusCode: number) => void }) {
+  const token = req.headers.authorization?.match(/^Bearer\s+(.+)$/i)?.[1]?.trim();
+  if (!token) {
+    reply.code(401);
+    return { error: "Connexion admin requise." };
+  }
+  if (!SUPABASE_URL || !SUPABASE_VERIFY_KEY || !SUPABASE_ADMIN_KEY || ADMIN_EMAILS.length === 0) {
+    reply.code(503);
+    return { error: "Liste des utilisateurs indisponible : variables Supabase serveur manquantes." };
+  }
+  const verifier = createClient(SUPABASE_URL, SUPABASE_VERIFY_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  const { data, error } = await verifier.auth.getUser(token);
+  const email = data.user?.email?.trim().toLowerCase();
+  if (error || !email) {
+    reply.code(401);
+    return { error: "Session Supabase invalide." };
+  }
+  if (!ADMIN_EMAILS.includes(email)) {
+    reply.code(403);
+    return { error: "Compte non autorisé." };
+  }
+  return {};
+}
+
 const EDITABLE = new Set(["name", "careersUrl", "method", "homepage", "region", "scope", "rbq", "sectors", "verified", "enabled"]);
 
 export function registerAdminRoutes(app: FastifyInstance): void {
+  // Liste des comptes Supabase Auth. Nécessite un appel serveur avec secret key :
+  // jamais de service_role dans le navigateur.
+  app.get<{ Querystring: { page?: string; perPage?: string } }>("/admin/users", async (req, reply) => {
+    const denied = await requireAdminUser(req, reply);
+    if ("error" in denied) return denied;
+
+    const page = Math.max(1, Number(req.query.page ?? 1) || 1);
+    const perPage = Math.min(200, Math.max(1, Number(req.query.perPage ?? 100) || 100));
+    const admin = createClient(SUPABASE_URL!, SUPABASE_ADMIN_KEY!, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    });
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage });
+    if (error) {
+      reply.code(502);
+      return { error: error.message };
+    }
+    return {
+      page,
+      perPage,
+      total: data.total ?? data.users.length,
+      users: data.users.map(userToRow),
+    };
+  });
+
+  // Envoie une invitation Supabase Auth. Secret service_role utilisé seulement
+  // ici, après vérification de la session et de la liste ADMIN_EMAILS.
+  app.post<{ Body: { email?: string } }>("/admin/users/invite", async (req, reply) => {
+    const denied = await requireAdminUser(req, reply);
+    if ("error" in denied) return denied;
+
+    const email = normalizeEmail(req.body?.email);
+    if (!isValidEmail(email)) {
+      reply.code(400);
+      return { error: "Courriel invalide." };
+    }
+
+    const admin = createClient(SUPABASE_URL!, SUPABASE_ADMIN_KEY!, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    });
+    const { error } = await admin.auth.admin.inviteUserByEmail(email, {
+      redirectTo: `${SITE_URL}/favoris`,
+    });
+    if (error) {
+      reply.code(502);
+      return { error: error.message };
+    }
+    return { invited: true, email };
+  });
+
   // Liste de tous les employeurs découverts (données fraîches du fichier).
   app.get("/admin/employers", async () => {
     const list = await readAll();
