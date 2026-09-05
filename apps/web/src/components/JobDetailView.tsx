@@ -13,6 +13,7 @@ import {
   sourceName,
   rbqLicenceUrl,
   jobCompleteness,
+  extractContacts,
   type Job,
 } from "@jobccq/shared";
 import { Badge } from "./Badge";
@@ -81,6 +82,7 @@ export function JobDetailView({ id }: { id: string }) {
   const posted = timeAgo(job.postedAt ?? job.scrapedAt);
   const sectors = sectorsForJob(job);
   const languages = job.languages ?? [];
+  const contacts = extractContacts(job.description);
   const place =
     job.city && region && !region.toLowerCase().includes(job.city.toLowerCase())
       ? `${job.city} · ${region}`
@@ -184,6 +186,31 @@ export function JobDetailView({ id }: { id: string }) {
               </p>
             )}
           </div>
+
+          {(contacts.emails.length > 0 || contacts.phones.length > 0) && (
+            <div className="card mt-4 p-6">
+              <h2 className="text-lg font-bold tracking-tight">Contact RH (public)</h2>
+              <p className="mt-1 text-xs text-slate-500">
+                Extrait de la description — à vérifier sur l'offre originale.
+              </p>
+              <ul className="mt-3 space-y-1 text-sm text-slate-700">
+                {contacts.emails.map((e) => (
+                  <li key={e}>
+                    <a href={`mailto:${e}`} className="font-medium text-brand-700 hover:underline">
+                      {e}
+                    </a>
+                  </li>
+                ))}
+                {contacts.phones.map((p) => (
+                  <li key={p}>
+                    <a href={`tel:${p.replace(/\D/g, "")}`} className="font-medium text-brand-700 hover:underline">
+                      {p}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* Colonne latérale — employeur */}
