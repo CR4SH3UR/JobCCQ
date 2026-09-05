@@ -56,3 +56,57 @@ export function detectShift(...parts: Array<string | null | undefined>): WorkShi
   }
   return undefined;
 }
+
+export interface ExtractedFlag {
+  id: string;
+  label: string;
+}
+
+function matchFlags(
+  text: string | null | undefined,
+  patterns: { id: string; label: string; re: RegExp }[],
+): ExtractedFlag[] {
+  const src = text ?? "";
+  if (!src) return [];
+  const out: ExtractedFlag[] = [];
+  for (const p of patterns) {
+    if (p.re.test(src)) out.push({ id: p.id, label: p.label });
+  }
+  return out;
+}
+
+const REQUIREMENT_PATTERNS: { id: string; label: string; re: RegExp }[] = [
+  { id: "asp", label: "ASP Construction", re: /\basp\s*construction\b|\bcsts\b|sant[ée]\s*[\-–]?\s*s[ée]curit[ée]\s+construction/i },
+  {
+    id: "carte-competence",
+    label: "Carte de compétence",
+    re: /carte\s+de\s+comp[ée]tence|certificat\s+de\s+comp[ée]tence|\bccq\b/i,
+  },
+  { id: "permis-classe-1", label: "Permis classe 1", re: /permis(?:\s+de\s+conduire)?\s+classe\s*1|\bclasse\s*1\b.{0,20}permis/i },
+  { id: "permis-classe-3", label: "Permis classe 3", re: /permis(?:\s+de\s+conduire)?\s+classe\s*3|\bclasse\s*3\b.{0,20}permis/i },
+  { id: "hauteur", label: "Travail en hauteur", re: /travail(?:ler)?\s+en\s+hauteur|harnais|plateforme\s+[ée]l[ée]vatrice/i },
+  { id: "simdut", label: "SIMDUT", re: /\bsimdut\b|\bwhmis\b/i },
+  { id: "cadenassage", label: "Cadenassage", re: /cadenassage|\blockout\b|\bloto\b/i },
+];
+
+const BENEFIT_PATTERNS: { id: string; label: string; re: RegExp }[] = [
+  { id: "reer", label: "REER", re: /\breer\b|\brrsp\b|r[ée]gime\s+de\s+retraite/i },
+  { id: "assurances", label: "Assurances", re: /assurances?\s+collectives?|avantages?\s+sociaux|\bbenefits?\b/i },
+  {
+    id: "camion",
+    label: "Camion fourni",
+    re: /camion\s+fourni|v[ée]hicule\s+fourni|pickup\s+fourni|camionnette\s+fournie/i,
+  },
+  { id: "outils", label: "Outils fournis", re: /outils?\s+fournis?/i },
+  { id: "prime", label: "Prime / bonus", re: /\bbonus\b|\bprime[s]?\b/i },
+];
+
+/** Exigences fréquentes du chantier (ASP, carte CCQ, permis…) mentionnées dans le texte. */
+export function extractRequirements(...parts: Array<string | null | undefined>): ExtractedFlag[] {
+  return matchFlags(parts.filter(Boolean).join(" "), REQUIREMENT_PATTERNS);
+}
+
+/** Avantages extraits de la description (REER, assurances, camion fourni…). */
+export function extractBenefits(...parts: Array<string | null | undefined>): ExtractedFlag[] {
+  return matchFlags(parts.filter(Boolean).join(" "), BENEFIT_PATTERNS);
+}

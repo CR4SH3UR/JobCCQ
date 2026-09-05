@@ -219,7 +219,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 11. Normalisation des salaires (fourchette horaire **et** annuelle pour comparer)
 - [ ] 12. Grille CCQ : taux horaire officiel du métier/région affiché à côté de l'offre
 - [ ] 13. Détection de doublons inter-sources (fusion + badge « aussi sur X »)
-- [ ] 14. Extraction des exigences (carte de compétence, ASP Construction, permis classe 1/3…)
+- [x] 14. Extraction des exigences (carte de compétence, ASP Construction, permis classe 1/3…)
 - [x] 15. Score de complétude d'une offre (salaire ? lieu ? description ?)
 - [ ] 16. Résumé automatique de la description (2-3 puces)
 - [ ] 17. Traduction FR↔EN des offres unilingues (libellé « traduit automatiquement »)
@@ -227,7 +227,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 19. Ancienneté visible et cohérente partout (« il y a 2 j »)
 - [ ] 20. Historique d'une offre (salaire modifié, réactivée…)
 - [x] 54. Extraire contacts RH publics (courriel / téléphone) dans la fiche
-- [ ] 55. Extraire avantages (REER, assurances, camion fourni) à côté des exigences
+- [x] 55. Extraire avantages (REER, assurances, camion fourni) à côté des exigences
 - [ ] 56. Flag admin « hors construction » → masquée du site public
 
 ### 🏢 Entreprises / employeurs

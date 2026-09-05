@@ -14,6 +14,8 @@ import {
   rbqLicenceUrl,
   jobCompleteness,
   extractContacts,
+  extractRequirements,
+  extractBenefits,
   type Job,
 } from "@jobccq/shared";
 import { Badge } from "./Badge";
@@ -83,6 +85,8 @@ export function JobDetailView({ id }: { id: string }) {
   const sectors = sectorsForJob(job);
   const languages = job.languages ?? [];
   const contacts = extractContacts(job.description);
+  const requirements = extractRequirements(job.title, job.description);
+  const benefits = extractBenefits(job.title, job.description);
   const place =
     job.city && region && !region.toLowerCase().includes(job.city.toLowerCase())
       ? `${job.city} · ${region}`
@@ -186,6 +190,41 @@ export function JobDetailView({ id }: { id: string }) {
               </p>
             )}
           </div>
+
+          {(requirements.length > 0 || benefits.length > 0) && (
+            <div className="card mt-4 p-6">
+              <h2 className="text-lg font-bold tracking-tight">Exigences et avantages</h2>
+              <p className="mt-1 text-xs text-slate-500">
+                Extrait de l'offre — à confirmer sur l'annonce originale.
+              </p>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                {requirements.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700">Exigences</h3>
+                    <ul className="mt-2 flex flex-wrap gap-1.5">
+                      {requirements.map((r) => (
+                        <li key={r.id}>
+                          <Badge>{r.label}</Badge>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {benefits.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700">Avantages</h3>
+                    <ul className="mt-2 flex flex-wrap gap-1.5">
+                      {benefits.map((b) => (
+                        <li key={b.id}>
+                          <Badge tone="green">{b.label}</Badge>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {(contacts.emails.length > 0 || contacts.phones.length > 0) && (
             <div className="card mt-4 p-6">
