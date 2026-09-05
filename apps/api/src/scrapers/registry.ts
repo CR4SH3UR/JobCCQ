@@ -61,6 +61,8 @@ import { carriereBernierScraper } from "./carrierebernier.js";
 import { convairScraper } from "./convair.js";
 import { gcbfincScraper } from "./gcbfinc.js";
 import { canInspecScraper } from "./caninspec.js";
+import { cdPeintreScraper } from "./cdpeintre.js";
+import { casParCasScraper } from "./casparcas.js";
 import { buildDiscoveredScraper } from "./discovered.js";
 
 /**
@@ -136,6 +138,8 @@ const BESPOKE = {
   "gcbfinc-com": gcbfincScraper,
   "bellemare-njoyn": bellemareScraper,
   "groupebellemare-com": groupebellemareScraper,
+  "cdpeintre-com": cdPeintreScraper,
+  "casparcas-ca": casParCasScraper,
 } satisfies Record<CustomScraperId, Scraper>;
 
 /**

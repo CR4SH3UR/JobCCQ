@@ -6,6 +6,8 @@
  * importer le code serveur des scrapers.
  */
 export const CUSTOM_SCRAPER_IDS = [
+  "cdpeintre-com",
+  "casparcas-ca",
   "atwill-morin",
   "hamelconstruction-com",
   "pomerleau",
