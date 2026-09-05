@@ -17,6 +17,7 @@ import {
   getStats,
   searchJobs,
 } from "./repository.js";
+import { jobsToRss } from "@jobccq/shared";
 import { listScraperIds } from "./scrapers/registry.js";
 import { runScraper } from "./orchestrator.js";
 import { registerAdminRoutes, adminGuard } from "./admin.js";
@@ -89,6 +90,28 @@ export function buildServer(): FastifyInstance {
     try {
       const query = parseJobQuery(req.query as Record<string, unknown>);
       return await searchJobs(query);
+    } catch (err) {
+      reply.code(400);
+      return { error: "Requête invalide", details: (err as Error).message };
+    }
+  });
+
+  // Flux RSS de la même recherche (jusqu'à 50 offres).
+  app.get("/api/jobs.rss", async (req, reply) => {
+    try {
+      const query = parseJobQuery({ ...(req.query as Record<string, unknown>), pageSize: "50", page: "1" });
+      const result = await searchJobs(query);
+      const site = (process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "https://jobccqc.ca").replace(
+        /\/$/,
+        "",
+      );
+      const qs = new URLSearchParams(req.query as Record<string, string>).toString();
+      const xml = jobsToRss(result.items, {
+        siteUrl: site,
+        feedUrl: `${site}/api/jobs.rss${qs ? `?${qs}` : ""}`,
+        title: query.q ? `JobCCQc — ${query.q}` : undefined,
+      });
+      return reply.type("application/rss+xml; charset=utf-8").send(xml);
     } catch (err) {
       reply.code(400);
       return { error: "Requête invalide", details: (err as Error).message };

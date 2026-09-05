@@ -20,11 +20,15 @@ export default function EmploisPage() {
             Parcourir{" "}
             <Link href="/emplois/region/" className="font-medium text-brand-700 hover:underline">
               par région
-            </Link>{" "}
-            ou{" "}
+            </Link>
+            {" · "}
             <Link href="/emplois/metier/" className="font-medium text-brand-700 hover:underline">
               par métier
             </Link>
+            {" · "}
+            <a href="/emplois.rss" className="font-medium text-brand-700 hover:underline">
+              flux RSS
+            </a>
             .
           </p>
         </div>

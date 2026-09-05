@@ -21,6 +21,11 @@ export const metadata: Metadata = {
   },
   description:
     "Agrégateur d'offres d'emploi du Québec et du Canada. Découvrez quelles entreprises recrutent, pour quels postes, et filtrez par région, domaine, salaire et plus.",
+  alternates: {
+    types: {
+      "application/rss+xml": siteUrl("/emplois.rss"),
+    },
+  },
 };
 
 // Applique le thème avant le premier rendu (évite le flash clair→sombre).

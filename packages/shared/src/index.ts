@@ -11,3 +11,4 @@ export * from "./custom-scrapers.js";
 export * from "./text.js";
 export * from "./synonyms.js";
 export * from "./suggest.js";
+export * from "./rss.js";

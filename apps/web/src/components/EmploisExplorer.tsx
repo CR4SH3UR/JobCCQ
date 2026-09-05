@@ -14,6 +14,7 @@ import {
   type JobSearchResult,
   type SortOption,
   type SuggestEntry,
+  jobsToRss,
 } from "@jobccq/shared";
 import { searchJobs, buildQuery, invalidateJobsCache, getSearchVocabulary } from "@/lib/data";
 import { useLivePoll } from "@/lib/live";
@@ -35,6 +36,7 @@ import { isSponsoredEmployer } from "@/lib/sponsors";
 import { cn } from "@/lib/format";
 import { useAuth } from "@/lib/auth";
 import { createAlert, filterQuery } from "@/lib/alerts";
+import { siteUrl } from "@/lib/site";
 
 const PAGE_SIZE = 20;
 
@@ -342,6 +344,21 @@ export function EmploisExplorer() {
     if (name && name.trim()) saveSearch(name, filtersToQueryString(currentFilters));
   };
 
+  const onDownloadRss = async () => {
+    const r = await searchJobs(buildQuery({ ...query, page: 1, pageSize: 50 }));
+    const xml = jobsToRss(r.items, {
+      siteUrl: siteUrl("/").replace(/\/$/, ""),
+      feedUrl: siteUrl(urlQs ? `/emplois/?${urlQs}` : "/emplois.rss"),
+      title: `JobCCQc — ${alertLabel()}`,
+    });
+    const blob = new Blob([xml], { type: "application/rss+xml;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "jobccq-recherche.rss";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
   // Rejoue une recherche enregistrée (repart page 1).
   const onApplySaved = (qs: string) => {
     applyFilters({ ...parseFiltersFromQueryString(qs), page: 1 });
@@ -413,6 +430,14 @@ export function EmploisExplorer() {
           >
             <span className={refreshing ? "inline-block animate-spin" : "inline-block"}>↻</span>
             <span className="ml-1 hidden sm:inline">{refreshing ? "Rafraîchissement…" : "Rafraîchir"}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => void onDownloadRss()}
+            title="Télécharger un flux RSS de cette recherche (50 offres)"
+            className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            RSS
           </button>
           <button
             type="button"

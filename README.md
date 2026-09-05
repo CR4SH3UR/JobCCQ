@@ -132,6 +132,7 @@ npm run scrape -- pomerleau         # une source
 | Méthode | Route | Description |
 | --- | --- | --- |
 | `GET` | `/api/jobs` | Recherche d'offres (filtres, tri, pagination, facettes) |
+| `GET` | `/api/jobs.rss` | Flux RSS de la recherche (mêmes filtres, 50 offres) |
 | `GET` | `/api/jobs/:id` | Détail d'une offre |
 | `GET` | `/api/companies` | Entreprises qui recrutent (agrégées) |
 | `GET` | `/api/sources` | Répertoire des sources + volumes |
@@ -150,7 +151,7 @@ Le site peut être publié en **100 % statique** : la logique de filtrage tourne
 Configuration unique : dans le dépôt, **Settings → Pages → Source : « GitHub Actions »**.
 
 Ensuite, à chaque push sur `main` (ou via déclenchement manuel), le workflow `.github/workflows/deploy-pages.yml` :
-1. génère l'instantané (`npm run export:static -w @jobccq/api`) ;
+1. génère l'instantané et le flux RSS (`npm run export:static -w @jobccq/api`) ;
 2. construit le site en mode export (`BUILD_STATIC=1`) ;
 3. déploie sur `https://<utilisateur>.github.io/jobccq/`.
 
@@ -245,7 +246,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 
 - [ ] 28. Alertes courriel réelles (digest quotidien/hebdo d'une recherche enregistrée)
 - [ ] 29. Notifications push mobiles (Expo push) sur nouvelles offres
-- [ ] 30. Flux RSS/Atom par recherche (`/emplois.rss?regions=…&q=…`)
+- [x] 30. Flux RSS des offres (`/emplois.rss` sur le site statique, `/api/jobs.rss` + bouton RSS de la recherche)
 - [ ] 31. Webhook Discord/Slack pour une recherche
 - [ ] 32. Réglages de fréquence & silence par alerte (instantané / quotidien / hebdo / pause)
 - [ ] 59. Alerte admin (courriel/Slack) si une grosse source tombe à 0 offre

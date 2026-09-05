@@ -7,7 +7,7 @@
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { effectiveRegionId, type Job } from "@jobccq/shared";
+import { effectiveRegionId, jobsToRss, type Job } from "@jobccq/shared";
 import { inferCategory } from "./normalize.js";
 import { SEED_JOBS } from "./seed-data.js";
 import { seedToJob } from "./seed-transform.js";
@@ -15,6 +15,7 @@ import { seedToJob } from "./seed-transform.js";
 // Instantané **client** (chargé dans le navigateur pour la recherche/les
 // filtres) : descriptions tronquées à un extrait, pour garder la charge légère.
 const OUT = resolve(process.cwd(), "../web/public/data/jobs.json");
+const RSS = resolve(process.cwd(), "../web/public/emplois.rss");
 // Instantané **complet** (descriptions entières) : lu au build pour pré-générer
 // les pages de détail (SEO + lecture) ; non publié (hors `public/`).
 const OUT_FULL = resolve(process.cwd(), "../web/data/jobs.full.json");
@@ -87,9 +88,19 @@ async function main() {
   await mkdir(dirname(OUT), { recursive: true });
   await writeFile(OUT, JSON.stringify(clientJobs));
 
+  const site = (process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "https://jobccqc.ca").replace(
+    /\/$/,
+    "",
+  );
+  await writeFile(
+    RSS,
+    jobsToRss(jobs, { siteUrl: site, feedUrl: `${site}/emplois.rss` }),
+  );
+
   console.log(`✅ ${jobs.length} offres exportées.`);
   console.log(`   • Client (extraits) → ${OUT}`);
   console.log(`   • Complet (fiches)  → ${OUT_FULL}`);
+  console.log(`   • Flux RSS          → ${RSS}`);
   console.log(
     `📍 Régions : ${withRegion}/${jobs.length} renseignées (${filled} complétées via la région RBQ de l'employeur).`,
   );
