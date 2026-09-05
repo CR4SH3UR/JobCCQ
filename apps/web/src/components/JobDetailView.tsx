@@ -26,6 +26,7 @@ import { formatSalary, initials, timeAgo } from "@/lib/format";
 import { getJobById, getSimilarJobs } from "@/lib/data";
 import { useLivePoll } from "@/lib/live";
 import { jobPostingLd, ldJson } from "@/lib/jsonld";
+import { COMPARE_MAX, toggleCompare, useCompareIds, useIsCompared } from "@/lib/compare";
 
 const REMOTE_TONE = { teletravail: "green", hybride: "violet", presentiel: "slate" } as const;
 
@@ -165,6 +166,7 @@ export function JobDetailView({ id }: { id: string }) {
               </a>
               <AppliedButton id={job.id} />
               <FavoriteButton id={job.id} />
+              <CompareDetailButton id={job.id} />
             </div>
           </div>
 
@@ -333,6 +335,23 @@ export function JobDetailView({ id }: { id: string }) {
         dangerouslySetInnerHTML={{ __html: ldJson(jobPostingLd(job)) }}
       />
     </div>
+  );
+}
+
+function CompareDetailButton({ id }: { id: string }) {
+  const on = useIsCompared(id);
+  const n = useCompareIds().length;
+  const full = !on && n >= COMPARE_MAX;
+  return (
+    <button
+      type="button"
+      onClick={() => toggleCompare(id)}
+      disabled={full}
+      aria-pressed={on}
+      className="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:border-brand-300 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      {on ? "Dans la comparaison" : "Comparer"}
+    </button>
   );
 }
 

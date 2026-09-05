@@ -20,6 +20,7 @@ import { cn, formatSalary, initials, timeAgo } from "@/lib/format";
 import { isSponsoredEmployer } from "@/lib/sponsors";
 import { toggleFavorite, useIsFavorite } from "@/lib/favorites";
 import { toggleApplied, useHasApplied } from "@/lib/applications";
+import { COMPARE_MAX, toggleCompare, useCompareIds, useIsCompared } from "@/lib/compare";
 
 const REMOTE_TONE = { teletravail: "green", hybride: "violet", presentiel: "slate" } as const;
 
@@ -62,6 +63,7 @@ export function JobCard({ job }: { job: Job }) {
             <div className="flex shrink-0 items-center gap-1.5">
               {posted && <span className="text-xs text-slate-400">{posted}</span>}
               <AppliedCheck id={job.id} />
+              <CompareButton id={job.id} />
               <FavButton id={job.id} />
             </div>
           </div>
@@ -159,6 +161,33 @@ function CompletenessDots({ job }: { job: Job }) {
         />
       ))}
     </span>
+  );
+}
+
+/** Marque l'offre pour le comparateur (max 3). */
+function CompareButton({ id }: { id: string }) {
+  const on = useIsCompared(id);
+  const n = useCompareIds().length;
+  const full = !on && n >= COMPARE_MAX;
+  return (
+    <button
+      type="button"
+      onClick={() => toggleCompare(id)}
+      disabled={full}
+      aria-pressed={on}
+      aria-label={on ? "Retirer de la comparaison" : "Ajouter à la comparaison"}
+      title={full ? `Déjà ${COMPARE_MAX} offres — retire-en une` : on ? "Retirer de la comparaison" : "Comparer (max 3)"}
+      className={cn(
+        "grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-bold leading-none transition-colors",
+        on
+          ? "bg-brand-100 text-brand-700 hover:bg-brand-200"
+          : full
+            ? "cursor-not-allowed text-slate-300"
+            : "text-slate-300 hover:bg-slate-100 hover:text-brand-600",
+      )}
+    >
+      ⚖
+    </button>
   );
 }
 

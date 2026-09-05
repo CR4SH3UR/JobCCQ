@@ -209,7 +209,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 7. Recherches enregistrées (combinaison de filtres nommée — dans ce navigateur)
 - [x] 8. URL de recherche partageables (filtres encodés dans l'URL)
 - [x] 9. Pages de résultats préconstruites SEO (`/emplois/region/monteregie`, `/emplois/metier/electricien`)
-- [ ] 10. Comparateur d'offres (2-3 offres côte à côte : salaire, région, type)
+- [x] 10. Comparateur d'offres (2-3 offres côte à côte : salaire, région, type)
 - [x] 51. Filtre « salaire renseigné uniquement » (s'appuie sur le filtre salaire déjà là)
 - [x] 52. « Offres similaires » sur la fiche (même métier / région / employeur)
 - [x] 53. Filtre quart de travail (jour / soir / nuit) quand la description le dit

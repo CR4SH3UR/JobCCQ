@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { BetaBanner } from "@/components/BetaBanner";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { CompareBar } from "@/components/CompareBar";
 import { siteUrl } from "@/lib/site";
 
 // Analytics léger et respectueux de la vie privée (Plausible), activé seulement
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <BetaBanner />
         <Header />
         <main className="flex-1">{children}</main>
+        <CompareBar />
         <Footer />
       </body>
     </html>

@@ -26,6 +26,10 @@ export default function EmploisPage() {
               par métier
             </Link>
             {" · "}
+            <Link href="/emplois/comparer/" className="font-medium text-brand-700 hover:underline">
+              comparateur
+            </Link>
+            {" · "}
             <a href="/emplois.rss" className="font-medium text-brand-700 hover:underline">
               flux RSS
             </a>
