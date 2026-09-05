@@ -47,6 +47,7 @@ export const CUSTOM_SCRAPER_IDS = [
   "gestionagodin-com",
   "baulne-ca",
   "berardtremblay-com",
+  "bellemare-njoyn",
 ] as const;
 
 export type CustomScraperId = (typeof CUSTOM_SCRAPER_IDS)[number];
