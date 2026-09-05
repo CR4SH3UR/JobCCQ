@@ -3,9 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { Job } from "@jobccq/shared";
+import { jobsToCsv } from "@jobccq/shared";
 import { searchJobs, buildQuery } from "@/lib/data";
 import { JobCard } from "./JobCard";
 import { useFavorites } from "@/lib/favorites";
+import { downloadCsv } from "@/lib/format";
+import { siteUrl } from "@/lib/site";
 
 /**
  * Page « Mes favoris » : les offres sauvegardées par le visiteur (stockées dans
@@ -63,11 +66,25 @@ export function FavorisView() {
 
       {allJobs && favorites.size > 0 && (
         <>
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-3 flex items-center justify-between gap-2">
             <p className="text-sm text-slate-600">
               <span className="font-semibold text-slate-900">{items.length}</span> offre
               {items.length > 1 ? "s" : ""} sauvegardée{items.length > 1 ? "s" : ""}
             </p>
+            {items.length > 0 && (
+              <button
+                type="button"
+                onClick={() =>
+                  downloadCsv(
+                    "jobccq-favoris.csv",
+                    jobsToCsv(items, { siteUrl: siteUrl("/").replace(/\/$/, "") }),
+                  )
+                }
+                className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Export CSV
+              </button>
+            )}
           </div>
           <div className="space-y-3">
             {items.map((job) => (
