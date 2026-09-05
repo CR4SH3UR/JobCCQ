@@ -11,3 +11,15 @@ export const bellemareScraper = makeNjoynScraper({
   listUrl: "https://bellemare.njoyn.com/cl3/xweb/Xweb.asp?page=joblisting&CLID=53428&lang=2",
   defaultLocation: "Trois-Rivières, QC",
 });
+
+/**
+ * Alias historique : l'employeur était répertorié sous « Bellemare Manutention
+ * inc. » / id `groupebellemare-com`. On conserve ce mapping pour que les
+ * sources existantes détectent encore leur scraper personnalisé.
+ */
+export const groupebellemareScraper = makeNjoynScraper({
+  id: "groupebellemare-com",
+  company: "Bellemare Manutention inc.",
+  listUrl: "https://bellemare.njoyn.com/cl3/xweb/Xweb.asp?page=joblisting&CLID=53428&lang=2",
+  defaultLocation: "Trois-Rivières, QC",
+});
