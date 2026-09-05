@@ -32,3 +32,29 @@ export function municipalityRegionMap(list: readonly Municipality[]): Map<string
       .map((m) => [normMunicipality(m.name), m.regionId]),
   );
 }
+
+/**
+ * Cherche la région d'une ville dans la table de correspondance.
+ *
+ * 1. Correspondance **exacte** sur le nom normalisé.
+ * 2. À défaut, **repli** : on retire un qualificatif de comté/MRC en suffixe
+ *    (« Saint-Donat-de-Montcalm » → « Saint-Donat », « Saint-André-de-Kamouraska »
+ *    → « Saint-André »…) — fréquent dans les offres, qui écrivent le nom usuel
+ *    long alors que la table (MAMH) porte le nom officiel court — et on réessaie.
+ *    Le repli n'agit que si le nom complet est absent, donc il ne peut pas
+ *    « voler » une municipalité qui existe telle quelle.
+ *
+ * Renvoie l'id de région, ou `undefined` si rien ne correspond.
+ */
+export function regionForCity(
+  map: ReadonlyMap<string, string>,
+  city: string,
+): string | undefined {
+  const key = normMunicipality(city ?? "");
+  if (!key) return undefined;
+  const exact = map.get(key);
+  if (exact) return exact;
+  const stripped = key.replace(/-(?:de|du|des|d)-[a-z0-9-]+$/, "");
+  if (stripped && stripped !== key) return map.get(stripped);
+  return undefined;
+}

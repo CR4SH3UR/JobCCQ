@@ -15,7 +15,7 @@ import {
   DISCOVERED_EMPLOYERS,
   DISABLED_SOURCE_IDS,
   municipalityRegionMap,
-  normMunicipality,
+  regionForCity,
   type HiringCompany,
   type Job,
   type JobQuery,
@@ -172,7 +172,7 @@ async function reclassifyByMunicipality(jobs: Job[]): Promise<Job[]> {
     for (const job of jobs) {
       const cityRaw = job.city || (job.location ? job.location.split(/[,(]/)[0]! : "");
       if (!cityRaw.trim()) continue;
-      const rid = map.get(normMunicipality(cityRaw));
+      const rid = regionForCity(map, cityRaw);
       if (rid && rid !== job.regionId) job.regionId = rid;
     }
   } catch {
