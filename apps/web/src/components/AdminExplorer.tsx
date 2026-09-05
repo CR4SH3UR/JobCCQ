@@ -2250,6 +2250,19 @@ export function AdminExplorer() {
               >
                 ➕ Ajouter un employeur
               </button>
+              {scrapeEnabled && errorCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const ids = employers.filter((e) => lastRuns[e.id]?.status === "error").map((e) => e.id);
+                    void bulkRescrape(ids);
+                  }}
+                  title="Relancer uniquement les sources dont le dernier scrape a échoué"
+                  className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50"
+                >
+                  🔁 Retry erreurs ({errorCount})
+                </button>
+              )}
               {ghToken && (
                 <button
                   onClick={ghScrapeAll}

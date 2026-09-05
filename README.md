@@ -273,7 +273,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 44. Tests de non-régression par fixtures HTML (alerte si un parseur casse)
 - [ ] 63. Preview parseur sans écrire en base (admin, même `parseList`)
 - [ ] 64. Enregistrement d'une fixture HTML depuis l'admin (pour le 44)
-- [ ] 65. Retry ciblé des sources en erreur (un bouton, même workflow scrape)
+- [x] 65. Retry ciblé des sources en erreur (un bouton, même workflow scrape)
 - [ ] 66. Playwright à la demande pour une source JS (complément du 38)
 
 ### 🛠️ Admin & données
