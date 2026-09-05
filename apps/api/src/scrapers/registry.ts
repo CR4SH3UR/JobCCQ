@@ -43,6 +43,10 @@ import { baulneScraper } from "./baulne.js";
 import { berardTremblayScraper } from "./berardtremblay.js";
 import { constructionJrsavardScraper } from "./constructionjrsavard.js";
 import { bertrandOstiguyScraper } from "./bertrandostiguy.js";
+import { betonBarretteScraper } from "./betonbarrette.js";
+import { brunetScraper } from "./brunet.js";
+import { betonFondationPlusScraper } from "./betonfondationplus.js";
+import { betonSurfaceScraper } from "./betonsurface.js";
 import { bellemareScraper, groupebellemareScraper } from "./bellemare.js";
 import { buildDiscoveredScraper } from "./discovered.js";
 
@@ -100,6 +104,10 @@ const BESPOKE = {
   "berardtremblay-com": berardTremblayScraper,
   "constructionjrsavard-ca": constructionJrsavardScraper,
   "bertrandostiguy-ca": bertrandOstiguyScraper,
+  "betonbarrette-qc-ca": betonBarretteScraper,
+  "brunet-cc": brunetScraper,
+  "betonfondationplus-com": betonFondationPlusScraper,
+  "betonsurface-ca": betonSurfaceScraper,
   "bellemare-njoyn": bellemareScraper,
   "groupebellemare-com": groupebellemareScraper,
 } satisfies Record<CustomScraperId, Scraper>;
