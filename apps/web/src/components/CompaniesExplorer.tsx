@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   JOB_CATEGORIES,
@@ -9,7 +9,7 @@ import {
   labelForRegion,
   type HiringCompany,
 } from "@jobccq/shared";
-import { searchCompanies, buildQuery } from "@/lib/data";
+import { searchCompanies, buildQuery, invalidateJobsCache } from "@/lib/data";
 import { Badge } from "./Badge";
 import { initials, timeAgo } from "@/lib/format";
 
@@ -29,6 +29,7 @@ export function CompaniesExplorer() {
   const [companies, setCompanies] = useState<HiringCompany[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const dcompany = useDebounce(company);
 
@@ -53,6 +54,18 @@ export function CompaniesExplorer() {
     return () => {
       alive = false;
     };
+  }, [query]);
+
+  // Rafraîchissement forcé : vide les caches (instantané, overlay, ville/région)
+  // puis recharge la liste des entreprises.
+  const forceRefresh = useCallback(() => {
+    invalidateJobsCache();
+    setRefreshing(true);
+    setError(null);
+    searchCompanies(query)
+      .then((r) => setCompanies(r.companies))
+      .catch((e: Error) => setError(e.message))
+      .finally(() => setRefreshing(false));
   }, [query]);
 
   return (
@@ -88,6 +101,17 @@ export function CompaniesExplorer() {
             </option>
           ))}
         </select>
+        <button
+          type="button"
+          onClick={forceRefresh}
+          disabled={refreshing}
+          title="Recharger les entreprises (vide le cache et récupère les derniers changements)"
+          aria-label="Rafraîchir les entreprises"
+          className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+        >
+          <span className={refreshing ? "inline-block animate-spin" : "inline-block"}>↻</span>
+          <span className="ml-1 hidden sm:inline">{refreshing ? "Rafraîchissement…" : "Rafraîchir"}</span>
+        </button>
       </div>
 
       <p className="mt-4 text-sm text-slate-600">

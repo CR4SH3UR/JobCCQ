@@ -6,7 +6,7 @@ import { getEmployer, labelForRegion, type Job } from "@jobccq/shared";
 import { Badge } from "./Badge";
 import { JobCard } from "./JobCard";
 import { initials } from "@/lib/format";
-import { getJobsBySource } from "@/lib/data";
+import { getJobsBySource, invalidateJobsCache } from "@/lib/data";
 import { useLivePoll } from "@/lib/live";
 import { organizationLd, ldJson } from "@/lib/jsonld";
 
@@ -14,6 +14,7 @@ export function EmployerView({ slug }: { slug: string }) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const employer = getEmployer(slug);
   const name = employer?.name ?? jobs[0]?.company ?? slug;
@@ -35,6 +36,18 @@ export function EmployerView({ slug }: { slug: string }) {
   }, [load]);
 
   useLivePoll(load);
+
+  // Rafraîchissement forcé : vide les caches (instantané, overlay, ville/région)
+  // puis recharge les offres de cet employeur.
+  const forceRefresh = useCallback(async () => {
+    invalidateJobsCache();
+    setRefreshing(true);
+    try {
+      await load();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [load]);
 
   if (loading) {
     return (
@@ -105,7 +118,20 @@ export function EmployerView({ slug }: { slug: string }) {
 
       {/* Liste des offres */}
       <div className="mx-auto max-w-6xl px-4 py-8">
-        <h2 className="mb-4 text-xl font-bold tracking-tight">Offres ouvertes</h2>
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <h2 className="text-xl font-bold tracking-tight">Offres ouvertes</h2>
+          <button
+            type="button"
+            onClick={forceRefresh}
+            disabled={refreshing}
+            title="Recharger les offres (vide le cache et récupère les derniers changements)"
+            aria-label="Rafraîchir les offres"
+            className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          >
+            <span className={refreshing ? "inline-block animate-spin" : "inline-block"}>↻</span>
+            <span className="ml-1 hidden sm:inline">{refreshing ? "Rafraîchissement…" : "Rafraîchir"}</span>
+          </button>
+        </div>
         {jobs.length > 0 ? (
           <div className="grid gap-3 md:grid-cols-2">
             {jobs.map((job) => (
