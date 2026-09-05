@@ -3,21 +3,25 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { Job } from "@jobccq/shared";
-import { jobsToCsv } from "@jobccq/shared";
 import { searchJobs, buildQuery } from "@/lib/data";
 import { JobCard } from "./JobCard";
-import { useApplications } from "@/lib/applications";
+import {
+  APPLICATION_STATUSES,
+  isReminderDue,
+  labelForApplicationStatus,
+  patchApplication,
+  useApplicationRecords,
+  useApplications,
+} from "@/lib/applications";
 import { downloadCsv } from "@/lib/format";
 import { siteUrl } from "@/lib/site";
 
 /**
- * Page « Mes candidatures » : les offres où la personne a marqué avoir postulé
- * (stockées dans son navigateur, synchronisées si connectée). On charge
- * l'instantané complet une fois puis on filtre sur les id marqués — une offre
- * disparue (poste comblé) n'apparaît plus ; on le signale sans planter.
+ * Page « Mes candidatures » : pipeline (à postuler → accepté), notes et rappels.
  */
 export function CandidaturesView() {
   const applied = useApplications();
+  const records = useApplicationRecords();
   const [allJobs, setAllJobs] = useState<Job[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +40,32 @@ export function CandidaturesView() {
     [allJobs, applied],
   );
   const missing = allJobs ? applied.size - items.length : 0;
+  const due = useMemo(
+    () => items.filter((j) => isReminderDue(records.get(j.id)?.remindAt)),
+    [items, records],
+  );
+
+  const exportCsv = () => {
+    const base = siteUrl("/").replace(/\/$/, "");
+    const esc = (v: unknown) => `"${String(v ?? "").replaceAll('"', '""')}"`;
+    const lines = [["titre", "entreprise", "statut", "note", "rappel", "url"].map(esc).join(",")];
+    for (const j of items) {
+      const rec = records.get(j.id);
+      lines.push(
+        [
+          j.title,
+          j.company,
+          rec ? labelForApplicationStatus(rec.status) : "",
+          rec?.note ?? "",
+          rec?.remindAt ?? "",
+          `${base}/emplois/${j.id}/`,
+        ]
+          .map(esc)
+          .join(","),
+      );
+    }
+    downloadCsv("jobccq-candidatures.csv", lines.join("\n"));
+  };
 
   return (
     <div>
@@ -53,7 +83,7 @@ export function CandidaturesView() {
           <p className="font-medium text-slate-700">Aucune candidature pour l'instant</p>
           <p className="mt-1 text-sm">
             Quand tu postules à une offre, clique sur <strong>« Marquer comme postulé »</strong> pour
-            la retrouver ici et suivre où tu as envoyé ton CV.
+            la retrouver ici, noter un suivi et un rappel.
           </p>
           <Link
             href="/emplois"
@@ -66,6 +96,12 @@ export function CandidaturesView() {
 
       {allJobs && applied.size > 0 && (
         <>
+          {due.length > 0 && (
+            <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+              {due.length} rappel{due.length > 1 ? "s" : ""} à faire :{" "}
+              {due.map((j) => j.title).join(" · ")}
+            </div>
+          )}
           <div className="mb-3 flex items-center justify-between gap-2">
             <p className="text-sm text-slate-600">
               <span className="font-semibold text-slate-900">{items.length}</span> candidature
@@ -74,12 +110,7 @@ export function CandidaturesView() {
             {items.length > 0 && (
               <button
                 type="button"
-                onClick={() =>
-                  downloadCsv(
-                    "jobccq-candidatures.csv",
-                    jobsToCsv(items, { siteUrl: siteUrl("/").replace(/\/$/, "") }),
-                  )
-                }
+                onClick={exportCsv}
                 className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
                 Export CSV
@@ -88,7 +119,10 @@ export function CandidaturesView() {
           </div>
           <div className="space-y-3">
             {items.map((job) => (
-              <JobCard key={job.id} job={job} />
+              <div key={job.id}>
+                <JobCard job={job} />
+                <ApplicationTrack id={job.id} />
+              </div>
             ))}
           </div>
           {missing > 0 && (
@@ -99,6 +133,60 @@ export function CandidaturesView() {
           )}
         </>
       )}
+    </div>
+  );
+}
+
+function ApplicationTrack({ id }: { id: string }) {
+  const rec = useApplicationRecords().get(id);
+  const [note, setNote] = useState(rec?.note ?? "");
+  useEffect(() => {
+    setNote(rec?.note ?? "");
+  }, [rec?.note]);
+  if (!rec) return null;
+  const due = isReminderDue(rec.remindAt);
+  return (
+    <div className="mt-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900/60">
+      <div className="flex flex-wrap items-end gap-2">
+        <label className="flex flex-col gap-0.5">
+          <span className="text-[11px] uppercase tracking-wide text-slate-500">Statut</span>
+          <select
+            value={rec.status}
+            onChange={(e) => patchApplication(id, { status: e.target.value as typeof rec.status })}
+            className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
+          >
+            {APPLICATION_STATUSES.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-0.5">
+          <span className="text-[11px] uppercase tracking-wide text-slate-500">Relancer le</span>
+          <input
+            type="date"
+            value={rec.remindAt}
+            onChange={(e) => patchApplication(id, { remindAt: e.target.value })}
+            className={`rounded-lg border bg-white px-2 py-1 text-sm dark:bg-slate-900 ${
+              due ? "border-amber-400" : "border-slate-200 dark:border-slate-700"
+            }`}
+          />
+        </label>
+      </div>
+      <label className="mt-2 flex flex-col gap-0.5">
+        <span className="text-[11px] uppercase tracking-wide text-slate-500">Note</span>
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          onBlur={() => {
+            if (note !== rec.note) patchApplication(id, { note });
+          }}
+          rows={2}
+          placeholder="Relancer, nom du recruteur, suite…"
+          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
+        />
+      </label>
     </div>
   );
 }

@@ -43,6 +43,9 @@ postulé, retrouvables sur la page **« Mes candidatures »**. Colle et exécute
 create table if not exists public.applications (
   user_id    uuid        not null references auth.users (id) on delete cascade,
   job_id     text        not null,
+  status     text        not null default 'postule',
+  note       text,
+  remind_at  date,
   created_at timestamptz not null default now(),
   primary key (user_id, job_id)
 );
@@ -53,6 +56,11 @@ alter table public.applications enable row level security;
 create policy "read own applications"   on public.applications for select using (auth.uid() = user_id);
 create policy "insert own applications" on public.applications for insert with check (auth.uid() = user_id);
 create policy "delete own applications" on public.applications for delete using (auth.uid() = user_id);
+create policy "update own applications" on public.applications for update using (auth.uid() = user_id);
+
+alter table public.applications add column if not exists status text not null default 'postule';
+alter table public.applications add column if not exists note text;
+alter table public.applications add column if not exists remind_at date;
 ```
 
 > Tant que cette table n'existe pas, la fonctionnalité marche quand même en

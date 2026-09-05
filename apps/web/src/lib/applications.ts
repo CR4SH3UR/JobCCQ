@@ -1,46 +1,52 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { supabase } from "./supabase";
+import {
+  parseApplicationStore,
+  removeApplication,
+  serializeApplicationStore,
+  upsertApplication,
+  type ApplicationRecord,
+} from "./application-record";
+
+export {
+  APPLICATION_STATUSES,
+  isReminderDue,
+  labelForApplicationStatus,
+  type ApplicationRecord,
+  type ApplicationStatus,
+} from "./application-record";
 
 /**
- * Candidatures « j'ai postulé ».
+ * Candidatures suivies (statut, note, rappel).
  *
- * Permet à une personne de marquer les offres où elle a envoyé son CV (crochet
- * vert), et de les retrouver sur sa page « Mes candidatures ». Même mécanique
- * que les favoris :
- * - **Anonyme / Supabase non configuré** : stockées dans le navigateur
- *   (localStorage) — aucun compte requis.
- * - **Connecté (Supabase)** : synchronisées dans la table `applications`
- *   (protégée par RLS : chacun ne voit que les siennes). À la connexion, les
- *   candidatures locales sont **fusionnées** dans le compte (rien n'est perdu).
- *
- * localStorage sert de cache immédiat → l'UI est instantanée et marche hors
- * ligne ; la synchro distante se fait en arrière-plan.
+ * - **Anonyme / Supabase non configuré** : stockées dans le navigateur.
+ * - **Connecté** : table `applications` (RLS). L'ancien format (liste d'ids)
+ *   est migré vers des fiches « postulé ».
  */
 const KEY = "jobccq:applications";
 
-let cache: Set<string> | null = null;
+let cache: Map<string, ApplicationRecord> | null = null;
 let userId: string | null = null;
 const listeners = new Set<() => void>();
-const EMPTY: ReadonlySet<string> = new Set();
+const EMPTY_MAP: ReadonlyMap<string, ApplicationRecord> = new Map();
 
-function read(): Set<string> {
+function read(): Map<string, ApplicationRecord> {
   if (cache) return cache;
   try {
     const raw = localStorage.getItem(KEY);
-    cache = new Set(raw ? (JSON.parse(raw) as string[]) : []);
+    cache = parseApplicationStore(raw ? JSON.parse(raw) : []);
   } catch {
-    cache = new Set();
+    cache = new Map();
   }
   return cache;
 }
 
-/** Remplace l'ensemble courant : met à jour le cache, le miroir localStorage et notifie. */
-function write(next: Set<string>): void {
+function write(next: Map<string, ApplicationRecord>): void {
   cache = next;
   try {
-    localStorage.setItem(KEY, JSON.stringify([...next]));
+    localStorage.setItem(KEY, JSON.stringify(serializeApplicationStore(next)));
   } catch {
     /* stockage indisponible */
   }
@@ -62,19 +68,38 @@ function subscribe(cb: () => void): () => void {
   };
 }
 
-/** Marque/retire une offre comme « postulée » (optimiste + écriture distante si connecté). */
-export function toggleApplied(id: string): void {
-  const next = new Set(read());
-  const adding = !next.has(id);
-  adding ? next.add(id) : next.delete(id);
-  write(next);
-  if (userId && supabase) {
-    if (adding) {
-      supabase
+function rowPayload(rec: ApplicationRecord): Record<string, unknown> {
+  return {
+    user_id: userId,
+    job_id: rec.jobId,
+    status: rec.status,
+    note: rec.note || null,
+    remind_at: rec.remindAt || null,
+  };
+}
+
+function persistRemote(rec: ApplicationRecord): void {
+  if (!userId || !supabase) return;
+  const client = supabase;
+  const full = rowPayload(rec);
+  client
+    .from("applications")
+    .upsert(full, { onConflict: "user_id,job_id" })
+    .then(({ error }) => {
+      if (!error) return;
+      client
         .from("applications")
-        .upsert({ user_id: userId, job_id: id }, { onConflict: "user_id,job_id", ignoreDuplicates: true })
-        .then(({ error }) => error && console.warn("candidature (ajout) non synchronisée :", error.message));
-    } else {
+        .upsert({ user_id: userId, job_id: rec.jobId }, { onConflict: "user_id,job_id" })
+        .then(({ error: e2 }) => e2 && console.warn("candidature non synchronisée :", e2.message));
+    });
+}
+
+/** Marque/retire une offre comme suivie (optimiste + synchro si connecté). */
+export function toggleApplied(id: string): void {
+  const cur = read();
+  if (cur.has(id)) {
+    write(removeApplication(cur, id));
+    if (userId && supabase) {
       supabase
         .from("applications")
         .delete()
@@ -82,39 +107,72 @@ export function toggleApplied(id: string): void {
         .eq("job_id", id)
         .then(({ error }) => error && console.warn("candidature (retrait) non synchronisée :", error.message));
     }
+    return;
   }
+  const next = upsertApplication(cur, id, { status: "postule" });
+  write(next);
+  const rec = next.get(id);
+  if (rec) persistRemote(rec);
 }
 
-/** À la connexion : fusionne les candidatures locales avec celles du compte. */
+export function patchApplication(id: string, patch: Partial<ApplicationRecord>): void {
+  const next = upsertApplication(read(), id, patch);
+  write(next);
+  const rec = next.get(id);
+  if (rec) persistRemote(rec);
+}
+
 async function onLogin(uid: string): Promise<void> {
   userId = uid;
   if (!supabase) return;
-  const { data, error } = await supabase.from("applications").select("job_id").eq("user_id", uid);
+  const { data, error } = await supabase
+    .from("applications")
+    .select("job_id, status, note, remind_at")
+    .eq("user_id", uid);
   if (error) {
-    console.warn("Candidatures distantes illisibles (RLS/table ?) :", error.message);
-    return; // on garde les candidatures locales, rien n'est perdu
+    const fallback = await supabase.from("applications").select("job_id").eq("user_id", uid);
+    if (fallback.error) {
+      console.warn("Candidatures distantes illisibles :", fallback.error.message);
+      return;
+    }
+    const remote = parseApplicationStore((fallback.data ?? []).map((r) => String((r as { job_id: string }).job_id)));
+    mergeRemote(remote);
+    return;
   }
-  const remote = new Set((data ?? []).map((r) => String((r as { job_id: string }).job_id)));
+  const remote = parseApplicationStore(
+    Object.fromEntries(
+      (data ?? []).map((r) => {
+        const row = r as { job_id: string; status?: string; note?: string | null; remind_at?: string | null };
+        return [
+          String(row.job_id),
+          {
+            status: row.status,
+            note: row.note ?? "",
+            remindAt: row.remind_at ? String(row.remind_at).slice(0, 10) : "",
+          },
+        ];
+      }),
+    ),
+  );
+  mergeRemote(remote);
+}
+
+function mergeRemote(remote: Map<string, ApplicationRecord>): void {
   const local = read();
-  const localOnly = [...local].filter((id) => !remote.has(id));
-  // Les candidatures marquées hors connexion rejoignent le compte.
-  if (localOnly.length) {
-    const { error: insErr } = await supabase
-      .from("applications")
-      .upsert(localOnly.map((job_id) => ({ user_id: uid, job_id })), {
-        onConflict: "user_id,job_id",
-        ignoreDuplicates: true,
-      });
-    if (insErr) console.warn("Fusion des candidatures locales échouée :", insErr.message);
+  const merged = new Map(remote);
+  for (const [id, rec] of local) {
+    if (!merged.has(id)) {
+      merged.set(id, rec);
+      persistRemote(rec);
+    }
   }
-  write(new Set([...remote, ...local]));
+  write(merged);
 }
 
 function onLogout(): void {
-  userId = null; // les candidatures locales (miroir) restent utilisables hors connexion
+  userId = null;
 }
 
-// Abonnement à l'état d'authentification (navigateur uniquement).
 if (typeof window !== "undefined" && supabase) {
   supabase.auth.getSession().then(({ data }) => {
     if (data.session?.user) void onLogin(data.session.user.id);
@@ -125,12 +183,15 @@ if (typeof window !== "undefined" && supabase) {
   });
 }
 
-/** Ensemble réactif des id de candidatures (vide côté serveur / export statique). */
-export function useApplications(): ReadonlySet<string> {
-  return useSyncExternalStore(subscribe, read, () => EMPTY);
+export function useApplicationRecords(): ReadonlyMap<string, ApplicationRecord> {
+  return useSyncExternalStore(subscribe, read, () => EMPTY_MAP);
 }
 
-/** L'offre `id` est-elle marquée « postulée » ? (réactif) */
+export function useApplications(): ReadonlySet<string> {
+  const rec = useApplicationRecords();
+  return useMemo(() => new Set(rec.keys()), [rec]);
+}
+
 export function useHasApplied(id: string): boolean {
-  return useApplications().has(id);
+  return useApplicationRecords().has(id);
 }

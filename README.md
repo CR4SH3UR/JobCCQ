@@ -254,8 +254,8 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 
 ### 👤 Compte & candidatures
 
-- [ ] 33. Statuts de candidature (à postuler / postulé / entrevue / refusé / accepté)
-- [ ] 34. Notes & rappels par candidature (relancer dans N jours)
+- [x] 33. Statuts de candidature (à postuler / postulé / entrevue / refusé / accepté)
+- [x] 34. Notes & rappels par candidature (relancer dans N jours)
 - [x] 35. Export CSV des favoris et candidatures
 - [ ] 36. Profil métier (mes métiers/régions → accueil personnalisé)
 - [ ] 37. Onboarding rapide (métier, région, mobilité → filtres pré-remplis)
