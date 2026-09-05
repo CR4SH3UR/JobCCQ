@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ContactEmailButton } from "@/components/ContactEmailButton";
 import { LegalShell } from "@/components/LegalShell";
 import { LEGAL } from "@/lib/legal";
 
@@ -10,7 +11,6 @@ export const metadata: Metadata = {
 };
 
 export default function ConfidentialitePage() {
-  const mail = `mailto:${LEGAL.contactEmail}`;
   return (
     <LegalShell title="Politique de confidentialité">
       <p>
@@ -53,7 +53,12 @@ export default function ConfidentialitePage() {
       <p>
         La collecte repose sur votre <strong>consentement</strong>, donné lorsque vous créez un compte
         ou une alerte. Vous pouvez le <strong>retirer en tout temps</strong> en supprimant votre
-        compte ou vos alertes, ou en nous écrivant à <a href={mail}>{LEGAL.contactEmail}</a>.
+        compte ou vos alertes, ou en nous écrivant à{" "}
+        <ContactEmailButton
+          label={LEGAL.contactEmail}
+          className="text-brand-600 underline underline-offset-2 hover:text-brand-700"
+        />
+        .
       </p>
 
       <h2>Hébergement et tiers (sous-traitants)</h2>
@@ -105,7 +110,12 @@ export default function ConfidentialitePage() {
       <h2>Responsable de la protection des renseignements personnels</h2>
       <p>
         Pour toute question ou demande relative à vos renseignements personnels, écrivez à notre{" "}
-        {LEGAL.privacyOfficer} : <a href={mail}>{LEGAL.contactEmail}</a>.
+        {LEGAL.privacyOfficer} :{" "}
+        <ContactEmailButton
+          label={LEGAL.contactEmail}
+          className="text-brand-600 underline underline-offset-2 hover:text-brand-700"
+        />
+        .
       </p>
 
       <h2>Modifications</h2>
