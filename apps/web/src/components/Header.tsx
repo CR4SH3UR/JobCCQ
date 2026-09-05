@@ -35,13 +35,13 @@ export function Header() {
                 <stop offset="1" stopColor="#1a34d8" />
               </linearGradient>
               <linearGradient id="jccqHat" x1="0.2" y1="0.05" x2="0.8" y2="1">
-                <stop offset="0" stopColor="#FFA23F" />
-                <stop offset="0.55" stopColor="#FF7518" />
-                <stop offset="1" stopColor="#F26100" />
+                <stop offset="0" stopColor="#FF8A45" />
+                <stop offset="0.55" stopColor="#FF5F15" />
+                <stop offset="1" stopColor="#EA5109" />
               </linearGradient>
               <linearGradient id="jccqBrim" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#F26100" />
-                <stop offset="1" stopColor="#DA5200" />
+                <stop offset="0" stopColor="#EA5109" />
+                <stop offset="1" stopColor="#D2470A" />
               </linearGradient>
             </defs>
             <rect width="32" height="32" rx="8" fill="url(#jccqBg)" />
@@ -53,12 +53,12 @@ export function Header() {
               d="M6.6 20.6 C6.6 12.2 10.7 6.4 16 6.4 C21.3 6.4 25.4 12.2 25.4 20.6 Q16 22.2 6.6 20.6 Z"
               fill="url(#jccqHat)"
             />
-            <g stroke="#C24800" strokeWidth="1.15" strokeLinecap="round" fill="none" opacity="0.85">
+            <g stroke="#B23C05" strokeWidth="1.15" strokeLinecap="round" fill="none" opacity="0.85">
               <path d="M16 7.4 V19.8" />
               <path d="M11.7 19.8 C11.9 12.9 13.5 8.8 15.2 7.8" />
               <path d="M20.3 19.8 C20.1 12.9 18.5 8.8 16.8 7.8" />
             </g>
-            <ellipse cx="16" cy="6.7" rx="1.5" ry="1.05" fill="#C24800" />
+            <ellipse cx="16" cy="6.7" rx="1.5" ry="1.05" fill="#B23C05" />
             <path
               d="M10.2 12.2 C11.2 9.8 13 8.2 15 7.8"
               stroke="#fff"
