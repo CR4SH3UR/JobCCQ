@@ -28,6 +28,7 @@ import { intermatScraper } from "./intermat.js";
 import { riouxScraper } from "./rioux.js";
 import { arteliaScraper } from "./artelia.js";
 import { ascenseursAbsoluScraper } from "./ascenseurs-absolu.js";
+import { atelierEnHauteurScraper } from "./atelier-en-hauteur.js";
 import { buildDiscoveredScraper } from "./discovered.js";
 
 /**
@@ -69,6 +70,7 @@ const BESPOKE: Record<string, Scraper> = {
   [riouxScraper.id]: riouxScraper,
   [arteliaScraper.id]: arteliaScraper,
   [ascenseursAbsoluScraper.id]: ascenseursAbsoluScraper,
+  [atelierEnHauteurScraper.id]: atelierEnHauteurScraper,
 };
 
 /**
