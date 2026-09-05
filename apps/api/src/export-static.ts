@@ -7,9 +7,13 @@
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { effectiveRegionId, type Job } from "@jobccq/shared";
+import {
+  effectiveRegionId,
+  municipalityRegionMap,
+  normMunicipality,
+  type Job,
+} from "@jobccq/shared";
 import { inferCategory } from "./normalize.js";
-import { loadMunicipalityMap, normMuni } from "./municipalities.js";
 import { SEED_JOBS } from "./seed-data.js";
 import { seedToJob } from "./seed-transform.js";
 
@@ -56,21 +60,20 @@ async function main() {
     }
   }
 
-  // Reclassement par municipalité : la table éditable (console admin) fait
-  // autorité sur la région d'une offre selon sa ville. Appliqué à l'export → on
-  // reclasse aussi l'existant à chaque déploiement, sans re-scraper.
+  // Reclassement par municipalité : la table éditable (console admin →
+  // packages/shared/src/municipalities.json) fait autorité sur la région d'une
+  // offre selon sa ville. Appliqué à l'export → on reclasse aussi l'existant à
+  // chaque déploiement, sans re-scraper ni serveur d'API.
   let reregioned = 0;
-  if (fromDb) {
-    const muniMap = await loadMunicipalityMap();
-    if (muniMap.size) {
-      for (const job of jobs) {
-        const cityRaw = job.city || (job.location ? job.location.split(/[,(]/)[0]! : "");
-        if (!cityRaw.trim()) continue;
-        const rid = muniMap.get(normMuni(cityRaw));
-        if (rid && rid !== job.regionId) {
-          job.regionId = rid;
-          reregioned++;
-        }
+  const muniMap = municipalityRegionMap();
+  if (muniMap.size) {
+    for (const job of jobs) {
+      const cityRaw = job.city || (job.location ? job.location.split(/[,(]/)[0]! : "");
+      if (!cityRaw.trim()) continue;
+      const rid = muniMap.get(normMunicipality(cityRaw));
+      if (rid && rid !== job.regionId) {
+        job.regionId = rid;
+        reregioned++;
       }
     }
   }
