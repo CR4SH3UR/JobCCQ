@@ -1,5 +1,10 @@
 import type { MetadataRoute } from "next";
-import { allJobs, employerIdsWithJobs } from "@/lib/static-data";
+import {
+  allJobs,
+  employerIdsWithJobs,
+  regionsWithCounts,
+  tradesWithCounts,
+} from "@/lib/static-data";
 import { siteUrl } from "@/lib/site";
 
 // Export statique : le sitemap est généré au build (fichier sitemap.xml).
@@ -9,6 +14,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const pages: MetadataRoute.Sitemap = [
     { url: siteUrl("/"), changeFrequency: "daily", priority: 1 },
     { url: siteUrl("/emplois/"), changeFrequency: "daily", priority: 0.9 },
+    { url: siteUrl("/emplois/region/"), changeFrequency: "weekly", priority: 0.6 },
+    { url: siteUrl("/emplois/metier/"), changeFrequency: "weekly", priority: 0.6 },
     { url: siteUrl("/entreprises/"), changeFrequency: "weekly", priority: 0.7 },
     { url: siteUrl("/sources/"), changeFrequency: "monthly", priority: 0.3 },
     { url: siteUrl("/alertes/"), changeFrequency: "monthly", priority: 0.3 },
@@ -30,5 +37,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.5,
   }));
 
-  return [...pages, ...jobs, ...employers];
+  // Pages SEO par région et par métier (pré-générées).
+  const regions: MetadataRoute.Sitemap = regionsWithCounts().map((r) => ({
+    url: siteUrl(`/emplois/region/${r.id}/`),
+    changeFrequency: "daily",
+    priority: 0.6,
+  }));
+  const trades: MetadataRoute.Sitemap = tradesWithCounts().map((t) => ({
+    url: siteUrl(`/emplois/metier/${t.id}/`),
+    changeFrequency: "daily",
+    priority: 0.6,
+  }));
+
+  return [...pages, ...regions, ...trades, ...jobs, ...employers];
 }

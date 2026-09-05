@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { EmploisExplorer } from "@/components/EmploisExplorer";
 
 export const metadata: Metadata = {
@@ -14,6 +15,17 @@ export default function EmploisPage() {
           <h1 className="text-2xl font-bold tracking-tight">Offres d'emploi</h1>
           <p className="mt-1 text-slate-600">
             Recherchez, filtrez et triez parmi toutes les offres agrégées.
+          </p>
+          <p className="mt-2 text-sm text-slate-500">
+            Parcourir{" "}
+            <Link href="/emplois/region/" className="font-medium text-brand-700 hover:underline">
+              par région
+            </Link>{" "}
+            ou{" "}
+            <Link href="/emplois/metier/" className="font-medium text-brand-700 hover:underline">
+              par métier
+            </Link>
+            .
           </p>
         </div>
       </div>

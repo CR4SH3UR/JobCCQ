@@ -14,8 +14,12 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  CCQ_TRADES,
+  ccqTradeOf,
   DISABLED_SOURCE_IDS,
   getEmployer,
+  labelForRegion,
+  QUEBEC_REGIONS,
   type DiscoveredEmployer,
   type Job,
 } from "@jobccq/shared";
@@ -38,6 +42,56 @@ export function allJobs(): Job[] {
 
 export function jobById(id: string): Job | undefined {
   return allJobs().find((j) => j.id === id);
+}
+
+const byRecent = (a: Job, b: Job) =>
+  (b.postedAt ?? b.scrapedAt).localeCompare(a.postedAt ?? a.scrapedAt);
+
+/** Régions (hors télétravail / hors-Québec / autre) exclues des pages SEO. */
+const SEO_EXCLUDED_REGIONS = new Set(["teletravail", "canada-autre", "autre"]);
+
+/** Offres d'une région (id de QUEBEC_REGIONS), les plus récentes d'abord. */
+export function jobsByRegion(regionId: string): Job[] {
+  return allJobs()
+    .filter((j) => j.regionId === regionId)
+    .sort(byRecent);
+}
+
+/** Offres d'un métier CCQ (id de CCQ_TRADES), les plus récentes d'abord. */
+export function jobsByTrade(tradeId: string): Job[] {
+  return allJobs()
+    .filter((j) => ccqTradeOf(j.title)?.id === tradeId)
+    .sort(byRecent);
+}
+
+export interface FacetLink {
+  readonly id: string;
+  readonly label: string;
+  readonly count: number;
+}
+
+/** Régions ayant au moins une offre (pour les pages/index SEO), triées par volume. */
+export function regionsWithCounts(): FacetLink[] {
+  const counts = new Map<string, number>();
+  for (const j of allJobs()) {
+    if (!j.regionId || SEO_EXCLUDED_REGIONS.has(j.regionId)) continue;
+    counts.set(j.regionId, (counts.get(j.regionId) ?? 0) + 1);
+  }
+  return QUEBEC_REGIONS.filter((r) => counts.has(r.id))
+    .map((r) => ({ id: r.id, label: labelForRegion(r.id) ?? r.label, count: counts.get(r.id)! }))
+    .sort((a, b) => b.count - a.count);
+}
+
+/** Métiers CCQ ayant au moins une offre (pour les pages/index SEO), triés par volume. */
+export function tradesWithCounts(): FacetLink[] {
+  const counts = new Map<string, number>();
+  for (const j of allJobs()) {
+    const trade = ccqTradeOf(j.title);
+    if (trade) counts.set(trade.id, (counts.get(trade.id) ?? 0) + 1);
+  }
+  return CCQ_TRADES.filter((t) => counts.has(t.id))
+    .map((t) => ({ id: t.id, label: t.label, count: counts.get(t.id)! }))
+    .sort((a, b) => b.count - a.count);
 }
 
 /** Offres d'un employeur (par id de source), les plus récentes d'abord. */

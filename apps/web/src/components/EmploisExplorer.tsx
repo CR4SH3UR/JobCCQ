@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   labelForCategory,
   labelForEmployment,
@@ -17,6 +17,14 @@ import {
 } from "@jobccq/shared";
 import { searchJobs, buildQuery, invalidateJobsCache, getSearchVocabulary } from "@/lib/data";
 import { useLivePoll } from "@/lib/live";
+import {
+  filtersToQueryString,
+  hasActiveFilters,
+  parseFilters,
+  parseFiltersFromQueryString,
+  type SearchFilters,
+} from "@/lib/search-url";
+import { useSavedSearches } from "@/lib/saved-searches";
 import { JobCard } from "./JobCard";
 import { SearchAutocomplete } from "./SearchAutocomplete";
 import { FacetGroup } from "./FacetGroup";
@@ -104,24 +112,32 @@ export function EmploisExplorer() {
   const { user, enabled: authEnabled } = useAuth();
   const [alertMsg, setAlertMsg] = useState<string | null>(null);
 
-  // Amorce les filtres depuis l'URL (liens profonds depuis l'accueil).
+  // Applique un état de filtres complet à l'UI (amorçage URL, recherche
+  // enregistrée). `page` par défaut à 1 sauf indication contraire.
+  const applyFilters = useCallback((f: SearchFilters) => {
+    setQ(f.q);
+    setCity(f.city);
+    setSel({
+      regions: f.regions,
+      categories: f.categories,
+      employmentTypes: f.employmentTypes,
+      remote: f.remote,
+      sources: f.sources,
+      languages: f.languages,
+    });
+    setSalaryMin(f.salaryMin);
+    setPostedWithinDays(f.postedWithinDays);
+    setCcqOnly(f.ccqOnly);
+    setSort(f.sort);
+    setPage(f.page);
+  }, []);
+
+  // Amorce les filtres depuis l'URL (liens profonds : accueil, pages SEO,
+  // URL partagée). On note l'amorçage pour n'écrire l'URL qu'ensuite.
+  const seededRef = useRef(false);
   useEffect(() => {
-    const sp = new URLSearchParams(window.location.search);
-    const iq = sp.get("q");
-    const ic = sp.get("cities");
-    const icat = sp.get("categories");
-    const ireg = sp.get("regions");
-    const isrc = sp.get("sources");
-    if (iq) setQ(iq);
-    if (ic) setCity(ic);
-    if (icat || ireg || isrc) {
-      setSel((s) => ({
-        ...s,
-        categories: icat ? icat.split(",") : s.categories,
-        regions: ireg ? ireg.split(",") : s.regions,
-        sources: isrc ? isrc.split(",") : s.sources,
-      }));
-    }
+    applyFilters(parseFilters(new URLSearchParams(window.location.search)));
+    seededRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -169,6 +185,42 @@ export function EmploisExplorer() {
       }),
     [dq, dcity, sel, salaryMin, postedWithinDays, ccqOnly, sort, page],
   );
+
+  // État des filtres courant (immédiat) — pour enregistrer une recherche et
+  // détecter les filtres actifs.
+  const currentFilters = useMemo<SearchFilters>(
+    () => ({
+      q,
+      city,
+      regions: sel.regions,
+      categories: sel.categories,
+      employmentTypes: sel.employmentTypes,
+      remote: sel.remote,
+      sources: sel.sources,
+      languages: sel.languages,
+      salaryMin,
+      postedWithinDays,
+      ccqOnly,
+      sort,
+      page,
+    }),
+    [q, city, sel, salaryMin, postedWithinDays, ccqOnly, sort, page],
+  );
+
+  // URL partageable : on reflète les filtres (débounce sur mot-clé/ville) dans la
+  // query string via `replaceState` (pas d'entrée d'historique ni de scroll).
+  const urlQs = useMemo(
+    () => filtersToQueryString({ ...currentFilters, q: dq, city: dcity }),
+    [currentFilters, dq, dcity],
+  );
+  useEffect(() => {
+    if (!seededRef.current) return;
+    const base = window.location.pathname;
+    window.history.replaceState(null, "", urlQs ? `${base}?${urlQs}` : base);
+  }, [urlQs]);
+
+  // Recherches enregistrées (localStorage, ce navigateur).
+  const { searches: savedSearches, save: saveSearch, remove: removeSearch } = useSavedSearches();
 
   useEffect(() => {
     let alive = true;
@@ -255,6 +307,18 @@ export function EmploisExplorer() {
     );
   };
 
+  // Enregistre la recherche courante (nom demandé à l'utilisateur).
+  const onSaveSearch = () => {
+    if (!hasActiveFilters(currentFilters)) return;
+    const name = window.prompt("Nom de cette recherche enregistrée :", alertLabel());
+    if (name && name.trim()) saveSearch(name, filtersToQueryString(currentFilters));
+  };
+
+  // Rejoue une recherche enregistrée (repart page 1).
+  const onApplySaved = (qs: string) => {
+    applyFilters({ ...parseFiltersFromQueryString(qs), page: 1 });
+  };
+
   const facets = result?.facets;
 
   // Offres « en vedette » (commanditées) remontées en tête de la page courante.
@@ -322,6 +386,15 @@ export function EmploisExplorer() {
             <span className={refreshing ? "inline-block animate-spin" : "inline-block"}>↻</span>
             <span className="ml-1 hidden sm:inline">{refreshing ? "Rafraîchissement…" : "Rafraîchir"}</span>
           </button>
+          <button
+            type="button"
+            onClick={onSaveSearch}
+            disabled={!hasActiveFilters(currentFilters)}
+            title="Enregistrer cette combinaison de filtres (dans ce navigateur)"
+            className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          >
+            💾<span className="ml-1 hidden sm:inline">Enregistrer</span>
+          </button>
           {authEnabled && (
             <button
               type="button"
@@ -367,6 +440,35 @@ export function EmploisExplorer() {
             >
               Tout effacer
             </button>
+          </div>
+        )}
+        {/* Recherches enregistrées (ce navigateur) */}
+        {savedSearches.length > 0 && (
+          <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-3">
+            <span className="text-xs font-medium text-slate-500">💾 Mes recherches :</span>
+            {savedSearches.map((s) => (
+              <span
+                key={s.id}
+                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 py-1 pl-2.5 pr-1 text-xs"
+              >
+                <button
+                  type="button"
+                  onClick={() => onApplySaved(s.query)}
+                  className="font-medium text-slate-700 hover:text-brand-700 hover:underline"
+                  title="Appliquer cette recherche"
+                >
+                  {s.name}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removeSearch(s.id)}
+                  aria-label={`Supprimer la recherche « ${s.name} »`}
+                  className="rounded-full px-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
           </div>
         )}
         {alertMsg && <p className="mt-2 text-xs text-slate-600">{alertMsg}</p>}
