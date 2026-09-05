@@ -6,6 +6,7 @@ import { promisify } from "node:util";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { createClient, type User } from "@supabase/supabase-js";
 import type { DiscoveredEmployer } from "@jobccq/shared";
+import { failingScrapers } from "@jobccq/shared";
 import { buildDiscoveredScraper } from "./scrapers/discovered.js";
 import { bespokeScraper } from "./scrapers/registry.js";
 import { runScraperInstance } from "./orchestrator.js";
@@ -211,6 +212,8 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       recentRuns,
       employers,
       scrapedSources,
+      latestIds,
+      lastSuccessRows,
     ] = await Promise.all([
       prisma.job.count(),
       prisma.employer.count(),
@@ -220,6 +223,12 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       prisma.scrapeRun.findMany({ orderBy: { id: "desc" }, take: 25 }),
       prisma.employer.findMany({ select: { id: true, name: true } }),
       prisma.scrapeRun.findMany({ distinct: ["sourceId"], select: { sourceId: true } }),
+      prisma.scrapeRun.groupBy({ by: ["sourceId"], _max: { id: true } }),
+      prisma.scrapeRun.groupBy({
+        by: ["sourceId"],
+        where: { status: "success" },
+        _max: { finishedAt: true },
+      }),
     ]);
     const nameById = Object.fromEntries(employers.map((e) => [e.id, e.name]));
     const topSources = [...bySource]
@@ -234,6 +243,25 @@ export function registerAdminRoutes(app: FastifyInstance): void {
         return undefined;
       }
     };
+    const ids = latestIds.map((g) => g._max.id).filter((id): id is number => id != null);
+    const latestRuns = ids.length
+      ? await prisma.scrapeRun.findMany({ where: { id: { in: ids } } })
+      : [];
+    const lastSuccess = new Map(
+      lastSuccessRows
+        .filter((r) => r._max.finishedAt)
+        .map((r) => [r.sourceId, r._max.finishedAt!.toISOString()]),
+    );
+    const failingSources = failingScrapers(
+      latestRuns.map((r) => ({
+        sourceId: r.sourceId,
+        status: r.status,
+        at: (r.finishedAt ?? r.startedAt)?.toISOString() ?? null,
+        error: r.error ?? undefined,
+      })),
+      lastSuccess,
+      nameById,
+    );
     return {
       totalJobs,
       totalEmployers,
@@ -241,6 +269,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       verifiedEmployers,
       neverScraped: Math.max(0, totalEmployers - scrapedSources.length),
       errorCount: recentRuns.filter((r) => r.status === "error").length,
+      failingSources,
       topSources,
       recentRuns: recentRuns.map((r) => ({
         id: r.id,

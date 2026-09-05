@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { FAILING_ALERT_DAYS, failingScrapers, type FailingSource } from "@jobccq/shared";
 import { API_URL, adminFetch, getStats } from "@/lib/data";
 import { ensureTursoAdminColumns, tursoCreds, tursoRows } from "@/lib/admin-turso";
 
@@ -27,6 +28,7 @@ type DashData = {
   verifiedEmployers: number;
   neverScraped: number;
   errorCount: number;
+  failingSources: FailingSource[];
   topSources: { id: string; name: string; count: number }[];
   recentRuns: DashRun[];
   source: "api" | "turso" | "static";
@@ -60,7 +62,7 @@ async function loadFromTurso(): Promise<DashData | null> {
   if (!creds) return null;
   await ensureTursoAdminColumns(creds.url, creds.token);
   const n = async (sql: string) => Number((await tursoRows(creds.url, creds.token, sql))[0]?.n ?? 0);
-  const [totalJobs, totalEmployers, enabledEmployers, verifiedEmployers, bySource, runs, employers, scraped] =
+  const [totalJobs, totalEmployers, enabledEmployers, verifiedEmployers, bySource, runs, employers, scraped, latest, lastOk] =
     await Promise.all([
       n("SELECT COUNT(*) AS n FROM Job"),
       n("SELECT COUNT(*) AS n FROM Employer"),
@@ -80,8 +82,27 @@ async function loadFromTurso(): Promise<DashData | null> {
       ),
       tursoRows(creds.url, creds.token, "SELECT id, name FROM Employer"),
       tursoRows(creds.url, creds.token, "SELECT DISTINCT sourceId FROM ScrapeRun"),
+      tursoRows(
+        creds.url,
+        creds.token,
+        `SELECT s.sourceId, s.status, s.error, s.finishedAt, s.startedAt
+         FROM ScrapeRun s
+         INNER JOIN (SELECT sourceId, MAX(id) AS mid FROM ScrapeRun GROUP BY sourceId) t ON s.id = t.mid`,
+      ).catch(() => []),
+      tursoRows(
+        creds.url,
+        creds.token,
+        "SELECT sourceId, MAX(finishedAt) AS lastOk FROM ScrapeRun WHERE status='success' GROUP BY sourceId",
+      ).catch(() => []),
     ]);
   const nameById = Object.fromEntries(employers.map((e) => [String(e.id), String(e.name)]));
+  const lastSuccess = new Map(
+    lastOk
+      .filter((r) => r.lastOk)
+      .map((r) => [String(r.sourceId), String(r.lastOk)]),
+  );
+  const toAt = (r: Record<string, unknown>) =>
+    r.finishedAt ? String(r.finishedAt) : r.startedAt ? String(r.startedAt) : null;
   return {
     totalJobs,
     totalEmployers,
@@ -89,6 +110,16 @@ async function loadFromTurso(): Promise<DashData | null> {
     verifiedEmployers,
     neverScraped: Math.max(0, totalEmployers - scraped.length),
     errorCount: runs.filter((r) => String(r.status) === "error").length,
+    failingSources: failingScrapers(
+      latest.map((r) => ({
+        sourceId: String(r.sourceId),
+        status: String(r.status ?? ""),
+        at: toAt(r),
+        error: r.error ? String(r.error) : undefined,
+      })),
+      lastSuccess,
+      nameById,
+    ),
     topSources: bySource.map((s) => ({
       id: String(s.sourceId),
       name: nameById[String(s.sourceId)] ?? String(s.sourceId),
@@ -123,7 +154,7 @@ export function AdminDashboard() {
         const r = await adminFetch(`${API_URL}/admin/dashboard`);
         if (r.ok) {
           const d = (await r.json()) as DashData;
-          setData({ ...d, source: "api" });
+          setData({ ...d, source: "api", failingSources: d.failingSources ?? [] });
           return;
         }
       } catch {
@@ -142,6 +173,7 @@ export function AdminDashboard() {
         verifiedEmployers: 0,
         neverScraped: 0,
         errorCount: 0,
+        failingSources: [],
         topSources: (stats.bySource ?? []).slice(0, 10).map((s) => ({ id: s.id, name: s.id, count: s.count })),
         recentRuns: [],
         source: "static",
@@ -168,6 +200,7 @@ export function AdminDashboard() {
     { label: "Vérifiés", value: data.verifiedEmployers },
     { label: "Jamais scrapés", value: data.neverScraped },
     { label: "Erreurs (25 derniers)", value: data.errorCount },
+    { label: "Sources en échec", value: data.failingSources.length },
   ];
 
   return (
@@ -184,7 +217,33 @@ export function AdminDashboard() {
           Actualiser
         </button>
       </div>
-      <section className="grid grid-cols-2 gap-2 md:grid-cols-6">
+      {data.failingSources.length > 0 && (
+        <section className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm dark:border-red-900 dark:bg-red-950/40">
+          <h2 className="font-bold text-red-900 dark:text-red-200">Santé des scrapers</h2>
+          <p className="mt-1 text-xs text-red-800 dark:text-red-300">
+            Dernier run en erreur. Au-delà de {FAILING_ALERT_DAYS} jours sans succès → à traiter en priorité.
+          </p>
+          <ul className="mt-2 space-y-1.5">
+            {data.failingSources.map((s) => {
+              const alert = (s.daysSinceSuccess ?? 0) >= FAILING_ALERT_DAYS;
+              return (
+                <li key={s.sourceId} className="flex flex-wrap items-baseline gap-x-2">
+                  <span>{alert ? "⚠" : "❌"}</span>
+                  <span className="font-medium">{s.name}</span>
+                  <span className="text-red-700 dark:text-red-300">
+                    {s.daysSinceSuccess == null
+                      ? "échec"
+                      : `depuis ${s.daysSinceSuccess} j`}
+                    {alert ? " · alerte" : ""}
+                  </span>
+                  {s.error && <span className="truncate text-xs text-red-600">{s.error}</span>}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+      <section className="grid grid-cols-2 gap-2 md:grid-cols-7">
         {kpis.map((k) => (
           <article key={k.label} className="rounded-lg border border-slate-200 bg-white p-3 text-center dark:border-slate-700 dark:bg-slate-900">
             <div className="text-xl font-bold text-slate-900 dark:text-white">{k.value}</div>

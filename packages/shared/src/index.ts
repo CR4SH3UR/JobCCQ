@@ -17,4 +17,5 @@ export * from "./completeness.js";
 export * from "./salary.js";
 export * from "./extract.js";
 export * from "./summarize.js";
+export * from "./scraper-health.js";
 export * from "./preview-html.js";

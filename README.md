@@ -266,7 +266,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 
 - [ ] 38. Rendu headless (Playwright) pour les sites protégés (Cloudflare)
 - [ ] 39. Planification cron du scraping + backoff par source
-- [ ] 40. Dashboard de santé des scrapers (sources en échec depuis N jours + alerte)
+- [x] 40. Dashboard de santé des scrapers (sources en échec depuis N jours + alerte)
 - [ ] 41. Nouveaux helpers ATS : Greenhouse, Lever, Recruitee, SmartRecruiters, Teamtailor
 - [ ] 42. Import CCQ « Carrefour construction » (ccq.org)
 - [ ] 43. Découverte semi-auto d'employeurs à partir du registre RBQ
