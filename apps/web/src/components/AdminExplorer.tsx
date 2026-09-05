@@ -10,6 +10,7 @@ import { notifyJobsChanged } from "@/lib/live";
 import { upsertJobOverride } from "@/lib/job-overrides";
 import { supabaseEnabled } from "@/lib/supabase";
 import { logAudit, setAuditActor, useAuditLog, clearAudit } from "@/lib/admin-audit";
+import { ensureTursoAdminColumns } from "@/lib/admin-turso";
 import { diffDiscovered, type DiscoveredDiff, type DiffEmployer } from "@/lib/discovered-diff";
 import { Badge } from "./Badge";
 import { AdminOfferEditor, type OfferPatch, type OfferRow, type SaveState } from "./AdminOfferEditor";
@@ -36,6 +37,7 @@ type Employer = {
   sectors?: readonly string[];
   verified?: boolean;
   enabled?: boolean;
+  notes?: string;
 };
 
 type Mode = "loading" | "api" | "static" | "turso";
@@ -50,6 +52,7 @@ type OffersState = { loading: boolean; rows: OfferRow[]; error?: string };
 type ActivityRow = {
   id: number; sourceId: string; status: string;
   found: number; inserted: number; updated: number; error?: string; at: number | null;
+  diff?: ScrapeDiff;
 };
 
 const METHODS: DiscoveredMethod[] = [
@@ -205,6 +208,83 @@ function strOpt(v: unknown): string | undefined {
   return s || undefined;
 }
 
+/** Parse un CSV d'employeurs (export admin ou fichier similaire). */
+function parseEmployerCsv(text: string): Employer[] {
+  const src = text.replace(/^\uFEFF/, "");
+  const table: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let inQuotes = false;
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (src[i + 1] === '"') {
+          cell += '"';
+          i += 1;
+        } else inQuotes = false;
+      } else cell += c;
+    } else if (c === '"') inQuotes = true;
+    else if (c === "," || c === ";") {
+      row.push(cell);
+      cell = "";
+    } else if (c === "\n") {
+      row.push(cell);
+      table.push(row);
+      row = [];
+      cell = "";
+    } else if (c !== "\r") cell += c;
+  }
+  if (cell.length || row.length) {
+    row.push(cell);
+    table.push(row);
+  }
+  const lines = table.filter((r) => r.some((x) => x.trim()));
+  const headerRow = lines[0];
+  if (!headerRow || lines.length < 2) return [];
+  const header = headerRow.map((h) => h.trim().toLowerCase());
+  const idx = (names: string[]) => names.reduce((acc, n) => (acc >= 0 ? acc : header.indexOf(n)), -1);
+  const iId = idx(["id"]);
+  const iName = idx(["nom", "name"]);
+  const iMethod = idx(["methode", "method"]);
+  const iRegion = idx(["region"]);
+  const iVerified = idx(["verifie", "verified"]);
+  const iEnabled = idx(["actif", "enabled"]);
+  const iUrl = idx(["url", "careersurl"]);
+  const iHome = idx(["homepage", "site"]);
+  const yes = (v: string) => ["oui", "yes", "true", "1"].includes(v.trim().toLowerCase());
+  const col = (r: string[], i: number) => (i >= 0 ? (r[i] ?? "") : "");
+  const out: Employer[] = [];
+  for (const r of lines.slice(1)) {
+    const id = col(r, iId).trim();
+    const name = col(r, iName).trim();
+    const careersUrl = col(r, iUrl).trim();
+    if (!id || !name || !careersUrl) continue;
+    const methodRaw = col(r, iMethod).trim() as DiscoveredMethod;
+    const method = METHODS.includes(methodRaw) ? methodRaw : "html";
+    let homepage = col(r, iHome).trim();
+    if (!homepage) {
+      try {
+        homepage = new URL(careersUrl).origin;
+      } catch {
+        homepage = careersUrl;
+      }
+    }
+    out.push({
+      id,
+      name,
+      homepage,
+      careersUrl,
+      method,
+      region: col(r, iRegion).trim() || undefined,
+      verified: iVerified >= 0 ? yes(col(r, iVerified)) : undefined,
+      enabled: iEnabled >= 0 ? yes(col(r, iEnabled) || "oui") : true,
+      sectors: [],
+    });
+  }
+  return out;
+}
+
 function jobToOfferRow(j: Job): OfferRow {
   return {
     id: j.id,
@@ -287,6 +367,7 @@ function rowToEmployer(r: Record<string, unknown>): Employer {
     sectors,
     verified: Number(r.verified) === 1,
     enabled: Number(r.enabled) !== 0,
+    notes: r.notes ? String(r.notes) : undefined,
   };
 }
 
@@ -594,10 +675,11 @@ export function AdminExplorer() {
         const tTok = readLS(LS_TURSO_TOKEN);
         if (tUrl && tTok) {
           try {
+            await ensureTursoAdminColumns(tUrl, tTok);
             const rows = await tursoRows(
               tUrl,
               tTok,
-              "SELECT id,name,homepage,careersUrl,method,region,rbq,scope,sectors,verified,enabled FROM Employer ORDER BY name",
+              "SELECT id,name,homepage,careersUrl,method,region,rbq,scope,sectors,verified,enabled,notes FROM Employer ORDER BY name",
             );
             if (!alive) return;
             setEmployers(rows.map(rowToEmployer));
@@ -687,18 +769,34 @@ export function AdminExplorer() {
       const raw = await tursoRows(
         tUrl,
         tTok,
-        "SELECT id, sourceId, status, found, inserted, updated, error, finishedAt, startedAt FROM ScrapeRun ORDER BY id DESC LIMIT 30",
+        "SELECT id, sourceId, status, found, inserted, updated, error, finishedAt, startedAt, diffJson FROM ScrapeRun ORDER BY id DESC LIMIT 30",
       );
-      const rows: ActivityRow[] = raw.map((r) => ({
-        id: Number(r.id),
-        sourceId: String(r.sourceId),
-        status: String(r.status ?? ""),
-        found: Number(r.found ?? 0),
-        inserted: Number(r.inserted ?? 0),
-        updated: Number(r.updated ?? 0),
-        error: r.error ? String(r.error) : undefined,
-        at: whenMs(r.finishedAt ?? r.startedAt),
-      }));
+      const parseDiff = (raw: unknown): ScrapeDiff | undefined => {
+        if (!raw) return undefined;
+        try {
+          const v = typeof raw === "string" ? JSON.parse(raw) : raw;
+          if (!v || typeof v !== "object") return undefined;
+          return v as ScrapeDiff;
+        } catch {
+          return undefined;
+        }
+      };
+      const rows: ActivityRow[] = raw.map((r) => {
+        const d = parseDiff(r.diffJson);
+        return {
+          id: Number(r.id),
+          sourceId: String(r.sourceId),
+          status: String(r.status ?? ""),
+          found: Number(r.found ?? 0),
+          inserted: Number(r.inserted ?? 0),
+          updated: Number(r.updated ?? 0),
+          error: r.error ? String(r.error) : undefined,
+          at: whenMs(r.finishedAt ?? r.startedAt),
+          diff: d
+            ? { added: d.added ?? [], changed: d.changed ?? [], removed: d.removed ?? [] }
+            : undefined,
+        };
+      });
       setActivity({ loading: false, rows });
     } catch (err) {
       setActivity({ loading: false, rows: [], error: (err as Error).message });
@@ -779,7 +877,7 @@ export function AdminExplorer() {
         const rows = await tursoRows(
           tursoUrl,
           tursoToken,
-          "SELECT id,name,homepage,careersUrl,method,region,rbq,scope,sectors,verified,enabled FROM Employer ORDER BY name",
+          "SELECT id,name,homepage,careersUrl,method,region,rbq,scope,sectors,verified,enabled,notes FROM Employer ORDER BY name",
         ).catch(() => null);
         if (rows) setEmployers(rows.map(rowToEmployer));
       } else if (mode === "api") {
@@ -880,6 +978,10 @@ export function AdminExplorer() {
       if ("enabled" in patch) {
         cols.push("enabled=?");
         args.push(patch.enabled === false ? 0 : 1);
+      }
+      if ("notes" in patch) {
+        cols.push("notes=?");
+        args.push(patch.notes ?? "");
       }
       if (!cols.length) return; // rien de persistable dans ce patch
       cols.push("updatedAt=?");
@@ -1542,6 +1644,70 @@ export function AdminExplorer() {
     URL.revokeObjectURL(url);
   };
 
+  const importCsvFile = async (file: File) => {
+    const text = await file.text();
+    const rows = parseEmployerCsv(text);
+    if (rows.length === 0) {
+      setBulkMsg("CSV vide ou illisible.");
+      return;
+    }
+    let created = 0;
+    let skipped = 0;
+    const next: Employer[] = [...employers];
+    for (const emp of rows) {
+      if (next.some((e) => e.id === emp.id)) {
+        skipped += 1;
+        continue;
+      }
+      if (mode === "turso") {
+        const now = new Date().toISOString();
+        const ok = await tursoExec(
+          tursoUrl,
+          tursoToken,
+          "INSERT INTO Employer (id,name,homepage,careersUrl,method,region,sectors,verified,enabled,createdAt,updatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+          [
+            emp.id,
+            emp.name,
+            emp.homepage,
+            emp.careersUrl,
+            emp.method,
+            emp.region || null,
+            "[]",
+            emp.verified ? 1 : 0,
+            emp.enabled === false ? 0 : 1,
+            now,
+            now,
+          ],
+        )
+          .then(() => true)
+          .catch(() => false);
+        if (!ok) {
+          skipped += 1;
+          continue;
+        }
+      } else if (mode === "api") {
+        const res = await adminFetch(`${API_URL}/admin/employers`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(emp),
+        }).catch(() => null);
+        if (!res?.ok) {
+          skipped += 1;
+          continue;
+        }
+      } else {
+        editsRef.current[emp.id] = emp;
+        saveLS(LS_EDITS, editsRef.current);
+      }
+      next.push(emp);
+      created += 1;
+    }
+    next.sort((a, b) => a.name.localeCompare(b.name, "fr"));
+    setEmployers(next);
+    setBulkMsg(`Import CSV : ${created} ajouté(s), ${skipped} ignoré(s).`);
+    logAudit("edit", { detail: `import CSV ${created} employeur(s)` });
+  };
+
   const verifiedCount = employers.filter((e) => e.verified).length;
   const noJobsCount = employers.filter((e) => (counts[e.id] ?? 0) === 0).length;
   const disabledCount = employers.filter((e) => e.enabled === false).length;
@@ -1958,8 +2124,12 @@ export function AdminExplorer() {
                   <p className="text-slate-500">Aucune exécution enregistrée.</p>
                 ) : (
                   <ul className="divide-y divide-slate-100">
-                    {activity.rows.map((r) => (
-                      <li key={r.id} className="flex flex-wrap items-center gap-x-2 py-1 text-xs">
+                    {activity.rows.map((r) => {
+                      const d = r.diff;
+                      const hasDiff = !!(d && (d.added.length || d.changed.length || d.removed.length));
+                      return (
+                      <li key={r.id} className="py-1 text-xs">
+                        <div className="flex flex-wrap items-center gap-x-2">
                         <span className="shrink-0">{r.status === "error" ? "❌" : r.status === "running" ? "⏳" : "✅"}</span>
                         <span className="font-medium text-slate-700">{nameById[r.sourceId] ?? r.sourceId}</span>
                         <span className="text-slate-400">{relTime(r.at)}</span>
@@ -1967,11 +2137,23 @@ export function AdminExplorer() {
                           <span className="truncate text-red-600" title={r.error}>{r.error}</span>
                         ) : (
                           <span className="text-slate-500">
-                            {r.found} trouvée(s){r.inserted ? ` · +${r.inserted}` : ""}{r.updated ? ` · ~${r.updated}` : ""}
+                            {r.found} trouvée(s)
+                            {hasDiff
+                              ? ` · +${d!.added.length} ~${d!.changed.length} -${d!.removed.length}`
+                              : `${r.inserted ? ` · +${r.inserted}` : ""}${r.updated ? ` · ~${r.updated}` : ""}`}
                           </span>
                         )}
+                        </div>
+                        {hasDiff && (
+                          <ul className="mt-0.5 pl-5 text-slate-600">
+                            {d!.added.slice(0, 3).map((e, i) => <li key={`a${i}`} className="truncate text-green-700">+ {e.title}</li>)}
+                            {d!.changed.slice(0, 2).map((e, i) => <li key={`c${i}`} className="truncate text-amber-700">~ {e.title}</li>)}
+                            {d!.removed.slice(0, 3).map((e, i) => <li key={`r${i}`} className="truncate text-red-600">- {e.title}</li>)}
+                          </ul>
+                        )}
                       </li>
-                    ))}
+                      );
+                    })}
                   </ul>
                 )}
               </div>
@@ -2049,6 +2231,19 @@ export function AdminExplorer() {
               <button onClick={exportCsv} className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:bg-slate-100">
                 ⬇ CSV
               </button>
+              <label className="cursor-pointer rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:bg-slate-100">
+                ⬆ Import CSV
+                <input
+                  type="file"
+                  accept=".csv,text/csv"
+                  className="hidden"
+                  onChange={(ev) => {
+                    const f = ev.target.files?.[0];
+                    ev.target.value = "";
+                    if (f) void importCsvFile(f);
+                  }}
+                />
+              </label>
               <button
                 onClick={() => setAddOpen((v) => !v)}
                 className="rounded-lg border border-brand-300 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50"
@@ -2189,6 +2384,19 @@ export function AdminExplorer() {
               >
                 📋 Copier URLs
               </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(selectedList.join("\n"));
+                    setBulkMsg(`${selectedList.length} id(s) copié(s).`);
+                  } catch {
+                    setBulkMsg("Échec de la copie.");
+                  }
+                }}
+                className="rounded-lg border border-slate-300 bg-white px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-100"
+              >
+                📋 Copier ids
+              </button>
               {(mode === "turso" || mode === "api") && (
                 <button onClick={() => bulkPurge(selectedList)} className="rounded-lg border border-red-300 bg-white px-2.5 py-1 font-semibold text-red-600 hover:bg-red-50">
                   🗑 Vider les offres
@@ -2323,6 +2531,8 @@ function Row({
   const [homepage, setHomepage] = useState(e.homepage ?? "");
   const [scope, setScope] = useState(e.scope ?? "");
   const [rbq, setRbq] = useState(e.rbq ?? "");
+  const [notes, setNotes] = useState(e.notes ?? "");
+  const [probeMsg, setProbeMsg] = useState("");
   const [sectors, setSectors] = useState<string[]>(e.sectors ? [...e.sectors] : []);
   const [secOpen, setSecOpen] = useState(false);
   const [newSec, setNewSec] = useState("");
@@ -2332,15 +2542,17 @@ function Row({
     setHomepage(e.homepage ?? "");
     setScope(e.scope ?? "");
     setRbq(e.rbq ?? "");
+    setNotes(e.notes ?? "");
     setSectors(e.sectors ? [...e.sectors] : []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [e.region, e.homepage, e.scope, e.rbq, eSectorsKey]);
+  }, [e.region, e.homepage, e.scope, e.rbq, e.notes, eSectorsKey]);
   const sectorsDirty = [...sectors].sort().join("|") !== [...(e.sectors ?? [])].sort().join("|");
   const advDirty =
     region !== (e.region ?? "") ||
     homepage !== (e.homepage ?? "") ||
     scope !== (e.scope ?? "") ||
     rbq !== (e.rbq ?? "") ||
+    notes !== (e.notes ?? "") ||
     sectorsDirty;
   const toggleSector = (s: string) =>
     setSectors((cur) => (cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]));
@@ -2379,6 +2591,14 @@ function Row({
           onChange={(ev) => setName(ev.target.value)}
           className="min-w-[10rem] flex-1 rounded border border-transparent bg-transparent px-1 py-0.5 text-sm font-semibold hover:border-slate-200 focus:border-brand-400 focus:outline-none"
         />
+        <button
+          type="button"
+          title={`Copier l'id (${e.id})`}
+          onClick={() => void navigator.clipboard.writeText(e.id).then(() => undefined)}
+          className="rounded border border-slate-200 px-1.5 py-0.5 font-mono text-[10px] text-slate-500 hover:bg-slate-100"
+        >
+          id
+        </button>
         <select
           value={e.method}
           onChange={(ev) => onPatch(e.id, { method: ev.target.value as DiscoveredMethod })}
@@ -2484,6 +2704,28 @@ function Row({
             {scrape?.status === "run" ? "Scraping…" : "Re-scraper"}
           </button>
         )}
+        <button
+          type="button"
+          title="Tester si la page carrières répond"
+          onClick={async () => {
+            setProbeMsg("test…");
+            try {
+              const r = await adminFetch(`${API_URL}/admin/probe`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ url: url.trim() || e.careersUrl }),
+              });
+              const d = await r.json();
+              setProbeMsg(d.ok ? `OK ${d.bytes} o · ${d.ms} ms${d.title ? ` · ${d.title}` : ""}` : (d.error ?? "échec"));
+            } catch {
+              window.open(url.trim() || e.careersUrl, "_blank");
+              setProbeMsg("API injoignable — page ouverte");
+            }
+          }}
+          className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+        >
+          Tester URL
+        </button>
         <button
           onClick={() => onPatch(e.id, { enabled: disabled })}
           className={`rounded-lg border px-2.5 py-1 text-xs font-semibold ${
@@ -2642,6 +2884,17 @@ function Row({
             )}
           </div>
 
+          <label className="mt-2 flex flex-col gap-0.5">
+            <span className="text-slate-500">Notes internes (admin seulement)</span>
+            <textarea
+              value={notes}
+              onChange={(ev) => setNotes(ev.target.value)}
+              rows={2}
+              placeholder="Ex. page JS, besoin d’un scraper perso…"
+              className="rounded border border-slate-300 px-2 py-1"
+            />
+          </label>
+
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <button
               disabled={!advDirty}
@@ -2652,6 +2905,7 @@ function Row({
                   scope: scope.trim(),
                   rbq: rbq.trim(),
                   sectors,
+                  notes: notes.trim(),
                 })
               }
               className="rounded-lg bg-brand-600 px-2.5 py-1 font-semibold text-white disabled:opacity-30"
@@ -2671,6 +2925,8 @@ function Row({
           </div>
         </div>
       )}
+
+      {probeMsg && <p className="mt-1 text-xs text-slate-500">{probeMsg}</p>}
 
       {scrape && scrape.status !== "run" && (
         <div className="mt-2 text-xs">

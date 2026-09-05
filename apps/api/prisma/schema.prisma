@@ -29,6 +29,8 @@ model Employer {
   sectors    String   @default("[]")
   verified   Boolean  @default(false)
   enabled    Boolean  @default(true)
+  /// Note interne admin (pas affichée sur le site public).
+  notes      String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -78,6 +80,8 @@ model ScrapeRun {
   found      Int       @default(0)
   inserted   Int       @default(0)
   updated    Int       @default(0)
+  /// Diff JSON { added, changed, removed } (titres + URLs), plafonné.
+  diffJson   String?
   error      String?
   startedAt  DateTime  @default(now())
   finishedAt DateTime?

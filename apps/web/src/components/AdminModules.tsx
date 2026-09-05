@@ -5,8 +5,10 @@ import { AdminExplorer } from "@/components/AdminExplorer";
 import { AdminRegions } from "@/components/AdminRegions";
 import { AdminSponsors } from "@/components/AdminSponsors";
 import { AdminUsers } from "@/components/AdminUsers";
+import { AdminDashboard } from "@/components/AdminDashboard";
+import { AdminJobs } from "@/components/AdminJobs";
 
-type AdminModuleKey = "overview" | "users" | "sources" | "sponsors" | "regions";
+type AdminModuleKey = "overview" | "users" | "sources" | "jobs" | "sponsors" | "regions";
 
 const MODULES: Array<{
   key: AdminModuleKey;
@@ -17,7 +19,7 @@ const MODULES: Array<{
   {
     key: "overview",
     title: "Vue d'ensemble",
-    description: "Accès rapide aux outils utiles.",
+    description: "Chiffres, top sources, diffs de scrape.",
     action: "Ouvrir",
   },
   {
@@ -30,6 +32,12 @@ const MODULES: Array<{
     key: "sources",
     title: "Sources / employeurs",
     description: "Employeurs, scraping, vérifications.",
+    action: "Gérer",
+  },
+  {
+    key: "jobs",
+    title: "Offres",
+    description: "Chercher, éditer, supprimer, exporter.",
     action: "Gérer",
   },
   {
@@ -57,7 +65,7 @@ export function AdminModules() {
           Centre de contrôle JobCCQc
         </h1>
         <p className="mt-1 max-w-2xl text-sm text-slate-600 dark:text-slate-300">
-          Modules séparés pour accéder vite aux comptes, sources, scraping et commandites.
+          Modules : tableau de bord, comptes, sources, offres, commandites et régions.
         </p>
       </header>
 
@@ -82,31 +90,12 @@ export function AdminModules() {
         })}
       </nav>
 
-      {active === "overview" ? <AdminOverview onOpen={setActive} /> : null}
+      {active === "overview" ? <AdminDashboard /> : null}
       {active === "users" ? <AdminUsers /> : null}
       {active === "sources" ? <AdminExplorer /> : null}
+      {active === "jobs" ? <AdminJobs /> : null}
       {active === "sponsors" ? <AdminSponsors /> : null}
       {active === "regions" ? <AdminRegions /> : null}
     </div>
-  );
-}
-
-function AdminOverview({ onOpen }: { onOpen: (module: AdminModuleKey) => void }) {
-  return (
-    <section className="grid gap-3 md:grid-cols-3">
-      {MODULES.filter((module) => module.key !== "overview").map((module) => (
-        <article key={module.key} className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-          <h2 className="text-base font-bold text-slate-950 dark:text-white">{module.title}</h2>
-          <p className="mt-1 min-h-10 text-sm text-slate-600 dark:text-slate-300">{module.description}</p>
-          <button
-            type="button"
-            onClick={() => onOpen(module.key)}
-            className="mt-4 rounded-lg bg-brand-600 px-3 py-2 text-xs font-bold text-white hover:bg-brand-700 dark:bg-brand-400 dark:text-slate-950 dark:hover:bg-brand-300"
-          >
-            {module.action}
-          </button>
-        </article>
-      ))}
-    </section>
   );
 }

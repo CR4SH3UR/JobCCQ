@@ -71,6 +71,8 @@ async function main() {
   );
   const libsql = createClient({ url, authToken: process.env.TURSO_AUTH_TOKEN });
   await libsql.executeMultiple(safeDdl);
+  await libsql.execute("ALTER TABLE Employer ADD COLUMN notes TEXT").catch(() => {});
+  await libsql.execute("ALTER TABLE ScrapeRun ADD COLUMN diffJson TEXT").catch(() => {});
   console.log("✅ Schéma appliqué sur la base cible.");
 
   // Table vierge (idempotent) : on repart d'un état propre avant l'insertion en

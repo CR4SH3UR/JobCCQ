@@ -28,6 +28,21 @@ export interface RunReport {
 
 /** Nombre max de lignes de diff loguées par catégorie (lisibilité console). */
 const DIFF_LOG_MAX = 10;
+/** Plafond de lignes persistées par catégorie (colonne ScrapeRun.diffJson). */
+const DIFF_STORE_MAX = 50;
+
+function compactDiff(diff: {
+  added: JobDiffEntry[];
+  changed: JobDiffEntry[];
+  removed: JobDiffEntry[];
+}) {
+  const cap = (entries: JobDiffEntry[]) => entries.slice(0, DIFF_STORE_MAX);
+  return {
+    added: cap(diff.added),
+    changed: cap(diff.changed),
+    removed: cap(diff.removed),
+  };
+}
 
 function logDiff(
   log: (m: string) => void,
@@ -104,10 +119,21 @@ export async function runScraperInstance(
     const removedJobs: JobDiffEntry[] =
       "removedJobs" in result ? (result.removedJobs as JobDiffEntry[]) : [];
     const diff = { added: result.added, changed: result.changed, removed: removedJobs };
-    await prisma.scrapeRun.update({
-      where: { id: run.id },
-      data: { status: "success", found: raw.length, inserted, updated, finishedAt: new Date() },
-    });
+    const runUpdate = {
+      status: "success" as const,
+      found: raw.length,
+      inserted,
+      updated,
+      finishedAt: new Date(),
+    };
+    try {
+      await prisma.scrapeRun.update({
+        where: { id: run.id },
+        data: { ...runUpdate, diffJson: JSON.stringify(compactDiff(diff)) },
+      });
+    } catch {
+      await prisma.scrapeRun.update({ where: { id: run.id }, data: runUpdate });
+    }
     log(`terminé : ${raw.length} trouvées, ${inserted} ajoutées, ${updated} mises à jour, ${removed} retirées`);
     logDiff(log, diff);
     return {
