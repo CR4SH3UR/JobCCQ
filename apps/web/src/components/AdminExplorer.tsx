@@ -67,6 +67,12 @@ const LS_REGION = "admin:region";
 const LS_PAGESIZE = "admin:pagesize";
 const DISCOVERED_PATH = "packages/shared/src/discovered.json";
 
+/** Colonnes lues pour l'aperçu déroulant « Offres » d'un employeur (mode Turso). */
+const OFFERS_SQL =
+  `SELECT id, title, company, url, location, city, regionId, remote, categoryId, employmentType,
+          salaryMin, salaryMax, salaryPeriod, currency, description, tags, languages, postedAt, companyLogoUrl
+   FROM Job WHERE sourceId=? ORDER BY id DESC LIMIT 60`;
+
 /** Filtres du tableau (persistés dans le navigateur → survivent au rafraîchissement). */
 const FILTER_KEYS = ["all", "unverified", "verified", "customscraper", "generic", "nojobs", "disabled", "duplicates", "errors", "neverrun"] as const;
 type FilterKey = (typeof FILTER_KEYS)[number];
@@ -373,6 +379,12 @@ export function AdminExplorer() {
   // écriture Turso qui échoue n'est plus avalée silencieusement).
   const [saveState, setSaveState] = useState<Record<string, SaveState>>({});
   const latestRef = useRef<Employer[] | null>(null);
+  // Miroir de `openOffers` : la boucle de polling (closure longue durée) l'utilise
+  // pour savoir quels panneaux « Offres » sont ouverts et les rafraîchir en direct.
+  const openOffersRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    openOffersRef.current = openOffers;
+  }, [openOffers]);
 
   useEffect(() => {
     try {
@@ -672,6 +684,31 @@ export function AdminExplorer() {
   // Aperçu déroulant des offres d'un employeur (titres + villes + liens). En
   // mode Turso on lit EN DIRECT la table Job ; sinon via la couche de données
   // (API locale ou instantané statique). Résultat mis en cache par employeur.
+  // Charge (TOUJOURS, en ignorant le cache) l'aperçu des offres d'un employeur
+  // depuis la source de vérité : Turso en direct, sinon la couche de données
+  // (API locale ou instantané statique). Sert à l'ouverture du panneau ET après
+  // un (re)scrape pour que la liste déroulée reflète l'état réel de la base sans
+  // recharger la page. On garde les lignes précédentes visibles pendant le
+  // rechargement (spinner discret) plutôt que de vider l'affichage.
+  const loadOffers = async (id: string) => {
+    setOffersData((d) => ({ ...d, [id]: { loading: true, rows: d[id]?.rows ?? [] } }));
+    try {
+      let rows: OfferRow[] = [];
+      if (mode === "turso") {
+        const tUrl = tursoUrl || readLS(LS_TURSO_URL);
+        const tTok = tursoToken || readLS(LS_TURSO_TOKEN);
+        const raw = await tursoRows(tUrl, tTok, OFFERS_SQL, [id]);
+        rows = raw.map(tursoToOfferRow);
+      } else {
+        const res = await searchJobs(buildQuery({ sources: [id], pageSize: 60, sort: "recent" }));
+        rows = res.items.map(jobToOfferRow);
+      }
+      setOffersData((d) => ({ ...d, [id]: { loading: false, rows } }));
+    } catch (err) {
+      setOffersData((d) => ({ ...d, [id]: { loading: false, rows: [], error: (err as Error).message } }));
+    }
+  };
+
   const toggleOffers = async (id: string) => {
     const willOpen = !openOffers.has(id);
     setOpenOffers((s) => {
@@ -681,28 +718,23 @@ export function AdminExplorer() {
     });
     if (!willOpen) return; // on referme : rien à charger
     if (offersData[id] && !offersData[id].error) return; // déjà en cache
-    setOffersData((d) => ({ ...d, [id]: { loading: true, rows: [] } }));
-    try {
-      let rows: OfferRow[] = [];
-      if (mode === "turso") {
-        const tUrl = tursoUrl || readLS(LS_TURSO_URL);
-        const tTok = tursoToken || readLS(LS_TURSO_TOKEN);
-        const raw = await tursoRows(
-          tUrl,
-          tTok,
-          `SELECT id, title, company, url, location, city, regionId, remote, categoryId, employmentType,
-                  salaryMin, salaryMax, salaryPeriod, currency, description, tags, languages, postedAt, companyLogoUrl
-           FROM Job WHERE sourceId=? ORDER BY id DESC LIMIT 60`,
-          [id],
-        );
-        rows = raw.map(tursoToOfferRow);
-      } else {
-        const res = await searchJobs(buildQuery({ sources: [id], pageSize: 60, sort: "recent" }));
-        rows = res.items.map(jobToOfferRow);
-      }
-      setOffersData((d) => ({ ...d, [id]: { loading: false, rows } }));
-    } catch (err) {
-      setOffersData((d) => ({ ...d, [id]: { loading: false, rows: [], error: (err as Error).message } }));
+    await loadOffers(id);
+  };
+
+  // Après un changement de données pour une source (re-scrape, purge) : si son
+  // panneau « Offres » est ouvert, on recharge la liste en direct ; sinon on
+  // invalide le cache pour que la prochaine ouverture reparte de la base. C'est
+  // ce qui évite d'avoir à rafraîchir la page pour voir les offres remplacées.
+  const refreshOffersIfLoaded = (id: string) => {
+    if (openOffersRef.current.has(id)) {
+      void loadOffers(id);
+    } else {
+      setOffersData((d) => {
+        if (!(id in d)) return d;
+        const n = { ...d };
+        delete n[id];
+        return n;
+      });
     }
   };
 
@@ -864,8 +896,10 @@ export function AdminExplorer() {
       const d = await r.json();
       if (d.report?.status === "success") {
         setScrapes((s) => ({ ...s, [id]: { status: "ok", found: d.report.found, sample: d.sample } }));
-        // Le scrape a écrit en base : on rafraîchit le compteur sans recharger.
+        // Le scrape a écrit en base : on rafraîchit le compteur ET l'aperçu
+        // déroulé « Offres » (si ouvert) sans recharger la page.
         refreshCounts();
+        refreshOffersIfLoaded(id);
       } else {
         setScrapes((s) => ({ ...s, [id]: { status: "err", error: d.report?.error ?? "échec" } }));
       }
@@ -894,6 +928,9 @@ export function AdminExplorer() {
       await adminFetch(`${API_URL}/admin/employers/${id}/offers`, { method: "DELETE" }).catch(() => {});
     }
     setCounts((c) => ({ ...c, [id]: 0 }));
+    // Vide aussi l'aperçu déroulé « Offres » (sinon il montre encore les
+    // anciennes offres jusqu'au prochain rafraîchissement de la page).
+    setOffersData((d) => (id in d ? { ...d, [id]: { loading: false, rows: [] } } : d));
   };
 
   const publishChanges = async () => {
@@ -987,6 +1024,24 @@ export function AdminExplorer() {
                   ? { status: "err", error: String(r.error ?? "échec du scrape") }
                   : { status: "ok", found: n, error: "updated" },
             }));
+            // Rafraîchit l'aperçu déroulé « Offres » de cette source SANS
+            // recharger la page : rechargement en direct si le panneau est
+            // ouvert, sinon invalidation du cache pour la prochaine ouverture.
+            if (r.status !== "error") {
+              if (openOffersRef.current.has(id)) {
+                const offerRows = await tursoRows(tUrl, tTok, OFFERS_SQL, [id]).catch(() => null);
+                if (offerRows) {
+                  setOffersData((d) => ({ ...d, [id]: { loading: false, rows: offerRows.map(tursoToOfferRow) } }));
+                }
+              } else {
+                setOffersData((d) => {
+                  if (!(id in d)) return d;
+                  const nn = { ...d };
+                  delete nn[id];
+                  return nn;
+                });
+              }
+            }
             pendingRef.current.delete(id);
           }
         }
