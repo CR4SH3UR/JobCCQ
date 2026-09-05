@@ -1977,6 +1977,7 @@ export function AdminExplorer() {
                     return { ...d, [employerId]: { ...prev, rows } };
                   })
                 }
+                onShowDuplicates={() => changeFilter("duplicates")}
               />
             ))}
           </div>
@@ -2017,7 +2018,7 @@ function SaveBadge({ save }: { save: SaveState }) {
 }
 
 function Row({
-  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, forceEnabled, save, sectorOptions, mode, tursoUrl, tursoToken, onToggleSelect, onPatch, onScrape, onScrapeForce, onPurge, onDelete, onToggleOffers, onMutateOffer,
+  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, forceEnabled, save, sectorOptions, mode, tursoUrl, tursoToken, onToggleSelect, onPatch, onScrape, onScrapeForce, onPurge, onDelete, onToggleOffers, onMutateOffer, onShowDuplicates,
 }: {
   e: Employer;
   count: number;
@@ -2044,6 +2045,7 @@ function Row({
   onDelete: (id: string) => void;
   onToggleOffers: (id: string) => void;
   onMutateOffer: (employerId: string, offerId: string, patch: OfferPatch) => void;
+  onShowDuplicates: () => void;
 }) {
   const [url, setUrl] = useState(e.careersUrl);
   const [name, setName] = useState(e.name);
@@ -2140,12 +2142,14 @@ function Row({
           <Badge tone="slate">0 offre</Badge>
         )}
         {duplicate && (
-          <span
-            title="Plusieurs employeurs partagent cette même URL de carrières"
-            className="rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-semibold text-amber-700"
+          <button
+            type="button"
+            onClick={onShowDuplicates}
+            title="Plusieurs employeurs partagent cette même URL de carrières — cliquer pour afficher tous les doublons"
+            className="rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-semibold text-amber-700 hover:bg-amber-200"
           >
             ⚠ doublon
-          </span>
+          </button>
         )}
         <span
           title={
