@@ -10,7 +10,7 @@
  * Tant que la table n'existe pas / Supabase non configuré, tout retombe
  * proprement sur « aucune municipalité » (aucun reclassement) — rien ne casse.
  */
-import { municipalityRegionMap, normMunicipality, type Municipality } from "@jobccq/shared";
+import { municipalityRegionMap, normMunicipality, regionForCity, type Municipality } from "@jobccq/shared";
 
 export type { Municipality };
 
@@ -53,10 +53,9 @@ function municipalityMap(): Promise<Map<string, string>> {
  * ou si la table n'est pas disponible.
  */
 export async function resolveRegionForCity(city: string): Promise<string | null> {
-  const key = normMunicipality(city ?? "");
-  if (!key) return null;
+  if (!city?.trim()) return null;
   const map = await municipalityMap();
-  return map.get(key) ?? null;
+  return regionForCity(map, city) ?? null;
 }
 
 /**
