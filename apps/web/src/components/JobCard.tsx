@@ -12,6 +12,7 @@ import {
   ccqTradeLabel,
   sourceName,
   rbqLicenceUrl,
+  jobCompleteness,
   type Job,
 } from "@jobccq/shared";
 import { Badge } from "./Badge";
@@ -105,23 +106,26 @@ export function JobCard({ job }: { job: Job }) {
           )}
 
           <div className="mt-3 flex items-center justify-between">
-            <span className="text-xs text-slate-400">
-              via {sourceName(job.sourceId)}
-              {rbq && (
-                <>
-                  {" · "}
-                  <a
-                    href={rbqLicenceUrl(rbq)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium text-slate-500 hover:text-brand-700 hover:underline"
-                    title="Consulter cette licence au registre RBQ"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    RBQ {rbq}
-                  </a>
-                </>
-              )}
+            <span className="flex items-center gap-2 text-xs text-slate-400">
+              <CompletenessDots job={job} />
+              <span>
+                via {sourceName(job.sourceId)}
+                {rbq && (
+                  <>
+                    {" · "}
+                    <a
+                      href={rbqLicenceUrl(rbq)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-slate-500 hover:text-brand-700 hover:underline"
+                      title="Consulter cette licence au registre RBQ"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      RBQ {rbq}
+                    </a>
+                  </>
+                )}
+              </span>
             </span>
             <Link
               href={`/emplois/${job.id}/`}
@@ -136,6 +140,25 @@ export function JobCard({ job }: { job: Job }) {
         </div>
       </div>
     </article>
+  );
+}
+
+function CompletenessDots({ job }: { job: Job }) {
+  const c = jobCompleteness(job);
+  const title = c.missing.length ? `Manque : ${c.missing.join(", ")}` : "Fiche complète";
+  return (
+    <span
+      title={title}
+      aria-label={`Complétude ${c.score} sur ${c.max}`}
+      className="inline-flex gap-0.5"
+    >
+      {Array.from({ length: c.max }, (_, i) => (
+        <span
+          key={i}
+          className={cn("h-1.5 w-1.5 rounded-full", i < c.score ? "bg-brand-500" : "bg-slate-200")}
+        />
+      ))}
+    </span>
   );
 }
 

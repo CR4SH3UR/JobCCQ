@@ -12,6 +12,7 @@ import {
   sectorsForJob,
   sourceName,
   rbqLicenceUrl,
+  jobCompleteness,
   type Job,
 } from "@jobccq/shared";
 import { Badge } from "./Badge";
@@ -145,6 +146,7 @@ export function JobDetailView({ id }: { id: string }) {
                 <Badge key={l}>{labelForLanguage(l)}</Badge>
               ))}
             </div>
+            <CompletenessNote job={job} />
 
             <div className="mt-6 flex flex-wrap gap-3">
               <a
@@ -265,6 +267,16 @@ export function JobDetailView({ id }: { id: string }) {
         dangerouslySetInnerHTML={{ __html: ldJson(jobPostingLd(job)) }}
       />
     </div>
+  );
+}
+
+function CompletenessNote({ job }: { job: Job }) {
+  const c = jobCompleteness(job);
+  if (c.score === c.max) return null;
+  return (
+    <p className="mt-3 text-xs text-slate-500">
+      Fiche {c.score}/{c.max} — manque {c.missing.join(", ")}.
+    </p>
   );
 }
 
