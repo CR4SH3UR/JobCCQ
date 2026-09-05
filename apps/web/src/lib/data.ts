@@ -25,6 +25,24 @@ export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000
 const STATIC = process.env.NEXT_PUBLIC_STATIC_DATA === "1";
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
+/**
+ * `fetch()` vers l'API d'administration en joignant le jeton Supabase de la
+ * session courante (`Authorization: Bearer …`). Les routes /admin/* du serveur
+ * exigent ce jeton (admin authentifié) : sans lui, la requête est refusée (401).
+ */
+export async function adminFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  const { supabase } = await import("./supabase");
+  const headers: Record<string, string> = { ...(init.headers as Record<string, string> | undefined) };
+  try {
+    const { data } = (await supabase?.auth.getSession()) ?? { data: { session: null } };
+    const token = data.session?.access_token;
+    if (token) headers.Authorization = `Bearer ${token}`;
+  } catch {
+    /* Pas de session : la requête partira sans jeton et sera refusée côté serveur. */
+  }
+  return fetch(url, { ...init, headers });
+}
+
 /** Sources disposant d'un scraper (miroir de apps/api/src/scrapers/registry.ts). */
 const SCRAPER_IDS = new Set([
   "atwill-morin",
