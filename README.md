@@ -221,8 +221,8 @@ Backlog d'idées d'ajout, classées par thème. Coche une case quand la fonction
 
 ### 🏢 Entreprises / employeurs
 
-- [ ] 21. Fiche employeur enrichie (logo, RBQ, nb d'offres actives, régions, lien carrières)
-- [ ] 22. Suivre une entreprise + alerte quand elle publie
+- [x] 21. Fiche employeur enrichie (logo, RBQ, nb d'offres actives, régions, métiers, lien carrières)
+- [x] 22. Suivre une entreprise + alerte quand elle publie
 - [ ] 23. Classement « qui recrute le plus » par région et par métier
 - [ ] 24. Badge « vérifié » exposé côté site (champ `verified` de l'admin)
 - [ ] 25. Statut RBQ live (validité de la licence + lien vers le registre)
