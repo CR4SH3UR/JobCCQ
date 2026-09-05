@@ -1,0 +1,1 @@
+self.__SSG_MANIFEST=new Set(["\u002Fembed\u002F[slug]","\u002Femplois\u002F[id]","\u002Femplois\u002Fmetier\u002F[metier]","\u002Femplois\u002Fregion\u002F[region]","\u002Fentreprises\u002F[slug]","\u002Fentreprises\u002Fmetier\u002F[metier]","\u002Fentreprises\u002Fregion\u002F[region]"]);self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB()
