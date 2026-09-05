@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, type DiscoveredMethod } from "@jobccq/shared";
+import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, hasCustomScraper, type DiscoveredMethod } from "@jobccq/shared";
 import { API_URL, getStats, searchJobs, buildQuery, adminFetch } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { encryptJson, decryptJson, saveVault, loadVault, clearVault, type AdminSecrets } from "@/lib/vault";
@@ -67,7 +67,7 @@ const LS_PAGESIZE = "admin:pagesize";
 const DISCOVERED_PATH = "packages/shared/src/discovered.json";
 
 /** Filtres du tableau (persistés dans le navigateur → survivent au rafraîchissement). */
-const FILTER_KEYS = ["all", "unverified", "verified", "nojobs", "disabled", "duplicates", "errors", "neverrun"] as const;
+const FILTER_KEYS = ["all", "unverified", "verified", "customscraper", "generic", "nojobs", "disabled", "duplicates", "errors", "neverrun"] as const;
 type FilterKey = (typeof FILTER_KEYS)[number];
 /** Tri du tableau. */
 const SORT_KEYS = ["name", "jobsDesc", "jobsAsc", "method", "region", "lastRun"] as const;
@@ -1287,10 +1287,12 @@ export function AdminExplorer() {
       if (filter === "duplicates" && !isDup(e)) return false;
       if (filter === "errors" && lastRuns[e.id]?.status !== "error") return false;
       if (filter === "neverrun" && lastRuns[e.id]) return false;
+      if (filter === "customscraper" && !hasCustomScraper(e.id)) return false;
+      if (filter === "generic" && hasCustomScraper(e.id)) return false;
       if (methodFilter !== "all" && e.method !== methodFilter) return false;
       if (regionFilter !== "all" && (e.region ?? "") !== regionFilter) return false;
       if (!q) return true;
-      return (e.name + " " + e.careersUrl + " " + e.homepage + " " + e.method + " " + (e.region ?? ""))
+      return (e.name + " " + e.careersUrl + " " + e.homepage + " " + e.method + " " + (e.region ?? "") + " " + (hasCustomScraper(e.id) ? "scraper personnalisé sur mesure" : "scraper générique"))
         .toLowerCase()
         .includes(q);
     });
@@ -1311,10 +1313,10 @@ export function AdminExplorer() {
 
   const exportCsv = () => {
     const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const lines = [["id", "nom", "methode", "region", "offres", "verifie", "actif", "url"].join(",")];
+    const lines = [["id", "nom", "methode", "scraper_personnalise", "region", "offres", "verifie", "actif", "url"].join(",")];
     for (const e of sorted)
       lines.push(
-        [e.id, e.name, e.method, e.region ?? "", counts[e.id] ?? 0, e.verified ? "oui" : "non", e.enabled === false ? "non" : "oui", e.careersUrl]
+        [e.id, e.name, e.method, hasCustomScraper(e.id) ? "oui" : "non", e.region ?? "", counts[e.id] ?? 0, e.verified ? "oui" : "non", e.enabled === false ? "non" : "oui", e.careersUrl]
           .map(esc)
           .join(","),
       );
@@ -1333,6 +1335,7 @@ export function AdminExplorer() {
   const dupCount = employers.filter((e) => isDup(e)).length;
   const errorCount = employers.filter((e) => lastRuns[e.id]?.status === "error").length;
   const neverRunCount = employers.filter((e) => !lastRuns[e.id]).length;
+  const customScraperCount = employers.filter((e) => hasCustomScraper(e.id)).length;
   const totalOffers = employers.reduce((s, e) => s + (counts[e.id] ?? 0), 0);
   const scrapeEnabled = mode === "api" || !!ghToken;
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
@@ -1585,13 +1588,14 @@ export function AdminExplorer() {
           )}
 
           {/* Tableau de bord : indicateurs clés cliquables (filtre associé). */}
-          <div className="mb-4 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+          <div className="mb-4 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-8">
             {[
               { label: "Employeurs", value: employers.length, f: "all" as FilterKey },
               { label: "Offres", value: totalOffers, f: null },
               { label: "Vérifiés", value: verifiedCount, f: "verified" as FilterKey },
               { label: "Désactivés", value: disabledCount, f: "disabled" as FilterKey },
               { label: "Sans offres", value: noJobsCount, f: "nojobs" as FilterKey },
+              { label: "Scrapers perso", value: customScraperCount, f: "customscraper" as FilterKey },
               { label: "Doublons", value: dupCount, f: "duplicates" as FilterKey },
               { label: "En erreur", value: errorCount, f: "errors" as FilterKey },
             ].map((k) => (
@@ -1668,6 +1672,8 @@ export function AdminExplorer() {
                 <option value="all">Tous ({employers.length})</option>
                 <option value="unverified">À vérifier ({employers.length - verifiedCount})</option>
                 <option value="verified">Vérifiés ({verifiedCount})</option>
+                <option value="customscraper">Scraper personnalisé ({customScraperCount})</option>
+                <option value="generic">Scraper générique ({employers.length - customScraperCount})</option>
                 <option value="nojobs">Sans offres ({noJobsCount})</option>
                 <option value="disabled">Désactivées ({disabledCount})</option>
                 <option value="duplicates">Doublons ({dupCount})</option>
@@ -2035,6 +2041,9 @@ function Row({
           {METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
         {e.region && <Badge>{e.region}</Badge>}
+        <Badge tone={hasCustomScraper(e.id) ? "green" : "slate"}>
+          {hasCustomScraper(e.id) ? "Scraper perso" : "Générique"}
+        </Badge>
         {e.rbq && <span className="font-mono text-xs text-slate-400" title="Numéro de licence RBQ">RBQ {e.rbq}</span>}
         {count > 0 ? (
           <Link

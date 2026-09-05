@@ -1,4 +1,4 @@
-import { DISCOVERED_EMPLOYERS } from "@jobccq/shared";
+import { CUSTOM_SCRAPER_IDS, DISCOVERED_EMPLOYERS, type CustomScraperId } from "@jobccq/shared";
 import type { Scraper } from "./types.js";
 import { atwillMorinScraper } from "./atwill-morin.js";
 import { hamelConstructionScraper } from "./hamel-construction.js";
@@ -43,41 +43,41 @@ import { buildDiscoveredScraper } from "./discovered.js";
  * WordPress d'EBC, portail Avature de Pomerleau, JSON Zoho de Béluga…). Pour tous
  * les autres employeurs, on construit le scraper à partir de la méthode détectée.
  */
-const BESPOKE: Record<string, Scraper> = {
-  [atwillMorinScraper.id]: atwillMorinScraper,
-  [hamelConstructionScraper.id]: hamelConstructionScraper,
-  [pomerleauScraper.id]: pomerleauScraper,
-  [lafontaineScraper.id]: lafontaineScraper,
-  [ebcScraper.id]: ebcScraper,
-  [leqelScraper.id]: leqelScraper,
-  [belugaScraper.id]: belugaScraper,
-  [jmDemersScraper.id]: jmDemersScraper,
-  [coteEtFilsScraper.id]: coteEtFilsScraper,
-  [lefrancoisScraper.id]: lefrancoisScraper,
-  [jcDroletScraper.id]: jcDroletScraper,
-  [refrabecScraper.id]: refrabecScraper,
-  [amenagementGrenonScraper.id]: amenagementGrenonScraper,
-  [guayScraper.id]: guayScraper,
-  [cafortierScraper.id]: cafortierScraper,
-  [canamScraper.id]: canamScraper,
-  [groupeCanamDuplicateScraper.id]: groupeCanamDuplicateScraper,
-  [revencoScraper.id]: revencoScraper,
-  [lescharpentistesScraper.id]: lescharpentistesScraper,
-  [stefetmaxScraper.id]: stefetmaxScraper,
-  [droletConstructionScraper.id]: droletConstructionScraper,
-  [electriciteMc2Scraper.id]: electriciteMc2Scraper,
-  [glrScraper.id]: glrScraper,
-  [excavationsRsrScraper.id]: excavationsRsrScraper,
-  [galileeScraper.id]: galileeScraper,
-  [intermatScraper.id]: intermatScraper,
-  [riouxScraper.id]: riouxScraper,
-  [atkinsRealisScraper.id]: atkinsRealisScraper,
-  [arteliaScraper.id]: arteliaScraper,
-  [ascenseursAbsoluScraper.id]: ascenseursAbsoluScraper,
-  [atelierEnHauteurScraper.id]: atelierEnHauteurScraper,
-  [atlasApexScraper.id]: atlasApexScraper,
-  [audetEntrepreneurPeintreScraper.id]: audetEntrepreneurPeintreScraper,
-};
+const BESPOKE = {
+  "atwill-morin": atwillMorinScraper,
+  "hamelconstruction-com": hamelConstructionScraper,
+  pomerleau: pomerleauScraper,
+  lafontaine: lafontaineScraper,
+  ebc: ebcScraper,
+  leqel: leqelScraper,
+  beluga: belugaScraper,
+  jmdemers: jmDemersScraper,
+  "cote-et-fils": coteEtFilsScraper,
+  lefrancois: lefrancoisScraper,
+  jcdrolet: jcDroletScraper,
+  refrabec: refrabecScraper,
+  "amenagementgrenon-com": amenagementGrenonScraper,
+  guay: guayScraper,
+  cafortier: cafortierScraper,
+  canam: canamScraper,
+  "groupe-canam-duplicate": groupeCanamDuplicateScraper,
+  revenco: revencoScraper,
+  "lescharpentistes-com": lescharpentistesScraper,
+  "stefetmax-com": stefetmaxScraper,
+  "droletconstruction-com": droletConstructionScraper,
+  "electricitemc2-com": electriciteMc2Scraper,
+  glr: glrScraper,
+  "excavationsrsr-com": excavationsRsrScraper,
+  galilee: galileeScraper,
+  intermat: intermatScraper,
+  rioux: riouxScraper,
+  "atkinsrealis-com": atkinsRealisScraper,
+  artelia: arteliaScraper,
+  "ascenseurs-absolu": ascenseursAbsoluScraper,
+  atelierenhauteur: atelierEnHauteurScraper,
+  "atlas-apex": atlasApexScraper,
+  "audetentrepreneurpeintre-com": audetEntrepreneurPeintreScraper,
+} satisfies Record<CustomScraperId, Scraper>;
 
 /**
  * Registre des scrapers branchés. La clé est l'`id` de l'employeur dans
@@ -88,7 +88,7 @@ const BESPOKE: Record<string, Scraper> = {
 export const SCRAPERS: Record<string, Scraper> = Object.fromEntries(
   DISCOVERED_EMPLOYERS.filter((d) => d.enabled !== false).map((d) => [
     d.id,
-    BESPOKE[d.id] ?? buildDiscoveredScraper(d),
+    bespokeScraper(d.id) ?? buildDiscoveredScraper(d),
   ]),
 );
 
@@ -102,7 +102,7 @@ export function getScraper(id: string): Scraper | undefined {
  * scraper à partir de la config éditée (afin de prendre en compte une URL modifiée).
  */
 export function bespokeScraper(id: string): Scraper | undefined {
-  return BESPOKE[id];
+  return CUSTOM_SCRAPER_IDS.includes(id as CustomScraperId) ? BESPOKE[id as CustomScraperId] : undefined;
 }
 
 export function listScraperIds(): string[] {
