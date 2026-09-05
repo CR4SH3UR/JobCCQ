@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { BetaBanner } from "@/components/BetaBanner";
-import { ScrollToTop } from "@/components/ScrollToTop";
-import { CompareBar } from "@/components/CompareBar";
+import { AppShell } from "@/components/AppShell";
 import { siteUrl } from "@/lib/site";
 
 // Analytics léger et respectueux de la vie privée (Plausible), activé seulement
@@ -40,12 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {PLAUSIBLE_DOMAIN && <script defer data-domain={PLAUSIBLE_DOMAIN} src={PLAUSIBLE_SRC} />}
       </head>
       <body className="min-h-screen flex flex-col">
-        <ScrollToTop />
-        <BetaBanner />
-        <Header />
-        <main className="flex-1">{children}</main>
-        <CompareBar />
-        <Footer />
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

@@ -6,6 +6,7 @@ import { ccqTradeLabel, employerRegionId, getEmployer, labelForRegion, rbqLicenc
 import { Badge } from "./Badge";
 import { JobCard } from "./JobCard";
 import { FollowEmployerButton } from "./FollowEmployerButton";
+import { EmbedSnippet } from "./EmbedSnippet";
 import { initials, timeAgo } from "@/lib/format";
 import { getJobsBySource, invalidateJobsCache, searchCompanies, buildQuery } from "@/lib/data";
 import { useLivePoll } from "@/lib/live";
@@ -234,6 +235,8 @@ export function EmployerView({ slug }: { slug: string }) {
         ) : (
           <p className="text-slate-500">Aucune offre ouverte pour le moment.</p>
         )}
+
+        <EmbedSnippet slug={slug} name={name} />
 
         {similar.length > 0 && (
           <section className="mt-10">

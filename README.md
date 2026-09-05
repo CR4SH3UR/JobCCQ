@@ -298,4 +298,4 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 
 - [x] 49. JSON-LD `JobPosting` sur chaque fiche (Google for Jobs) + sitemap dynamique
 - [ ] 50. Audit accessibilité complet + i18n EN de l'interface (bascule FR/EN)
-- [ ] 75. Widget « nos offres » à coller sur le site d'un employeur du répertoire
+- [x] 75. Widget « nos offres » à coller sur le site d'un employeur du répertoire
