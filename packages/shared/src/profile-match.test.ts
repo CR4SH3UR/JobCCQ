@@ -84,6 +84,16 @@ describe("matchJobToProfile", () => {
     );
     assert.equal(m?.score, 50);
   });
+
+  it("une offre hors métiers CCQ n'affiche pas 0 % si seul le métier est au profil", () => {
+    const onlyTrade: JobSeekerProfile = { trades: ["electricien"], regions: [], remote: [] };
+    assert.equal(matchJobToProfile(job("Préventionniste SSE"), onlyTrade), null);
+  });
+
+  it("détecte un contremaître", () => {
+    const p: JobSeekerProfile = { trades: ["contremaitre"], regions: [], remote: [] };
+    assert.equal(matchJobToProfile(job("CONTREMAITRE"), p)?.score, 100);
+  });
 });
 
 describe("rankJobsByProfile + filtre trades", () => {

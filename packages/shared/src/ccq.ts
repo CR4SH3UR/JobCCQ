@@ -21,6 +21,7 @@ export const CCQ_TRADES: readonly CcqTrade[] = [
   { id: "chaudronnier", label: "Chaudronnier", re: /chaudronnier/i },
   { id: "cimentier-applicateur", label: "Cimentier-applicateur", re: /cimentier/i },
   { id: "couvreur", label: "Couvreur", re: /couvreur/i },
+  { id: "contremaitre", label: "Contremaître", re: /contrema[îi]tre/i },
   { id: "electricien", label: "Électricien", re: /[ée]lectricien/i },
   { id: "ferblantier", label: "Ferblantier", re: /ferblantier/i },
   { id: "ferrailleur", label: "Ferrailleur", re: /ferrailleur|poseur d['’]?armature|armature de b[ée]ton/i },

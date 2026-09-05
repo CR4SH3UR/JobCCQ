@@ -8,7 +8,7 @@ import { useProfile } from "@/lib/profile";
 export function MatchBadge({ job }: { job: Job }) {
   const profile = useProfile();
   const m = matchJobToProfile(job, profile);
-  if (!m) return null;
+  if (!m || m.score <= 0) return null;
   const tone = m.score >= 70 ? "green" : m.score >= 40 ? "amber" : "slate";
   const title = m.reasons.length ? m.reasons.join(" · ") : "Peu d'axes du profil collent";
   return (

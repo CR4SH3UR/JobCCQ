@@ -83,11 +83,16 @@ export function matchJobToProfile(
   const reasons: string[] = [];
 
   if (profile.trades.length) {
-    max += WEIGHT.trade;
     const trade = ccqTradeOf(job.title);
-    if (trade && profile.trades.includes(trade.id)) {
-      points += WEIGHT.trade;
-      reasons.push(trade.label);
+    // Pas un métier de la liste : on n'en fait pas un 0 % (contremaître hors
+    // profil, préventionniste, estimateur…). L'axe métier ne compte que si
+    // l'offre est reconnue CCQ.
+    if (trade) {
+      max += WEIGHT.trade;
+      if (profile.trades.includes(trade.id)) {
+        points += WEIGHT.trade;
+        reasons.push(trade.label);
+      }
     }
   }
 

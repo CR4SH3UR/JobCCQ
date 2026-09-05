@@ -106,7 +106,7 @@ export function JobCard({ job }: { job: Job }) {
           </div>
 
           {job.description && (
-            <p className="mt-2 line-clamp-2 text-sm text-slate-500">{job.description}</p>
+            <p className="mt-2 line-clamp-4 text-sm text-slate-500">{job.description}</p>
           )}
 
           <div className="mt-3 flex items-center justify-between">

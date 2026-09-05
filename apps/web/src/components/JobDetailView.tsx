@@ -386,7 +386,7 @@ function CompletenessNote({ job }: { job: Job }) {
 
 function MatchNote({ job }: { job: Job }) {
   const m = matchJobToProfile(job, useProfile());
-  if (!m) return null;
+  if (!m || m.score <= 0) return null;
   return (
     <p className="mt-1 text-xs text-slate-500">
       {m.score}&nbsp;% d'adéquation
