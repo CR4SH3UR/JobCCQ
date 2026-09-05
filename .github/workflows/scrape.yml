@@ -47,6 +47,7 @@ permissions:
 concurrency:
   group: scrape-${{ contains(github.event.inputs.sourceId, ',') && 'batch' || (github.event.inputs.sourceId || 'all') }}
   cancel-in-progress: false
+  queue: max
 
 env:
   DATABASE_URL: file:./prisma/dev.db
