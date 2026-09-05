@@ -137,4 +137,16 @@ describe("filtres — salaire renseigné et date", () => {
     });
     assert.deepEqual(r.items.map((j) => j.title), ["Grutier"]);
   });
+
+  it("shifts ne garde que les offres au quart demandé", () => {
+    const night = job("Manœuvre", { description: "Quart de nuit, 23 h à 7 h" });
+    const day = job("Aide", { description: "Quart de jour uniquement" });
+    const r = applyQuery([night, day], {
+      shifts: ["nuit"],
+      sort: "recent",
+      page: 1,
+      pageSize: 50,
+    });
+    assert.deepEqual(r.items.map((j) => j.title), ["Manœuvre"]);
+  });
 });

@@ -106,6 +106,8 @@ export const JobQuerySchema = z.object({
   salaryListed: z.coerce.boolean().optional(),
   /** Ne garder que les métiers reconnus CCQ (détection par intitulé). */
   ccqOnly: z.coerce.boolean().optional(),
+  /** Quart de travail détecté dans la description (jour / soir / nuit). */
+  shifts: z.array(z.enum(["jour", "soir", "nuit"])).optional(),
   sort: z.enum(SORT_OPTIONS).default("recent"),
   page: z.coerce.number().int().positive().default(1),
   pageSize: z.coerce.number().int().positive().max(100).default(20),

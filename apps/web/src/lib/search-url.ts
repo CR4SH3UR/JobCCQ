@@ -23,6 +23,7 @@ export interface SearchFilters {
   salaryListed: boolean;
   postedWithinDays: string;
   ccqOnly: boolean;
+  shifts: string[];
   sort: SortOption;
   page: number;
 }
@@ -40,6 +41,7 @@ export const EMPTY_FILTERS: SearchFilters = {
   salaryListed: false,
   postedWithinDays: "",
   ccqOnly: false,
+  shifts: [],
   sort: "recent",
   page: 1,
 };
@@ -62,6 +64,7 @@ export function hasActiveFilters(f: SearchFilters): boolean {
     f.salaryListed ||
     !!f.postedWithinDays ||
     f.ccqOnly ||
+    f.shifts.length > 0 ||
     MULTI_KEYS.some((k) => f[k].length > 0)
   );
 }
@@ -76,6 +79,7 @@ export function filtersToParams(f: SearchFilters): URLSearchParams {
   if (f.salaryListed) p.set("salaryListed", "1");
   if (f.postedWithinDays) p.set("postedWithinDays", f.postedWithinDays);
   if (f.ccqOnly) p.set("ccqOnly", "1");
+  if (f.shifts.length) p.set("shifts", f.shifts.join(","));
   if (f.sort && f.sort !== "recent") p.set("sort", f.sort);
   if (f.page > 1) p.set("page", String(f.page));
   return p;
@@ -110,6 +114,7 @@ export function parseFilters(params: URLSearchParams): SearchFilters {
     salaryListed: params.get("salaryListed") === "1",
     postedWithinDays: params.get("postedWithinDays") ?? "",
     ccqOnly: params.get("ccqOnly") === "1",
+    shifts: splitList(params.get("shifts")).filter((s) => s === "jour" || s === "soir" || s === "nuit"),
     sort,
     page: Number.isFinite(pageRaw) && pageRaw > 1 ? Math.floor(pageRaw) : 1,
   };

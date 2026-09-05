@@ -212,7 +212,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [ ] 10. Comparateur d'offres (2-3 offres côte à côte : salaire, région, type)
 - [x] 51. Filtre « salaire renseigné uniquement » (s'appuie sur le filtre salaire déjà là)
 - [x] 52. « Offres similaires » sur la fiche (même métier / région / employeur)
-- [ ] 53. Filtre quart de travail (jour / soir / nuit) quand la description le dit
+- [x] 53. Filtre quart de travail (jour / soir / nuit) quand la description le dit
 
 ### 🧾 Qualité & enrichissement des offres
 

@@ -23,6 +23,7 @@ import { sourceName } from "./sources.js";
 import { isCcqTrade, ccqTradeOf } from "./ccq.js";
 import { normalizeText, fuzzyIncludes } from "./text.js";
 import { expandTerm } from "./synonyms.js";
+import { detectShift } from "./extract.js";
 import { annualizedSalary } from "./salary.js";
 
 const norm = normalizeText;
@@ -96,6 +97,10 @@ export function matchesQuery(job: Job, query: JobQuery): boolean {
     if (Number.isNaN(since) || Number.isNaN(t) || t < since) return false;
   }
   if (query.ccqOnly && !isCcqTrade(job.title)) return false;
+  if (query.shifts?.length) {
+    const shift = detectShift(job.title, job.description);
+    if (!shift || !query.shifts.includes(shift)) return false;
+  }
   return true;
 }
 

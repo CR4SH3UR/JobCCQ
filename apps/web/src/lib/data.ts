@@ -234,6 +234,7 @@ function toParams(q: JobQuery): URLSearchParams {
   if (q.postedWithinDays != null) p.set("postedWithinDays", String(q.postedWithinDays));
   if (q.postedSince) p.set("postedSince", q.postedSince);
   if (q.ccqOnly) p.set("ccqOnly", "1");
+  if (q.shifts?.length) p.set("shifts", q.shifts.join(","));
   p.set("sort", q.sort);
   p.set("page", String(q.page));
   p.set("pageSize", String(q.pageSize));

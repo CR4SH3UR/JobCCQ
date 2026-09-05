@@ -46,6 +46,7 @@ function parseJobQuery(raw: Record<string, unknown>): JobQuery {
     postedWithinDays: raw.postedWithinDays,
     postedSince: raw.postedSince,
     ccqOnly: raw.ccqOnly === "1" || raw.ccqOnly === true,
+    shifts: asArray(raw.shifts)?.filter((s) => s === "jour" || s === "soir" || s === "nuit"),
     sort: raw.sort,
     page: raw.page,
     pageSize: raw.pageSize,

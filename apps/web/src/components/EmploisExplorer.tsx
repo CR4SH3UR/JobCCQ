@@ -10,6 +10,7 @@ import {
   sourceName,
   CCQ_TRADES,
   SORT_OPTIONS,
+  WORK_SHIFT_FILTERS,
   type JobQuery,
   type JobSearchResult,
   type SortOption,
@@ -108,6 +109,7 @@ export function EmploisExplorer() {
   const [postedWithinDays, setPostedWithinDays] = useState("");
   const [lastVisit, setLastVisit] = useState<string | null>(null);
   const [ccqOnly, setCcqOnly] = useState(false);
+  const [shifts, setShifts] = useState<string[]>([]);
   const [sort, setSort] = useState<SortOption>("recent");
   const [page, setPage] = useState(1);
 
@@ -136,6 +138,7 @@ export function EmploisExplorer() {
     setSalaryListed(f.salaryListed);
     setPostedWithinDays(f.postedWithinDays);
     setCcqOnly(f.ccqOnly);
+    setShifts(f.shifts);
     setSort(f.sort);
     setPage(f.page);
   }, []);
@@ -206,11 +209,12 @@ export function EmploisExplorer() {
           postedWithinDays && postedWithinDays !== "visit" ? Number(postedWithinDays) : undefined,
         postedSince: postedWithinDays === "visit" && lastVisit ? lastVisit : undefined,
         ccqOnly: ccqOnly || undefined,
+        shifts: shifts.length ? (shifts as JobQuery["shifts"]) : undefined,
         sort,
         page,
         pageSize: PAGE_SIZE,
       }),
-    [dq, dcity, sel, salaryMin, salaryListed, postedWithinDays, lastVisit, ccqOnly, sort, page],
+    [dq, dcity, sel, salaryMin, salaryListed, postedWithinDays, lastVisit, ccqOnly, shifts, sort, page],
   );
 
   // État des filtres courant (immédiat) — pour enregistrer une recherche et
@@ -229,10 +233,11 @@ export function EmploisExplorer() {
       salaryListed,
       postedWithinDays,
       ccqOnly,
+      shifts,
       sort,
       page,
     }),
-    [q, city, sel, salaryMin, salaryListed, postedWithinDays, ccqOnly, sort, page],
+    [q, city, sel, salaryMin, salaryListed, postedWithinDays, ccqOnly, shifts, sort, page],
   );
 
   // URL partageable : on reflète les filtres (débounce sur mot-clé/ville) dans la
@@ -300,6 +305,7 @@ export function EmploisExplorer() {
     setSalaryListed(false);
     setPostedWithinDays("");
     setCcqOnly(false);
+    setShifts([]);
     setSort("recent");
     setPage(1);
   };
@@ -311,7 +317,8 @@ export function EmploisExplorer() {
     (salaryMin ? 1 : 0) +
     (salaryListed ? 1 : 0) +
     (postedWithinDays ? 1 : 0) +
-    (ccqOnly ? 1 : 0);
+    (ccqOnly ? 1 : 0) +
+    shifts.length;
 
   // Libellé lisible de la recherche courante (pour nommer une alerte).
   const alertLabel = (): string => {
@@ -487,6 +494,14 @@ export function EmploisExplorer() {
               </Chip>
             )}
             {ccqOnly && <Chip onClear={() => setCcqOnly(false)}>Métiers CCQ</Chip>}
+            {shifts.map((id) => (
+              <Chip
+                key={id}
+                onClear={() => setShifts((s) => s.filter((x) => x !== id))}
+              >
+                Quart {WORK_SHIFT_FILTERS.find((x) => x.id === id)?.label ?? id}
+              </Chip>
+            ))}
             <button
               type="button"
               onClick={resetAll}
@@ -563,6 +578,29 @@ export function EmploisExplorer() {
                 </span>
               </span>
             </label>
+
+            <div className="border-b border-slate-100 py-3">
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Quart de travail
+              </h4>
+              <p className="mb-2 text-xs text-slate-400">Quand la description le dit</p>
+              {WORK_SHIFT_FILTERS.map((s) => (
+                <label key={s.id} className="flex cursor-pointer items-center gap-2 py-0.5">
+                  <input
+                    type="checkbox"
+                    checked={shifts.includes(s.id)}
+                    onChange={() => {
+                      setShifts((cur) =>
+                        cur.includes(s.id) ? cur.filter((x) => x !== s.id) : [...cur, s.id],
+                      );
+                      setPage(1);
+                    }}
+                    className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-300"
+                  />
+                  <span className="text-sm text-slate-700">{s.label}</span>
+                </label>
+              ))}
+            </div>
 
             {/* Salaire */}
             <div className="border-b border-slate-100 py-3">
