@@ -146,3 +146,65 @@ body {
 [data-theme="dark"] ::placeholder {
   color: var(--color-slate-400);
 }
+
+/* Console admin : beaucoup d'anciens composants portent des classes slate sans
+ * variante dark. Ce scope évite texte gris foncé sur cartes sombres. */
+[data-theme="dark"] .admin-console .card {
+  background: var(--surface);
+  border-color: var(--color-slate-200);
+}
+[data-theme="dark"] .admin-console .text-slate-400 {
+  color: #94a3b8;
+}
+[data-theme="dark"] .admin-console .text-slate-500,
+[data-theme="dark"] .admin-console .text-slate-600 {
+  color: #cbd5e1;
+}
+[data-theme="dark"] .admin-console .text-slate-700,
+[data-theme="dark"] .admin-console .text-slate-800,
+[data-theme="dark"] .admin-console .text-slate-900,
+[data-theme="dark"] .admin-console .text-slate-950 {
+  color: #f8fafc;
+}
+[data-theme="dark"] .admin-console .border-slate-100,
+[data-theme="dark"] .admin-console .border-slate-200,
+[data-theme="dark"] .admin-console .border-slate-300 {
+  border-color: #334155;
+}
+[data-theme="dark"] .admin-console input,
+[data-theme="dark"] .admin-console textarea,
+[data-theme="dark"] .admin-console select {
+  background-color: #0f172a;
+  border-color: #475569;
+  color: #f8fafc;
+}
+[data-theme="dark"] .admin-console code {
+  color: #e0f2fe;
+}
+[data-theme="dark"] .admin-console .bg-brand-50 {
+  background-color: color-mix(in oklab, var(--color-brand-500) 18%, transparent);
+}
+[data-theme="dark"] .admin-console .text-brand-700,
+[data-theme="dark"] .admin-console .text-brand-800,
+[data-theme="dark"] .admin-console .text-brand-950 {
+  color: #bfdbfe;
+}
+[data-theme="dark"] .admin-console .bg-amber-50 {
+  background-color: rgb(120 53 15 / 0.25);
+}
+[data-theme="dark"] .admin-console .text-amber-600,
+[data-theme="dark"] .admin-console .text-amber-700,
+[data-theme="dark"] .admin-console .text-amber-800 {
+  color: #fde68a;
+}
+[data-theme="dark"] .admin-console .bg-green-50 {
+  background-color: rgb(20 83 45 / 0.24);
+}
+[data-theme="dark"] .admin-console .text-green-700,
+[data-theme="dark"] .admin-console .text-green-800 {
+  color: #bbf7d0;
+}
+[data-theme="dark"] .admin-console .text-red-600,
+[data-theme="dark"] .admin-console .text-red-700 {
+  color: #fecdd3;
+}
