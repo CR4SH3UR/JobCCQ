@@ -135,3 +135,9 @@ Seuls les hôtes listés passent **d'emblée** par le proxy ; les autres sites
 continuent en direct (rapide, pas de quota consommé) et ne basculent sur le
 proxy qu'en **repli**, si la requête directe échoue. Côté Worker, l'hôte doit
 être permis par `ALLOW_HOSTS` (`*` = tous).
+
+> **Njoyn (Groupe Bellemare)** est protégé par un captcha Radware qui renvoie une
+> page « 200 » de défi (donc **pas** d'échec réseau → le repli automatique ne se
+> déclenche pas). Il faut donc router `njoyn.com` **d'emblée** par le proxy :
+> ajoute-le à `SCRAPE_PROXY_HOSTS` (`jobillico.com,njoyn.com,…`) ou mets `*`. Sans
+> ça, le scraper détecte le captcha, n'émet rien et ne purge pas les offres.

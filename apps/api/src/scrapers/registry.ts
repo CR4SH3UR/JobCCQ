@@ -40,6 +40,7 @@ import { qmbScraper } from "./qmb.js";
 import { gestionAgodinScraper } from "./gestionagodin.js";
 import { baulneScraper } from "./baulne.js";
 import { berardTremblayScraper } from "./berardtremblay.js";
+import { bellemareScraper } from "./bellemare.js";
 import { buildDiscoveredScraper } from "./discovered.js";
 
 /**
@@ -93,6 +94,7 @@ const BESPOKE = {
   "gestionagodin-com": gestionAgodinScraper,
   "baulne-ca": baulneScraper,
   "berardtremblay-com": berardTremblayScraper,
+  "bellemare-njoyn": bellemareScraper,
 } satisfies Record<CustomScraperId, Scraper>;
 
 /**
