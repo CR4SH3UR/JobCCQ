@@ -197,8 +197,8 @@ Backlog d'idées d'ajout, classées par thème. Coche une case quand la fonction
 
 - [ ] 1. Recherche géographique par rayon (« à moins de X km de mon code postal ») en plus des 17 régions
 - [ ] 2. Carte interactive des offres (Leaflet/MapLibre) par région/ville
-- [ ] 3. Autocomplétion dans la barre de recherche (métiers, entreprises, villes) alimentée par `/api/meta`
-- [ ] 4. Correction de fautes de frappe + synonymes de métiers (« charpentier » ↔ « menuisier »)
+- [x] 3. Autocomplétion dans la barre de recherche (métiers, entreprises, villes)
+- [x] 4. Correction de fautes de frappe + synonymes de métiers (« charpentier » ↔ « menuisier »)
 - [ ] 5. Filtre « nouveautés » (offres ajoutées depuis ma dernière visite)
 - [ ] 6. Tri par distance (en plus de pertinence / date / salaire)
 - [ ] 7. Recherches enregistrées (combinaison de filtres nommée — base des alertes)
