@@ -39,6 +39,7 @@ export const CUSTOM_SCRAPER_IDS = [
   "atelierenhauteur",
   "atlas-apex",
   "audetentrepreneurpeintre-com",
+  "automationdrummond-com",
 ] as const;
 
 export type CustomScraperId = (typeof CUSTOM_SCRAPER_IDS)[number];

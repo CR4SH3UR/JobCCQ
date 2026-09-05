@@ -32,6 +32,7 @@ import { ascenseursAbsoluScraper } from "./ascenseurs-absolu.js";
 import { atelierEnHauteurScraper } from "./atelier-en-hauteur.js";
 import { atlasApexScraper } from "./atlas-apex.js";
 import { audetEntrepreneurPeintreScraper } from "./audet-entrepreneur-peintre.js";
+import { automationDrummondScraper } from "./automation-drummond.js";
 import { buildDiscoveredScraper } from "./discovered.js";
 
 /**
@@ -77,6 +78,7 @@ const BESPOKE = {
   atelierenhauteur: atelierEnHauteurScraper,
   "atlas-apex": atlasApexScraper,
   "audetentrepreneurpeintre-com": audetEntrepreneurPeintreScraper,
+  "automationdrummond-com": automationDrummondScraper,
 } satisfies Record<CustomScraperId, Scraper>;
 
 /**
