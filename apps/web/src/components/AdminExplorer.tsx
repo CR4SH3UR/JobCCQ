@@ -1336,7 +1336,8 @@ export function AdminExplorer() {
       return;
     }
     try {
-      await navigator.clipboard.writeText(urls.join("\n"));
+      // Séparées par une espace (et non un saut de ligne) pour un collage en lot.
+      await navigator.clipboard.writeText(urls.join(" "));
       setBulkMsg(`${urls.length} URL(s) copiée(s) dans le presse-papiers.`);
     } catch {
       setBulkMsg("Échec de la copie (presse-papiers non accessible).");
