@@ -19,9 +19,9 @@ const NAV: { href: string; label: string; hint: string; tone: Tone }[] = [
 ];
 
 const BUBBLE: Record<Tone, string> = {
-  green: "bg-green-100 text-green-600",
-  red: "bg-red-100 text-red-500",
-  amber: "bg-amber-100 text-amber-600",
+  green: "bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-300",
+  red: "bg-red-100 text-red-500 dark:bg-red-500/20 dark:text-red-300",
+  amber: "bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-300",
 };
 const BADGE: Record<Tone, string> = {
   green: "bg-green-600 text-white",
@@ -71,7 +71,9 @@ export function AccountSidebar() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors",
-                  active ? "bg-brand-50 ring-1 ring-brand-100" : "hover:bg-slate-100",
+                  active
+                    ? "bg-brand-50 ring-1 ring-brand-100 dark:bg-brand-500/20 dark:ring-brand-500/40"
+                    : "hover:bg-slate-100",
                 )}
               >
                 <span
@@ -86,7 +88,7 @@ export function AccountSidebar() {
                   <span
                     className={cn(
                       "block text-sm font-semibold",
-                      active ? "text-brand-800" : "text-slate-800",
+                      active ? "text-brand-800 dark:text-brand-200" : "text-slate-800",
                     )}
                   >
                     {item.label}

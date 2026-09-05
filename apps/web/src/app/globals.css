@@ -127,6 +127,92 @@ body {
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
 
+/*
+ * Pastels de marque (bg-brand-50, bg-green-50, badges…) : en clair ce sont des
+ * fonds presque blancs + texte foncé. Sans remap, le thème sombre les laisse
+ * criards et le texte (souvent slate remappé en clair) devient illisible.
+ */
+[data-theme="dark"] .bg-brand-50 {
+  background-color: rgb(59 130 246 / 0.18);
+}
+[data-theme="dark"] .bg-brand-100,
+[data-theme="dark"] .hover\:bg-brand-100:hover {
+  background-color: rgb(59 130 246 / 0.3);
+}
+[data-theme="dark"] .text-brand-600,
+[data-theme="dark"] .text-brand-700,
+[data-theme="dark"] .text-brand-800 {
+  color: #93b4ff;
+}
+[data-theme="dark"] .border-brand-100,
+[data-theme="dark"] .border-brand-200,
+[data-theme="dark"] .border-brand-300,
+[data-theme="dark"] .border-brand-500 {
+  border-color: #3b82f6;
+}
+[data-theme="dark"] .ring-brand-100 {
+  --tw-ring-color: rgb(59 130 246 / 0.45);
+}
+
+[data-theme="dark"] .bg-green-50,
+[data-theme="dark"] .bg-emerald-50 {
+  background-color: rgb(16 185 129 / 0.16);
+}
+[data-theme="dark"] .bg-green-100,
+[data-theme="dark"] .hover\:bg-green-50:hover {
+  background-color: rgb(16 185 129 / 0.28);
+}
+[data-theme="dark"] .text-green-600,
+[data-theme="dark"] .text-green-700,
+[data-theme="dark"] .text-green-800,
+[data-theme="dark"] .text-emerald-700 {
+  color: #6ee7b7;
+}
+[data-theme="dark"] .border-green-200,
+[data-theme="dark"] .border-green-300 {
+  border-color: #34d399;
+}
+
+[data-theme="dark"] .bg-amber-50 {
+  background-color: rgb(245 158 11 / 0.16);
+}
+[data-theme="dark"] .bg-amber-100 {
+  background-color: rgb(245 158 11 / 0.28);
+}
+[data-theme="dark"] .text-amber-600,
+[data-theme="dark"] .text-amber-700,
+[data-theme="dark"] .text-amber-800,
+[data-theme="dark"] .text-amber-900 {
+  color: #fcd34d;
+}
+[data-theme="dark"] .border-amber-200,
+[data-theme="dark"] .border-amber-300 {
+  border-color: #f59e0b;
+}
+
+[data-theme="dark"] .bg-violet-50 {
+  background-color: rgb(139 92 246 / 0.2);
+}
+[data-theme="dark"] .text-violet-700 {
+  color: #c4b5fd;
+}
+
+[data-theme="dark"] .bg-red-50,
+[data-theme="dark"] .hover\:bg-red-50:hover {
+  background-color: rgb(244 63 94 / 0.16);
+}
+[data-theme="dark"] .bg-red-100 {
+  background-color: rgb(244 63 94 / 0.28);
+}
+[data-theme="dark"] .text-red-500,
+[data-theme="dark"] .text-red-600,
+[data-theme="dark"] .text-red-700 {
+  color: #fb7185;
+}
+[data-theme="dark"] .border-red-300 {
+  border-color: #f43f5e;
+}
+
 /* Ombres un peu plus profondes sur fond sombre */
 [data-theme="dark"] .shadow-sm {
   --tw-shadow-color: rgb(0 0 0 / 0.4);

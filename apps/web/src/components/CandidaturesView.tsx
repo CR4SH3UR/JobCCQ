@@ -97,7 +97,7 @@ export function CandidaturesView() {
       {allJobs && applied.size > 0 && (
         <>
           {due.length > 0 && (
-            <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+            <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-100">
               {due.length} rappel{due.length > 1 ? "s" : ""} à faire :{" "}
               {due.map((j) => j.title).join(" · ")}
             </div>

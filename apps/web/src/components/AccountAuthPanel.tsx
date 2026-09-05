@@ -17,7 +17,7 @@ export function AccountAuthPanel() {
   if (user) return <ConnectedBar email={user.email ?? ""} />;
 
   return (
-    <div className="card mb-5 border-brand-200 bg-brand-50 p-4">
+    <div className="card mb-5 border-brand-200 bg-brand-50 p-4 dark:border-brand-500/40 dark:bg-brand-500/10">
       <LoginForm />
     </div>
   );
@@ -52,22 +52,22 @@ function ConnectedBar({ email }: { email: string }) {
   };
 
   return (
-    <div className="card mb-5 border-green-200 bg-green-50 p-3 text-sm">
+    <div className="card mb-5 border-green-200 bg-green-50 p-3 text-sm dark:border-green-500/40 dark:bg-green-950/50">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="flex items-center gap-2 text-green-800">
+        <span className="flex items-center gap-2 text-green-800 dark:text-green-200">
           <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
           Connecté · <strong className="font-semibold">{email}</strong> · synchronisé sur tous tes appareils
         </span>
         <div className="flex gap-2">
           <button
             onClick={() => setOpen((v) => !v)}
-            className="rounded-lg border border-green-300 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50"
+            className="rounded-lg border border-green-300 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50 dark:border-green-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
           >
             {open ? "Annuler" : "Mot de passe"}
           </button>
           <button
             onClick={() => void signOut()}
-            className="rounded-lg border border-green-300 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50"
+            className="rounded-lg border border-green-300 bg-white px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50 dark:border-green-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
           >
             Se déconnecter
           </button>

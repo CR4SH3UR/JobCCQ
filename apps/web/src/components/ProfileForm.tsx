@@ -110,7 +110,7 @@ function ChipField({
   const selectedSet = new Set(selected);
   return (
     <fieldset>
-      <legend className="text-sm font-semibold text-slate-800">{title}</legend>
+      <legend className="text-sm font-semibold text-slate-800 dark:text-slate-100">{title}</legend>
       <p className="mb-2 mt-0.5 text-xs text-slate-500">{hint}</p>
       <div
         className={cn(
@@ -129,8 +129,8 @@ function ChipField({
               className={cn(
                 "rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
                 on
-                  ? "border-brand-500 bg-brand-50 text-brand-800"
-                  : "border-slate-200 bg-white text-slate-600 hover:border-brand-200",
+                  ? "border-brand-500 bg-brand-50 text-brand-800 dark:border-brand-400 dark:bg-brand-500/30 dark:text-brand-100"
+                  : "border-slate-200 bg-white text-slate-600 hover:border-brand-200 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-brand-400",
               )}
             >
               {o.label}
