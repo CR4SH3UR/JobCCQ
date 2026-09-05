@@ -189,6 +189,87 @@ Pour régénérer l'instantané à partir de la vraie base (après un scraping) 
 - [ ] Alertes courriel / notifications push mobiles sur nouvelles offres
 - [ ] Comptes utilisateurs, offres sauvegardées, recherches enregistrées
 
+## Idées d'évolution (50)
+
+Backlog d'idées d'ajout, classées par thème. Coche une case quand la fonctionnalité est livrée. Ces pistes sont **additives** : elles s'appuient sur l'existant (taxonomie QC, répertoire de sources, comptes Supabase, favoris/candidatures/alertes, panel admin, enrichissement RBQ, mode Turso live + export statique).
+
+### 🔎 Recherche & découverte
+
+- [ ] 1. Recherche géographique par rayon (« à moins de X km de mon code postal ») en plus des 17 régions
+- [ ] 2. Carte interactive des offres (Leaflet/MapLibre) par région/ville
+- [ ] 3. Autocomplétion dans la barre de recherche (métiers, entreprises, villes) alimentée par `/api/meta`
+- [ ] 4. Correction de fautes de frappe + synonymes de métiers (« charpentier » ↔ « menuisier »)
+- [ ] 5. Filtre « nouveautés » (offres ajoutées depuis ma dernière visite)
+- [ ] 6. Tri par distance (en plus de pertinence / date / salaire)
+- [ ] 7. Recherches enregistrées (combinaison de filtres nommée — base des alertes)
+- [ ] 8. URL de recherche partageables (filtres encodés dans l'URL)
+- [ ] 9. Pages de résultats préconstruites SEO (`/emplois/region/monteregie`, `/emplois/metier/electricien`)
+- [ ] 10. Comparateur d'offres (2-3 offres côte à côte : salaire, région, type)
+
+### 🧾 Qualité & enrichissement des offres
+
+- [ ] 11. Normalisation des salaires (fourchette horaire **et** annuelle pour comparer)
+- [ ] 12. Grille CCQ : taux horaire officiel du métier/région affiché à côté de l'offre
+- [ ] 13. Détection de doublons inter-sources (fusion + badge « aussi sur X »)
+- [ ] 14. Extraction des exigences (carte de compétence, ASP Construction, permis classe 1/3…)
+- [ ] 15. Score de complétude d'une offre (salaire ? lieu ? description ?)
+- [ ] 16. Résumé automatique de la description (2-3 puces)
+- [ ] 17. Traduction FR↔EN des offres unilingues (libellé « traduit automatiquement »)
+- [ ] 18. Détection d'offres expirées (vérif du lien : 404/redirection → « peut-être pourvue »)
+- [ ] 19. Ancienneté visible et cohérente partout (« il y a 2 j »)
+- [ ] 20. Historique d'une offre (salaire modifié, réactivée…)
+
+### 🏢 Entreprises / employeurs
+
+- [ ] 21. Fiche employeur enrichie (logo, RBQ, nb d'offres actives, régions, lien carrières)
+- [ ] 22. Suivre une entreprise + alerte quand elle publie
+- [ ] 23. Classement « qui recrute le plus » par région et par métier
+- [ ] 24. Badge « vérifié » exposé côté site (champ `verified` de l'admin)
+- [ ] 25. Statut RBQ live (validité de la licence + lien vers le registre)
+- [ ] 26. Employeurs similaires sur une fiche (même région/secteur)
+- [ ] 27. Historique de recrutement d'un employeur (mini-graphe dans le temps)
+
+### 🔔 Alertes & notifications
+
+- [ ] 28. Alertes courriel réelles (digest quotidien/hebdo d'une recherche enregistrée)
+- [ ] 29. Notifications push mobiles (Expo push) sur nouvelles offres
+- [ ] 30. Flux RSS/Atom par recherche (`/emplois.rss?regions=…&q=…`)
+- [ ] 31. Webhook Discord/Slack pour une recherche
+- [ ] 32. Réglages de fréquence & silence par alerte (instantané / quotidien / hebdo / pause)
+
+### 👤 Compte & candidatures
+
+- [ ] 33. Statuts de candidature (à postuler / postulé / entrevue / refusé / accepté)
+- [ ] 34. Notes & rappels par candidature (relancer dans N jours)
+- [ ] 35. Export CSV/PDF des favoris et candidatures
+- [ ] 36. Profil métier (mes métiers/régions → accueil personnalisé)
+- [ ] 37. Onboarding rapide (métier, région, mobilité → filtres pré-remplis)
+
+### 🕷️ Scraping, sources & pipeline
+
+- [ ] 38. Rendu headless (Playwright) pour les sites protégés (Cloudflare)
+- [ ] 39. Planification cron du scraping + backoff par source
+- [ ] 40. Dashboard de santé des scrapers (sources en échec depuis N jours + alerte)
+- [ ] 41. Nouveaux helpers ATS : Greenhouse, Lever, Recruitee, SmartRecruiters, Teamtailor
+- [ ] 42. Import CCQ « Carrefour construction » (ccq.org)
+- [ ] 43. Découverte semi-auto d'employeurs à partir du registre RBQ
+- [ ] 44. Tests de non-régression par fixtures HTML (alerte si un parseur casse)
+
+### 🛠️ Admin & données
+
+- [ ] 45. Journal d'audit des actions admin (qui a modifié quoi, quand)
+- [ ] 46. Diff avant publication des changements `discovered.json`
+- [ ] 47. Édition en masse (activer/désactiver, changer de méthode pour N employeurs)
+
+### 📱 Mobile & plateforme
+
+- [ ] 48. Parité mobile (détail d'offre, favoris, alertes, compte)
+
+### 📈 SEO, perf & accessibilité
+
+- [ ] 49. JSON-LD `JobPosting` sur chaque fiche (Google for Jobs) + sitemap dynamique
+- [ ] 50. Audit accessibilité complet + i18n EN de l'interface (bascule FR/EN)
+
 ## Licence
 
 MIT — voir [LICENSE](./LICENSE). Les offres agrégées appartiennent à leurs éditeurs respectifs.
