@@ -2255,7 +2255,7 @@ function Row({
           ) : (
             <>
               <div className="mb-1 text-[10px] text-slate-400">
-                {offers.rows.length} affichée(s){count > offers.rows.length ? ` sur ${count}` : ""} — cliquer sur une offre pour l’éditer.
+                {offers.rows.length} affichée(s){count > offers.rows.length ? ` sur ${count}` : ""} — cliquer sur une offre pour l’éditer dans une fenêtre.
               </div>
               <ul className="space-y-1">
                 {offers.rows.map((o) => (
@@ -2436,9 +2436,9 @@ function Row({
 }
 
 /**
- * Ligne d'offre dans le panneau employeur : <details> qui révèle l'éditeur
- * AdminOfferEditor quand on clique. Persiste via API (api/Turso) ou en mode
- * statique affiche un avertissement local-only.
+ * Ligne d'offre dans le panneau employeur : clic pour ouvrir une modale d'édition
+ * avec AdminOfferEditor. Persiste via API (api/Turso) ou en mode statique affiche
+ * un avertissement local-only.
  */
 function OfferRowItem({
   o,
@@ -2455,7 +2455,17 @@ function OfferRowItem({
   tursoToken: string;
   onMutate: (id: string, patch: OfferPatch) => void;
 }) {
+  const [open, setOpen] = useState(false);
   const [save, setSave] = useState<SaveState>();
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
 
   const doSave = async (id: string, patch: OfferPatch) => {
     if (mode === "api" || mode === "turso") {
@@ -2512,16 +2522,51 @@ function OfferRowItem({
   };
 
   return (
-    <details className="group rounded border border-slate-200 bg-white">
-      <summary className="flex cursor-pointer items-baseline justify-between gap-2 px-2 py-1.5 hover:bg-slate-100">
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex w-full cursor-pointer items-baseline justify-between gap-2 rounded border border-slate-200 bg-white px-2 py-1.5 text-left hover:bg-slate-100"
+        title="Cliquer pour éditer cette offre"
+      >
         <span className="truncate text-brand-700">{o.title || "(sans titre)"}</span>
         <span className="shrink-0 text-slate-400">
           {o.city ?? ""}{o.postedAt ? `${o.city ? " · " : ""}${relTime(o.postedAt)}` : ""}
         </span>
-      </summary>
-      <div className="p-2">
-        <AdminOfferEditor offer={o} persistEnabled={persistEnabled && mode !== "static"} save={save} onSave={doSave} />
-      </div>
-    </details>
+      </button>
+
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-slate-950/50 px-4 py-6">
+          <button
+            type="button"
+            aria-label="Fermer l'éditeur d'offre"
+            className="absolute inset-0 cursor-default"
+            onClick={() => setOpen(false)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`offer-edit-title-${o.id}`}
+            className="relative mt-4 w-full max-w-3xl rounded-xl border border-slate-200 bg-white p-0 text-left shadow-2xl dark:border-slate-700 dark:bg-slate-900"
+          >
+            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3 dark:border-slate-700">
+              <h2 id={`offer-edit-title-${o.id}`} className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                Éditer l’offre
+              </h2>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-2 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                Fermer ✕
+              </button>
+            </div>
+            <div className="max-h-[80vh] overflow-y-auto p-4">
+              <AdminOfferEditor offer={o} persistEnabled={persistEnabled && mode !== "static"} save={save} onSave={doSave} />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
