@@ -189,9 +189,13 @@ Pour régénérer l'instantané à partir de la vraie base (après un scraping) 
 - [ ] Alertes courriel / notifications push mobiles sur nouvelles offres
 - [ ] Comptes utilisateurs, offres sauvegardées, recherches enregistrées
 
-## Idées d'évolution (50)
+## Licence
 
-Backlog d'idées d'ajout, classées par thème. Coche une case quand la fonctionnalité est livrée. Ces pistes sont **additives** : elles s'appuient sur l'existant (taxonomie QC, répertoire de sources, comptes Supabase, favoris/candidatures/alertes, panel admin, enrichissement RBQ, mode Turso live + export statique).
+MIT — voir [LICENSE](./LICENSE). Les offres agrégées appartiennent à leurs éditeurs respectifs.
+
+## Idées d'évolution (75)
+
+Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le produit actuel** (taxonomie QC, répertoire de sources, comptes Supabase, favoris/candidatures/alertes, panel admin, enrichissement RBQ, mode Turso live + export statique). Coche une case quand la fonctionnalité est livrée.
 
 ### 🔎 Recherche & découverte
 
@@ -205,6 +209,9 @@ Backlog d'idées d'ajout, classées par thème. Coche une case quand la fonction
 - [x] 8. URL de recherche partageables (filtres encodés dans l'URL)
 - [x] 9. Pages de résultats préconstruites SEO (`/emplois/region/monteregie`, `/emplois/metier/electricien`)
 - [ ] 10. Comparateur d'offres (2-3 offres côte à côte : salaire, région, type)
+- [ ] 51. Filtre « salaire renseigné uniquement » (s'appuie sur le filtre salaire déjà là)
+- [ ] 52. « Offres similaires » sur la fiche (même métier / région / employeur)
+- [ ] 53. Filtre quart de travail (jour / soir / nuit) quand la description le dit
 
 ### 🧾 Qualité & enrichissement des offres
 
@@ -218,6 +225,9 @@ Backlog d'idées d'ajout, classées par thème. Coche une case quand la fonction
 - [ ] 18. Détection d'offres expirées (vérif du lien : 404/redirection → « peut-être pourvue »)
 - [ ] 19. Ancienneté visible et cohérente partout (« il y a 2 j »)
 - [ ] 20. Historique d'une offre (salaire modifié, réactivée…)
+- [ ] 54. Extraire contacts RH publics (courriel / téléphone) dans la fiche
+- [ ] 55. Extraire avantages (REER, assurances, camion fourni) à côté des exigences
+- [ ] 56. Flag admin « hors construction » → masquée du site public
 
 ### 🏢 Entreprises / employeurs
 
@@ -228,6 +238,8 @@ Backlog d'idées d'ajout, classées par thème. Coche une case quand la fonction
 - [ ] 25. Statut RBQ live (validité de la licence + lien vers le registre)
 - [ ] 26. Employeurs similaires sur une fiche (même région/secteur)
 - [ ] 27. Historique de recrutement d'un employeur (mini-graphe dans le temps)
+- [ ] 57. Page « qui recrute près de chez moi » (code postal → même index villes/régions)
+- [ ] 58. Fusion manuelle de deux fiches employeur (doublons discovered)
 
 ### 🔔 Alertes & notifications
 
@@ -236,6 +248,8 @@ Backlog d'idées d'ajout, classées par thème. Coche une case quand la fonction
 - [ ] 30. Flux RSS/Atom par recherche (`/emplois.rss?regions=…&q=…`)
 - [ ] 31. Webhook Discord/Slack pour une recherche
 - [ ] 32. Réglages de fréquence & silence par alerte (instantané / quotidien / hebdo / pause)
+- [ ] 59. Alerte admin (courriel/Slack) si une grosse source tombe à 0 offre
+- [ ] 60. Webhook « scrape terminé » (même canal que les webhooks de recherche)
 
 ### 👤 Compte & candidatures
 
@@ -244,6 +258,8 @@ Backlog d'idées d'ajout, classées par thème. Coche une case quand la fonction
 - [ ] 35. Export CSV/PDF des favoris et candidatures
 - [ ] 36. Profil métier (mes métiers/régions → accueil personnalisé)
 - [ ] 37. Onboarding rapide (métier, région, mobilité → filtres pré-remplis)
+- [ ] 61. Marquer « déjà postulé » depuis la fiche (compte existant)
+- [ ] 62. Score d'adéquation offre ↔ profil (métiers / régions du compte)
 
 ### 🕷️ Scraping, sources & pipeline
 
@@ -253,23 +269,32 @@ Backlog d'idées d'ajout, classées par thème. Coche une case quand la fonction
 - [ ] 41. Nouveaux helpers ATS : Greenhouse, Lever, Recruitee, SmartRecruiters, Teamtailor
 - [ ] 42. Import CCQ « Carrefour construction » (ccq.org)
 - [ ] 43. Découverte semi-auto d'employeurs à partir du registre RBQ
-- [ ] 44. Tests de non-régression par fixtures HTML (alerte si un parseur casse)
+- [x] 44. Tests de non-régression par fixtures HTML (alerte si un parseur casse)
+- [ ] 63. Preview parseur sans écrire en base (admin, même `parseList`)
+- [ ] 64. Enregistrement d'une fixture HTML depuis l'admin (pour le 44)
+- [ ] 65. Retry ciblé des sources en erreur (un bouton, même workflow scrape)
+- [ ] 66. Playwright à la demande pour une source JS (complément du 38)
 
 ### 🛠️ Admin & données
 
 - [x] 45. Journal d'audit des actions admin (qui a modifié quoi, quand — ce navigateur)
 - [x] 46. Diff avant publication des changements `discovered.json`
-- [ ] 47. Édition en masse (activer/désactiver, changer de méthode pour N employeurs)
+- [x] 47. Édition en masse (activer/désactiver, changer de méthode pour N employeurs)
+- [x] 67. Diff des offres après scrape (`+` ajoutée / `~` modifiée / `-` retirée) dans le panel
+- [x] 68. Tableau de bord admin (KPIs, top sources, activité + diffs)
+- [x] 69. Module Offres (recherche, édition, suppression, export CSV)
+- [x] 70. Import CSV d'employeurs (même format que l'export)
+- [x] 71. Tester une URL carrières (probe HTTP) + notes internes + copier id/URLs
+- [ ] 72. Rollback d'un scrape (remettre les offres d'avant le run)
+- [ ] 73. Stats clics « Postuler » par offre / source (site public → admin)
 
 ### 📱 Mobile & plateforme
 
 - [ ] 48. Parité mobile (détail d'offre, favoris, alertes, compte)
+- [ ] 74. Mode hors-ligne : dernières offres en cache (même snapshot que le site statique)
 
 ### 📈 SEO, perf & accessibilité
 
 - [ ] 49. JSON-LD `JobPosting` sur chaque fiche (Google for Jobs) + sitemap dynamique
 - [ ] 50. Audit accessibilité complet + i18n EN de l'interface (bascule FR/EN)
-
-## Licence
-
-MIT — voir [LICENSE](./LICENSE). Les offres agrégées appartiennent à leurs éditeurs respectifs.
+- [ ] 75. Widget « nos offres » à coller sur le site d'un employeur du répertoire
