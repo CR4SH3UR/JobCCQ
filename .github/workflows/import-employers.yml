@@ -13,6 +13,7 @@ permissions:
 concurrency:
   group: import-employers
   cancel-in-progress: false
+  queue: max
 
 env:
   DATABASE_URL: file:./prisma/dev.db
