@@ -16,6 +16,7 @@ import {
   extractContacts,
   extractRequirements,
   extractBenefits,
+  summarizeDescription,
   type Job,
 } from "@jobccq/shared";
 import { Badge } from "./Badge";
@@ -88,6 +89,7 @@ export function JobDetailView({ id }: { id: string }) {
   const contacts = extractContacts(job.description);
   const requirements = extractRequirements(job.title, job.description);
   const benefits = extractBenefits(job.title, job.description);
+  const summary = summarizeDescription(job.description);
   const place =
     job.city && region && !region.toLowerCase().includes(job.city.toLowerCase())
       ? `${job.city} · ${region}`
@@ -173,6 +175,16 @@ export function JobDetailView({ id }: { id: string }) {
           {/* Description */}
           <div className="card mt-4 p-6">
             <h2 className="text-lg font-bold tracking-tight">Description du poste</h2>
+            {summary.length > 0 && (
+              <>
+                <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">En bref</p>
+                <ul className="mt-1.5 list-disc space-y-1 pl-5 text-sm text-slate-700">
+                  {summary.map((b) => (
+                    <li key={b}>{b}.</li>
+                  ))}
+                </ul>
+              </>
+            )}
             {job.description ? (
               <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-slate-600">
                 {job.description}

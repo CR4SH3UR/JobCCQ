@@ -221,7 +221,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [ ] 13. Détection de doublons inter-sources (fusion + badge « aussi sur X »)
 - [x] 14. Extraction des exigences (carte de compétence, ASP Construction, permis classe 1/3…)
 - [x] 15. Score de complétude d'une offre (salaire ? lieu ? description ?)
-- [ ] 16. Résumé automatique de la description (2-3 puces)
+- [x] 16. Résumé automatique de la description (2-3 puces)
 - [ ] 17. Traduction FR↔EN des offres unilingues (libellé « traduit automatiquement »)
 - [ ] 18. Détection d'offres expirées (vérif du lien : 404/redirection → « peut-être pourvue »)
 - [x] 19. Ancienneté visible et cohérente partout (« il y a 2 j »)
