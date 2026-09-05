@@ -20,3 +20,4 @@ export * from "./summarize.js";
 export * from "./scraper-health.js";
 export * from "./preview-html.js";
 export * from "./profile-match.js";
+export * from "./postal.js";

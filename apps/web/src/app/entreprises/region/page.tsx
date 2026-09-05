@@ -37,7 +37,12 @@ export default function EntreprisesRegionIndexPage() {
           ))}
         </ul>
         <p className="mt-6 text-sm text-slate-500">
-          Ou le classement{" "}
+          Ou{" "}
+          <Link href="/entreprises/pres-de-moi/" className="font-medium text-brand-700 hover:underline">
+            près de chez moi
+          </Link>
+          {" · "}
+          classement{" "}
           <Link href="/entreprises/metier/" className="font-medium text-brand-700 hover:underline">
             par métier
           </Link>

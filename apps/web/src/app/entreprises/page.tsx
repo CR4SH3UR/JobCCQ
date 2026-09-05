@@ -18,6 +18,10 @@ export default function EntreprisesPage() {
           </p>
           <p className="mt-2 text-sm text-slate-500">
             Classement{" "}
+            <Link href="/entreprises/pres-de-moi/" className="font-medium text-brand-700 hover:underline">
+              près de chez moi
+            </Link>
+            {" · "}
             <Link href="/entreprises/region/" className="font-medium text-brand-700 hover:underline">
               par région
             </Link>

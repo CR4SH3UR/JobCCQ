@@ -264,7 +264,15 @@ export function HomeView() {
       {/* Explorer par région */}
       {topRegions.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 py-10">
-          <h2 className="mb-4 text-xl font-bold tracking-tight">Explorez par région</h2>
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <h2 className="text-xl font-bold tracking-tight">Explorez par région</h2>
+            <Link
+              href="/entreprises/pres-de-moi/"
+              className="text-sm font-semibold text-brand-600 hover:underline"
+            >
+              Près de chez moi →
+            </Link>
+          </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {topRegions.map((r) => (
               <Link

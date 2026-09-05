@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: siteUrl("/emplois/region/"), changeFrequency: "weekly", priority: 0.6 },
     { url: siteUrl("/emplois/metier/"), changeFrequency: "weekly", priority: 0.6 },
     { url: siteUrl("/entreprises/"), changeFrequency: "weekly", priority: 0.7 },
+    { url: siteUrl("/entreprises/pres-de-moi/"), changeFrequency: "weekly", priority: 0.65 },
     { url: siteUrl("/entreprises/region/"), changeFrequency: "weekly", priority: 0.6 },
     { url: siteUrl("/entreprises/metier/"), changeFrequency: "weekly", priority: 0.6 },
     { url: siteUrl("/sources/"), changeFrequency: "monthly", priority: 0.3 },
