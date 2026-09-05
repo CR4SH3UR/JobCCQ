@@ -1,9 +1,38 @@
 import "./env.js";
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { createClient } from "@libsql/client";
 
 /** Client Prisma singleton (évite d'épuiser les connexions en dev/hot-reload). */
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+const globalForPrisma = globalThis as unknown as {
+  prisma?: PrismaClient;
+  schemaReady?: Promise<void>;
+};
+
+/**
+ * Ajoute les colonnes admin récentes si la base distante (Turso) n'a pas encore
+ * été `db push`. Sans ça, Prisma 7 SELECT toutes les colonnes du schéma
+ * (`Employer.notes`, `ScrapeRun.diffJson`) et le CI plante (SQL_INPUT_ERROR).
+ */
+export async function ensureSchemaColumns(): Promise<void> {
+  if (!globalForPrisma.schemaReady) {
+    globalForPrisma.schemaReady = (async () => {
+      const tursoUrl = process.env.TURSO_DATABASE_URL;
+      const url = tursoUrl ?? process.env.DATABASE_URL ?? "file:./dev.db";
+      const client = createClient({
+        url,
+        authToken: process.env.TURSO_AUTH_TOKEN,
+      });
+      try {
+        await client.execute("ALTER TABLE Employer ADD COLUMN notes TEXT").catch(() => {});
+        await client.execute("ALTER TABLE ScrapeRun ADD COLUMN diffJson TEXT").catch(() => {});
+      } finally {
+        client.close();
+      }
+    })();
+  }
+  await globalForPrisma.schemaReady;
+}
 
 const logLevels: ("query" | "warn" | "error")[] = process.env.PRISMA_LOG
   ? ["query", "warn", "error"]
@@ -19,7 +48,16 @@ function makeClient(): PrismaClient {
   const adapter = tursoUrl
     ? new PrismaLibSql({ url: tursoUrl, authToken: process.env.TURSO_AUTH_TOKEN })
     : new PrismaLibSql({ url: process.env.DATABASE_URL ?? "file:./dev.db" });
-  return new PrismaClient({ adapter, log: logLevels });
+  const base = new PrismaClient({ adapter, log: logLevels });
+  // Toute requête Prisma attend la migration légère (colonnes manquantes).
+  return base.$extends({
+    query: {
+      async $allOperations({ args, query }) {
+        await ensureSchemaColumns();
+        return query(args);
+      },
+    },
+  }) as unknown as PrismaClient;
 }
 
 export const prisma = globalForPrisma.prisma ?? makeClient();

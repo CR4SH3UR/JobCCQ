@@ -10,12 +10,13 @@ import "./env.js";
 import { writeFile } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { prisma } from "./db.js";
+import { prisma, ensureSchemaColumns } from "./db.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(HERE, "../../../packages/shared/src/discovered.json");
 
 async function main() {
+  await ensureSchemaColumns();
   const rows = await prisma.employer.findMany({ orderBy: { id: "asc" } });
   const list = rows.map((e) => {
     // Même forme (et ordre de champs) que DiscoveredEmployer / discovered.json.

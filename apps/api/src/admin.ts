@@ -11,6 +11,7 @@ import { bespokeScraper } from "./scrapers/registry.js";
 import { runScraperInstance } from "./orchestrator.js";
 import { prisma } from "./db.js";
 import { rowToJob } from "./repository.js";
+import { fetchHtml } from "./scrapers/http.js";
 
 /**
  * Routes de la **console d'administration** (usage local, API branchée).
@@ -37,7 +38,7 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? process.env.NEXT_PUBLIC_ADMIN_
   .map((s) => s.trim().toLowerCase())
   .filter(Boolean);
 
-type Employer = DiscoveredEmployer & { verified?: boolean };
+type Employer = DiscoveredEmployer & { verified?: boolean; notes?: string };
 type AdminUserRow = {
   id: string;
   email: string;
@@ -51,7 +52,7 @@ type AdminUserRow = {
 function rowToEmployer(row: {
   id: string; name: string; homepage: string; careersUrl: string; method: string;
   region: string | null; rbq: string | null; scope: string | null; sectors: string;
-  verified: boolean; enabled: boolean;
+  verified: boolean; enabled: boolean; notes?: string | null;
 }): Employer {
   return {
     id: row.id,
@@ -65,6 +66,7 @@ function rowToEmployer(row: {
     sectors: JSON.parse(row.sectors || "[]"),
     ...(row.verified ? { verified: true } : {}),
     ...(row.enabled === false ? { enabled: false } : {}),
+    ...(row.notes ? { notes: row.notes } : {}),
   } as Employer;
 }
 
@@ -139,7 +141,7 @@ export async function adminGuard(req: FastifyRequest, reply: FastifyReply) {
   if ("error" in denied) return reply.send(denied);
 }
 
-const EDITABLE = new Set(["name", "careersUrl", "method", "homepage", "region", "scope", "rbq", "sectors", "verified", "enabled"]);
+const EDITABLE = new Set(["name", "careersUrl", "method", "homepage", "region", "scope", "rbq", "sectors", "verified", "enabled", "notes"]);
 
 export function registerAdminRoutes(app: FastifyInstance): void {
   // Liste des comptes Supabase Auth. Nécessite un appel serveur avec secret key :
@@ -197,6 +199,210 @@ export function registerAdminRoutes(app: FastifyInstance): void {
     return { total: list.length, employers: list };
   });
 
+  // Tableau de bord : KPIs + derniers scrapes (avec diffs persistés).
+  app.get("/admin/dashboard", { preHandler: adminGuard }, async () => {
+    const [
+      totalJobs,
+      totalEmployers,
+      enabledEmployers,
+      verifiedEmployers,
+      bySource,
+      recentRuns,
+      employers,
+      scrapedSources,
+    ] = await Promise.all([
+      prisma.job.count(),
+      prisma.employer.count(),
+      prisma.employer.count({ where: { enabled: true } }),
+      prisma.employer.count({ where: { verified: true } }),
+      prisma.job.groupBy({ by: ["sourceId"], _count: true }),
+      prisma.scrapeRun.findMany({ orderBy: { id: "desc" }, take: 25 }),
+      prisma.employer.findMany({ select: { id: true, name: true } }),
+      prisma.scrapeRun.findMany({ distinct: ["sourceId"], select: { sourceId: true } }),
+    ]);
+    const nameById = Object.fromEntries(employers.map((e) => [e.id, e.name]));
+    const topSources = [...bySource]
+      .sort((a, b) => b._count - a._count)
+      .slice(0, 10)
+      .map((s) => ({ id: s.sourceId, name: nameById[s.sourceId] ?? s.sourceId, count: s._count }));
+    const parseDiff = (raw: string | null) => {
+      if (!raw) return undefined;
+      try {
+        return JSON.parse(raw) as { added?: unknown[]; changed?: unknown[]; removed?: unknown[] };
+      } catch {
+        return undefined;
+      }
+    };
+    return {
+      totalJobs,
+      totalEmployers,
+      enabledEmployers,
+      verifiedEmployers,
+      neverScraped: Math.max(0, totalEmployers - scrapedSources.length),
+      errorCount: recentRuns.filter((r) => r.status === "error").length,
+      topSources,
+      recentRuns: recentRuns.map((r) => ({
+        id: r.id,
+        sourceId: r.sourceId,
+        name: nameById[r.sourceId] ?? r.sourceId,
+        status: r.status,
+        found: r.found,
+        inserted: r.inserted,
+        updated: r.updated,
+        error: r.error ?? undefined,
+        at: (r.finishedAt ?? r.startedAt)?.toISOString() ?? null,
+        diff: parseDiff(r.diffJson),
+      })),
+    };
+  });
+
+  // Recherche paginée d'offres (console admin).
+  app.get<{ Querystring: { q?: string; sourceId?: string; page?: string; pageSize?: string } }>(
+    "/admin/jobs",
+    { preHandler: adminGuard },
+    async (req) => {
+      const q = String(req.query.q ?? "").trim();
+      const sourceId = String(req.query.sourceId ?? "").trim();
+      const page = Math.max(1, Number(req.query.page ?? 1) || 1);
+      const pageSize = Math.min(100, Math.max(1, Number(req.query.pageSize ?? 40) || 40));
+      const where = {
+        ...(sourceId ? { sourceId } : {}),
+        ...(q
+          ? {
+              OR: [
+                { title: { contains: q } },
+                { company: { contains: q } },
+                { url: { contains: q } },
+                { city: { contains: q } },
+              ],
+            }
+          : {}),
+      };
+      const [total, rows] = await Promise.all([
+        prisma.job.count({ where }),
+        prisma.job.findMany({
+          where,
+          orderBy: { scrapedAt: "desc" },
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+        }),
+      ]);
+      return { total, page, pageSize, jobs: rows.map(rowToJob) };
+    },
+  );
+
+  app.delete<{ Params: { id: string } }>("/admin/jobs/:id", { preHandler: adminGuard }, async (req, reply) => {
+    const del = await prisma.job.delete({ where: { id: req.params.id } }).catch(() => null);
+    if (!del) {
+      reply.code(404);
+      return { error: "Offre introuvable" };
+    }
+    return { removed: 1, id: req.params.id };
+  });
+
+  // Teste une URL carrières (statut HTTP + taille HTML), sans scraper.
+  app.post<{ Body: { url?: string } }>("/admin/probe", { preHandler: adminGuard }, async (req, reply) => {
+    const url = String(req.body?.url ?? "").trim();
+    try {
+      new URL(url);
+    } catch {
+      reply.code(400);
+      return { error: "URL invalide." };
+    }
+    const started = Date.now();
+    try {
+      const html = await fetchHtml(url, { timeoutMs: 12_000, retries: 1 });
+      const title = html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1]?.trim() ?? "";
+      const jobLike = (html.match(/offre|emploi|job|career|poste/gi) ?? []).length;
+      return {
+        ok: true,
+        status: 200,
+        bytes: html.length,
+        ms: Date.now() - started,
+        title,
+        jobLike,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        status: 0,
+        bytes: 0,
+        ms: Date.now() - started,
+        error: err instanceof Error ? err.message : String(err),
+      };
+    }
+  });
+
+  // Import en lot d'employeurs (CSV déjà parsé côté client).
+  app.post<{ Body: { employers?: Record<string, unknown>[] } }>(
+    "/admin/employers/import",
+    { preHandler: adminGuard },
+    async (req, reply) => {
+      const items = Array.isArray(req.body?.employers) ? req.body.employers : [];
+      if (!items.length) {
+        reply.code(400);
+        return { error: "Aucun employeur à importer." };
+      }
+      let created = 0;
+      let skipped = 0;
+      const errors: string[] = [];
+      for (const b of items.slice(0, 500)) {
+        const id = String(b.id ?? "").trim();
+        const name = String(b.name ?? "").trim();
+        const careersUrl = String(b.careersUrl ?? "").trim();
+        if (!id || !name || !careersUrl) {
+          skipped += 1;
+          continue;
+        }
+        let homepage = String(b.homepage ?? "").trim();
+        if (!homepage) {
+          try {
+            homepage = new URL(careersUrl).origin;
+          } catch {
+            homepage = careersUrl;
+          }
+        }
+        const method = String(b.method ?? "html");
+        const region = b.region ? String(b.region) : null;
+        const verified = !!b.verified;
+        const enabled = b.enabled !== false;
+        if (USE_TURSO) {
+          const row = await prisma.employer
+            .create({
+              data: { id, name, homepage, careersUrl, method, region, sectors: "[]", verified, enabled },
+            })
+            .catch(() => null);
+          if (!row) {
+            skipped += 1;
+            errors.push(id);
+            continue;
+          }
+          created += 1;
+        } else {
+          const list = await readAll();
+          if (list.some((e) => e.id === id)) {
+            skipped += 1;
+            continue;
+          }
+          list.push({
+            id,
+            name,
+            homepage,
+            careersUrl,
+            method,
+            ...(region ? { region } : {}),
+            sectors: [],
+            ...(verified ? { verified: true } : {}),
+            ...(enabled === false ? { enabled: false } : {}),
+          } as Employer);
+          await writeAll(list);
+          created += 1;
+        }
+      }
+      return { created, skipped, errors };
+    },
+  );
+
   // Édition d'un employeur (nom, URL carrières, méthode, vérifié…).
   app.patch<{ Params: { id: string }; Body: Record<string, unknown> }>(
     "/admin/employers/:id",
@@ -221,6 +427,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
         if ("sectors" in patch) data.sectors = JSON.stringify(patch.sectors ?? []);
         if ("verified" in patch) data.verified = !!patch.verified;
         if ("enabled" in patch) data.enabled = patch.enabled !== false;
+        if ("notes" in patch) data.notes = patch.notes == null || patch.notes === "" ? null : String(patch.notes);
         const updated = await prisma.employer
           .update({ where: { id: req.params.id }, data })
           .catch(() => null);
