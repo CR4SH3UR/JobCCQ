@@ -23,6 +23,7 @@ import {
 import { Badge } from "./Badge";
 import { JobCard } from "./JobCard";
 import { MatchBadge } from "./MatchBadge";
+import { AlsoOnBadge } from "./AlsoOnBadge";
 import { FavoriteButton } from "./FavoriteButton";
 import { AppliedButton } from "./AppliedButton";
 import { formatSalary, initials, timeAgo } from "@/lib/format";
@@ -160,6 +161,7 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
                 <Badge key={l}>{labelForLanguage(l)}</Badge>
               ))}
               <MatchBadge job={job} />
+              <AlsoOnBadge alts={job.alsoOn} />
             </div>
             <CompletenessNote job={job} />
             <MatchNote job={job} />
@@ -177,6 +179,22 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
               <FavoriteButton id={job.id} />
               <CompareDetailButton id={job.id} />
             </div>
+            {job.alsoOn && job.alsoOn.length > 0 && (
+              <ul className="mt-3 space-y-1 text-sm">
+                {job.alsoOn.map((a) => (
+                  <li key={a.id}>
+                    <a
+                      href={a.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-brand-700 hover:underline"
+                    >
+                      Aussi sur {sourceName(a.sourceId)} ↗
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           {/* Description */}

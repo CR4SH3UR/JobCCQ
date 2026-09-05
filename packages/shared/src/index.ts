@@ -21,3 +21,4 @@ export * from "./scraper-health.js";
 export * from "./preview-html.js";
 export * from "./profile-match.js";
 export * from "./postal.js";
+export * from "./duplicates.js";

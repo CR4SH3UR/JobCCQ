@@ -45,6 +45,20 @@ export const JobSchema = z.object({
   postedAt: z.string().datetime().optional(),
   /** Date de collecte par le scraper (ISO). */
   scrapedAt: z.string().datetime(),
+
+  /**
+   * Autres sources du même poste (doublons inter-portails). Calculé à la
+   * lecture (`collapseDuplicates` / `attachDuplicateAlts`), pas persisté.
+   */
+  alsoOn: z
+    .array(
+      z.object({
+        id: z.string(),
+        sourceId: z.string(),
+        url: z.string().url(),
+      }),
+    )
+    .optional(),
 });
 
 export type Job = z.infer<typeof JobSchema>;

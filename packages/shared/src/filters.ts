@@ -25,6 +25,7 @@ import { normalizeText, fuzzyIncludes } from "./text.js";
 import { expandTerm } from "./synonyms.js";
 import { detectShift } from "./extract.js";
 import { annualizedSalary } from "./salary.js";
+import { collapseDuplicates } from "./duplicates.js";
 
 const norm = normalizeText;
 
@@ -184,7 +185,7 @@ export function computeFacets(jobs: Job[]): JobFacets {
  * Logique unique partagée par l'API, le site et l'app.
  */
 export function applyQuery(jobs: Job[], query: JobQuery): JobSearchResult {
-  const filtered = jobs.filter((j) => matchesQuery(j, query));
+  const filtered = collapseDuplicates(jobs.filter((j) => matchesQuery(j, query)));
 
   const facets = computeFacets(filtered);
 

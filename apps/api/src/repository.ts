@@ -2,6 +2,7 @@ import type { Job as PrismaJob } from "@prisma/client";
 import {
   applyQuery,
   toHiringCompanies,
+  attachDuplicateAlts,
   type HiringCompany,
   type Job,
   type JobQuery,
@@ -88,7 +89,13 @@ export async function searchJobs(query: JobQuery): Promise<JobSearchResult> {
 
 export async function getJobById(id: string): Promise<Job | null> {
   const row = await prisma.job.findUnique({ where: { id } });
-  return row ? rowToJob(row) : null;
+  if (!row) return null;
+  const job = rowToJob(row);
+  const siblings = await prisma.job.findMany({
+    where: { company: row.company },
+    take: 80,
+  });
+  return attachDuplicateAlts(job, siblings.map(rowToJob));
 }
 
 /** Vue « Qui recrute » : entreprises agrégées, filtrables par la même requête. */

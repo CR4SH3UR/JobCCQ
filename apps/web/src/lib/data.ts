@@ -16,6 +16,7 @@ import {
   DISABLED_SOURCE_IDS,
   municipalityIndex,
   municipalityByCity,
+  attachDuplicateAlts,
   type HiringCompany,
   type Job,
   type JobQuery,
@@ -268,7 +269,8 @@ export async function searchAdminJobs(query: JobQuery): Promise<JobSearchResult>
 export async function getJobById(id: string): Promise<Job | null> {
   if (STATIC) {
     const jobs = await loadJobs();
-    return jobs.find((j) => j.id === id) ?? null;
+    const job = jobs.find((j) => j.id === id);
+    return job ? attachDuplicateAlts(job, jobs) : null;
   }
   try {
     return await apiGet<Job>(`/api/jobs/${encodeURIComponent(id)}`);
