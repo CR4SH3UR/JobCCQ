@@ -14,8 +14,8 @@ import {
   ALL_SOURCES,
   DISCOVERED_EMPLOYERS,
   DISABLED_SOURCE_IDS,
-  municipalityRegionMap,
-  regionForCity,
+  municipalityIndex,
+  municipalityByCity,
   type HiringCompany,
   type Job,
   type JobQuery,
@@ -145,6 +145,17 @@ export function invalidateJobOverrides(): void {
 }
 
 /**
+ * Vide tous les caches de données (instantané + overlay des éditions). La
+ * prochaine lecture repart du réseau : instantané `jobs.json`, patchs Supabase
+ * et table des municipalités (ville/région) frais. Utilisé par le bouton
+ * « Rafraîchir » de la liste d'offres.
+ */
+export function invalidateJobsCache(): void {
+  snapshotCache = null;
+  overridesCache = null;
+}
+
+/**
  * Instantané + overlay des éditions admin appliqué. Ne mute pas l'instantané
  * partagé : seules les offres patchées sont copiées.
  */
@@ -159,24 +170,47 @@ async function loadJobs(): Promise<Job[]> {
 }
 
 /**
- * Applique la table éditable municipalité → région (Supabase, lue en direct) sur
- * l'instantané : la ville d'une offre (`city`, sinon 1er segment de `location`)
- * qui figure dans la table force sa région. Aucun réseau bloquant : en cas
- * d'erreur ou de table absente, on renvoie l'instantané inchangé.
+ * Villes candidates d'une offre, dans l'ordre de priorité : la `city` déclarée,
+ * puis chaque segment de `location`. On découpe sur les virgules/parenthèses et
+ * les tirets **entourés d'espaces** (« Ville - QC ») — jamais sur un tiret
+ * interne, pour ne pas casser un nom comme « Trois-Rivières ».
+ */
+function cityCandidates(job: Job): string[] {
+  const out: string[] = [];
+  if (job.city?.trim()) out.push(job.city);
+  if (job.location) {
+    for (const seg of job.location.split(/[,(){}]|\s[-–—]\s/)) {
+      const s = seg.trim();
+      if (s) out.push(s);
+    }
+  }
+  return out;
+}
+
+/**
+ * Remplit **ville + région** des offres en direct via la table des municipalités
+ * (Supabase). Pour chaque offre, on cherche la première ville reconnue parmi
+ * `city` puis les segments de `location` : la `city` est renseignée (nom
+ * canonique) si elle manque, et la région est (re)classée en conséquence. Un
+ * changement de la table s'applique **sans redéploiement**. Ne mute que les
+ * offres concernées ; en cas d'erreur / table absente, l'instantané est inchangé.
  */
 async function reclassifyByMunicipality(jobs: Job[]): Promise<Job[]> {
   try {
     const { fetchMunicipalities } = await import("./municipalities");
-    const map = municipalityRegionMap(await fetchMunicipalities());
-    if (!map.size) return jobs;
+    const index = municipalityIndex(await fetchMunicipalities());
+    if (!index.size) return jobs;
     for (const job of jobs) {
-      const cityRaw = job.city || (job.location ? job.location.split(/[,(]/)[0]! : "");
-      if (!cityRaw.trim()) continue;
-      const rid = regionForCity(map, cityRaw);
-      if (rid && rid !== job.regionId) job.regionId = rid;
+      for (const candidate of cityCandidates(job)) {
+        const m = municipalityByCity(index, candidate);
+        if (!m) continue;
+        if (!job.city?.trim()) job.city = m.name; // remplit la ville manquante
+        if (m.regionId && m.regionId !== job.regionId) job.regionId = m.regionId;
+        break; // première ville reconnue = la bonne
+      }
     }
   } catch {
-    /* Supabase indisponible : on garde les régions de l'instantané. */
+    /* Supabase indisponible : on garde ville/région de l'instantané. */
   }
   return jobs;
 }

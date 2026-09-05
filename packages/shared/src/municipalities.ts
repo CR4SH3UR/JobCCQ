@@ -33,8 +33,15 @@ export function municipalityRegionMap(list: readonly Municipality[]): Map<string
   );
 }
 
+/** Index (nom normalisé → municipalité) : donne à la fois le nom canonique et la région. */
+export function municipalityIndex(list: readonly Municipality[]): Map<string, Municipality> {
+  return new Map(
+    list.filter((m) => m.name && m.regionId).map((m) => [normMunicipality(m.name), m]),
+  );
+}
+
 /**
- * Cherche la région d'une ville dans la table de correspondance.
+ * Cherche une valeur pour une ville dans une table indexée par nom normalisé.
  *
  * 1. Correspondance **exacte** sur le nom normalisé.
  * 2. À défaut, **repli** : on retire un qualificatif de comté/MRC en suffixe
@@ -43,18 +50,26 @@ export function municipalityRegionMap(list: readonly Municipality[]): Map<string
  *    long alors que la table (MAMH) porte le nom officiel court — et on réessaie.
  *    Le repli n'agit que si le nom complet est absent, donc il ne peut pas
  *    « voler » une municipalité qui existe telle quelle.
- *
- * Renvoie l'id de région, ou `undefined` si rien ne correspond.
  */
-export function regionForCity(
-  map: ReadonlyMap<string, string>,
-  city: string,
-): string | undefined {
+function lookupWithFallback<T>(map: ReadonlyMap<string, T>, city: string): T | undefined {
   const key = normMunicipality(city ?? "");
   if (!key) return undefined;
   const exact = map.get(key);
-  if (exact) return exact;
+  if (exact !== undefined) return exact;
   const stripped = key.replace(/-(?:de|du|des|d)-[a-z0-9-]+$/, "");
   if (stripped && stripped !== key) return map.get(stripped);
   return undefined;
+}
+
+/** Région d'une ville (id) via la table nom normalisé → région. Voir lookupWithFallback. */
+export function regionForCity(map: ReadonlyMap<string, string>, city: string): string | undefined {
+  return lookupWithFallback(map, city);
+}
+
+/** Municipalité (nom canonique + région) d'une ville via l'index. Voir lookupWithFallback. */
+export function municipalityByCity(
+  map: ReadonlyMap<string, Municipality>,
+  city: string,
+): Municipality | undefined {
+  return lookupWithFallback(map, city);
 }

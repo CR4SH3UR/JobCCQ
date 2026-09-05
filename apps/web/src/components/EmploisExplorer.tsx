@@ -13,7 +13,7 @@ import {
   type JobSearchResult,
   type SortOption,
 } from "@jobccq/shared";
-import { searchJobs, buildQuery } from "@/lib/data";
+import { searchJobs, buildQuery, invalidateJobsCache } from "@/lib/data";
 import { useLivePoll } from "@/lib/live";
 import { JobCard } from "./JobCard";
 import { FacetGroup } from "./FacetGroup";
@@ -162,6 +162,19 @@ export function EmploisExplorer() {
   }, [query]);
   useLivePoll(refresh);
 
+  // Rafraîchissement forcé (bouton) : vide les caches (instantané, overlay des
+  // éditions, ville/région) puis recharge — pour voir tout de suite les derniers
+  // changements sans attendre le polling ni recharger la page.
+  const [refreshing, setRefreshing] = useState(false);
+  const forceRefresh = useCallback(() => {
+    invalidateJobsCache();
+    setRefreshing(true);
+    searchJobs(query)
+      .then((r) => setResult(r))
+      .catch((e: Error) => setError(e.message))
+      .finally(() => setRefreshing(false));
+  }, [query]);
+
   const toggle = (key: MultiKey, id: string) => {
     setPage(1);
     setSel((s) => {
@@ -265,6 +278,17 @@ export function EmploisExplorer() {
               </option>
             ))}
           </select>
+          <button
+            type="button"
+            onClick={forceRefresh}
+            disabled={refreshing}
+            title="Recharger les offres (vide le cache et récupère les derniers changements)"
+            aria-label="Rafraîchir les offres"
+            className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          >
+            <span className={refreshing ? "inline-block animate-spin" : "inline-block"}>↻</span>
+            <span className="ml-1 hidden sm:inline">{refreshing ? "Rafraîchissement…" : "Rafraîchir"}</span>
+          </button>
           {authEnabled && (
             <button
               type="button"
