@@ -23,6 +23,8 @@ interface Row {
 export interface ImportOfficialMunicipalitiesResult {
   imported: number;
   skipped: number;
+  /** Alias ajoutés (localités / anciennes municipalités / secteurs). */
+  aliases?: number;
   byRegion: Record<string, number>;
   sourceUrl: string;
   sourceLastModified: string | null;

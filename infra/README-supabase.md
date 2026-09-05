@@ -220,8 +220,13 @@ supabase functions deploy import-municipalities
 
 Elle télécharge côté serveur le fichier officiel MAMH « Liste des municipalités »
 (`https://donneesouvertes.affmunqc.net/repertoire/MUN.csv`), puis upsert toutes les
-municipalités dans `public.municipalities`. Dans `/admin` → **Régions & municipalités**,
-le bouton **Importer tout** déclenche cette fonction. La fonction exige :
+municipalités dans `public.municipalities`. Elle ajoute aussi une liste d'**alias**
+(localités, anciennes municipalités fusionnées, arrondissements de Montréal, secteurs
+de Laval/Québec/Gatineau/Saguenay…) que le MAMH ne liste plus mais qui reviennent
+souvent dans les offres — un alias n'écrase jamais une municipalité officielle de même
+nom. En cas de deux municipalités de même nom (ex. « Clermont »), la plus peuplée est
+retenue. Dans `/admin` → **Régions & municipalités**, le bouton **Importer tout**
+déclenche cette fonction. La fonction exige :
 
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
