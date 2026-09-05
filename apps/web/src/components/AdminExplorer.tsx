@@ -9,6 +9,8 @@ import { encryptJson, decryptJson, saveVault, loadVault, clearVault, type AdminS
 import { notifyJobsChanged } from "@/lib/live";
 import { upsertJobOverride } from "@/lib/job-overrides";
 import { supabaseEnabled } from "@/lib/supabase";
+import { logAudit, setAuditActor, useAuditLog, clearAudit } from "@/lib/admin-audit";
+import { diffDiscovered, type DiscoveredDiff, type DiffEmployer } from "@/lib/discovered-diff";
 import { Badge } from "./Badge";
 import { AdminOfferEditor, type OfferPatch, type OfferRow, type SaveState } from "./AdminOfferEditor";
 
@@ -66,6 +68,18 @@ const LS_METHOD = "admin:method";
 const LS_REGION = "admin:region";
 const LS_PAGESIZE = "admin:pagesize";
 const DISCOVERED_PATH = "packages/shared/src/discovered.json";
+
+/** Libellés lisibles des actions du journal d'audit (#45). */
+const AUDIT_LABEL: Record<string, string> = {
+  edit: "Édition",
+  scrape: "Re-scrape",
+  "scrape-force": "Re-scrape forcé",
+  "scrape-all": "Scrape complet",
+  purge: "Purge d'offres",
+  delete: "Suppression",
+  publish: "Publication",
+  redeploy: "Redéploiement",
+};
 
 /** Colonnes lues pour l'aperçu déroulant « Offres » d'un employeur (mode Turso). */
 const OFFERS_SQL =
@@ -379,6 +393,14 @@ export function AdminExplorer() {
   // écriture Turso qui échoue n'est plus avalée silencieusement).
   const [saveState, setSaveState] = useState<Record<string, SaveState>>({});
   const latestRef = useRef<Employer[] | null>(null);
+  // Journal d'audit (#45) : « qui » = compte connecté ; les actions sont loguées
+  // au fil des handlers. #46 : publication en 2 temps (aperçu du diff → confirmer).
+  const auditLog = useAuditLog();
+  const [auditOpen, setAuditOpen] = useState(false);
+  const [pendingPublish, setPendingPublish] = useState<{ merged: Employer[]; diff: DiscoveredDiff } | null>(null);
+  useEffect(() => {
+    setAuditActor(authUser?.email ?? undefined);
+  }, [authUser?.email]);
   // Miroir de `openOffers` : la boucle de polling (closure longue durée) l'utilise
   // pour savoir quels panneaux « Offres » sont ouverts et les rafraîchir en direct.
   const openOffersRef = useRef<Set<string>>(new Set());
@@ -802,6 +824,16 @@ export function AdminExplorer() {
     const revert = () =>
       setEmployers((list) => list.map((e) => (e.id === id ? ({ ...e, ...before } as Employer) : e)));
 
+    // Résumé des champs modifiés pour le journal d'audit (#45).
+    const targetName = prev?.name ?? id;
+    const fieldSummary = Object.keys(patch)
+      .map((k) => {
+        const v = (patch as Record<string, unknown>)[k];
+        return `${k} = ${Array.isArray(v) ? `[${v.length}]` : String(v)}`;
+      })
+      .join(", ");
+    const logEdit = () => logAudit("edit", { targetId: id, targetName, detail: fieldSummary });
+
     // Mise à jour optimiste immédiate (réactivité).
     setEmployers((list) => list.map((e) => (e.id === id ? { ...e, ...patch } : e)));
 
@@ -815,6 +847,7 @@ export function AdminExplorer() {
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         setSaveState((s) => ({ ...s, [id]: { s: "ok" } }));
+        logEdit();
         clearSaveLater(id);
       } catch (err) {
         revert();
@@ -863,6 +896,7 @@ export function AdminExplorer() {
         );
         if (affected === 0) throw new Error("0 ligne modifiée (jeton en lecture seule ou id introuvable ?)");
         setSaveState((s) => ({ ...s, [id]: { s: "ok" } }));
+        logEdit();
         clearSaveLater(id);
       } catch (err) {
         revert();
@@ -881,6 +915,7 @@ export function AdminExplorer() {
       saveLS(LS_VERIF, [...verified]);
     }
     setSaveState((s) => ({ ...s, [id]: { s: "local" } }));
+    logEdit();
     clearSaveLater(id, 4000);
   };
 
@@ -896,6 +931,7 @@ export function AdminExplorer() {
       const d = await r.json();
       if (d.report?.status === "success") {
         setScrapes((s) => ({ ...s, [id]: { status: "ok", found: d.report.found, sample: d.sample } }));
+        logAudit("scrape", { targetId: id, targetName: employers.find((e) => e.id === id)?.name ?? id, detail: `${d.report.found} offre(s)` });
         // Le scrape a écrit en base : on rafraîchit le compteur ET l'aperçu
         // déroulé « Offres » (si ouvert) sans recharger la page.
         refreshCounts();
@@ -928,6 +964,7 @@ export function AdminExplorer() {
       await adminFetch(`${API_URL}/admin/employers/${id}/offers`, { method: "DELETE" }).catch(() => {});
     }
     setCounts((c) => ({ ...c, [id]: 0 }));
+    logAudit("purge", { targetId: id, targetName: name, detail: `${n} offre(s) supprimée(s)` });
     // Vide aussi l'aperçu déroulé « Offres » (sinon il montre encore les
     // anciennes offres jusqu'au prochain rafraîchissement de la page).
     setOffersData((d) => (id in d ? { ...d, [id]: { loading: false, rows: [] } } : d));
@@ -938,6 +975,7 @@ export function AdminExplorer() {
     try {
       const r = await adminFetch(`${API_URL}/admin/publish`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
       const d = await r.json();
+      logAudit("publish", { detail: "API — publication de l'instantané" });
       setPublish({ status: d.published || d.message ? "ok" : "err", message: d.message || d.error || "Terminé." });
     } catch (e) {
       setPublish({ status: "err", message: (e as Error).message });
@@ -1087,6 +1125,11 @@ export function AdminExplorer() {
       );
       if (r.status === 204) {
         setScrapes((s) => ({ ...s, [sourceId]: { status: "ok", error: "launched" } }));
+        logAudit(opts?.force ? "scrape-force" : "scrape", {
+          targetId: sourceId,
+          targetName: employers.find((e) => e.id === sourceId)?.name ?? sourceId,
+          detail: opts?.force ? "re-scrape forcé lancé (GitHub)" : "re-scrape lancé (GitHub)",
+        });
         // Mode Turso : suit la base et rafraîchit le compteur automatiquement.
         if (mode === "turso") queuePoll(sourceId);
       } else {
@@ -1130,6 +1173,7 @@ export function AdminExplorer() {
         `https://api.github.com/repos/${owner}/${repo}/actions/workflows/scrape.yml/dispatches`,
         { method: "POST", headers: GH_HEADERS(ghToken), body: JSON.stringify({ ref: "main", inputs: { sourceId: "", maxPages: "2" } }) },
       );
+      if (r.status === 204) logAudit("scrape-all", { detail: "scrape complet lancé (toutes les sources)" });
       setScrapeAll(
         r.status === 204
           ? { status: "ok", message: "🚀 Scrape complet lancé — voir « Activité récente »." }
@@ -1150,6 +1194,7 @@ export function AdminExplorer() {
         `https://api.github.com/repos/${owner}/${repo}/actions/workflows/deploy-pages.yml/dispatches`,
         { method: "POST", headers: GH_HEADERS(ghToken), body: JSON.stringify({ ref: "main" }) },
       );
+      if (r.status === 204) logAudit("redeploy", { detail: "reconstruction du site (deploy-pages)" });
       setPublish(
         r.status === 204
           ? { status: "ok", message: "Reconstruction du site lancée (quelques minutes)." }
@@ -1189,14 +1234,37 @@ export function AdminExplorer() {
     return merged;
   };
 
-  const ghPublish = async () => {
+  // #46 — Étape 1/2 : calcule l'aperçu du diff (fichier committé → liste
+  // fusionnée à publier) et le présente pour confirmation. Aucune écriture ici.
+  const preparePublish = async () => {
+    setPublish({ status: "run" });
+    try {
+      const latest = await fetchLatestDiscovered();
+      const merged = mergeForPublish(latest);
+      const diff = diffDiscovered(
+        (latest ?? []) as unknown as DiffEmployer[],
+        merged as unknown as DiffEmployer[],
+      );
+      if (diff.total === 0) {
+        setPendingPublish(null);
+        setPublish({ status: "ok", message: "Aucun changement à publier." });
+        return;
+      }
+      setPendingPublish({ merged, diff });
+      setPublish({ status: "idle" });
+    } catch (e) {
+      setPublish({ status: "err", message: (e as Error).message });
+    }
+  };
+
+  // #46 — Étape 2/2 : écrit discovered.json sur GitHub après confirmation.
+  const confirmPublish = async () => {
+    if (!pendingPublish) return;
+    const { merged, diff } = pendingPublish;
     const { owner, repo } = ghRepo();
     const base = `https://api.github.com/repos/${owner}/${repo}/contents/${DISCOVERED_PATH}`;
     setPublish({ status: "run" });
     try {
-      // Repart TOUJOURS du fichier committé le plus récent (préserve rbq/sectors).
-      const latest = await fetchLatestDiscovered();
-      const merged = mergeForPublish(latest);
       const cur = await fetch(`${base}?ref=main`, { headers: GH_HEADERS(ghToken) });
       const sha = cur.ok ? (await cur.json()).sha : undefined;
       const body = {
@@ -1207,6 +1275,10 @@ export function AdminExplorer() {
       };
       const r = await fetch(base, { method: "PUT", headers: GH_HEADERS(ghToken), body: JSON.stringify(body) });
       if (r.ok) {
+        logAudit("publish", {
+          detail: `discovered.json : ${diff.added.length} ajout(s), ${diff.removed.length} retrait(s), ${diff.modified.length} modif(s)`,
+        });
+        setPendingPublish(null);
         setPublish({ status: "ok", message: "Publié sur GitHub — le site va se redéployer." });
       } else {
         const d = await r.json().catch(() => ({}));
@@ -1412,6 +1484,7 @@ export function AdminExplorer() {
       next.delete(id);
       return next;
     });
+    logAudit("delete", { targetId: id, targetName: name, detail: n ? `${n} offre(s) supprimée(s)` : undefined });
     setBulkMsg(`Employeur « ${name} » supprimé.`);
   };
 
@@ -1493,6 +1566,115 @@ export function AdminExplorer() {
         </p>
       </header>
 
+      {/* #46 — Aperçu du diff avant publication de discovered.json */}
+      {pendingPublish && (
+        <div className="card mb-4 border-green-300 bg-white p-3 text-sm">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="font-semibold text-slate-800">Aperçu avant publication</h2>
+            <span className="text-xs text-slate-500">
+              {pendingPublish.diff.added.length} ajout(s) · {pendingPublish.diff.removed.length} retrait(s) ·{" "}
+              {pendingPublish.diff.modified.length} modif(s)
+            </span>
+          </div>
+          <div className="mt-2 max-h-72 space-y-2 overflow-y-auto text-xs">
+            {pendingPublish.diff.added.length > 0 && (
+              <div>
+                <p className="font-medium text-green-700">Ajouts</p>
+                <ul className="ml-4 list-disc text-slate-600">
+                  {pendingPublish.diff.added.map((e) => (
+                    <li key={e.id}>{e.name ?? e.id} <span className="text-slate-400">({e.id})</span></li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {pendingPublish.diff.removed.length > 0 && (
+              <div>
+                <p className="font-medium text-red-700">Retraits</p>
+                <ul className="ml-4 list-disc text-slate-600">
+                  {pendingPublish.diff.removed.map((e) => (
+                    <li key={e.id}>{e.name ?? e.id} <span className="text-slate-400">({e.id})</span></li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {pendingPublish.diff.modified.length > 0 && (
+              <div>
+                <p className="font-medium text-slate-700">Modifications</p>
+                <ul className="ml-4 list-disc text-slate-600">
+                  {pendingPublish.diff.modified.map((m) => (
+                    <li key={m.id}>
+                      <span className="font-medium">{m.name}</span>
+                      <ul className="ml-4 list-[circle]">
+                        {m.changes.map((c) => (
+                          <li key={c.field}>
+                            {c.field} : <span className="text-red-600">{JSON.stringify(c.before) ?? "∅"}</span> →{" "}
+                            <span className="text-green-700">{JSON.stringify(c.after)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+          <div className="mt-3 flex items-center gap-2">
+            <button
+              onClick={confirmPublish}
+              disabled={publish.status === "run"}
+              className="rounded-lg bg-green-700 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+            >
+              {publish.status === "run" ? "Publication…" : "✓ Confirmer la publication"}
+            </button>
+            <button
+              onClick={() => setPendingPublish(null)}
+              className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold hover:bg-slate-100"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* #45 — Journal d'audit des actions admin (ce navigateur) */}
+      <div className="mb-4">
+        <button
+          onClick={() => setAuditOpen((v) => !v)}
+          className="text-xs font-medium text-slate-500 hover:text-slate-800"
+        >
+          {auditOpen ? "▾" : "▸"} Journal d'audit ({auditLog.length})
+        </button>
+        {auditOpen && (
+          <div className="card mt-2 p-3 text-xs">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-slate-500">
+                Actions faites depuis ce navigateur. « Qui » = compte connecté quand disponible.
+              </span>
+              {auditLog.length > 0 && (
+                <button onClick={clearAudit} className="text-slate-400 hover:text-red-600">
+                  Vider
+                </button>
+              )}
+            </div>
+            {auditLog.length === 0 ? (
+              <p className="text-slate-500">Aucune action enregistrée.</p>
+            ) : (
+              <ul className="max-h-72 space-y-1 overflow-y-auto">
+                {auditLog.map((a) => (
+                  <li key={a.id} className="flex flex-wrap items-baseline gap-x-2 border-b border-slate-100 pb-1">
+                    <span className="text-slate-400">{relTime(a.ts)}</span>
+                    <span className="font-medium text-slate-700">{AUDIT_LABEL[a.action] ?? a.action}</span>
+                    {a.targetName && <span className="text-slate-600">· {a.targetName}</span>}
+                    {a.detail && <span className="text-slate-500">— {a.detail}</span>}
+                    {a.actor && <span className="ml-auto text-slate-400">{a.actor}</span>}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </div>
+
       {mode === "loading" && <p className="text-slate-500">Connexion…</p>}
 
       {mode !== "loading" && (
@@ -1564,7 +1746,7 @@ export function AdminExplorer() {
                     {ghToken ? "🔑 GitHub connecté" : "🔗 Connecter GitHub"}
                   </button>
                   {ghToken && (
-                    <button onClick={ghPublish} disabled={publish.status === "run"} className="rounded-lg bg-green-700 px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-50">
+                    <button onClick={preparePublish} disabled={publish.status === "run"} className="rounded-lg bg-green-700 px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-50">
                       {publish.status === "run" ? "Publication…" : "⬆ Publier sur GitHub"}
                     </button>
                   )}
