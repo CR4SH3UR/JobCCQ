@@ -257,8 +257,8 @@ Backlog d'idées d'ajout, classées par thème. Coche une case quand la fonction
 
 ### 🛠️ Admin & données
 
-- [ ] 45. Journal d'audit des actions admin (qui a modifié quoi, quand)
-- [ ] 46. Diff avant publication des changements `discovered.json`
+- [x] 45. Journal d'audit des actions admin (qui a modifié quoi, quand — ce navigateur)
+- [x] 46. Diff avant publication des changements `discovered.json`
 - [ ] 47. Édition en masse (activer/désactiver, changer de méthode pour N employeurs)
 
 ### 📱 Mobile & plateforme
