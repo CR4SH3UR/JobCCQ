@@ -52,6 +52,14 @@ import { bellemareScraper, groupebellemareScraper } from "./bellemare.js";
 import { betonGlScraper } from "./betongl.js";
 import { boismassifquebecScraper } from "./boismassifquebec.js";
 import { bolessScraper } from "./boless.js";
+import { boreACanadaScraper } from "./boreacanada.js";
+import { bourcierVentilationScraper } from "./bourcierventilation.js";
+import { boutyScraper } from "./bouty.js";
+import { bruantoconstructionScraper } from "./bruantoconstruction.js";
+import { brunelleElectriqueScraper } from "./brunelleelectrique.js";
+import { convairScraper } from "./convair.js";
+import { gcbfincScraper } from "./gcbfinc.js";
+import { canInspecScraper } from "./caninspec.js";
 import { buildDiscoveredScraper } from "./discovered.js";
 
 /**
@@ -116,6 +124,14 @@ const BESPOKE = {
   "betongl-com": betonGlScraper,
   "boismassifquebec-com": boismassifquebecScraper,
   "boless-com": bolessScraper,
+  "boreacanada-com": boreACanadaScraper,
+  "bourcierventilation-com": bourcierVentilationScraper,
+  "bouty-com": boutyScraper,
+  "bruantoconstruction-com": bruantoconstructionScraper,
+  "brunelleelectrique-com": brunelleElectriqueScraper,
+  "can-inspec-ca": canInspecScraper,
+  "con-v-air-com": convairScraper,
+  "gcbfinc-com": gcbfincScraper,
   "bellemare-njoyn": bellemareScraper,
   "groupebellemare-com": groupebellemareScraper,
 } satisfies Record<CustomScraperId, Scraper>;
