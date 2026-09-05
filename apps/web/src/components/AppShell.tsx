@@ -7,6 +7,7 @@ import { Footer } from "./Footer";
 import { BetaBanner } from "./BetaBanner";
 import { ScrollToTop } from "./ScrollToTop";
 import { CompareBar } from "./CompareBar";
+import { OfflineBanner } from "./OfflineBanner";
 
 /**
  * Chrome du site. Le widget `/embed/…` (iframe chez un employeur) n'affiche
@@ -24,6 +25,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <>
       <ScrollToTop />
       <BetaBanner />
+      <OfflineBanner />
       <Header />
       <main className="flex-1">{children}</main>
       <CompareBar />

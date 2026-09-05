@@ -23,6 +23,8 @@ import {
   type JobSearchResult,
   type JobSource,
 } from "@jobccq/shared";
+import { fetchWithOfflineFallback, setOfflineMeta } from "./offline-snapshot";
+import { matchSnapshotJson, putSnapshotResponse } from "./snapshot-cache";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const STATIC = process.env.NEXT_PUBLIC_STATIC_DATA === "1";
@@ -84,12 +86,23 @@ function loadSnapshot(): Promise<Job[]> {
     // chargement. Sans ça, `force-cache` fige la première version vue par le
     // navigateur : après une mise à jour des offres, un visiteur de retour
     // continuait de voir l'ancien jeu de données (ex. les 72 offres de démo).
-    // La réponse reste servie depuis le cache tant que l'ETag n'a pas changé
-    // (304), donc l'impact réseau est minime.
-    snapshotCache = fetch(`${BASE_PATH}/data/jobs.json`, { cache: "no-cache" })
-      .then((r) => {
+    // Hors ligne : on sert la dernière copie Cache Storage (idée 74).
+    const url = `${BASE_PATH}/data/jobs.json`;
+    snapshotCache = fetchWithOfflineFallback<Job[]>({
+      live: async () => {
+        const r = await fetch(url, { cache: "no-cache" });
         if (!r.ok) throw new Error(`Instantané introuvable (HTTP ${r.status})`);
+        void putSnapshotResponse(url, r.clone());
         return r.json() as Promise<Job[]>;
+      },
+      readCache: () => matchSnapshotJson<Job[]>(url),
+      writeCache: async () => {
+        /* le clone HTTP est déjà posé dans `live` */
+      },
+    })
+      .then((loaded) => {
+        setOfflineMeta({ fromCache: loaded.fromCache, savedAt: loaded.savedAt });
+        return loaded.data;
       })
       // On masque les offres des sources désactivées manuellement.
       .then((jobs) =>

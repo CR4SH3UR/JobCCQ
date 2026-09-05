@@ -292,7 +292,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 ### 📱 Mobile & plateforme
 
 - [ ] 48. Parité mobile (détail d'offre, favoris, alertes, compte)
-- [ ] 74. Mode hors-ligne : dernières offres en cache (même snapshot que le site statique)
+- [x] 74. Mode hors-ligne : dernières offres en cache (même snapshot que le site statique)
 
 ### 📈 SEO, perf & accessibilité
 
