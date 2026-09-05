@@ -6,6 +6,7 @@ import {
   fetchMunicipalities,
   upsertMunicipality,
   deleteMunicipality,
+  importOfficialMunicipalities,
 } from "@/lib/municipalities";
 
 /**
@@ -34,6 +35,7 @@ export function AdminRegions() {
   const [name, setName] = useState("");
   const [regionId, setRegionId] = useState<string>(REGION_OPTIONS[0]!.id);
   const [status, setStatus] = useState<Status>({ k: "idle" });
+  const [importing, setImporting] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -92,6 +94,23 @@ export function AdminRegions() {
     }
   };
 
+  const importAll = async () => {
+    setImporting(true);
+    setStatus({ k: "run", msg: "Import des municipalités officielles en cours..." });
+    try {
+      const result = await importOfficialMunicipalities();
+      setStatus({
+        k: "ok",
+        msg: `${result.imported} municipalités importées depuis le MAMH${result.skipped ? ` (${result.skipped} ligne(s) ignorée(s))` : ""}.`,
+      });
+      await load();
+    } catch (e) {
+      setStatus({ k: "err", msg: writeError(e) });
+    } finally {
+      setImporting(false);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-5xl px-4 pb-10">
       <div className="card p-4">
@@ -104,6 +123,26 @@ export function AdminRegions() {
           ville passe dans la bonne région dès le prochain chargement du site (offres existantes
           comprises).
         </p>
+        <div className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-3 dark:border-sky-500/30 dark:bg-sky-950/30">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                Import officiel MAMH
+              </p>
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                Remplit automatiquement la table avec toutes les municipalités du Québec, classées par région administrative.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void importAll()}
+              disabled={importing}
+              className="rounded-lg bg-sky-700 px-4 py-1.5 text-sm font-semibold text-white hover:bg-sky-800 disabled:opacity-50 dark:bg-sky-400 dark:text-slate-950 dark:hover:bg-sky-300"
+            >
+              {importing ? "Import..." : "Importer tout"}
+            </button>
+          </div>
+        </div>
 
         {/* Formulaire d'ajout */}
         <div className="mt-4 flex flex-wrap items-end gap-2">

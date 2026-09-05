@@ -20,6 +20,15 @@ interface Row {
   region_id: string;
 }
 
+export interface ImportOfficialMunicipalitiesResult {
+  imported: number;
+  skipped: number;
+  byRegion: Record<string, number>;
+  sourceUrl: string;
+  sourceLastModified: string | null;
+  error?: string;
+}
+
 /** Lit toutes les municipalités (lecture publique). Renvoie [] si indisponible. */
 export async function fetchMunicipalities(): Promise<Municipality[]> {
   const { supabase } = await import("./supabase");
@@ -51,4 +60,18 @@ export async function deleteMunicipality(name: string): Promise<void> {
   if (!supabase) throw new Error("Supabase n'est pas configuré.");
   const { error } = await supabase.from("municipalities").delete().eq("norm", normMunicipality(name));
   if (error) throw new Error(error.message);
+}
+
+/** Importe toutes les municipalités officielles du Québec depuis le CSV MAMH. */
+export async function importOfficialMunicipalities(): Promise<ImportOfficialMunicipalitiesResult> {
+  const { supabase } = await import("./supabase");
+  if (!supabase) throw new Error("Supabase n'est pas configuré.");
+  const { data, error } = await supabase.functions.invoke<ImportOfficialMunicipalitiesResult>(
+    "import-municipalities",
+    { method: "POST" },
+  );
+  if (error) throw new Error(error.message);
+  if (data?.error) throw new Error(data.error);
+  if (!data) throw new Error("Réponse vide de la fonction d'import.");
+  return data;
 }

@@ -210,6 +210,23 @@ on conflict (norm) do nothing;
 > garde les régions de l'instantané — rien ne casse. Dès la table créée + un compte
 > admin connecté, l'ajout/retrait est instantané.
 
+## Import automatique des municipalités officielles
+
+Déploie aussi l'Edge Function d'import :
+
+```bash
+supabase functions deploy import-municipalities
+```
+
+Elle télécharge côté serveur le fichier officiel MAMH « Liste des municipalités »
+(`https://donneesouvertes.affmunqc.net/repertoire/MUN.csv`), puis upsert toutes les
+municipalités dans `public.municipalities`. Dans `/admin` → **Régions & municipalités**,
+le bouton **Importer tout** déclenche cette fonction. La fonction exige :
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `ADMIN_EMAILS` avec le ou les courriels autorisés
+
 ---
 
 # Notifications par courriel (alertes emploi) — Resend
