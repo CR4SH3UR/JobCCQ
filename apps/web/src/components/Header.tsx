@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { adminAllowlistConfigured, isAdminEmail, useAuth } from "@/lib/auth";
 import { cn } from "@/lib/format";
 import { ThemeToggle } from "./ThemeToggle";
 import { AuthButton } from "./AuthButton";
@@ -18,7 +19,11 @@ const COMPTE = ["/candidatures", "/favoris", "/alertes"];
 
 export function Header() {
   const pathname = usePathname();
+  const { user, enabled } = useAuth();
   const compteActive = COMPTE.some((h) => pathname.startsWith(h));
+  const adminActive = pathname.startsWith("/admin");
+  const showAdmin = enabled && adminAllowlistConfigured && isAdminEmail(user?.email);
+
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
@@ -61,6 +66,20 @@ export function Header() {
             <span aria-hidden>👤</span>
             <span className="hidden sm:inline">Mon espace</span>
           </Link>
+          {showAdmin && (
+            <Link
+              href="/admin"
+              title="Panel admin"
+              className={cn(
+                "rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors",
+                adminActive
+                  ? "bg-brand-600 text-white"
+                  : "border border-brand-200 text-brand-700 hover:bg-brand-50",
+              )}
+            >
+              Admin
+            </Link>
+          )}
           <ThemeToggle />
           <AuthButton />
         </nav>
