@@ -50,29 +50,9 @@ export function EmployerView({ slug }: { slug: string }) {
     }
   }, [load]);
 
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        <p className="text-slate-500">Chargement de l’employeur…</p>
-      </div>
-    );
-  }
-
-  if (error || (jobs.length === 0 && !employer)) {
-    return (
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        <p className="text-slate-500">Employeur introuvable.</p>
-        <Link href="/entreprises" className="mt-2 inline-block text-brand-700 hover:underline">
-          ← Retour aux entreprises
-        </Link>
-      </div>
-    );
-  }
-
-  const sectors = employer?.sectors ?? [];
-
   // Données enrichies dérivées des offres : logo réel, régions réellement
-  // couvertes, dernière publication, métiers CCQ présents.
+  // couvertes, dernière publication, métiers CCQ présents. Ces hooks doivent
+  // rester AVANT tout `return` conditionnel (ordre des hooks stable).
   const logoUrl = jobs.find((j) => j.companyLogoUrl)?.companyLogoUrl;
   const careersUrl = employer?.careersUrl;
   const regionLabels = useMemo(() => {
@@ -93,6 +73,27 @@ export function EmployerView({ slug }: { slug: string }) {
     }
     return [...set].slice(0, 8);
   }, [jobs]);
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <p className="text-slate-500">Chargement de l’employeur…</p>
+      </div>
+    );
+  }
+
+  if (error || (jobs.length === 0 && !employer)) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <p className="text-slate-500">Employeur introuvable.</p>
+        <Link href="/entreprises" className="mt-2 inline-block text-brand-700 hover:underline">
+          ← Retour aux entreprises
+        </Link>
+      </div>
+    );
+  }
+
+  const sectors = employer?.sectors ?? [];
 
   return (
     <div>
