@@ -223,7 +223,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 15. Score de complétude d'une offre (salaire ? lieu ? description ?)
 - [x] 16. Résumé automatique de la description (2-3 puces)
 - [ ] 17. Traduction FR↔EN des offres unilingues (libellé « traduit automatiquement »)
-- [ ] 18. Détection d'offres expirées (vérif du lien : 404/redirection → « peut-être pourvue »)
+- [x] 18. Détection d'offres expirées (vérif du lien : 404/redirection → « peut-être pourvue »)
 - [x] 19. Ancienneté visible et cohérente partout (« il y a 2 j »)
 - [ ] 20. Historique d'une offre (salaire modifié, réactivée…)
 - [x] 54. Extraire contacts RH publics (courriel / téléphone) dans la fiche

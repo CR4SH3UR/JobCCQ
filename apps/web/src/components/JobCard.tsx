@@ -89,6 +89,11 @@ export function JobCard({ job }: { job: Job }) {
             {applied && <Badge tone="green">✓ Postulé</Badge>}
             <MatchBadge job={job} />
             <AlsoOnBadge alts={job.alsoOn} />
+            {job.linkStatus === "gone" && (
+              <Badge tone="amber" title="Le lien original répond 404 ou redirige">
+                Peut-être pourvue
+              </Badge>
+            )}
             {ccq && <Badge tone="violet">CCQ</Badge>}
             {sponsored && <Badge tone="amber">★ Commandité</Badge>}
             {job.categoryId && <Badge tone="brand">{labelForCategory(job.categoryId)}</Badge>}

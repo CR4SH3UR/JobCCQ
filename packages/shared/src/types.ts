@@ -47,6 +47,12 @@ export const JobSchema = z.object({
   scrapedAt: z.string().datetime(),
 
   /**
+   * Lien original encore valide ? `gone` = 404/redirection (peut-être pourvue).
+   * Absent / `unknown` = pas vérifié ou site qui bloque la sonde.
+   */
+  linkStatus: z.enum(["ok", "gone", "unknown"]).optional(),
+
+  /**
    * Autres sources du même poste (doublons inter-portails). Calculé à la
    * lecture (`collapseDuplicates` / `attachDuplicateAlts`), pas persisté.
    */

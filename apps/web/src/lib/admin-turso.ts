@@ -40,6 +40,7 @@ export async function tursoExec(url: string, token: string, sql: string, args: u
 export async function ensureTursoAdminColumns(url: string, token: string): Promise<void> {
   await tursoExec(url, token, "ALTER TABLE Employer ADD COLUMN notes TEXT").catch(() => {});
   await tursoExec(url, token, "ALTER TABLE ScrapeRun ADD COLUMN diffJson TEXT").catch(() => {});
+  await tursoExec(url, token, "ALTER TABLE Job ADD COLUMN linkStatus TEXT").catch(() => {});
 }
 
 export function tursoCreds(): { url: string; token: string } | null {

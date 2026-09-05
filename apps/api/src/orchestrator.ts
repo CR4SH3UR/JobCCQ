@@ -1,6 +1,7 @@
 import { RawJobSchema, type Job } from "@jobccq/shared";
 import { prisma } from "./db.js";
 import { normalizeRawJob, isJunkTitle } from "./normalize.js";
+import { annotateLinkStatus } from "./link-check.js";
 import { syncSourceJobs, upsertJobs, type JobDiffEntry } from "./repository.js";
 import { createHttpContext } from "./scrapers/http.js";
 import { getScraper, listScraperIds } from "./scrapers/registry.js";
@@ -105,6 +106,8 @@ export async function runScraperInstance(
       }
       jobs.push(job);
     }
+
+    await annotateLinkStatus(jobs, log);
 
     const result =
       persist === "sync"

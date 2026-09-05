@@ -3,6 +3,7 @@ import {
   applyQuery,
   toHiringCompanies,
   attachDuplicateAlts,
+  isLinkStatus,
   type HiringCompany,
   type Job,
   type JobQuery,
@@ -46,6 +47,7 @@ export function rowToJob(row: PrismaJob): Job {
     languages: parseJsonArray(row.languages) as Job["languages"],
     postedAt: row.postedAt?.toISOString(),
     scrapedAt: row.scrapedAt.toISOString(),
+    linkStatus: isLinkStatus(row.linkStatus) ? row.linkStatus : undefined,
   };
 }
 
@@ -73,6 +75,7 @@ export function jobToRow(job: Job) {
     languages: JSON.stringify(job.languages ?? []),
     postedAt: job.postedAt ? new Date(job.postedAt) : null,
     scrapedAt: job.scrapedAt ? new Date(job.scrapedAt) : new Date(),
+    linkStatus: job.linkStatus ?? null,
   };
 }
 
@@ -217,6 +220,8 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
         tags: data.tags,
         languages: data.languages,
         postedAt: data.postedAt,
+        // Ne pas écraser un statut déjà sondé si LINK_CHECK=0 (champ absent).
+        ...(data.linkStatus != null ? { linkStatus: data.linkStatus } : {}),
       },
     });
     if (prev) {
