@@ -23,7 +23,6 @@ import { stefetmaxScraper } from "./stefetmax.js";
 import { droletConstructionScraper } from "./droletconstruction.js";
 import { electriciteMc2Scraper } from "./electricitemc2.js";
 import { glrScraper } from "./glr.js";
-import { bellemareScraper } from "./bellemare.js";
 import { excavationsRsrScraper } from "./excavationsrsr.js";
 import { galileeScraper } from "./galilee.js";
 import { intermatScraper } from "./intermat.js";
@@ -35,6 +34,14 @@ import { atelierEnHauteurScraper } from "./atelier-en-hauteur.js";
 import { atlasApexScraper } from "./atlas-apex.js";
 import { audetEntrepreneurPeintreScraper } from "./audet-entrepreneur-peintre.js";
 import { automationDrummondScraper } from "./automation-drummond.js";
+import { aviviaScraper } from "./avivia.js";
+import { bardeauxScraper } from "./bardeaux.js";
+import { baretteBernardScraper } from "./barettebernard.js";
+import { qmbScraper } from "./qmb.js";
+import { gestionAgodinScraper } from "./gestionagodin.js";
+import { baulneScraper } from "./baulne.js";
+import { berardTremblayScraper } from "./berardtremblay.js";
+import { bellemareScraper } from "./bellemare.js";
 import { buildDiscoveredScraper } from "./discovered.js";
 
 /**
@@ -71,7 +78,6 @@ const BESPOKE = {
   "droletconstruction-com": droletConstructionScraper,
   "electricitemc2-com": electriciteMc2Scraper,
   glr: glrScraper,
-  "groupebellemare-com": bellemareScraper,
   "excavationsrsr-com": excavationsRsrScraper,
   galilee: galileeScraper,
   intermat: intermatScraper,
@@ -83,6 +89,14 @@ const BESPOKE = {
   "atlas-apex": atlasApexScraper,
   "audetentrepreneurpeintre-com": audetEntrepreneurPeintreScraper,
   "automationdrummond-com": automationDrummondScraper,
+  "avivia-ca": aviviaScraper,
+  "bardeaux-ca": bardeauxScraper,
+  "barettebernard-com": baretteBernardScraper,
+  "qmb-ca": qmbScraper,
+  "gestionagodin-com": gestionAgodinScraper,
+  "baulne-ca": baulneScraper,
+  "berardtremblay-com": berardTremblayScraper,
+  "bellemare-njoyn": bellemareScraper,
 } satisfies Record<CustomScraperId, Scraper>;
 
 /**

@@ -1657,19 +1657,6 @@
     "enabled": false
   },
   {
-    "id": "groupebellemare-com",
-    "name": "Groupe Bellemare",
-    "homepage": "https://www.groupebellemare.com",
-    "careersUrl": "https://bellemare.njoyn.com/cl3/xweb/Xweb.asp?page=joblisting&CLID=53428&lang=2",
-    "method": "html",
-    "region": "Mauricie",
-    "rbq": "5824-9970-01",
-    "scope": "Employeur — construction (découverte RBQ)",
-    "sectors": [
-      "Commercial et institutionnel"
-    ]
-  },
-  {
     "id": "constructionjrsavard-ca",
     "name": "Ben Girard & Fils Ltée",
     "homepage": "https://constructionjrsavard.ca",
@@ -27378,5 +27365,18 @@
     "sectors": [
       "Construction générale"
     ]
+  },
+  {
+    "id": "bellemare-njoyn",
+    "name": "Groupe Bellemare",
+    "homepage": "https://bellemare.ca",
+    "careersUrl": "https://bellemare.njoyn.com/cl3/xweb/Xweb.asp?page=joblisting&CLID=53428&lang=2",
+    "method": "html",
+    "region": "Mauricie",
+    "scope": "Employeur — matériaux, transport et grues (portail Njoyn — via proxy)",
+    "sectors": [
+      "Génie civil et voirie"
+    ],
+    "verified": false
   }
 ]

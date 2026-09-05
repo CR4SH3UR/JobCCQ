@@ -30,7 +30,6 @@ export const CUSTOM_SCRAPER_IDS = [
   "droletconstruction-com",
   "electricitemc2-com",
   "glr",
-  "groupebellemare-com",
   "excavationsrsr-com",
   "galilee",
   "intermat",
@@ -42,6 +41,14 @@ export const CUSTOM_SCRAPER_IDS = [
   "atlas-apex",
   "audetentrepreneurpeintre-com",
   "automationdrummond-com",
+  "avivia-ca",
+  "bardeaux-ca",
+  "barettebernard-com",
+  "qmb-ca",
+  "gestionagodin-com",
+  "baulne-ca",
+  "berardtremblay-com",
+  "bellemare-njoyn",
 ] as const;
 
 export type CustomScraperId = (typeof CUSTOM_SCRAPER_IDS)[number];

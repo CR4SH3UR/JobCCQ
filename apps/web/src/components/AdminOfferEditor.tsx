@@ -88,9 +88,14 @@ export function AdminOfferEditor({
   const [languages, setLanguages] = useState<string[]>([...offer.languages]);
   const [postedAt, setPostedAt] = useState(toLocalInput(offer.postedAt));
   const [companyLogoUrl, setCompanyLogoUrl] = useState(offer.companyLogoUrl ?? "");
-  // Retour du bouton « déduire la région de la ville ».
+  // Retour de la déduction « ville → région ».
   const [regionHint, setRegionHint] = useState<{ tone: "ok" | "err"; msg: string } | null>(null);
   const [detecting, setDetecting] = useState(false);
+  // Dernière ville auto-déduite (normalisée) : évite de re-déduire — et d'écraser
+  // une région choisie à la main — quand on ne fait que traverser le champ Ville
+  // sans le modifier. Initialisé à la ville de l'offre pour ne rien déduire tant
+  // que l'admin n'a pas changé la ville.
+  const [lastAutoCity, setLastAutoCity] = useState((offer.city ?? "").trim().toLowerCase());
 
   useEffect(() => {
     setTitle(offer.title);
@@ -112,33 +117,50 @@ export function AdminOfferEditor({
     setPostedAt(toLocalInput(offer.postedAt));
     setCompanyLogoUrl(offer.companyLogoUrl ?? "");
     setRegionHint(null);
+    setLastAutoCity((offer.city ?? "").trim().toLowerCase());
   }, [offer]);
 
   const toggleLang = (id: string) =>
     setLanguages((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
 
-  /** Déduit la région à partir de la ville saisie (table des municipalités). */
-  const detectRegion = async () => {
+  /**
+   * Déduit la région à partir de la ville (table des municipalités).
+   * En mode `auto` (blur du champ Ville) : silencieux si rien n'est trouvé, pour
+   * ne pas harceler ; en mode manuel (bouton) : affiche toujours un retour.
+   */
+  const resolveCity = async (auto: boolean) => {
     const c = city.trim();
     if (!c) {
-      setRegionHint({ tone: "err", msg: "Saisis d'abord une ville." });
+      if (!auto) setRegionHint({ tone: "err", msg: "Saisis d'abord une ville." });
       return;
     }
     setDetecting(true);
-    setRegionHint(null);
+    if (!auto) setRegionHint(null);
     try {
       const rid = await resolveRegionForCity(c);
       if (rid) {
         setRegionId(rid);
-        setRegionHint({ tone: "ok", msg: `Région trouvée : ${labelForRegion(rid) ?? rid}` });
-      } else {
+        setRegionHint({ tone: "ok", msg: `Région déduite : ${labelForRegion(rid) ?? rid}` });
+      } else if (!auto) {
         setRegionHint({ tone: "err", msg: `« ${c} » introuvable dans la table des municipalités.` });
+      } else {
+        setRegionHint(null);
       }
     } catch (e) {
-      setRegionHint({ tone: "err", msg: (e as Error).message });
+      if (!auto) setRegionHint({ tone: "err", msg: (e as Error).message });
     } finally {
       setDetecting(false);
     }
+  };
+
+  const detectRegion = () => void resolveCity(false);
+
+  /** À la sortie du champ Ville : auto-déduit la région si la ville a changé. */
+  const onCityBlur = () => {
+    const key = city.trim().toLowerCase();
+    if (!key || key === lastAutoCity) return;
+    setLastAutoCity(key);
+    void resolveCity(true);
   };
 
   const submit = () => {
@@ -188,7 +210,15 @@ export function AdminOfferEditor({
         )}
         {field("Logo (URL)", <input value={companyLogoUrl} onChange={(e) => setCompanyLogoUrl(e.target.value)} spellCheck={false} className={`${inputCls} font-mono`} />)}
         {field("Lieu (brut)", <input value={location} onChange={(e) => setLocation(e.target.value)} className={inputCls} />)}
-        {field("Ville", <input value={city} onChange={(e) => setCity(e.target.value)} className={inputCls} />)}
+        {field(
+          "Ville",
+          <input
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            onBlur={onCityBlur}
+            className={inputCls}
+          />,
+        )}
         <div className="flex flex-col gap-0.5">
           <span className="text-slate-500">Région</span>
           <select value={regionId} onChange={(e) => setRegionId(e.target.value)} className={inputCls}>
