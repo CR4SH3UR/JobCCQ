@@ -27378,5 +27378,18 @@
     "sectors": [
       "Construction générale"
     ]
+  },
+  {
+    "id": "bellemare-njoyn",
+    "name": "Groupe Bellemare",
+    "homepage": "https://bellemare.ca",
+    "careersUrl": "https://bellemare.njoyn.com/cl3/xweb/Xweb.asp?tbtoken=Zl9bShtYDVBzYQZ5QlVSYU9OBGZcaVVdel1MIl8ND3lbW0sYL0odBhZ9cDcYGhBRTXJsF3Y%3D&chk=ZVpaShM%3D&page=joblisting&CLID=53428&lang=2",
+    "method": "html",
+    "region": "Mauricie",
+    "scope": "Employeur — matériaux, transport et grues (portail Njoyn — protégé anti-robot)",
+    "sectors": [
+      "Génie civil et voirie"
+    ],
+    "verified": false
   }
 ]

@@ -880,3 +880,32 @@ export function makeCareersScraper(config: CareersScraperConfig): Scraper {
     },
   };
 }
+
+export interface RefineCareersOptions {
+  /** Titres à écarter (faux positifs : nom d'entreprise, exigences, etc.). */
+  drop?: RegExp;
+  /** Lieu par défaut appliqué aux offres sans lieu (→ détection de région). */
+  defaultLocation?: string;
+}
+
+/**
+ * Enveloppe `makeCareersScraper` pour les pages carrières « accordéon/liens »
+ * qui marchent avec le repli générique mais nécessitent un léger nettoyage :
+ * retirer des titres parasites (`drop`) et/ou poser un lieu par défaut
+ * (`defaultLocation`) quand la page n'indique pas de ville par poste — afin que
+ * la région se détecte. Réutilise tout le reste (fetch, enrichissement, purge).
+ */
+export function refineCareers(config: CareersScraperConfig, opts: RefineCareersOptions = {}): Scraper {
+  const base = makeCareersScraper(config);
+  const refine = (jobs: RawJob[]): RawJob[] =>
+    jobs
+      .filter((j) => !(opts.drop && opts.drop.test(j.title)))
+      .map((j) =>
+        opts.defaultLocation && !j.location?.trim() ? { ...j, location: opts.defaultLocation } : j,
+      );
+  return {
+    id: base.id,
+    parseList: (html, baseUrl) => refine(base.parseList!(html, baseUrl)),
+    scrape: async (params, ctx) => refine(await base.scrape(params, ctx)),
+  };
+}
