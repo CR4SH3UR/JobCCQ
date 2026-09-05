@@ -27,6 +27,11 @@ import { galileeScraper } from "./galilee.js";
 import { intermatScraper } from "./intermat.js";
 import { riouxScraper } from "./rioux.js";
 import { atkinsRealisScraper } from "./atkinsrealis.js";
+import { arteliaScraper } from "./artelia.js";
+import { ascenseursAbsoluScraper } from "./ascenseurs-absolu.js";
+import { atelierEnHauteurScraper } from "./atelier-en-hauteur.js";
+import { atlasApexScraper } from "./atlas-apex.js";
+import { audetEntrepreneurPeintreScraper } from "./audet-entrepreneur-peintre.js";
 import { buildDiscoveredScraper } from "./discovered.js";
 
 /**
@@ -67,6 +72,11 @@ const BESPOKE: Record<string, Scraper> = {
   [intermatScraper.id]: intermatScraper,
   [riouxScraper.id]: riouxScraper,
   [atkinsRealisScraper.id]: atkinsRealisScraper,
+  [arteliaScraper.id]: arteliaScraper,
+  [ascenseursAbsoluScraper.id]: ascenseursAbsoluScraper,
+  [atelierEnHauteurScraper.id]: atelierEnHauteurScraper,
+  [atlasApexScraper.id]: atlasApexScraper,
+  [audetEntrepreneurPeintreScraper.id]: audetEntrepreneurPeintreScraper,
 };
 
 /**

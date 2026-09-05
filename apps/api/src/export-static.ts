@@ -55,6 +55,11 @@ async function main() {
     }
   }
 
+  // Note : le reclassement **municipalité → région** (table éditable de la
+  // console admin) se fait désormais **en direct dans le navigateur** au
+  // chargement de l'instantané (Supabase → apps/web/src/lib/data.ts), pour
+  // s'appliquer instantanément sans redéploiement. Rien à faire ici.
+
   // Région manquante (localisation non fournie par le site) : on retombe sur la
   // région administrative (RBQ) de l'employeur. Approximation raisonnable pour
   // les entrepreneurs locaux, et cela alimente le filtre « Région » du site.

@@ -2,11 +2,21 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { DISCOVERED_EMPLOYERS, type DiscoveredMethod } from "@jobccq/shared";
-import { API_URL, getStats, searchJobs, buildQuery } from "@/lib/data";
+import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, type DiscoveredMethod } from "@jobccq/shared";
+import { API_URL, getStats, searchJobs, buildQuery, adminFetch } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { encryptJson, decryptJson, saveVault, loadVault, clearVault, type AdminSecrets } from "@/lib/vault";
 import { Badge } from "./Badge";
+
+/**
+ * Régions administratives du Québec sélectionnables pour un employeur. On exclut
+ * télétravail / hors-Québec / non précisé (non pertinents pour le LIEU d'un
+ * employeur). Le libellé sans parenthèse correspond au format stocké et se
+ * « slugifie » vers l'id de région attendu par la chaîne de traitement.
+ */
+const REGION_OPTIONS = QUEBEC_REGIONS.filter(
+  (r) => !["teletravail", "canada-autre", "autre"].includes(r.id),
+).map((r) => r.label.replace(/\s*\(.*\)\s*$/, ""));
 
 type Employer = {
   id: string;
@@ -457,7 +467,7 @@ export function AdminExplorer() {
     let alive = true;
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 2500);
-    fetch(`${API_URL}/admin/employers`, { signal: ctrl.signal })
+    adminFetch(`${API_URL}/admin/employers`, { signal: ctrl.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d: { employers: Employer[] }) => {
         if (!alive) return;
@@ -651,7 +661,7 @@ export function AdminExplorer() {
         ).catch(() => null);
         if (rows) setEmployers(rows.map(rowToEmployer));
       } else if (mode === "api") {
-        const d = await fetch(`${API_URL}/admin/employers`).then((r) => r.json()).catch(() => null);
+        const d = await adminFetch(`${API_URL}/admin/employers`).then((r) => r.json()).catch(() => null);
         if (d?.employers) setEmployers(d.employers);
       } else {
         const latest = latestRef.current ?? (await fetchLatestDiscovered());
@@ -700,7 +710,7 @@ export function AdminExplorer() {
     if (mode === "api") {
       setSaveState((s) => ({ ...s, [id]: { s: "saving" } }));
       try {
-        const res = await fetch(`${API_URL}/admin/employers/${id}`, {
+        const res = await adminFetch(`${API_URL}/admin/employers/${id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(patch),
@@ -780,7 +790,7 @@ export function AdminExplorer() {
     if (mode !== "api") return;
     setScrapes((s) => ({ ...s, [id]: { status: "run" } }));
     try {
-      const r = await fetch(`${API_URL}/admin/employers/${id}/scrape`, {
+      const r = await adminFetch(`${API_URL}/admin/employers/${id}/scrape`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ maxPages: 2 }),
@@ -815,7 +825,7 @@ export function AdminExplorer() {
     if (mode === "turso") {
       await tursoRows(tursoUrl, tursoToken, "DELETE FROM Job WHERE sourceId=?", [id]).catch(() => {});
     } else {
-      await fetch(`${API_URL}/admin/employers/${id}/offers`, { method: "DELETE" }).catch(() => {});
+      await adminFetch(`${API_URL}/admin/employers/${id}/offers`, { method: "DELETE" }).catch(() => {});
     }
     setCounts((c) => ({ ...c, [id]: 0 }));
   };
@@ -823,7 +833,7 @@ export function AdminExplorer() {
   const publishChanges = async () => {
     setPublish({ status: "run" });
     try {
-      const r = await fetch(`${API_URL}/admin/publish`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+      const r = await adminFetch(`${API_URL}/admin/publish`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
       const d = await r.json();
       setPublish({ status: d.published || d.message ? "ok" : "err", message: d.message || d.error || "Terminé." });
     } catch (e) {
@@ -1159,7 +1169,7 @@ export function AdminExplorer() {
     if (!window.confirm(`Vider les offres de ${withJobs.length} employeur(s) sélectionné(s) ?\n\nAction irréversible.`)) return;
     for (const id of withJobs) {
       if (mode === "turso") await tursoRows(tursoUrl, tursoToken, "DELETE FROM Job WHERE sourceId=?", [id]).catch(() => {});
-      else await fetch(`${API_URL}/admin/employers/${id}/offers`, { method: "DELETE" }).catch(() => {});
+      else await adminFetch(`${API_URL}/admin/employers/${id}/offers`, { method: "DELETE" }).catch(() => {});
     }
     setCounts((c) => {
       const n = { ...c };
@@ -1180,7 +1190,7 @@ export function AdminExplorer() {
         await tursoRows(tursoUrl, tursoToken, "DELETE FROM Job WHERE sourceId=?", [id]).catch(() => {});
         await tursoRows(tursoUrl, tursoToken, "DELETE FROM Employer WHERE id=?", [id]).catch(() => {});
       } else if (mode === "api") {
-        await fetch(`${API_URL}/admin/employers/${id}`, { method: "DELETE" }).catch(() => {});
+        await adminFetch(`${API_URL}/admin/employers/${id}`, { method: "DELETE" }).catch(() => {});
       } else {
         delete editsRef.current[id];
         saveLS(LS_EDITS, editsRef.current);
@@ -1234,7 +1244,7 @@ export function AdminExplorer() {
         return;
       }
     } else if (mode === "api") {
-      await fetch(`${API_URL}/admin/employers`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(emp) }).catch(() => {});
+      await adminFetch(`${API_URL}/admin/employers`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(emp) }).catch(() => {});
     } else {
       editsRef.current[id] = emp;
       saveLS(LS_EDITS, editsRef.current);
@@ -1253,7 +1263,7 @@ export function AdminExplorer() {
       await tursoRows(tursoUrl, tursoToken, "DELETE FROM Job WHERE sourceId=?", [id]).catch(() => {});
       await tursoRows(tursoUrl, tursoToken, "DELETE FROM Employer WHERE id=?", [id]).catch(() => {});
     } else if (mode === "api") {
-      await fetch(`${API_URL}/admin/employers/${id}`, { method: "DELETE" }).catch(() => {});
+      await adminFetch(`${API_URL}/admin/employers/${id}`, { method: "DELETE" }).catch(() => {});
     } else {
       delete editsRef.current[id];
       saveLS(LS_EDITS, editsRef.current);
@@ -1747,7 +1757,10 @@ export function AdminExplorer() {
                 <input placeholder="Nom" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className="rounded border border-slate-300 px-2 py-1 text-xs" />
                 <input placeholder="URL carrières (https://…)" value={form.careersUrl} onChange={(e) => setForm((f) => ({ ...f, careersUrl: e.target.value }))} className="rounded border border-slate-300 px-2 py-1 font-mono text-xs sm:col-span-2" />
                 <input placeholder="Site web (optionnel — déduit de l'URL)" value={form.homepage} onChange={(e) => setForm((f) => ({ ...f, homepage: e.target.value }))} className="rounded border border-slate-300 px-2 py-1 font-mono text-xs" />
-                <input placeholder="Région (optionnel)" value={form.region} onChange={(e) => setForm((f) => ({ ...f, region: e.target.value }))} className="rounded border border-slate-300 px-2 py-1 text-xs" />
+                <select value={form.region} onChange={(e) => setForm((f) => ({ ...f, region: e.target.value }))} className="rounded border border-slate-300 px-2 py-1 text-xs">
+                  <option value="">Région (optionnel)</option>
+                  {REGION_OPTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
+                </select>
                 <select value={form.method} onChange={(e) => setForm((f) => ({ ...f, method: e.target.value as DiscoveredMethod }))} className="rounded border border-slate-300 px-2 py-1 text-xs">
                   {METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
                 </select>
@@ -2190,7 +2203,21 @@ function Row({
           <div className="grid gap-2 sm:grid-cols-3">
             <label className="flex flex-col gap-0.5">
               <span className="text-slate-500">Région</span>
-              <input value={region} onChange={(ev) => setRegion(ev.target.value)} className="rounded border border-slate-300 px-2 py-1" />
+              <select
+                value={region}
+                onChange={(ev) => setRegion(ev.target.value)}
+                className="rounded border border-slate-300 px-2 py-1"
+              >
+                <option value="">— Aucune —</option>
+                {region !== "" && !REGION_OPTIONS.includes(region) && (
+                  <option value={region}>{region} (actuel)</option>
+                )}
+                {REGION_OPTIONS.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
             </label>
             <label className="flex flex-col gap-0.5">
               <span className="text-slate-500">Site web</span>
