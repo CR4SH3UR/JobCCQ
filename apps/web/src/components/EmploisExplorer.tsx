@@ -8,14 +8,17 @@ import {
   labelForRegion,
   labelForRemote,
   sourceName,
+  CCQ_TRADES,
   SORT_OPTIONS,
   type JobQuery,
   type JobSearchResult,
   type SortOption,
+  type SuggestEntry,
 } from "@jobccq/shared";
-import { searchJobs, buildQuery, invalidateJobsCache } from "@/lib/data";
+import { searchJobs, buildQuery, invalidateJobsCache, getSearchVocabulary } from "@/lib/data";
 import { useLivePoll } from "@/lib/live";
 import { JobCard } from "./JobCard";
+import { SearchAutocomplete } from "./SearchAutocomplete";
 import { FacetGroup } from "./FacetGroup";
 import { Pagination } from "./Pagination";
 import { Badge } from "./Badge";
@@ -26,6 +29,10 @@ import { useAuth } from "@/lib/auth";
 import { createAlert, filterQuery } from "@/lib/alerts";
 
 const PAGE_SIZE = 20;
+
+// Métiers proposés à l'autocomplétion : les métiers reconnus CCQ (le vocabulaire
+// des synonymes fait le reste côté recherche, ex. « charpentier » ↔ « menuisier »).
+const METIER_ENTRIES: SuggestEntry[] = CCQ_TRADES.map((t) => ({ value: t.label, kind: "metier" as const }));
 
 const SORT_LABELS: Record<SortOption, string> = {
   recent: "Plus récentes",
@@ -90,6 +97,7 @@ export function EmploisExplorer() {
   const [page, setPage] = useState(1);
 
   const [result, setResult] = useState<JobSearchResult | null>(null);
+  const [vocab, setVocab] = useState<{ companies: string[]; cities: string[] }>({ companies: [], cities: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -116,6 +124,27 @@ export function EmploisExplorer() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Vocabulaire d'autocomplétion (entreprises + villes) — chargé une fois.
+  useEffect(() => {
+    let alive = true;
+    getSearchVocabulary()
+      .then((v) => alive && setVocab(v))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // Suggestions du champ mot-clé : métiers + entreprises. Champ ville : villes.
+  const keywordEntries = useMemo<SuggestEntry[]>(
+    () => [...METIER_ENTRIES, ...vocab.companies.map((c) => ({ value: c, kind: "entreprise" as const }))],
+    [vocab.companies],
+  );
+  const cityEntries = useMemo<SuggestEntry[]>(
+    () => vocab.cities.map((c) => ({ value: c, kind: "ville" as const })),
+    [vocab.cities],
+  );
 
   const dq = useDebounce(q);
   const dcity = useDebounce(city);
@@ -241,29 +270,33 @@ export function EmploisExplorer() {
       {/* Barre de recherche + tri */}
       <div className="card p-3 sm:p-4">
         <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="relative flex-1">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-              🔎
-            </span>
-            <input
+          <div className="flex-1">
+            <SearchAutocomplete
               value={q}
-              onChange={(e) => {
-                setQ(e.target.value);
+              onChange={(v) => {
+                setQ(v);
                 setPage(1);
               }}
-              placeholder="Poste, mot-clé, entreprise…"
+              entries={keywordEntries}
+              placeholder="Poste, métier, entreprise…"
+              icon="🔎"
+              ariaLabel="Poste, métier ou entreprise"
               className="w-full rounded-lg border border-slate-200 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
             />
           </div>
-          <input
-            value={city}
-            onChange={(e) => {
-              setCity(e.target.value);
-              setPage(1);
-            }}
-            placeholder="Ville (ex. Montréal)"
-            className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 sm:w-56"
-          />
+          <div className="sm:w-56">
+            <SearchAutocomplete
+              value={city}
+              onChange={(v) => {
+                setCity(v);
+                setPage(1);
+              }}
+              entries={cityEntries}
+              placeholder="Ville (ex. Montréal)"
+              ariaLabel="Ville"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+            />
+          </div>
           <select
             value={sort}
             onChange={(e) => {

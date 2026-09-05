@@ -21,16 +21,10 @@ import {
 } from "./taxonomy.js";
 import { sourceName } from "./sources.js";
 import { isCcqTrade } from "./ccq.js";
+import { normalizeText, fuzzyIncludes } from "./text.js";
+import { expandTerm } from "./synonyms.js";
 
-const norm = (s: string): string =>
-  s
-    .toLowerCase()
-    // Ligatures : « manœuvre » ↔ « manoeuvre », « et cætera » ↔ « et caetera ».
-    // (NFD ne décompose pas œ/æ, ce sont des lettres à part entière.)
-    .replace(/œ/g, "oe")
-    .replace(/æ/g, "ae")
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, ""); // enlève les accents pour une recherche tolérante
+const norm = normalizeText;
 
 /** Salaire comparable (on ramène tout à un montant annuel approximatif). */
 function annualizedSalary(job: Job): number | undefined {
@@ -55,15 +49,32 @@ function daysSince(iso?: string): number | undefined {
   return (Date.now() - t) / 86_400_000;
 }
 
+/**
+ * Un mot de la requête correspond-il à l'offre ?
+ *  1. Sous-chaîne directe **ou synonyme de métier** sur tout le texte (titre,
+ *     entreprise, description, tags) — ex. « charpentier » ↔ « menuisier ».
+ *  2. Sinon, tolérance aux fautes de frappe sur les champs courts (titre +
+ *     entreprise + tags) — ex. « charpentié » → « charpentier ». On limite le
+ *     flou aux champs courts pour rester rapide et précis (pas la description).
+ */
+function wordMatches(word: string, fullText: string, shortText: string): boolean {
+  if (!word) return true;
+  for (const term of expandTerm(word)) {
+    if (fullText.includes(term)) return true;
+  }
+  return fuzzyIncludes(shortText, word);
+}
+
 /** Un texte de recherche correspond-il à l'offre ? (titre, entreprise, desc, tags) */
 function matchesText(job: Job, q: string): boolean {
   const needle = norm(q);
   if (!needle) return true;
-  const haystack = norm(
+  const fullText = norm(
     [job.title, job.company, job.description ?? "", (job.tags ?? []).join(" ")].join(" "),
   );
-  // Chaque mot de la requête doit apparaître (ET logique).
-  return needle.split(/\s+/).every((word) => haystack.includes(word));
+  const shortText = norm([job.title, job.company, (job.tags ?? []).join(" ")].join(" "));
+  // Chaque mot de la requête doit correspondre (ET logique).
+  return needle.split(/\s+/).every((word) => wordMatches(word, fullText, shortText));
 }
 
 export function matchesQuery(job: Job, query: JobQuery): boolean {
