@@ -2546,6 +2546,8 @@ function Row({
   const [rbq, setRbq] = useState(e.rbq ?? "");
   const [notes, setNotes] = useState(e.notes ?? "");
   const [probeMsg, setProbeMsg] = useState("");
+  const [previewMsg, setPreviewMsg] = useState("");
+  const [previewSample, setPreviewSample] = useState<{ title: string; city?: string; url: string }[]>([]);
   const [sectors, setSectors] = useState<string[]>(e.sectors ? [...e.sectors] : []);
   const [secOpen, setSecOpen] = useState(false);
   const [newSec, setNewSec] = useState("");
@@ -2738,6 +2740,31 @@ function Row({
           className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
         >
           Tester URL
+        </button>
+        <button
+          type="button"
+          title="Exécuter le parseur sans écrire en base"
+          onClick={async () => {
+            setPreviewMsg("aperçu…");
+            setPreviewSample([]);
+            try {
+              const r = await adminFetch(`${API_URL}/admin/employers/${e.id}/preview`, { method: "POST" });
+              const d = await r.json();
+              if (d.error) {
+                setPreviewMsg(d.error);
+                return;
+              }
+              setPreviewMsg(
+                `Aperçu (${d.usedParseList ? "parseList" : "scrape"}) : ${d.count} poste(s) — non enregistré`,
+              );
+              setPreviewSample(Array.isArray(d.sample) ? d.sample : []);
+            } catch {
+              setPreviewMsg("API injoignable — aperçu indisponible hors API locale.");
+            }
+          }}
+          className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+        >
+          Aperçu parseur
         </button>
         <button
           onClick={() => onPatch(e.id, { enabled: disabled })}
@@ -2940,6 +2967,17 @@ function Row({
       )}
 
       {probeMsg && <p className="mt-1 text-xs text-slate-500">{probeMsg}</p>}
+      {previewMsg && <p className="mt-1 text-xs text-slate-600">{previewMsg}</p>}
+      {previewSample.length > 0 && (
+        <ul className="mt-1 space-y-0.5 text-xs text-slate-600">
+          {previewSample.map((j) => (
+            <li key={j.url}>
+              <span className="font-medium">{j.title}</span>
+              {j.city ? ` — ${j.city}` : ""}
+            </li>
+          ))}
+        </ul>
+      )}
 
       {scrape && scrape.status !== "run" && (
         <div className="mt-2 text-xs">

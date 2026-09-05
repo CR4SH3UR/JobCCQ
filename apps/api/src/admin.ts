@@ -11,7 +11,8 @@ import { bespokeScraper } from "./scrapers/registry.js";
 import { runScraperInstance } from "./orchestrator.js";
 import { prisma } from "./db.js";
 import { rowToJob } from "./repository.js";
-import { fetchHtml } from "./scrapers/http.js";
+import { fetchHtml, createHttpContext } from "./scrapers/http.js";
+import { toPreviewSample } from "./preview.js";
 
 /**
  * Routes de la **console d'administration** (usage local, API branchée).
@@ -330,6 +331,34 @@ export function registerAdminRoutes(app: FastifyInstance): void {
         ms: Date.now() - started,
         error: err instanceof Error ? err.message : String(err),
       };
+    }
+  });
+
+  // Aperçu parseur : fetch + parseList (ou scrape en mémoire), **sans** écrire en base.
+  app.post<{ Params: { id: string } }>("/admin/employers/:id/preview", { preHandler: adminGuard }, async (req, reply) => {
+    const list = await readAll();
+    const employer = list.find((e) => e.id === req.params.id);
+    if (!employer) {
+      reply.code(404);
+      return { error: "Employeur introuvable" };
+    }
+    const scraper = bespokeScraper(employer.id) ?? buildDiscoveredScraper(employer);
+    const url = employer.careersUrl;
+    try {
+      let raw;
+      let usedParseList = false;
+      if (scraper.parseList) {
+        const html = await fetchHtml(url, { timeoutMs: 15_000, retries: 1 });
+        raw = scraper.parseList(html, url);
+        usedParseList = true;
+      } else {
+        raw = await scraper.scrape({ maxPages: 1 }, createHttpContext());
+      }
+      const sample = toPreviewSample(raw);
+      return { count: sample.length, usedParseList, sample: sample.slice(0, 20) };
+    } catch (err) {
+      reply.code(502);
+      return { error: err instanceof Error ? err.message : String(err) };
     }
   });
 
