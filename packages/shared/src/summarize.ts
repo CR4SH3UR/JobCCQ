@@ -25,6 +25,8 @@ function isUseful(s: string): boolean {
 export function summarizeDescription(text?: string | null): string[] {
   const src = (text ?? "").trim();
   if (src.length < MIN_TEXT) return [];
+  // Extrait client (~240 car. + …) : trop court pour un vrai résumé.
+  if (src.endsWith("…") && src.length <= 240) return [];
 
   const bulletLines = src
     .split(/\n+/)

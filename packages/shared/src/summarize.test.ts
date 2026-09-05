@@ -31,4 +31,11 @@ Avantages : REER.`;
     assert.deepEqual(summarizeDescription(""), []);
     assert.deepEqual(summarizeDescription(undefined), []);
   });
+
+  it("ignore l'extrait client tronqué (ellipse 240 car.)", () => {
+    const excerpt = `${"Nous recherchons un électricien de chantier pour des projets à Montréal. ".repeat(4).slice(0, 239)}…`;
+    assert.ok(excerpt.endsWith("…"));
+    assert.ok(excerpt.length <= 240);
+    assert.deepEqual(summarizeDescription(excerpt), []);
+  });
 });

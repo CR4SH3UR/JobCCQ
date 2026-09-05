@@ -25,35 +25,37 @@ import { FavoriteButton } from "./FavoriteButton";
 import { AppliedButton } from "./AppliedButton";
 import { formatSalary, initials, timeAgo } from "@/lib/format";
 import { getJobById, getSimilarJobs } from "@/lib/data";
+import { mergeLiveJob } from "@/lib/merge-job";
 import { useLivePoll } from "@/lib/live";
 import { jobPostingLd, ldJson } from "@/lib/jsonld";
 import { COMPARE_MAX, toggleCompare, useCompareIds, useIsCompared } from "@/lib/compare";
 
 const REMOTE_TONE = { teletravail: "green", hybride: "violet", presentiel: "slate" } as const;
 
-export function JobDetailView({ id }: { id: string }) {
-  const [job, setJob] = useState<Job | null>(null);
+export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job | null }) {
+  const [job, setJob] = useState<Job | null>(initialJob ?? null);
   const [similar, setSimilar] = useState<Job[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialJob);
   const [error, setError] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const j = await getJobById(id);
-      if (!j) {
+      const live = await getJobById(id);
+      const merged = mergeLiveJob(initialJob, live);
+      if (!merged) {
         setError(true);
         setLoading(false);
         return;
       }
-      setJob(j);
-      setSimilar(await getSimilarJobs(j));
+      setJob(merged);
+      setSimilar(await getSimilarJobs(merged));
       setError(false);
     } catch {
-      setError(true);
+      if (!initialJob) setError(true);
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, initialJob]);
 
   useEffect(() => {
     load();

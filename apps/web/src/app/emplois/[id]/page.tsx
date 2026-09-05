@@ -33,5 +33,5 @@ export async function generateMetadata({
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return <JobDetailView id={id} />;
+  return <JobDetailView id={id} initialJob={jobById(id) ?? null} />;
 }
