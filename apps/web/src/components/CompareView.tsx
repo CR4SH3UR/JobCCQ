@@ -13,6 +13,7 @@ import {
 } from "@jobccq/shared";
 import { formatSalary, timeAgo } from "@/lib/format";
 import { getJobById } from "@/lib/data";
+import { ApplyLink } from "./ApplyLink";
 import {
   COMPARE_MAX,
   clearCompare,
@@ -149,14 +150,9 @@ export function CompareView() {
                         {c.job.title}
                       </Link>
                       <div className="mt-2 flex flex-wrap gap-2">
-                        <a
-                          href={c.job.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs font-semibold text-brand-700 hover:underline"
-                        >
+                        <ApplyLink job={c.job} className="text-xs font-semibold text-brand-700 hover:underline">
                           Postuler ↗
-                        </a>
+                        </ApplyLink>
                         <button
                           type="button"
                           onClick={() => {

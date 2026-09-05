@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { FAILING_ALERT_DAYS, failingScrapers, type FailingSource } from "@jobccq/shared";
 import { API_URL, adminFetch, getStats } from "@/lib/data";
 import { ensureTursoAdminColumns, tursoCreds, tursoRows } from "@/lib/admin-turso";
+import { ApplyClicksPanel } from "./ApplyClicksPanel";
 
 type DiffEntry = { title?: string; url?: string };
 type RunDiff = { added?: DiffEntry[]; changed?: DiffEntry[]; removed?: DiffEntry[] };
@@ -315,6 +316,7 @@ export function AdminDashboard() {
           )}
         </section>
       </div>
+      <ApplyClicksPanel />
     </div>
   );
 }

@@ -364,3 +364,39 @@ lancé à la main (onglet **Actions → Notifier les alertes emploi → Run work
 les offres créées **depuis le dernier envoi** de chaque alerte sont incluses (pas de
 doublon, pas de spam d'anciennes offres).
 
+# Clics « Postuler » (stats admin)
+
+Chaque clic sur **Postuler** (fiche, comparateur, widget iframe) est enregistré :
+
+- **localStorage** (`jobccq:apply-clicks`) — miroir de ce navigateur ;
+- **table `apply_clicks`** — tous les visiteurs (insert anonyme), lecture **admin**.
+
+Le tableau de bord `/admin` (vue d'ensemble) affiche le top par source et par offre.
+
+## Table + RLS (SQL, une seule fois)
+
+**SQL Editor → New query**, colle et exécute (remplace le courriel admin) :
+
+```sql
+create table if not exists public.apply_clicks (
+  id         uuid        primary key default gen_random_uuid(),
+  job_id     text        not null,
+  source_id  text        not null,
+  title      text,
+  at         timestamptz not null default now()
+);
+
+create index if not exists apply_clicks_at_idx on public.apply_clicks (at desc);
+create index if not exists apply_clicks_source_idx on public.apply_clicks (source_id);
+
+alter table public.apply_clicks enable row level security;
+
+create policy "insert apply_clicks" on public.apply_clicks
+  for insert to anon, authenticated
+  with check (true);
+
+create policy "admins read apply_clicks" on public.apply_clicks
+  for select to authenticated
+  using ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']));
+```
+

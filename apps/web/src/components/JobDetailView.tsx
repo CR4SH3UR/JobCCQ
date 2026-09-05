@@ -26,6 +26,7 @@ import { MatchBadge } from "./MatchBadge";
 import { AlsoOnBadge } from "./AlsoOnBadge";
 import { FavoriteButton } from "./FavoriteButton";
 import { AppliedButton } from "./AppliedButton";
+import { ApplyLink } from "./ApplyLink";
 import { formatSalary, initials, timeAgo } from "@/lib/format";
 import { getJobById, getSimilarJobs } from "@/lib/data";
 import { mergeLiveJob } from "@/lib/merge-job";
@@ -167,14 +168,12 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
             <MatchNote job={job} />
 
             <div className="mt-6 flex flex-wrap gap-3">
-              <a
-                href={job.url}
-                target="_blank"
-                rel="noopener noreferrer"
+              <ApplyLink
+                job={job}
                 className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700"
               >
                 Postuler sur {sourceName(job.sourceId)} →
-              </a>
+              </ApplyLink>
               <AppliedButton id={job.id} />
               <FavoriteButton id={job.id} />
               <CompareDetailButton id={job.id} />
@@ -217,14 +216,9 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
             ) : (
               <p className="mt-3 text-sm leading-relaxed text-slate-500">
                 Le résumé complet de cette offre est disponible sur le site de la source.{" "}
-                <a
-                  href={job.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium text-brand-700 hover:underline"
-                >
+                <ApplyLink job={job} className="font-medium text-brand-700 hover:underline">
                   Voir l'offre complète
-                </a>
+                </ApplyLink>
                 .
               </p>
             )}

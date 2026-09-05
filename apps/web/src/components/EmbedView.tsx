@@ -5,6 +5,7 @@ import { getEmployer, labelForRegion, type Job } from "@jobccq/shared";
 import { getJobsBySource } from "@/lib/data";
 import { formatSalary, timeAgo } from "@/lib/format";
 import { siteUrl } from "@/lib/site";
+import { ApplyLink } from "./ApplyLink";
 
 /**
  * Vue compacte destinée à un iframe : offres d'un employeur, liens qui
@@ -81,14 +82,12 @@ function EmbedJobRow({ job }: { job: Job }) {
         {[place, salary, posted].filter(Boolean).join(" · ")}
       </p>
       <div className="mt-2 flex flex-wrap gap-2">
-        <a
-          href={job.url}
-          target="_blank"
-          rel="noopener noreferrer"
+        <ApplyLink
+          job={job}
           className="rounded-lg bg-brand-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-brand-700"
         >
           Postuler
-        </a>
+        </ApplyLink>
         <button
           type="button"
           onClick={() => open(detail)}

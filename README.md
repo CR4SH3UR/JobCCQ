@@ -287,7 +287,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 70. Import CSV d'employeurs (même format que l'export)
 - [x] 71. Tester une URL carrières (probe HTTP) + notes internes + copier id/URLs
 - [ ] 72. Rollback d'un scrape (remettre les offres d'avant le run)
-- [ ] 73. Stats clics « Postuler » par offre / source (site public → admin)
+- [x] 73. Stats clics « Postuler » par offre / source (site public → admin)
 
 ### 📱 Mobile & plateforme
 
