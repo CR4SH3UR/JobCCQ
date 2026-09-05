@@ -1,12 +1,19 @@
-import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { AdminExplorer } from "@/components/AdminExplorer";
+import { AdminGate } from "@/components/AdminGate";
+import { AdminSponsors } from "@/components/AdminSponsors";
 
-export function generateMetadata() {
-  return {
-    title: "Page introuvable — JobCCQc",
-    robots: { index: false, follow: false },
-  };
-}
+export const metadata: Metadata = {
+  title: "Administration — JobCCQc",
+  description: "Console de gestion des employeurs : vérifier, corriger les URLs, relancer le scraping.",
+  robots: { index: false, follow: false },
+};
 
 export default function AdminPage() {
-  notFound();
+  return (
+    <AdminGate>
+      <AdminExplorer />
+      <AdminSponsors />
+    </AdminGate>
+  );
 }

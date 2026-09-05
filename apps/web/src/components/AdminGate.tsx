@@ -13,9 +13,8 @@ import {
 /**
  * Barrière d'accès à la console d'administration.
  *
- * - Supabase non configuré → aucune authentification possible : on laisse passer
- *   (comportement historique ; l'accès reste protégé par les jetons GitHub/Turso
- *   qu'il faut saisir pour agir).
+ * - Supabase non configuré → aucune authentification possible : la console reste
+ *   verrouillée.
  * - Supabase configuré → l'accès exige une **connexion** et un courriel présent
  *   dans la liste blanche `NEXT_PUBLIC_ADMIN_EMAILS`. Toute autre personne voit
  *   un écran de connexion / d'accès refusé.
@@ -29,9 +28,20 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [msg, setMsg] = useState<string>();
 
-  // Sans Supabase, impossible de restreindre par compte : on n'ajoute pas de
-  // fausse barrière (l'accès effectif reste protégé par les jetons).
-  if (!enabled) return <>{children}</>;
+  // Sans Supabase, impossible de prouver l'identité du compte : verrouillé.
+  if (!enabled) {
+    return (
+      <Centered>
+        <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Accès administrateur verrouillé</h1>
+        <p className="mt-2 text-slate-600 dark:text-slate-300">
+          Configure Supabase Auth et les variables{" "}
+          <code className="rounded bg-slate-100 px-1 dark:bg-slate-800">NEXT_PUBLIC_SUPABASE_URL</code>,{" "}
+          <code className="rounded bg-slate-100 px-1 dark:bg-slate-800">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> et{" "}
+          <code className="rounded bg-slate-100 px-1 dark:bg-slate-800">NEXT_PUBLIC_ADMIN_EMAILS</code>.
+        </p>
+      </Centered>
+    );
+  }
 
   if (loading) {
     return <Centered>Chargement…</Centered>;
@@ -84,7 +94,7 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
     e.preventDefault();
     if (!email.trim()) return;
     setStatus("sending");
-    const { error } = await signInWithEmail(email);
+    const { error } = await signInWithEmail(email, "/admin");
     if (error) {
       setStatus("error");
       setMsg(error);

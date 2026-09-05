@@ -34,9 +34,9 @@ export function useAuth(): { user: User | null; loading: boolean; enabled: boole
 }
 
 /** URL de retour après clic sur le lien magique (respecte le basePath GitHub Pages). */
-function redirectUrl(): string {
+function redirectUrl(path = "/favoris"): string {
   const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-  return `${window.location.origin}${base}/favoris`;
+  return `${window.location.origin}${base}${path}`;
 }
 
 /** URL de retour du lien de réinitialisation de mot de passe. */
@@ -73,11 +73,11 @@ function friendlyAuthError(raw: string): string {
 }
 
 /** Connexion via un fournisseur OAuth (redirige la page). Ex. GitHub. */
-export async function signInWithGitHub(): Promise<{ error?: string }> {
+export async function signInWithGitHub(redirectPath = "/favoris"): Promise<{ error?: string }> {
   if (!supabase) return { error: "Comptes non configurés." };
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "github",
-    options: { redirectTo: redirectUrl() },
+    options: { redirectTo: redirectUrl(redirectPath) },
   });
   if (!error) return {}; // succès → le navigateur est redirigé vers GitHub
   console.warn("Supabase auth:", error.message);
@@ -85,11 +85,11 @@ export async function signInWithGitHub(): Promise<{ error?: string }> {
 }
 
 /** Envoie un lien magique à l'adresse fournie. */
-export async function signInWithEmail(email: string): Promise<{ error?: string }> {
+export async function signInWithEmail(email: string, redirectPath = "/favoris"): Promise<{ error?: string }> {
   if (!supabase) return { error: "Comptes non configurés." };
   const { error } = await supabase.auth.signInWithOtp({
     email: email.trim(),
-    options: { emailRedirectTo: redirectUrl() },
+    options: { emailRedirectTo: redirectUrl(redirectPath) },
   });
   if (!error) return {};
   // Message brut conservé en console pour le débogage ; message clair à l'écran.
