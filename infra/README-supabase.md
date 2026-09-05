@@ -164,6 +164,54 @@ Dans `/admin`, ouvre **« 🔐 Coffre-fort — synchroniser mes identifiants »*
 
 ---
 
+# Municipalités → région (reclassement en direct)
+
+La console `/admin` (onglet **« Régions & municipalités »**) associe une ville à une
+région administrative. Le site lit cette table **au chargement** et reclasse les offres
+**côté navigateur** : un changement s'applique **immédiatement, sans redéploiement**
+(contrairement aux sources/employeurs qui passent par un instantané figé au build).
+
+- **Lecture publique** (tout le monde peut lire → reclassement pour tous les visiteurs).
+- **Écriture réservée aux admins** : la règle RLS vérifie le **courriel** du compte
+  connecté (mets-y les mêmes courriels que `NEXT_PUBLIC_ADMIN_EMAILS`).
+
+## Table + RLS (SQL, une seule fois)
+
+**SQL Editor → New query**, colle et exécute (remplace le(s) courriel(s) admin) :
+
+```sql
+create table if not exists public.municipalities (
+  norm       text        primary key,          -- nom normalisé (clé d'unicité)
+  name       text        not null,             -- nom affiché de la ville
+  region_id  text        not null,             -- id de région (QUEBEC_REGIONS)
+  created_at timestamptz not null default now()
+);
+
+alter table public.municipalities enable row level security;
+
+-- Lecture publique : le site lit la table pour reclasser les offres par ville.
+create policy "read municipalities" on public.municipalities
+  for select using (true);
+
+-- Écriture réservée aux admins. Mets ici TON/TES courriel(s) admin
+-- (les mêmes que NEXT_PUBLIC_ADMIN_EMAILS).
+create policy "admins write municipalities" on public.municipalities
+  for all
+  using      ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']))
+  with check ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']));
+
+-- (Optionnel) Reprise de la municipalité déjà saisie avant le passage à Supabase :
+insert into public.municipalities (norm, name, region_id) values
+  ('la-matapedia', 'La Matapédia', 'bas-saint-laurent')
+on conflict (norm) do nothing;
+```
+
+> Tant que la table n'existe pas, l'onglet affiche « aucune municipalité » et le site
+> garde les régions de l'instantané — rien ne casse. Dès la table créée + un compte
+> admin connecté, l'ajout/retrait est instantané.
+
+---
+
 # Notifications par courriel (alertes emploi) — Resend
 
 Un utilisateur connecté enregistre une **recherche** comme alerte (bouton « 🔔 Créer une

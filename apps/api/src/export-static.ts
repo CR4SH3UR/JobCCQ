@@ -7,12 +7,7 @@
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import {
-  effectiveRegionId,
-  municipalityRegionMap,
-  normMunicipality,
-  type Job,
-} from "@jobccq/shared";
+import { effectiveRegionId, type Job } from "@jobccq/shared";
 import { inferCategory } from "./normalize.js";
 import { SEED_JOBS } from "./seed-data.js";
 import { seedToJob } from "./seed-transform.js";
@@ -60,23 +55,10 @@ async function main() {
     }
   }
 
-  // Reclassement par municipalité : la table éditable (console admin →
-  // packages/shared/src/municipalities.json) fait autorité sur la région d'une
-  // offre selon sa ville. Appliqué à l'export → on reclasse aussi l'existant à
-  // chaque déploiement, sans re-scraper ni serveur d'API.
-  let reregioned = 0;
-  const muniMap = municipalityRegionMap();
-  if (muniMap.size) {
-    for (const job of jobs) {
-      const cityRaw = job.city || (job.location ? job.location.split(/[,(]/)[0]! : "");
-      if (!cityRaw.trim()) continue;
-      const rid = muniMap.get(normMunicipality(cityRaw));
-      if (rid && rid !== job.regionId) {
-        job.regionId = rid;
-        reregioned++;
-      }
-    }
-  }
+  // Note : le reclassement **municipalité → région** (table éditable de la
+  // console admin) se fait désormais **en direct dans le navigateur** au
+  // chargement de l'instantané (Supabase → apps/web/src/lib/data.ts), pour
+  // s'appliquer instantanément sans redéploiement. Rien à faire ici.
 
   // Région manquante (localisation non fournie par le site) : on retombe sur la
   // région administrative (RBQ) de l'employeur. Approximation raisonnable pour
@@ -113,7 +95,6 @@ async function main() {
   );
   console.log(`📝 Descriptions : ${withDesc}/${jobs.length} renseignées.`);
   console.log(`🏷️  Catégories : ${recategorized} recalculées depuis l'intitulé.`);
-  console.log(`🗺️  Municipalités : ${reregioned} offre(s) reclassée(s) par ville.`);
 }
 
 main().catch((err) => {

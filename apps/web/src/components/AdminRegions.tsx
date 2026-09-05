@@ -1,20 +1,21 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { MUNICIPALITIES, QUEBEC_REGIONS, type Municipality } from "@jobccq/shared";
+import { QUEBEC_REGIONS, type Municipality } from "@jobccq/shared";
+import {
+  fetchMunicipalities,
+  upsertMunicipality,
+  deleteMunicipality,
+} from "@/lib/municipalities";
 
 /**
  * Éditeur **municipalités → région** (console d'administration).
  *
- * Édite `packages/shared/src/municipalities.json` : associe une municipalité
- * (ville) à l'une des 17 régions administratives. « Publier » écrit le fichier
- * sur GitHub (même mécanisme que les sponsors) → redéploiement. À l'export,
- * toute offre située dans une de ces villes est reclassée dans la bonne région,
- * offres existantes comprises. Aucun serveur d'API requis : réutilise le jeton
- * GitHub déjà saisi dans le panneau principal (localStorage).
+ * Écrit **en direct dans Supabase** (table `municipalities`). Toute modification
+ * s'applique **immédiatement, sans republier** : le site lit la table au
+ * chargement et reclasse les offres côté navigateur. L'écriture est réservée aux
+ * admins (RLS Supabase sur le courriel du compte).
  */
-const LS_TOKEN = "admin:ghtoken";
-const PATH = "packages/shared/src/municipalities.json";
 
 // Seules les vraies régions administratives peuvent recevoir une municipalité
 // (télétravail / hors-Québec / non précisé n'ont pas de villes à mapper).
@@ -25,60 +26,29 @@ const REGION_LABEL: Record<string, string> = Object.fromEntries(
   QUEBEC_REGIONS.map((r) => [r.id, r.label]),
 );
 
-function ghRepo(): { owner: string; repo: string } {
-  try {
-    const host = location.hostname.split(".")[0];
-    const seg = location.pathname.split("/").filter(Boolean)[0];
-    if (location.hostname.endsWith("github.io") && host && seg) return { owner: host, repo: seg };
-  } catch {
-    /* SSR */
-  }
-  return { owner: "CR4SH3UR", repo: "JobCCQ" };
-}
-
-const GH_HEADERS = (token: string) => ({
-  Authorization: `Bearer ${token}`,
-  Accept: "application/vnd.github+json",
-  "X-GitHub-Api-Version": "2022-11-28",
-});
-
-function b64utf8(s: string): string {
-  return btoa(unescape(encodeURIComponent(s)));
-}
-
-function readToken(): string {
-  try {
-    return localStorage.getItem(LS_TOKEN) ?? "";
-  } catch {
-    return "";
-  }
-}
-
 type Status = { k: "idle" | "run" | "ok" | "err"; msg?: string };
 
 export function AdminRegions() {
-  const [items, setItems] = useState<Municipality[]>([...MUNICIPALITIES]);
+  const [items, setItems] = useState<Municipality[]>([]);
+  const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [regionId, setRegionId] = useState<string>(REGION_OPTIONS[0]!.id);
   const [status, setStatus] = useState<Status>({ k: "idle" });
 
-  // Charge la version la plus récente committée (évite de repartir d'un bundle périmé).
+  const load = async () => {
+    setLoading(true);
+    try {
+      setItems(await fetchMunicipalities());
+    } catch (e) {
+      setStatus({ k: "err", msg: `Chargement impossible : ${(e as Error).message}` });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const { owner, repo } = ghRepo();
-    (async () => {
-      try {
-        const r = await fetch(
-          `https://raw.githubusercontent.com/${owner}/${repo}/main/${PATH}?t=${Date.now()}`,
-          { cache: "no-store" },
-        );
-        if (r.ok) {
-          const d = (await r.json()) as Municipality[];
-          if (Array.isArray(d)) setItems(d);
-        }
-      } catch {
-        /* garde le bundle */
-      }
-    })();
+    void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Regroupe les municipalités par région (régions non vides seulement, triées).
@@ -97,54 +67,28 @@ export function AdminRegions() {
     })).filter((g) => g.cities.length > 0);
   }, [items]);
 
-  const add = () => {
+  const add = async () => {
     const n = name.trim();
     if (!n) return;
-    const key = n.toLowerCase();
-    setItems((list) => [
-      ...list.filter((m) => m.name.trim().toLowerCase() !== key),
-      { name: n, regionId },
-    ]);
-    setName("");
-    setStatus({ k: "idle", msg: `Ajouté : « ${n} » → ${REGION_LABEL[regionId] ?? regionId}. Pense à publier.` });
-  };
-
-  const remove = (city: string) => {
-    setItems((list) => list.filter((m) => m.name !== city));
-    setStatus({ k: "idle", msg: `Retiré : « ${city} ». Pense à publier.` });
-  };
-
-  const publish = async () => {
-    const token = readToken();
-    if (!token) {
-      setStatus({ k: "err", msg: "Connecte d'abord GitHub (panneau « Connecter GitHub » plus haut)." });
-      return;
-    }
-    const { owner, repo } = ghRepo();
-    const base = `https://api.github.com/repos/${owner}/${repo}/contents/${PATH}`;
     setStatus({ k: "run" });
     try {
-      const clean = items
-        .filter((m) => m.name.trim() && m.regionId)
-        .map((m) => ({ name: m.name.trim(), regionId: m.regionId }))
-        .sort((a, b) => a.name.localeCompare(b.name, "fr"));
-      const cur = await fetch(`${base}?ref=main`, { headers: GH_HEADERS(token) });
-      const sha = cur.ok ? (await cur.json()).sha : undefined;
-      const body = {
-        message: "Admin : mise à jour des municipalités → régions",
-        content: b64utf8(JSON.stringify(clean, null, 2) + "\n"),
-        branch: "main",
-        ...(sha ? { sha } : {}),
-      };
-      const r = await fetch(base, { method: "PUT", headers: GH_HEADERS(token), body: JSON.stringify(body) });
-      if (r.ok) {
-        setStatus({ k: "ok", msg: "✅ Publié — le site va se redéployer et reclasser les offres (quelques minutes)." });
-      } else {
-        const d = await r.json().catch(() => ({}));
-        setStatus({ k: "err", msg: (d as { message?: string }).message ?? `HTTP ${r.status}` });
-      }
+      await upsertMunicipality(n, regionId);
+      setName("");
+      setStatus({ k: "ok", msg: `✅ « ${n} » → ${REGION_LABEL[regionId] ?? regionId} (appliqué en direct)` });
+      await load();
     } catch (e) {
-      setStatus({ k: "err", msg: (e as Error).message });
+      setStatus({ k: "err", msg: writeError(e) });
+    }
+  };
+
+  const remove = async (city: string) => {
+    setStatus({ k: "run" });
+    try {
+      await deleteMunicipality(city);
+      setStatus({ k: "ok", msg: `🗑️ « ${city} » retirée (appliqué en direct)` });
+      await load();
+    } catch (e) {
+      setStatus({ k: "err", msg: writeError(e) });
     }
   };
 
@@ -155,9 +99,10 @@ export function AdminRegions() {
           🗺️ Municipalités &amp; régions
         </h2>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-          Associez une municipalité à sa région administrative, puis <strong>publiez</strong>. Toute
-          offre située dans cette ville sera classée dans la bonne région au prochain déploiement
-          (offres existantes comprises).
+          Associez une municipalité à sa région administrative. Les changements sont
+          <strong> appliqués en direct, sans republier</strong> : toute offre située dans cette
+          ville passe dans la bonne région dès le prochain chargement du site (offres existantes
+          comprises).
         </p>
 
         {/* Formulaire d'ajout */}
@@ -172,7 +117,7 @@ export function AdminRegions() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  add();
+                  void add();
                 }
               }}
               placeholder="ex. Saint-Jérôme"
@@ -196,17 +141,24 @@ export function AdminRegions() {
             </select>
           </div>
           <button
-            onClick={add}
-            disabled={!name.trim()}
+            onClick={() => void add()}
+            disabled={status.k === "run" || !name.trim()}
             className="rounded-lg bg-brand-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50 dark:bg-brand-400 dark:text-slate-950 dark:hover:bg-brand-300"
           >
             + Ajouter
           </button>
         </div>
+        {status.msg && (
+          <p className={`mt-2 text-sm ${status.k === "err" ? "text-red-600 dark:text-red-400" : "text-green-700 dark:text-green-400"}`}>
+            {status.msg}
+          </p>
+        )}
 
         {/* Liste groupée par région */}
         <div className="mt-6">
-          {grouped.length === 0 ? (
+          {loading ? (
+            <p className="text-sm text-slate-500 dark:text-slate-400">Chargement…</p>
+          ) : grouped.length === 0 ? (
             <p className="text-sm text-slate-500 dark:text-slate-400">
               Aucune municipalité enregistrée pour l'instant.
             </p>
@@ -225,7 +177,7 @@ export function AdminRegions() {
                       >
                         {city}
                         <button
-                          onClick={() => remove(city)}
+                          onClick={() => void remove(city)}
                           aria-label={`Retirer ${city}`}
                           className="text-slate-400 hover:text-red-600 dark:hover:text-red-400"
                         >
@@ -240,23 +192,23 @@ export function AdminRegions() {
           )}
         </div>
 
-        {/* Publier */}
-        <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-slate-200 pt-4 dark:border-slate-700">
-          <button
-            onClick={publish}
-            disabled={status.k === "run"}
-            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 dark:bg-brand-400 dark:text-slate-950"
-          >
-            {status.k === "run" ? "Publication…" : "⬆ Publier les municipalités"}
-          </button>
-          {status.msg && (
-            <span className={status.k === "err" ? "text-red-600 dark:text-red-400" : "text-green-700 dark:text-green-400"}>
-              {status.msg}
-            </span>
-          )}
-          <span className="text-xs text-slate-400">Publie sur GitHub → redéploiement + reclassement automatiques.</span>
-        </div>
+        <p className="mt-6 border-t border-slate-200 pt-3 text-xs text-slate-400 dark:border-slate-700">
+          Stocké dans Supabase (table <code>municipalities</code>). Écriture réservée aux admins ;
+          lecture publique pour le reclassement en direct.
+        </p>
       </div>
     </div>
   );
+}
+
+/** Message d'erreur d'écriture plus parlant (RLS / table absente / non connecté). */
+function writeError(e: unknown): string {
+  const msg = (e as Error).message ?? "Erreur inconnue";
+  if (/row-level security|permission|denied|not authorized/i.test(msg)) {
+    return "Écriture refusée : connecte-toi avec un compte admin (RLS Supabase).";
+  }
+  if (/relation .*municipalities.* does not exist|could not find the table/i.test(msg)) {
+    return "La table « municipalities » n'existe pas encore dans Supabase (voir infra/README-supabase.md).";
+  }
+  return msg;
 }
