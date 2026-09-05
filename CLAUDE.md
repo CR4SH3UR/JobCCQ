@@ -35,9 +35,12 @@ Depuis la racine, sauf indication contraire :
 | Site en dev | `npm run dev:web` (http://localhost:3000) |
 | Lancer le scraping | `npm run scrape` / `npm run scrape -- <id>` |
 | **Typecheck (tous les paquets)** | `npm run typecheck` |
-| **Tests d'un scraper** | `node --import tsx --test apps/api/src/scrapers/<id>.test.ts` |
-| **Tous les tests scrapers** | `node --import tsx --test apps/api/src/scrapers/*.test.ts` |
+| **Tests d'un fichier** | `node --import tsx --test <chemin>/<nom>.test.ts` |
+| **Tests scrapers** | `node --import tsx --test apps/api/src/scrapers/*.test.ts` |
+| **Tests logique partagée** | `node --import tsx --test packages/shared/src/*.test.ts` |
+| **Tests lib du site** | `node --import tsx --test apps/web/src/lib/*.test.ts` |
 | Build (shared + web) | `npm run build` |
+| Export statique (GitHub Pages) | `BUILD_STATIC=1 npm run build -w @jobccq/web` |
 
 Les tests utilisent le **runner natif `node:test`** (pas Jest/Vitest) via `tsx`.
 Il n'y a pas de script `test` dans les `package.json` — utiliser la commande

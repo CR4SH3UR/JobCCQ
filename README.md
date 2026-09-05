@@ -201,9 +201,9 @@ Backlog d'idées d'ajout, classées par thème. Coche une case quand la fonction
 - [x] 4. Correction de fautes de frappe + synonymes de métiers (« charpentier » ↔ « menuisier »)
 - [ ] 5. Filtre « nouveautés » (offres ajoutées depuis ma dernière visite)
 - [ ] 6. Tri par distance (en plus de pertinence / date / salaire)
-- [ ] 7. Recherches enregistrées (combinaison de filtres nommée — base des alertes)
-- [ ] 8. URL de recherche partageables (filtres encodés dans l'URL)
-- [ ] 9. Pages de résultats préconstruites SEO (`/emplois/region/monteregie`, `/emplois/metier/electricien`)
+- [x] 7. Recherches enregistrées (combinaison de filtres nommée — dans ce navigateur)
+- [x] 8. URL de recherche partageables (filtres encodés dans l'URL)
+- [x] 9. Pages de résultats préconstruites SEO (`/emplois/region/monteregie`, `/emplois/metier/electricien`)
 - [ ] 10. Comparateur d'offres (2-3 offres côte à côte : salaire, région, type)
 
 ### 🧾 Qualité & enrichissement des offres
