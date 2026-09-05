@@ -9,6 +9,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { effectiveRegionId, type Job } from "@jobccq/shared";
 import { inferCategory } from "./normalize.js";
+import { loadMunicipalityMap, normMuni } from "./municipalities.js";
 import { SEED_JOBS } from "./seed-data.js";
 import { seedToJob } from "./seed-transform.js";
 
@@ -55,6 +56,25 @@ async function main() {
     }
   }
 
+  // Reclassement par municipalité : la table éditable (console admin) fait
+  // autorité sur la région d'une offre selon sa ville. Appliqué à l'export → on
+  // reclasse aussi l'existant à chaque déploiement, sans re-scraper.
+  let reregioned = 0;
+  if (fromDb) {
+    const muniMap = await loadMunicipalityMap();
+    if (muniMap.size) {
+      for (const job of jobs) {
+        const cityRaw = job.city || (job.location ? job.location.split(/[,(]/)[0]! : "");
+        if (!cityRaw.trim()) continue;
+        const rid = muniMap.get(normMuni(cityRaw));
+        if (rid && rid !== job.regionId) {
+          job.regionId = rid;
+          reregioned++;
+        }
+      }
+    }
+  }
+
   // Région manquante (localisation non fournie par le site) : on retombe sur la
   // région administrative (RBQ) de l'employeur. Approximation raisonnable pour
   // les entrepreneurs locaux, et cela alimente le filtre « Région » du site.
@@ -90,6 +110,7 @@ async function main() {
   );
   console.log(`📝 Descriptions : ${withDesc}/${jobs.length} renseignées.`);
   console.log(`🏷️  Catégories : ${recategorized} recalculées depuis l'intitulé.`);
+  console.log(`🗺️  Municipalités : ${reregioned} offre(s) reclassée(s) par ville.`);
 }
 
 main().catch((err) => {

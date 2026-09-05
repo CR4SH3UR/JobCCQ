@@ -6,10 +6,16 @@ import { promisify } from "node:util";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { createClient, type User } from "@supabase/supabase-js";
 import type { DiscoveredEmployer } from "@jobccq/shared";
+import { QUEBEC_REGIONS } from "@jobccq/shared";
 import { buildDiscoveredScraper } from "./scrapers/discovered.js";
 import { bespokeScraper } from "./scrapers/registry.js";
 import { runScraperInstance } from "./orchestrator.js";
 import { prisma } from "./db.js";
+import {
+  listMunicipalities,
+  upsertMunicipality,
+  deleteMunicipality,
+} from "./municipalities.js";
 
 /**
  * Routes de la **console d'administration** (usage local, API branchée).
@@ -189,6 +195,33 @@ export function registerAdminRoutes(app: FastifyInstance): void {
     }
     return { invited: true, email };
   });
+
+  // --- Municipalités → région (table éditable, reclassement à l'export) ------
+  app.get("/admin/municipalities", { preHandler: adminGuard }, async () => {
+    return { municipalities: await listMunicipalities() };
+  });
+  app.post<{ Body: { name?: string; regionId?: string } }>(
+    "/admin/municipalities",
+    { preHandler: adminGuard },
+    async (req, reply) => {
+      const name = String(req.body?.name ?? "").trim();
+      const regionId = String(req.body?.regionId ?? "").trim();
+      if (!name || !QUEBEC_REGIONS.some((r) => r.id === regionId)) {
+        reply.code(400);
+        return { error: "Nom de municipalité et région valide requis." };
+      }
+      await upsertMunicipality(name, regionId);
+      return { ok: true, name, regionId };
+    },
+  );
+  app.delete<{ Params: { name: string } }>(
+    "/admin/municipalities/:name",
+    { preHandler: adminGuard },
+    async (req) => {
+      await deleteMunicipality(decodeURIComponent(req.params.name));
+      return { ok: true };
+    },
+  );
 
   // Liste de tous les employeurs découverts (données fraîches du fichier).
   app.get("/admin/employers", { preHandler: adminGuard }, async () => {
