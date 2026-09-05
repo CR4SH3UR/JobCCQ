@@ -3,10 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, hasCustomScraper, type DiscoveredMethod, type Job } from "@jobccq/shared";
-import { API_URL, getStats, searchJobs, buildQuery, adminFetch } from "@/lib/data";
+import { API_URL, getStats, searchJobs, buildQuery, adminFetch, invalidateJobOverrides } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { encryptJson, decryptJson, saveVault, loadVault, clearVault, type AdminSecrets } from "@/lib/vault";
 import { notifyJobsChanged } from "@/lib/live";
+import { upsertJobOverride } from "@/lib/job-overrides";
+import { supabaseEnabled } from "@/lib/supabase";
 import { Badge } from "./Badge";
 import { AdminOfferEditor, type OfferPatch, type OfferRow, type SaveState } from "./AdminOfferEditor";
 
@@ -2468,6 +2470,21 @@ function OfferRowItem({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
+  // Publie l'édition dans l'overlay Supabase (table `job_overrides`) pour que le
+  // site public statique la reflète **immédiatement, sans redéploiement**. Best
+  // effort : l'écriture en base (Turso/API) reste la source de vérité — si
+  // l'overlay échoue (RLS, table absente…), on ne fait pas échouer la sauvegarde,
+  // la correction reviendra de toute façon au prochain rebuild.
+  const publishOverlay = async (id: string, patch: OfferPatch) => {
+    if (!supabaseEnabled) return;
+    try {
+      await upsertJobOverride(id, patch);
+      invalidateJobOverrides();
+    } catch (err) {
+      console.warn("Overlay Supabase non écrit :", (err as Error).message);
+    }
+  };
+
   const doSave = async (id: string, patch: OfferPatch) => {
     if (mode === "api" || mode === "turso") {
       setSave({ s: "saving" });
@@ -2509,6 +2526,8 @@ function OfferRowItem({
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
         }
         onMutate(id, patch);
+        // Réplique l'édition dans l'overlay public (effet immédiat sur le site).
+        await publishOverlay(id, patch);
         setSave({ s: "ok" });
         notifyJobsChanged();
       } catch (err) {
@@ -2517,7 +2536,23 @@ function OfferRowItem({
       setTimeout(() => setSave(undefined), 2500);
       return;
     }
-    // Mode statique : mutation optimiste locale seulement (non publiée).
+    // Mode statique : aucune base joignable. Si Supabase est configuré, on publie
+    // quand même l'édition via l'overlay (durable, visible en direct pour tous) ;
+    // sinon, mutation optimiste locale seulement (non publiée).
+    if (supabaseEnabled) {
+      setSave({ s: "saving" });
+      try {
+        await upsertJobOverride(id, patch);
+        invalidateJobOverrides();
+        onMutate(id, patch);
+        setSave({ s: "ok" });
+        notifyJobsChanged();
+      } catch (err) {
+        setSave({ s: "err", msg: (err as Error).message });
+      }
+      setTimeout(() => setSave(undefined), 2500);
+      return;
+    }
     onMutate(id, patch);
     setSave({ s: "local" });
     setTimeout(() => setSave(undefined), 4000);
@@ -2564,7 +2599,12 @@ function OfferRowItem({
               </button>
             </div>
             <div className="max-h-[80vh] overflow-y-auto p-4">
-              <AdminOfferEditor offer={o} persistEnabled={persistEnabled && mode !== "static"} save={save} onSave={doSave} />
+              <AdminOfferEditor
+                offer={o}
+                persistEnabled={persistEnabled && (mode !== "static" || supabaseEnabled)}
+                save={save}
+                onSave={doSave}
+              />
             </div>
           </div>
         </div>
