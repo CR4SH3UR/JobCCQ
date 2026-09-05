@@ -11,6 +11,7 @@ import {
   labelForRemote,
   sectorsForJob,
   sourceName,
+  rbqLicenceUrl,
   type Job,
 } from "@jobccq/shared";
 import { Badge } from "./Badge";
@@ -117,6 +118,11 @@ export function JobDetailView({ id }: { id: string }) {
                   >
                     {job.company}
                   </Link>
+                  {employer?.verified && (
+                    <span className="ml-1.5 align-middle">
+                      <Badge tone="green">Vérifié</Badge>
+                    </span>
+                  )}
                   {place && <span className="text-slate-500"> · {place}</span>}
                 </p>
                 {posted && <p className="mt-0.5 text-sm text-slate-400">Publiée {posted}</p>}
@@ -200,7 +206,16 @@ export function JobDetailView({ id }: { id: string }) {
               {employer?.rbq && (
                 <div className="flex justify-between gap-2">
                   <dt className="text-slate-400">Licence RBQ</dt>
-                  <dd className="text-right font-medium">{employer.rbq}</dd>
+                  <dd className="text-right font-medium">
+                    <a
+                      href={rbqLicenceUrl(employer.rbq)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-700 hover:underline"
+                    >
+                      {employer.rbq} ↗
+                    </a>
+                  </dd>
                 </div>
               )}
               {sectors.length > 0 && (

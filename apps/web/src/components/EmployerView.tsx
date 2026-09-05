@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ccqTradeLabel, getEmployer, labelForRegion, type Job } from "@jobccq/shared";
+import { ccqTradeLabel, getEmployer, labelForRegion, rbqLicenceUrl, type Job } from "@jobccq/shared";
 import { Badge } from "./Badge";
 import { JobCard } from "./JobCard";
 import { FollowEmployerButton } from "./FollowEmployerButton";
@@ -120,7 +120,14 @@ export function EmployerView({ slug }: { slug: string }) {
               </span>
             )}
             <div className="min-w-0 flex-1">
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">{name}</h1>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+                {name}
+                {employer?.verified && (
+                  <span className="ml-2 align-middle">
+                    <Badge tone="green">Vérifié</Badge>
+                  </span>
+                )}
+              </h1>
               <p className="mt-1 text-slate-600">
                 {jobs.length} poste{jobs.length > 1 ? "s" : ""} ouvert{jobs.length > 1 ? "s" : ""}
                 {lastPosted && timeAgo(lastPosted) ? ` · dernière offre ${timeAgo(lastPosted)}` : ""}
@@ -131,7 +138,11 @@ export function EmployerView({ slug }: { slug: string }) {
                     {r}
                   </Badge>
                 ))}
-                {employer?.rbq && <Badge>RBQ {employer.rbq}</Badge>}
+                {employer?.rbq && (
+                  <a href={rbqLicenceUrl(employer.rbq)} target="_blank" rel="noopener noreferrer">
+                    <Badge>RBQ {employer.rbq} ↗</Badge>
+                  </a>
+                )}
                 {sectors.map((s) => (
                   <Badge key={s} tone="amber">
                     {s}

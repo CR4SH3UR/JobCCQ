@@ -142,6 +142,12 @@ const EMPLOYER_BY_ID: Record<string, DiscoveredEmployer> = Object.fromEntries(
 export const getEmployer = (id?: string | null): DiscoveredEmployer | undefined =>
   id ? EMPLOYER_BY_ID[id] : undefined;
 
+/** Page publique de recherche d'une licence RBQ. */
+export function rbqLicenceUrl(rbq: string): string {
+  const no = rbq.trim().replace(/\s+/g, "");
+  return `https://www.rbq.gouv.qc.ca/entreprises-et-licences/rechercher-une-licence/?licence=${encodeURIComponent(no)}`;
+}
+
 /**
  * Secteurs à AFFICHER pour une offre : les secteurs de l'employeur, mais on
  * retire « Construction… » pour une offre d'entretien paysager / déneigement

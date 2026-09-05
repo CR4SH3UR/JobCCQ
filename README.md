@@ -210,7 +210,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 9. Pages de résultats préconstruites SEO (`/emplois/region/monteregie`, `/emplois/metier/electricien`)
 - [ ] 10. Comparateur d'offres (2-3 offres côte à côte : salaire, région, type)
 - [x] 51. Filtre « salaire renseigné uniquement » (s'appuie sur le filtre salaire déjà là)
-- [ ] 52. « Offres similaires » sur la fiche (même métier / région / employeur)
+- [x] 52. « Offres similaires » sur la fiche (même métier / région / employeur)
 - [ ] 53. Filtre quart de travail (jour / soir / nuit) quand la description le dit
 
 ### 🧾 Qualité & enrichissement des offres
@@ -223,7 +223,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [ ] 16. Résumé automatique de la description (2-3 puces)
 - [ ] 17. Traduction FR↔EN des offres unilingues (libellé « traduit automatiquement »)
 - [ ] 18. Détection d'offres expirées (vérif du lien : 404/redirection → « peut-être pourvue »)
-- [ ] 19. Ancienneté visible et cohérente partout (« il y a 2 j »)
+- [x] 19. Ancienneté visible et cohérente partout (« il y a 2 j »)
 - [ ] 20. Historique d'une offre (salaire modifié, réactivée…)
 - [ ] 54. Extraire contacts RH publics (courriel / téléphone) dans la fiche
 - [ ] 55. Extraire avantages (REER, assurances, camion fourni) à côté des exigences
@@ -234,8 +234,8 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 21. Fiche employeur enrichie (logo, RBQ, nb d'offres actives, régions, métiers, lien carrières)
 - [x] 22. Suivre une entreprise + alerte quand elle publie
 - [ ] 23. Classement « qui recrute le plus » par région et par métier
-- [ ] 24. Badge « vérifié » exposé côté site (champ `verified` de l'admin)
-- [ ] 25. Statut RBQ live (validité de la licence + lien vers le registre)
+- [x] 24. Badge « vérifié » exposé côté site (champ `verified` de l'admin)
+- [x] 25. Lien licence RBQ vers le registre public (recherche de licence)
 - [ ] 26. Employeurs similaires sur une fiche (même région/secteur)
 - [ ] 27. Historique de recrutement d'un employeur (mini-graphe dans le temps)
 - [ ] 57. Page « qui recrute près de chez moi » (code postal → même index villes/régions)
@@ -258,7 +258,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [ ] 35. Export CSV/PDF des favoris et candidatures
 - [ ] 36. Profil métier (mes métiers/régions → accueil personnalisé)
 - [ ] 37. Onboarding rapide (métier, région, mobilité → filtres pré-remplis)
-- [ ] 61. Marquer « déjà postulé » depuis la fiche (compte existant)
+- [x] 61. Marquer « déjà postulé » depuis la fiche (compte existant)
 - [ ] 62. Score d'adéquation offre ↔ profil (métiers / régions du compte)
 
 ### 🕷️ Scraping, sources & pipeline
@@ -295,6 +295,6 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 
 ### 📈 SEO, perf & accessibilité
 
-- [ ] 49. JSON-LD `JobPosting` sur chaque fiche (Google for Jobs) + sitemap dynamique
+- [x] 49. JSON-LD `JobPosting` sur chaque fiche (Google for Jobs) + sitemap dynamique
 - [ ] 50. Audit accessibilité complet + i18n EN de l'interface (bascule FR/EN)
 - [ ] 75. Widget « nos offres » à coller sur le site d'un employeur du répertoire

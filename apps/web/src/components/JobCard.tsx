@@ -11,6 +11,7 @@ import {
   sectorsForJob,
   ccqTradeLabel,
   sourceName,
+  rbqLicenceUrl,
   type Job,
 } from "@jobccq/shared";
 import { Badge } from "./Badge";
@@ -29,7 +30,9 @@ export function JobCard({ job }: { job: Job }) {
   const sponsored = isSponsoredEmployer(job.sourceId);
   const applied = useHasApplied(job.id);
   const ccq = ccqTradeLabel(job.title);
-  const rbq = getEmployer(job.sourceId)?.rbq;
+  const employer = getEmployer(job.sourceId);
+  const rbq = employer?.rbq;
+  const verified = !!employer?.verified;
   const languages = job.languages ?? [];
   // Lieu : ville, puis région administrative si elle apporte une précision.
   const place =
@@ -69,6 +72,11 @@ export function JobCard({ job }: { job: Job }) {
             >
               {job.company}
             </Link>
+            {verified && (
+              <span className="ml-1.5 align-middle">
+                <Badge tone="green">Vérifié</Badge>
+              </span>
+            )}
             {place && <span className="text-slate-500"> · {place}</span>}
           </p>
 
@@ -102,12 +110,16 @@ export function JobCard({ job }: { job: Job }) {
               {rbq && (
                 <>
                   {" · "}
-                  <span
-                    className="font-medium text-slate-500"
-                    title="Licence RBQ (indicatif — source : Données Québec)"
+                  <a
+                    href={rbqLicenceUrl(rbq)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-slate-500 hover:text-brand-700 hover:underline"
+                    title="Consulter cette licence au registre RBQ"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     RBQ {rbq}
-                  </span>
+                  </a>
                 </>
               )}
             </span>
