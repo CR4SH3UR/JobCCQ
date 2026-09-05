@@ -229,6 +229,60 @@ le bouton **Importer tout** déclenche cette fonction. La fonction exige :
 
 ---
 
+# Éditions d'offres en direct (sans redéploiement)
+
+Le site public est un **export statique** qui lit un instantané `jobs.json` **figé
+au build**. Sans rien de plus, une correction d'offre faite dans `/admin`
+(titre, ville, région, salaire, description…) n'apparaît qu'au **prochain rebuild**.
+
+La table `job_overrides` lève cette limite : chaque édition admin y est aussi
+enregistrée sous forme de **patch** (les champs éditables de l'offre). Le site lit
+cette table **au chargement** et **superpose** les patchs sur l'instantané côté
+navigateur — exactement comme le reclassement municipalité → région. L'édition est
+donc **visible immédiatement pour tous les visiteurs, sans redéploiement**.
+
+- **Lecture publique** (tout le monde lit → l'édition s'applique pour tous).
+- **Écriture réservée aux admins** : la règle RLS vérifie le **courriel** du compte
+  connecté (mets-y les mêmes courriels que `NEXT_PUBLIC_ADMIN_EMAILS`).
+- Le patch est **durable** : re-appliqué à chaque chargement, il survit même à un
+  re-scrape qui réécrirait l'offre en base — la correction admin l'emporte tant
+  qu'un admin ne la change pas.
+
+> En mode Turso/API, l'admin écrit dans la base (source de vérité) **et** dans cet
+> overlay. En mode statique (aucun jeton Turso), l'overlay suffit à publier
+> l'édition en direct dès que Supabase est configuré et le compte admin connecté.
+
+## Table + RLS (SQL, une seule fois)
+
+**SQL Editor → New query**, colle et exécute (remplace le(s) courriel(s) admin) :
+
+```sql
+create table if not exists public.job_overrides (
+  job_id     text        primary key,          -- id de l'offre (modèle Job)
+  patch      jsonb       not null default '{}'::jsonb,  -- champs éditables surchargés
+  updated_at timestamptz not null default now()
+);
+
+alter table public.job_overrides enable row level security;
+
+-- Lecture publique : le site lit les patchs pour surcharger les offres en direct.
+create policy "read job_overrides" on public.job_overrides
+  for select using (true);
+
+-- Écriture réservée aux admins. Mets ici TON/TES courriel(s) admin
+-- (les mêmes que NEXT_PUBLIC_ADMIN_EMAILS).
+create policy "admins write job_overrides" on public.job_overrides
+  for all
+  using      ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']))
+  with check ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']));
+```
+
+> Tant que la table n'existe pas, tout retombe proprement sur l'instantané figé
+> (aucun overlay) — rien ne casse. Dès la table créée + un compte admin connecté,
+> l'édition d'une offre est publiée en direct.
+
+---
+
 # Notifications par courriel (alertes emploi) — Resend
 
 Un utilisateur connecté enregistre une **recherche** comme alerte (bouton « 🔔 Créer une

@@ -108,6 +108,56 @@ function loadSnapshot(): Promise<Job[]> {
   return snapshotCache;
 }
 
+// --- Overlay des éditions admin (Supabase, lu en direct) -------------------
+//
+// Les corrections d'offres faites dans /admin sont enregistrées dans la table
+// `job_overrides` (Supabase, lecture publique) et superposées sur l'instantané
+// **côté navigateur** → visibles sans redéploiement, exactement comme le
+// reclassement municipalité → région. Cache court (TTL) pour que le polling
+// « live » (useLivePoll, 30 s) récupère une édition récente sans marteler
+// Supabase à chaque requête.
+
+type OverridesMap = Map<string, Record<string, unknown>>;
+
+let overridesCache: { at: number; map: Promise<OverridesMap> } | null = null;
+const OVERRIDES_TTL_MS = 20_000;
+
+function loadOverrides(): Promise<OverridesMap> {
+  const now = Date.now();
+  if (!overridesCache || now - overridesCache.at > OVERRIDES_TTL_MS) {
+    overridesCache = {
+      at: now,
+      map: import("./job-overrides")
+        .then((m) => m.fetchJobOverrides())
+        .catch(() => new Map() as OverridesMap),
+    };
+  }
+  return overridesCache.map;
+}
+
+/**
+ * Vide le cache de l'overlay pour que la prochaine lecture reparte de Supabase.
+ * Appelé par la console d'admin juste après une édition → effet immédiat (le
+ * `useLivePoll` relit alors des patchs frais au lieu du cache court).
+ */
+export function invalidateJobOverrides(): void {
+  overridesCache = null;
+}
+
+/**
+ * Instantané + overlay des éditions admin appliqué. Ne mute pas l'instantané
+ * partagé : seules les offres patchées sont copiées.
+ */
+async function loadJobs(): Promise<Job[]> {
+  const [jobs, overrides] = await Promise.all([loadSnapshot(), loadOverrides()]);
+  if (!overrides.size) return jobs;
+  const { applyPatch } = await import("./job-overrides");
+  return jobs.map((j) => {
+    const patch = overrides.get(j.id);
+    return patch ? applyPatch(j, patch) : j;
+  });
+}
+
 /**
  * Applique la table éditable municipalité → région (Supabase, lue en direct) sur
  * l'instantané : la ville d'une offre (`city`, sinon 1er segment de `location`)
@@ -164,7 +214,7 @@ async function apiGet<T>(path: string, params?: URLSearchParams): Promise<T> {
 
 export async function searchJobs(query: JobQuery): Promise<JobSearchResult> {
   if (STATIC) {
-    const jobs = await loadSnapshot();
+    const jobs = await loadJobs();
     return applyQuery(jobs, query);
   }
   return apiGet<JobSearchResult>("/api/jobs", toParams(query));
@@ -172,7 +222,7 @@ export async function searchJobs(query: JobQuery): Promise<JobSearchResult> {
 
 export async function getJobById(id: string): Promise<Job | null> {
   if (STATIC) {
-    const jobs = await loadSnapshot();
+    const jobs = await loadJobs();
     return jobs.find((j) => j.id === id) ?? null;
   }
   try {
@@ -206,7 +256,7 @@ export async function getSimilarJobs(job: Job, limit = 6): Promise<Job[]> {
 
 export async function getJobsBySource(sourceId: string): Promise<Job[]> {
   if (STATIC) {
-    const jobs = await loadSnapshot();
+    const jobs = await loadJobs();
     return jobs
       .filter((j) => j.sourceId === sourceId)
       .sort((a, b) => (b.postedAt ?? b.scrapedAt).localeCompare(a.postedAt ?? a.scrapedAt));
@@ -221,7 +271,7 @@ export async function searchCompanies(
   query: JobQuery,
 ): Promise<{ companies: HiringCompany[]; total: number }> {
   if (STATIC) {
-    const jobs = await loadSnapshot();
+    const jobs = await loadJobs();
     const filtered = applyQuery(jobs, { ...query, page: 1, pageSize: 100_000 });
     const companies = toHiringCompanies(filtered.items);
     return { companies, total: companies.length };
@@ -235,7 +285,7 @@ export async function searchCompanies(
 
 export async function getSources(): Promise<{ sources: SourceWithMeta[] }> {
   if (STATIC) {
-    const jobs = await loadSnapshot();
+    const jobs = await loadJobs();
     const counts = new Map<string, number>();
     for (const j of jobs) counts.set(j.sourceId, (counts.get(j.sourceId) ?? 0) + 1);
     return {
@@ -251,7 +301,7 @@ export async function getSources(): Promise<{ sources: SourceWithMeta[] }> {
 
 export async function getStats(): Promise<Stats> {
   if (STATIC) {
-    const jobs = await loadSnapshot();
+    const jobs = await loadJobs();
     const group = (pick: (j: Job) => string | undefined) => {
       const m = new Map<string, number>();
       for (const j of jobs) {
