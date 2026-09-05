@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { createClient, type User } from "@supabase/supabase-js";
 import type { DiscoveredEmployer } from "@jobccq/shared";
 import { buildDiscoveredScraper } from "./scrapers/discovered.js";
@@ -128,6 +128,16 @@ async function requireAdminUser(req: { headers: { authorization?: string } }, re
   return {};
 }
 
+/**
+ * Garde d'accès (preHandler Fastify) : refuse toute requête sans session admin
+ * valide (jeton Supabase + courriel dans ADMIN_EMAILS). À attacher à CHAQUE
+ * route /admin/* pour éviter qu'un endpoint reste ouvert par oubli.
+ */
+export async function adminGuard(req: FastifyRequest, reply: FastifyReply) {
+  const denied = await requireAdminUser(req, reply);
+  if ("error" in denied) return reply.send(denied);
+}
+
 const EDITABLE = new Set(["name", "careersUrl", "method", "homepage", "region", "scope", "rbq", "sectors", "verified", "enabled"]);
 
 export function registerAdminRoutes(app: FastifyInstance): void {
@@ -181,7 +191,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
   });
 
   // Liste de tous les employeurs découverts (données fraîches du fichier).
-  app.get("/admin/employers", async () => {
+  app.get("/admin/employers", { preHandler: adminGuard }, async () => {
     const list = await readAll();
     return { total: list.length, employers: list };
   });
@@ -189,6 +199,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
   // Édition d'un employeur (nom, URL carrières, méthode, vérifié…).
   app.patch<{ Params: { id: string }; Body: Record<string, unknown> }>(
     "/admin/employers/:id",
+    { preHandler: adminGuard },
     async (req, reply) => {
       const list = await readAll();
       const idx = list.findIndex((e) => e.id === req.params.id);
@@ -228,6 +239,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
   // prise en compte immédiatement). Persiste en base et renvoie un aperçu.
   app.post<{ Params: { id: string }; Body: { maxPages?: number } }>(
     "/admin/employers/:id/scrape",
+    { preHandler: adminGuard },
     async (req, reply) => {
       const list = await readAll();
       const employer = list.find((e) => e.id === req.params.id);
@@ -252,14 +264,14 @@ export function registerAdminRoutes(app: FastifyInstance): void {
   // proprement quand un employeur était mal configuré et a accumulé de fausses
   // offres que le garde-fou anti-purge protège (ex. Balvent). Après ça, un
   // re-scrape avec la bonne config repart de 0.
-  app.delete<{ Params: { id: string } }>("/admin/employers/:id/offers", async (req) => {
+  app.delete<{ Params: { id: string } }>("/admin/employers/:id/offers", { preHandler: adminGuard }, async (req) => {
     const del = await prisma.job.deleteMany({ where: { sourceId: req.params.id } });
     return { removed: del.count };
   });
 
   // Ajout d'un employeur depuis la console. Turso : INSERT en base ; sinon,
   // ajout au fichier discovered.json (à committer via « Publier »).
-  app.post<{ Body: Record<string, unknown> }>("/admin/employers", async (req, reply) => {
+  app.post<{ Body: Record<string, unknown> }>("/admin/employers", { preHandler: adminGuard }, async (req, reply) => {
     const b = req.body ?? {};
     const id = String(b.id ?? "").trim();
     const name = String(b.name ?? "").trim();
@@ -300,7 +312,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
   });
 
   // Suppression définitive d'un employeur (sa fiche + toutes ses offres).
-  app.delete<{ Params: { id: string } }>("/admin/employers/:id", async (req) => {
+  app.delete<{ Params: { id: string } }>("/admin/employers/:id", { preHandler: adminGuard }, async (req) => {
     const id = req.params.id;
     const del = await prisma.job.deleteMany({ where: { sourceId: id } });
     if (USE_TURSO) {
@@ -314,7 +326,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
 
   // Publie discovered.json : git add + commit + push → redéploiement du site.
   // (Endpoint local : utilise les identifiants git de la machine.)
-  app.post<{ Body: { message?: string } }>("/admin/publish", async (_req, reply) => {
+  app.post<{ Body: { message?: string } }>("/admin/publish", { preHandler: adminGuard }, async (_req, reply) => {
     // Avec Turso, les écritures sont déjà persistées en base : rien à committer.
     // Le site se reconstruit depuis Turso au prochain déploiement.
     if (USE_TURSO) {

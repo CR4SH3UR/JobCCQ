@@ -19,7 +19,7 @@ import {
 } from "./repository.js";
 import { listScraperIds } from "./scrapers/registry.js";
 import { runScraper } from "./orchestrator.js";
-import { registerAdminRoutes } from "./admin.js";
+import { registerAdminRoutes, adminGuard } from "./admin.js";
 
 /** Normalise un paramètre de requête en tableau (répété ou séparé par des virgules). */
 function asArray(v: unknown): string[] | undefined {
@@ -120,6 +120,7 @@ export function buildServer(): FastifyInstance {
   // Déclenche un scraping (nécessite un accès réseau aux sources).
   app.post<{ Body: { sourceId?: string; query?: string; location?: string; maxPages?: number } }>(
     "/api/scrape",
+    { preHandler: adminGuard },
     async (req, reply) => {
       const { sourceId, query, location, maxPages } = req.body ?? {};
       if (!sourceId) {
