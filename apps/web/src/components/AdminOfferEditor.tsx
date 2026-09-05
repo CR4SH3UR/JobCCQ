@@ -4,11 +4,14 @@ import { useEffect, useState, type ReactNode } from "react";
 import {
   EMPLOYMENT_TYPES,
   JOB_CATEGORIES,
+  labelForRegion,
   LANGUAGES,
   QUEBEC_REGIONS,
   REMOTE_TYPES,
   SALARY_PERIODS,
 } from "@jobccq/shared";
+import { resolveRegionForCity } from "@/lib/municipalities";
+import { siteUrl } from "@/lib/site";
 import { Badge } from "./Badge";
 
 /** Offre affichée / éditée dans le panneau employeur. */
@@ -85,6 +88,9 @@ export function AdminOfferEditor({
   const [languages, setLanguages] = useState<string[]>([...offer.languages]);
   const [postedAt, setPostedAt] = useState(toLocalInput(offer.postedAt));
   const [companyLogoUrl, setCompanyLogoUrl] = useState(offer.companyLogoUrl ?? "");
+  // Retour du bouton « déduire la région de la ville ».
+  const [regionHint, setRegionHint] = useState<{ tone: "ok" | "err"; msg: string } | null>(null);
+  const [detecting, setDetecting] = useState(false);
 
   useEffect(() => {
     setTitle(offer.title);
@@ -105,10 +111,35 @@ export function AdminOfferEditor({
     setLanguages([...offer.languages]);
     setPostedAt(toLocalInput(offer.postedAt));
     setCompanyLogoUrl(offer.companyLogoUrl ?? "");
+    setRegionHint(null);
   }, [offer]);
 
   const toggleLang = (id: string) =>
     setLanguages((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
+
+  /** Déduit la région à partir de la ville saisie (table des municipalités). */
+  const detectRegion = async () => {
+    const c = city.trim();
+    if (!c) {
+      setRegionHint({ tone: "err", msg: "Saisis d'abord une ville." });
+      return;
+    }
+    setDetecting(true);
+    setRegionHint(null);
+    try {
+      const rid = await resolveRegionForCity(c);
+      if (rid) {
+        setRegionId(rid);
+        setRegionHint({ tone: "ok", msg: `Région trouvée : ${labelForRegion(rid) ?? rid}` });
+      } else {
+        setRegionHint({ tone: "err", msg: `« ${c} » introuvable dans la table des municipalités.` });
+      }
+    } catch (e) {
+      setRegionHint({ tone: "err", msg: (e as Error).message });
+    } finally {
+      setDetecting(false);
+    }
+  };
 
   const submit = () => {
     const num = (s: string) => {
@@ -158,15 +189,29 @@ export function AdminOfferEditor({
         {field("Logo (URL)", <input value={companyLogoUrl} onChange={(e) => setCompanyLogoUrl(e.target.value)} spellCheck={false} className={`${inputCls} font-mono`} />)}
         {field("Lieu (brut)", <input value={location} onChange={(e) => setLocation(e.target.value)} className={inputCls} />)}
         {field("Ville", <input value={city} onChange={(e) => setCity(e.target.value)} className={inputCls} />)}
-        {field(
-          "Région",
+        <div className="flex flex-col gap-0.5">
+          <span className="text-slate-500">Région</span>
           <select value={regionId} onChange={(e) => setRegionId(e.target.value)} className={inputCls}>
             <option value="">— Aucune —</option>
             {QUEBEC_REGIONS.map((r) => (
               <option key={r.id} value={r.id}>{r.label}</option>
             ))}
-          </select>,
-        )}
+          </select>
+          <button
+            type="button"
+            onClick={detectRegion}
+            disabled={detecting}
+            title="Déduit la région à partir de la ville (table des municipalités)"
+            className="mt-0.5 self-start rounded border border-brand-300 px-2 py-0.5 text-[11px] font-medium text-brand-700 hover:bg-brand-50 disabled:opacity-40"
+          >
+            {detecting ? "Recherche…" : "🔎 Déduire de la ville"}
+          </button>
+          {regionHint && (
+            <span className={regionHint.tone === "ok" ? "text-[11px] text-green-700" : "text-[11px] text-amber-700"}>
+              {regionHint.msg}
+            </span>
+          )}
+        </div>
         {field(
           "Présentiel / remote",
           <select value={remote} onChange={(e) => setRemote(e.target.value)} className={inputCls}>
@@ -234,8 +279,16 @@ export function AdminOfferEditor({
         {save?.s === "saving" && <span className="text-slate-500">Enregistrement…</span>}
         {save?.s === "ok" && <Badge tone="green">Enregistré</Badge>}
         {save?.s === "err" && <span className="text-red-600">Échec{save.msg ? ` — ${save.msg}` : ""}</span>}
-        <a href={url} target="_blank" rel="noopener noreferrer" className="ml-auto text-brand-700 hover:underline">
-          Ouvrir l’offre ↗
+        <a
+          href={siteUrl(`/emplois/${offer.id}/`)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-auto text-brand-700 hover:underline"
+        >
+          Voir sur le site ↗
+        </a>
+        <a href={url} target="_blank" rel="noopener noreferrer" className="text-brand-700 hover:underline">
+          Voir la source ↗
         </a>
       </div>
     </div>

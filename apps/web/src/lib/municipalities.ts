@@ -10,7 +10,7 @@
  * Tant que la table n'existe pas / Supabase non configuré, tout retombe
  * proprement sur « aucune municipalité » (aucun reclassement) — rien ne casse.
  */
-import { normMunicipality, type Municipality } from "@jobccq/shared";
+import { municipalityRegionMap, normMunicipality, type Municipality } from "@jobccq/shared";
 
 export type { Municipality };
 
@@ -27,6 +27,34 @@ export interface ImportOfficialMunicipalitiesResult {
   sourceUrl: string;
   sourceLastModified: string | null;
   error?: string;
+}
+
+/**
+ * Table nom normalisé → région, mise en cache (une seule lecture Supabase pour
+ * toute la session). Sert au bouton « déduire la région d'une ville » de la
+ * console d'admin. Invalidée dès qu'une municipalité est ajoutée / retirée.
+ */
+let regionMapCache: Promise<Map<string, string>> | null = null;
+
+function municipalityMap(): Promise<Map<string, string>> {
+  if (!regionMapCache) {
+    regionMapCache = fetchMunicipalities()
+      .then((list) => municipalityRegionMap(list))
+      .catch(() => new Map<string, string>());
+  }
+  return regionMapCache;
+}
+
+/**
+ * Déduit l'id de région administrative d'une ville via la table des
+ * municipalités (Supabase). Renvoie `null` si la ville est vide, introuvable,
+ * ou si la table n'est pas disponible.
+ */
+export async function resolveRegionForCity(city: string): Promise<string | null> {
+  const key = normMunicipality(city ?? "");
+  if (!key) return null;
+  const map = await municipalityMap();
+  return map.get(key) ?? null;
 }
 
 /** Lit toutes les municipalités (lecture publique). Renvoie [] si indisponible. */
@@ -52,6 +80,7 @@ export async function upsertMunicipality(name: string, regionId: string): Promis
       { onConflict: "norm" },
     );
   if (error) throw new Error(error.message);
+  regionMapCache = null; // la table a changé → prochaine déduction relit Supabase
 }
 
 /** Supprime une municipalité par son nom (admin ; contrôle d'accès par RLS). */
@@ -60,6 +89,7 @@ export async function deleteMunicipality(name: string): Promise<void> {
   if (!supabase) throw new Error("Supabase n'est pas configuré.");
   const { error } = await supabase.from("municipalities").delete().eq("norm", normMunicipality(name));
   if (error) throw new Error(error.message);
+  regionMapCache = null; // la table a changé → prochaine déduction relit Supabase
 }
 
 /** Importe toutes les municipalités officielles du Québec depuis le CSV MAMH. */
@@ -73,5 +103,6 @@ export async function importOfficialMunicipalities(): Promise<ImportOfficialMuni
   if (error) throw new Error(error.message);
   if (data?.error) throw new Error(data.error);
   if (!data) throw new Error("Réponse vide de la fonction d'import.");
+  regionMapCache = null; // import massif → prochaine déduction relit Supabase
   return data;
 }
