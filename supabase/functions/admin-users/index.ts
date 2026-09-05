@@ -13,6 +13,7 @@ type AdminUserRow = {
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Content-Type": "application/json",
 };
 
@@ -25,6 +26,18 @@ function adminEmails(): string[] {
     .split(",")
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean);
+}
+
+function siteUrl(): string {
+  return (Deno.env.get("SITE_URL") ?? "https://jobccqc.ca").replace(/\/+$/, "");
+}
+
+function normalizeEmail(value: unknown): string {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
 function userToRow(user: User): AdminUserRow {
@@ -45,7 +58,7 @@ function userToRow(user: User): AdminUserRow {
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "GET") return json({ error: "Méthode non permise." }, 405);
+  if (req.method !== "GET" && req.method !== "POST") return json({ error: "Méthode non permise." }, 405);
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -60,6 +73,18 @@ Deno.serve(async (req: Request) => {
   const email = session.user?.email?.trim().toLowerCase();
   if (sessionError || !email) return json({ error: "Session Supabase invalide." }, 401);
   if (!adminEmails().includes(email)) return json({ error: "Compte non autorisé." }, 403);
+
+  if (req.method === "POST") {
+    const body = (await req.json().catch(() => ({}))) as { email?: unknown };
+    const inviteEmail = normalizeEmail(body.email);
+    if (!isValidEmail(inviteEmail)) return json({ error: "Courriel invalide." }, 400);
+
+    const { error } = await admin.auth.admin.inviteUserByEmail(inviteEmail, {
+      redirectTo: `${siteUrl()}/favoris`,
+    });
+    if (error) return json({ error: error.message }, 502);
+    return json({ invited: true, email: inviteEmail });
+  }
 
   const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
   if (error) return json({ error: error.message }, 502);

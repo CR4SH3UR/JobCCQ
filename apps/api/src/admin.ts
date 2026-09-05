@@ -30,6 +30,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABAS
 const SUPABASE_VERIFY_KEY =
   process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SUPABASE_ADMIN_KEY = process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SITE_URL = (process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "https://jobccqc.ca").replace(/\/+$/, "");
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "")
   .split(",")
   .map((s) => s.trim().toLowerCase())
@@ -93,6 +94,14 @@ function userToRow(user: User): AdminUserRow {
   };
 }
 
+function normalizeEmail(value: unknown): string {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function isValidEmail(value: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
 async function requireAdminUser(req: { headers: { authorization?: string } }, reply: { code: (statusCode: number) => void }) {
   const token = req.headers.authorization?.match(/^Bearer\s+(.+)$/i)?.[1]?.trim();
   if (!token) {
@@ -144,6 +153,31 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       total: data.total ?? data.users.length,
       users: data.users.map(userToRow),
     };
+  });
+
+  // Envoie une invitation Supabase Auth. Secret service_role utilisé seulement
+  // ici, après vérification de la session et de la liste ADMIN_EMAILS.
+  app.post<{ Body: { email?: string } }>("/admin/users/invite", async (req, reply) => {
+    const denied = await requireAdminUser(req, reply);
+    if ("error" in denied) return denied;
+
+    const email = normalizeEmail(req.body?.email);
+    if (!isValidEmail(email)) {
+      reply.code(400);
+      return { error: "Courriel invalide." };
+    }
+
+    const admin = createClient(SUPABASE_URL!, SUPABASE_ADMIN_KEY!, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    });
+    const { error } = await admin.auth.admin.inviteUserByEmail(email, {
+      redirectTo: `${SITE_URL}/favoris`,
+    });
+    if (error) {
+      reply.code(502);
+      return { error: error.message };
+    }
+    return { invited: true, email };
   });
 
   // Liste de tous les employeurs découverts (données fraîches du fichier).
