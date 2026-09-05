@@ -208,64 +208,76 @@ body {
 [data-theme="dark"] .admin-console code {
   color: #e0f2fe;
 }
+/* Accents VIFS en mode sombre (« pétants ») + filet de sécurité de lisibilité. */
+[data-theme="dark"] .admin-console {
+  color: #e2e8f0; /* tout texte non remappé reste lisible sur fond sombre */
+}
 [data-theme="dark"] .admin-console .bg-brand-50 {
-  background-color: color-mix(in oklab, var(--color-brand-500) 18%, transparent);
+  background-color: rgb(37 99 235 / 0.26);
 }
 [data-theme="dark"] .admin-console .bg-brand-100,
 [data-theme="dark"] .admin-console .hover\:bg-brand-100:hover {
-  background-color: rgb(30 64 175 / 0.32);
+  background-color: rgb(37 99 235 / 0.44);
 }
+[data-theme="dark"] .admin-console .text-brand-600,
 [data-theme="dark"] .admin-console .text-brand-700,
 [data-theme="dark"] .admin-console .text-brand-800,
-[data-theme="dark"] .admin-console .text-brand-950,
-[data-theme="dark"] .admin-console .text-brand-600 {
-  color: #bfdbfe;
+[data-theme="dark"] .admin-console .text-brand-950 {
+  color: #8fb3ff;
 }
 [data-theme="dark"] .admin-console .border-brand-200,
 [data-theme="dark"] .admin-console .border-brand-300 {
-  border-color: #3b82f6;
+  border-color: #60a5fa;
 }
 [data-theme="dark"] .admin-console .bg-amber-50 {
-  background-color: rgb(120 53 15 / 0.25);
+  background-color: rgb(217 119 6 / 0.24);
 }
 [data-theme="dark"] .admin-console .bg-amber-100,
 [data-theme="dark"] .admin-console .hover\:bg-amber-100:hover {
-  background-color: rgb(146 64 14 / 0.4);
+  background-color: rgb(217 119 6 / 0.46);
 }
 [data-theme="dark"] .admin-console .text-amber-600,
 [data-theme="dark"] .admin-console .text-amber-700,
 [data-theme="dark"] .admin-console .text-amber-800,
 [data-theme="dark"] .admin-console .text-amber-900 {
-  color: #fde68a;
+  color: #fbbf24;
 }
 [data-theme="dark"] .admin-console .border-amber-200,
 [data-theme="dark"] .admin-console .border-amber-300 {
-  border-color: #b45309;
+  border-color: #f59e0b;
 }
 [data-theme="dark"] .admin-console .bg-green-50 {
-  background-color: rgb(20 83 45 / 0.24);
+  background-color: rgb(22 163 74 / 0.26);
 }
 [data-theme="dark"] .admin-console .bg-green-100,
 [data-theme="dark"] .admin-console .hover\:bg-green-100:hover {
-  background-color: rgb(20 83 45 / 0.42);
+  background-color: rgb(22 163 74 / 0.46);
 }
+[data-theme="dark"] .admin-console .text-green-600,
 [data-theme="dark"] .admin-console .text-green-700,
 [data-theme="dark"] .admin-console .text-green-800 {
-  color: #bbf7d0;
+  color: #4ade80;
 }
 [data-theme="dark"] .admin-console .border-green-200,
 [data-theme="dark"] .admin-console .border-green-300 {
-  border-color: #15803d;
+  border-color: #22c55e;
 }
 [data-theme="dark"] .admin-console .bg-red-50,
 [data-theme="dark"] .admin-console .hover\:bg-red-50:hover {
-  background-color: rgb(136 19 55 / 0.28);
+  background-color: rgb(225 29 72 / 0.28);
 }
+[data-theme="dark"] .admin-console .text-red-500,
 [data-theme="dark"] .admin-console .text-red-600,
 [data-theme="dark"] .admin-console .text-red-700 {
-  color: #fecdd3;
+  color: #fb7185;
 }
 [data-theme="dark"] .admin-console .border-red-300,
 [data-theme="dark"] .admin-console .border-red-400 {
-  border-color: #be123c;
+  border-color: #f43f5e;
 }
+
+/* Accents un peu plus saturés aussi en mode clair (chips « pétants »). */
+.admin-console .bg-brand-50 { background-color: #dbe7ff; }
+.admin-console .bg-green-50 { background-color: #dcfce7; }
+.admin-console .bg-amber-50 { background-color: #fef3c7; }
+.admin-console .bg-red-50 { background-color: #fee2e2; }
