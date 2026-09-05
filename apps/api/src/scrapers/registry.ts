@@ -72,7 +72,7 @@ const BESPOKE = {
   intermat: intermatScraper,
   rioux: riouxScraper,
   "atkinsrealis-com": atkinsRealisScraper,
-  artelia: arteliaScraper,
+  "arteliagroup-com": arteliaScraper,
   "ascenseurs-absolu": ascenseursAbsoluScraper,
   atelierenhauteur: atelierEnHauteurScraper,
   "atlas-apex": atlasApexScraper,

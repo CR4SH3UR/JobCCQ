@@ -34,7 +34,7 @@ export const CUSTOM_SCRAPER_IDS = [
   "intermat",
   "rioux",
   "atkinsrealis-com",
-  "artelia",
+  "arteliagroup-com",
   "ascenseurs-absolu",
   "atelierenhauteur",
   "atlas-apex",

@@ -8,10 +8,12 @@ import { absolute, cleanText } from "./util.js";
  * `/canada-fr/job/<slug>-in-<ville>-jid-<id>` répété plusieurs fois (titre +
  * boutons « En savoir plus »). Le repli générique s'y perdait (il captait
  * « En savoir plus » comme titre) — d'où ce parseur qui isole le vrai intitulé
- * et déduit la ville depuis le slug. `size=480` ramène toutes les offres sur une
- * seule page (pas de pagination).
+ * et déduit la ville depuis le slug. Les `options` gardent le filtre métiers
+ * choisi dans le portail ; `size=480` ramène toutes les offres sur une seule
+ * page (pas de pagination).
  */
-const CAREERS = "https://careers.arteliagroup.com/canada-fr/jobs?page=1&size=480";
+const CAREERS =
+  "https://careers.arteliagroup.com/canada-fr/jobs?options=412%2C438%2C439%2C479%2C455%2C440%2C405%2C404%2C403%2C396%2C482%2C458%2C414%2C432%2C410%2C456%2C399%2C397%2C435%2C395&page=1&size=480";
 const COMPANY = "Artelia Canada inc.";
 
 /** « baie-comeau » → « Baie-Comeau » (on garde les tirets pour detectRegion). */
