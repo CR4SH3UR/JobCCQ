@@ -153,6 +153,7 @@ export function invalidateJobOverrides(): void {
 export function invalidateJobsCache(): void {
   snapshotCache = null;
   overridesCache = null;
+  vocabCache = null;
 }
 
 /**
@@ -354,6 +355,50 @@ export async function getStats(): Promise<Stats> {
     };
   }
   return apiGet<Stats>("/api/stats");
+}
+
+// --- Vocabulaire d'autocomplétion (entreprises + villes) -------------------
+//
+// Alimente la barre de recherche : liste dédoublonnée des entreprises et des
+// villes présentes dans les offres. En mode statique, calculée depuis
+// l'instantané ; via l'API, depuis un large échantillon d'offres. Mise en
+// cache (une seule construction) et invalidée par `invalidateJobsCache`.
+
+export interface SearchVocabulary {
+  companies: string[];
+  cities: string[];
+}
+
+let vocabCache: Promise<SearchVocabulary> | null = null;
+
+async function buildVocabulary(): Promise<SearchVocabulary> {
+  const jobs = STATIC
+    ? await loadJobs()
+    : (await searchJobs(buildQuery({ pageSize: 5_000 }))).items;
+
+  const companies = new Map<string, string>(); // clé normalisée → libellé affiché
+  const cities = new Map<string, string>();
+  for (const j of jobs) {
+    const c = j.company?.trim();
+    if (c) companies.set(c.toLowerCase(), c);
+    const city = j.city?.trim() || cityCandidates(j)[0]?.trim();
+    if (city) cities.set(city.toLowerCase(), city);
+  }
+  const byLabel = (a: string, b: string) => a.localeCompare(b, "fr");
+  return {
+    companies: [...companies.values()].sort(byLabel),
+    cities: [...cities.values()].sort(byLabel),
+  };
+}
+
+export function getSearchVocabulary(): Promise<SearchVocabulary> {
+  if (!vocabCache) {
+    vocabCache = buildVocabulary().catch((err) => {
+      vocabCache = null;
+      throw err;
+    });
+  }
+  return vocabCache;
 }
 
 /** Construit une requête complète à partir de filtres partiels. */

@@ -8,3 +8,6 @@ export * from "./filters.js";
 export * from "./ccq.js";
 export * from "./municipalities.js";
 export * from "./custom-scrapers.js";
+export * from "./text.js";
+export * from "./synonyms.js";
+export * from "./suggest.js";
