@@ -39,7 +39,9 @@ type Employer = {
 };
 
 type Mode = "loading" | "api" | "static" | "turso";
-type ScrapeState = { status: "run" | "ok" | "err"; found?: number; error?: string; sample?: { title: string; city?: string }[] };
+type ScrapeDiffEntry = { title: string; url: string };
+type ScrapeDiff = { added: ScrapeDiffEntry[]; changed: ScrapeDiffEntry[]; removed: ScrapeDiffEntry[] };
+type ScrapeState = { status: "run" | "ok" | "err"; found?: number; error?: string; sample?: { title: string; city?: string }[]; diff?: ScrapeDiff };
 /** Dernière exécution de scraping connue pour un employeur (table ScrapeRun). */
 type LastRun = { status: string; at: number | null; found: number; error?: string };
 type OffersState = { loading: boolean; rows: OfferRow[]; error?: string };
@@ -930,7 +932,7 @@ export function AdminExplorer() {
       });
       const d = await r.json();
       if (d.report?.status === "success") {
-        setScrapes((s) => ({ ...s, [id]: { status: "ok", found: d.report.found, sample: d.sample } }));
+        setScrapes((s) => ({ ...s, [id]: { status: "ok", found: d.report.found, sample: d.sample, diff: d.report.diff } }));
         logAudit("scrape", { targetId: id, targetName: employers.find((e) => e.id === id)?.name ?? id, detail: `${d.report.found} offre(s)` });
         // Le scrape a écrit en base : on rafraîchit le compteur ET l'aperçu
         // déroulé « Offres » (si ouvert) sans recharger la page.
@@ -2692,6 +2694,34 @@ function Row({
                     <li key={i}>{j.title}{j.city ? ` · ${j.city}` : ""}</li>
                   ))}
                 </ul>
+              )}
+              {scrape.diff &&
+                (scrape.diff.added.length > 0 || scrape.diff.changed.length > 0 || scrape.diff.removed.length > 0) && (
+                <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-2 text-slate-600">
+                  <p className="font-semibold text-slate-700">
+                    Diff : +{scrape.diff.added.length} ajoutée{scrape.diff.added.length > 1 ? "s" : ""}
+                    {" · "}~{scrape.diff.changed.length} modifiée{scrape.diff.changed.length > 1 ? "s" : ""}
+                    {" · "}-{scrape.diff.removed.length} retirée{scrape.diff.removed.length > 1 ? "s" : ""}
+                  </p>
+                  {(
+                    [
+                      ["+", scrape.diff.added, "text-green-700"],
+                      ["~", scrape.diff.changed, "text-amber-700"],
+                      ["-", scrape.diff.removed, "text-red-600"],
+                    ] as const
+                  ).map(([sign, entries, cls]) =>
+                    entries.length === 0 ? null : (
+                      <ul key={sign} className={`mt-1 list-none pl-1 ${cls}`}>
+                        {entries.slice(0, 10).map((e, i) => (
+                          <li key={i} className="truncate" title={e.url}>
+                            {sign} <a href={e.url} target="_blank" rel="noreferrer" className="hover:underline">{e.title}</a>
+                          </li>
+                        ))}
+                        {entries.length > 10 && <li>{sign} … et {entries.length - 10} autres</li>}
+                      </ul>
+                    ),
+                  )}
+                </div>
               )}
             </div>
           ) : (
