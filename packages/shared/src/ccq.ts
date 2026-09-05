@@ -26,6 +26,9 @@ export const CCQ_TRADES: readonly CcqTrade[] = [
   { id: "ferrailleur", label: "Ferrailleur", re: /ferrailleur|poseur d['’]?armature|armature de b[ée]ton/i },
   { id: "frigoriste", label: "Frigoriste", re: /frigoriste/i },
   { id: "grutier", label: "Grutier", re: /grutier|op[ée]rateur de grue/i },
+  // Spécialisé AVANT manœuvre : `ccqTradeOf` prend le premier match.
+  { id: "manoeuvre-specialise", label: "Manœuvre spécialisé", re: /manoeuvre[\s-]+sp[ée]cialis/i },
+  { id: "manoeuvre", label: "Manœuvre", re: /\bmanoeuvre/i },
   { id: "mecanicien-ascenseur", label: "Mécanicien d'ascenseur", re: /m[ée]canicien(?:ne)?\s+d['’]?ascenseur/i },
   { id: "mecanicien-protection-incendie", label: "Mécanicien en protection-incendie", re: /protection[-\s]?incendie|gicleur/i },
   { id: "mecanicien-chantier", label: "Mécanicien industriel de chantier", re: /m[ée]canicien(?:ne)?\s+(?:industriel(?:le)?\s+)?de\s+chantier|millwright/i },
