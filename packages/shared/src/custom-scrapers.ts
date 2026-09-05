@@ -57,6 +57,7 @@ export const CUSTOM_SCRAPER_IDS = [
   "bousada-com",
   "betongl-com",
   "boismassifquebec-com",
+  "boless-com",
   "bellemare-njoyn",
   "groupebellemare-com",
 ] as const;

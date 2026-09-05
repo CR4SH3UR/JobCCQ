@@ -51,6 +51,7 @@ import { bousadaScraper } from "./bousada.js";
 import { bellemareScraper, groupebellemareScraper } from "./bellemare.js";
 import { betonGlScraper } from "./betongl.js";
 import { boismassifquebecScraper } from "./boismassifquebec.js";
+import { bolessScraper } from "./boless.js";
 import { buildDiscoveredScraper } from "./discovered.js";
 
 /**
@@ -114,6 +115,7 @@ const BESPOKE = {
   "bousada-com": bousadaScraper,
   "betongl-com": betonGlScraper,
   "boismassifquebec-com": boismassifquebecScraper,
+  "boless-com": bolessScraper,
   "bellemare-njoyn": bellemareScraper,
   "groupebellemare-com": groupebellemareScraper,
 } satisfies Record<CustomScraperId, Scraper>;
