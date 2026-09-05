@@ -28,6 +28,7 @@ permissions:
 concurrency:
   group: deploy-pages
   cancel-in-progress: false
+  queue: max
 
 jobs:
   deploy:
