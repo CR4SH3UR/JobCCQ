@@ -10,6 +10,7 @@ import { buildDiscoveredScraper } from "./scrapers/discovered.js";
 import { bespokeScraper } from "./scrapers/registry.js";
 import { runScraperInstance } from "./orchestrator.js";
 import { prisma } from "./db.js";
+import { rowToJob } from "./repository.js";
 
 /**
  * Routes de la **console d'administration** (usage local, API branchée).
@@ -268,6 +269,97 @@ export function registerAdminRoutes(app: FastifyInstance): void {
     const del = await prisma.job.deleteMany({ where: { sourceId: req.params.id } });
     return { removed: del.count };
   });
+
+  // Édition d'une offre (titre, lieu, catégorie, description…). Identifiant = Job.id.
+  app.patch<{ Params: { id: string }; Body: Record<string, unknown> }>(
+    "/admin/jobs/:id",
+    { preHandler: adminGuard },
+    async (req, reply) => {
+      const existing = await prisma.job.findUnique({ where: { id: req.params.id } });
+      if (!existing) {
+        reply.code(404);
+        return { error: "Offre introuvable" };
+      }
+      const body = req.body ?? {};
+      const data: Record<string, unknown> = {};
+      const strFields = [
+        "title",
+        "company",
+        "url",
+        "companyLogoUrl",
+        "location",
+        "regionId",
+        "city",
+        "remote",
+        "categoryId",
+        "employmentType",
+        "salaryPeriod",
+        "currency",
+        "description",
+      ] as const;
+      const blankToNull = (v: unknown) => {
+        if (v == null) return null;
+        const s = String(v).trim();
+        return s === "" ? null : s;
+      };
+      for (const k of strFields) {
+        if (k in body) data[k] = blankToNull(body[k]);
+      }
+      if ("title" in data && !data.title) {
+        reply.code(400);
+        return { error: "Le titre est requis." };
+      }
+      if ("company" in data && !data.company) {
+        reply.code(400);
+        return { error: "L'entreprise est requise." };
+      }
+      if ("url" in data) {
+        try {
+          new URL(String(data.url));
+        } catch {
+          reply.code(400);
+          return { error: "URL invalide." };
+        }
+      }
+      const numOrNull = (v: unknown) => {
+        if (v == null || v === "") return null;
+        const n = Number(v);
+        return Number.isFinite(n) ? n : null;
+      };
+      if ("salaryMin" in body) data.salaryMin = numOrNull(body.salaryMin);
+      if ("salaryMax" in body) data.salaryMax = numOrNull(body.salaryMax);
+      if ("tags" in body) {
+        const tags = Array.isArray(body.tags)
+          ? body.tags.map((t) => String(t).trim()).filter(Boolean)
+          : String(body.tags ?? "")
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean);
+        data.tags = JSON.stringify(tags);
+      }
+      if ("languages" in body) {
+        const langs = Array.isArray(body.languages)
+          ? body.languages.map((t) => String(t).trim()).filter(Boolean)
+          : [];
+        data.languages = JSON.stringify(langs);
+      }
+      if ("postedAt" in body) {
+        const v = body.postedAt;
+        if (v == null || v === "") data.postedAt = null;
+        else {
+          const d = typeof v === "number" ? new Date(v > 1e12 ? v : v * 1000) : new Date(String(v));
+          data.postedAt = Number.isNaN(d.getTime()) ? null : d;
+        }
+      }
+      try {
+        const updated = await prisma.job.update({ where: { id: req.params.id }, data });
+        return { job: rowToJob(updated) };
+      } catch (err) {
+        reply.code(409);
+        return { error: (err as Error).message };
+      }
+    },
+  );
 
   // Ajout d'un employeur depuis la console. Turso : INSERT en base ; sinon,
   // ajout au fichier discovered.json (à committer via « Publier »).

@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, hasCustomScraper, type DiscoveredMethod } from "@jobccq/shared";
+import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, hasCustomScraper, type DiscoveredMethod, type Job } from "@jobccq/shared";
 import { API_URL, getStats, searchJobs, buildQuery, adminFetch } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { encryptJson, decryptJson, saveVault, loadVault, clearVault, type AdminSecrets } from "@/lib/vault";
 import { Badge } from "./Badge";
+import { AdminOfferEditor, type OfferPatch, type OfferRow, type SaveState } from "./AdminOfferEditor";
 
 /**
  * Régions administratives du Québec sélectionnables pour un employeur. On exclut
@@ -36,11 +37,8 @@ type Mode = "loading" | "api" | "static" | "turso";
 type ScrapeState = { status: "run" | "ok" | "err"; found?: number; error?: string; sample?: { title: string; city?: string }[] };
 /** Dernière exécution de scraping connue pour un employeur (table ScrapeRun). */
 type LastRun = { status: string; at: number | null; found: number; error?: string };
-/** Une offre affichée dans l'aperçu déroulant d'un employeur. */
-type OfferRow = { title: string; city?: string; url: string; postedAt: number | null };
 type OffersState = { loading: boolean; rows: OfferRow[]; error?: string };
 /** Retour d'enregistrement d'une fiche employeur (mode Turso/API/local). */
-type SaveState = { s: "saving" | "ok" | "local" | "err"; msg?: string };
 /** Une ligne du flux d'activité (exécutions de scraping récentes, toutes sources). */
 type ActivityRow = {
   id: number; sourceId: string; status: string;
@@ -155,6 +153,79 @@ function whenMs(v: unknown): number | null {
   }
   const t = Date.parse(s);
   return Number.isNaN(t) ? null : t;
+}
+
+function parseJsonArray(v: unknown): string[] {
+  if (Array.isArray(v)) return v.map(String);
+  if (typeof v === "string") {
+    try {
+      const p = JSON.parse(v);
+      return Array.isArray(p) ? p.map(String) : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+function numOpt(v: unknown): number | undefined {
+  if (v == null || v === "") return undefined;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+function strOpt(v: unknown): string | undefined {
+  if (v == null) return undefined;
+  const s = String(v).trim();
+  return s || undefined;
+}
+
+function jobToOfferRow(j: Job): OfferRow {
+  return {
+    id: j.id,
+    title: j.title,
+    company: j.company,
+    url: j.url,
+    location: j.location,
+    city: j.city,
+    regionId: j.regionId,
+    remote: j.remote,
+    categoryId: j.categoryId,
+    employmentType: j.employmentType,
+    salaryMin: j.salaryMin,
+    salaryMax: j.salaryMax,
+    salaryPeriod: j.salaryPeriod,
+    currency: j.currency,
+    description: j.description,
+    tags: j.tags ?? [],
+    languages: [...(j.languages ?? [])],
+    postedAt: whenMs(j.postedAt ?? null),
+    companyLogoUrl: j.companyLogoUrl,
+  };
+}
+
+function tursoToOfferRow(r: Record<string, unknown>): OfferRow {
+  return {
+    id: String(r.id ?? ""),
+    title: String(r.title ?? ""),
+    company: String(r.company ?? ""),
+    url: String(r.url ?? ""),
+    location: strOpt(r.location),
+    city: strOpt(r.city),
+    regionId: strOpt(r.regionId),
+    remote: strOpt(r.remote),
+    categoryId: strOpt(r.categoryId),
+    employmentType: strOpt(r.employmentType),
+    salaryMin: numOpt(r.salaryMin),
+    salaryMax: numOpt(r.salaryMax),
+    salaryPeriod: strOpt(r.salaryPeriod),
+    currency: strOpt(r.currency),
+    description: strOpt(r.description),
+    tags: parseJsonArray(r.tags),
+    languages: parseJsonArray(r.languages),
+    postedAt: whenMs(r.postedAt),
+    companyLogoUrl: strOpt(r.companyLogoUrl),
+  };
 }
 
 /** Temps relatif court en français : « il y a 2 h », « il y a 3 j »… */
@@ -616,23 +687,15 @@ export function AdminExplorer() {
         const raw = await tursoRows(
           tUrl,
           tTok,
-          "SELECT title, city, url, postedAt FROM Job WHERE sourceId=? ORDER BY id DESC LIMIT 60",
+          `SELECT id, title, company, url, location, city, regionId, remote, categoryId, employmentType,
+                  salaryMin, salaryMax, salaryPeriod, currency, description, tags, languages, postedAt, companyLogoUrl
+           FROM Job WHERE sourceId=? ORDER BY id DESC LIMIT 60`,
           [id],
         );
-        rows = raw.map((r) => ({
-          title: String(r.title ?? ""),
-          city: r.city ? String(r.city) : undefined,
-          url: String(r.url ?? ""),
-          postedAt: whenMs(r.postedAt),
-        }));
+        rows = raw.map(tursoToOfferRow);
       } else {
         const res = await searchJobs(buildQuery({ sources: [id], pageSize: 60, sort: "recent" }));
-        rows = res.items.map((j) => ({
-          title: j.title,
-          city: j.city,
-          url: j.url,
-          postedAt: whenMs(j.postedAt ?? null),
-        }));
+        rows = res.items.map(jobToOfferRow);
       }
       setOffersData((d) => ({ ...d, [id]: { loading: false, rows } }));
     } catch (err) {
@@ -1894,6 +1957,9 @@ export function AdminExplorer() {
                 forceEnabled={!!ghToken}
                 save={saveState[e.id]}
                 sectorOptions={sectorOptions}
+                mode={mode}
+                tursoUrl={tursoUrl}
+                tursoToken={tursoToken}
                 onToggleSelect={toggleSelect}
                 onPatch={patchEmployer}
                 onScrape={scrapeOne}
@@ -1901,6 +1967,13 @@ export function AdminExplorer() {
                 onPurge={purgeOffers}
                 onDelete={deleteEmployer}
                 onToggleOffers={toggleOffers}
+                onMutateOffer={(employerId, offerId, patch) =>
+                  setOffersData((d) => {
+                    const prev = d[employerId] ?? { loading: false, rows: [] };
+                    const rows = prev.rows.map((r) => (r.id === offerId ? { ...r, ...patch } : r));
+                    return { ...d, [employerId]: { ...prev, rows } };
+                  })
+                }
               />
             ))}
           </div>
@@ -1924,6 +1997,7 @@ export function AdminExplorer() {
 
 /** Petit indicateur d'enregistrement affiché à côté du bouton « Enregistrer ». */
 function SaveBadge({ save }: { save: SaveState }) {
+  if (!save.s) return null;
   if (save.s === "saving") return <span className="text-xs text-slate-500">💾 Enregistrement…</span>;
   if (save.s === "ok") return <span className="text-xs font-semibold text-green-700">✓ Enregistré</span>;
   if (save.s === "local")
@@ -1940,7 +2014,7 @@ function SaveBadge({ save }: { save: SaveState }) {
 }
 
 function Row({
-  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, forceEnabled, save, sectorOptions, onToggleSelect, onPatch, onScrape, onScrapeForce, onPurge, onDelete, onToggleOffers,
+  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, forceEnabled, save, sectorOptions, mode, tursoUrl, tursoToken, onToggleSelect, onPatch, onScrape, onScrapeForce, onPurge, onDelete, onToggleOffers, onMutateOffer,
 }: {
   e: Employer;
   count: number;
@@ -1956,6 +2030,9 @@ function Row({
   forceEnabled: boolean;
   save?: SaveState;
   sectorOptions: string[];
+  mode: Mode;
+  tursoUrl: string;
+  tursoToken: string;
   onToggleSelect: (id: string) => void;
   onPatch: (id: string, patch: Partial<Employer>) => void;
   onScrape: (id: string) => void;
@@ -1963,6 +2040,7 @@ function Row({
   onPurge: (id: string) => void;
   onDelete: (id: string) => void;
   onToggleOffers: (id: string) => void;
+  onMutateOffer: (employerId: string, offerId: string, patch: OfferPatch) => void;
 }) {
   const [url, setUrl] = useState(e.careersUrl);
   const [name, setName] = useState(e.name);
@@ -2176,21 +2254,23 @@ function Row({
             <span className="text-slate-500">Aucune offre en base pour cet employeur.</span>
           ) : (
             <>
+              <div className="mb-1 text-[10px] text-slate-400">
+                {offers.rows.length} affichée(s){count > offers.rows.length ? ` sur ${count}` : ""} — cliquer sur une offre pour l’éditer.
+              </div>
               <ul className="space-y-1">
-                {offers.rows.map((o, i) => (
-                  <li key={i} className="flex items-baseline justify-between gap-2">
-                    <a href={o.url} target="_blank" rel="noopener noreferrer" className="truncate text-brand-700 hover:underline">
-                      {o.title || "(sans titre)"}
-                    </a>
-                    <span className="shrink-0 text-slate-400">
-                      {o.city ?? ""}{o.postedAt ? `${o.city ? " · " : ""}${relTime(o.postedAt)}` : ""}
-                    </span>
+                {offers.rows.map((o) => (
+                  <li key={o.id}>
+                    <OfferRowItem
+                      o={o}
+                      persistEnabled={mode !== "loading"}
+                      mode={mode}
+                      tursoUrl={tursoUrl}
+                      tursoToken={tursoToken}
+                      onMutate={(id, patch) => onMutateOffer(e.id, id, patch)}
+                    />
                   </li>
                 ))}
               </ul>
-              <div className="mt-1 text-right text-[10px] text-slate-400">
-                {offers.rows.length} affichée(s){count > offers.rows.length ? ` sur ${count}` : ""}
-              </div>
             </>
           )}
         </div>
@@ -2352,5 +2432,96 @@ function Row({
         </div>
       )}
     </article>
+  );
+}
+
+/**
+ * Ligne d'offre dans le panneau employeur : <details> qui révèle l'éditeur
+ * AdminOfferEditor quand on clique. Persiste via API (api/Turso) ou en mode
+ * statique affiche un avertissement local-only.
+ */
+function OfferRowItem({
+  o,
+  persistEnabled,
+  mode,
+  tursoUrl,
+  tursoToken,
+  onMutate,
+}: {
+  o: OfferRow;
+  persistEnabled: boolean;
+  mode: Mode;
+  tursoUrl: string;
+  tursoToken: string;
+  onMutate: (id: string, patch: OfferPatch) => void;
+}) {
+  const [save, setSave] = useState<SaveState>();
+
+  const doSave = async (id: string, patch: OfferPatch) => {
+    if (mode === "api" || mode === "turso") {
+      setSave({ s: "saving" });
+      try {
+        if (mode === "turso") {
+          const tUrl = tursoUrl || readLS(LS_TURSO_URL);
+          const tTok = tursoToken || readLS(LS_TURSO_TOKEN);
+          const cols: string[] = [];
+          const args: unknown[] = [];
+          const strFields: (keyof OfferPatch)[] = [
+            "title", "company", "url", "location", "city", "regionId", "remote",
+            "categoryId", "employmentType", "salaryPeriod", "currency", "description", "companyLogoUrl",
+          ];
+          for (const k of strFields) {
+            if (k in patch) {
+              cols.push(`${k}=?`);
+              args.push((patch as Record<string, unknown>)[k] ?? null);
+            }
+          }
+          if ("salaryMin" in patch) { cols.push("salaryMin=?"); args.push(patch.salaryMin ?? null); }
+          if ("salaryMax" in patch) { cols.push("salaryMax=?"); args.push(patch.salaryMax ?? null); }
+          if ("tags" in patch) { cols.push("tags=?"); args.push(JSON.stringify(patch.tags ?? [])); }
+          if ("languages" in patch) { cols.push("languages=?"); args.push(JSON.stringify(patch.languages ?? [])); }
+          if ("postedAt" in patch) {
+            cols.push("postedAt=?");
+            args.push(patch.postedAt ? new Date(patch.postedAt).toISOString() : null);
+          }
+          if (!cols.length) return;
+          cols.push("updatedAt=?");
+          args.push(new Date().toISOString());
+          args.push(id);
+          await tursoExec(tUrl, tTok, `UPDATE Job SET ${cols.join(",")} WHERE id=?`, args);
+        } else {
+          const res = await adminFetch(`${API_URL}/admin/jobs/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(patch),
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        }
+        onMutate(id, patch);
+        setSave({ s: "ok" });
+      } catch (err) {
+        setSave({ s: "err", msg: (err as Error).message });
+      }
+      setTimeout(() => setSave(undefined), 2500);
+      return;
+    }
+    // Mode statique : mutation optimiste locale seulement (non publiée).
+    onMutate(id, patch);
+    setSave({ s: "local" });
+    setTimeout(() => setSave(undefined), 4000);
+  };
+
+  return (
+    <details className="group rounded border border-slate-200 bg-white">
+      <summary className="flex cursor-pointer items-baseline justify-between gap-2 px-2 py-1.5 hover:bg-slate-100">
+        <span className="truncate text-brand-700">{o.title || "(sans titre)"}</span>
+        <span className="shrink-0 text-slate-400">
+          {o.city ?? ""}{o.postedAt ? `${o.city ? " · " : ""}${relTime(o.postedAt)}` : ""}
+        </span>
+      </summary>
+      <div className="p-2">
+        <AdminOfferEditor offer={o} persistEnabled={persistEnabled && mode !== "static"} save={save} onSave={doSave} />
+      </div>
+    </details>
   );
 }
