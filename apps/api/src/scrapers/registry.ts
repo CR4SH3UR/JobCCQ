@@ -3,6 +3,7 @@ import type { Scraper } from "./types.js";
 import { atwillMorinScraper } from "./atwill-morin.js";
 import { hamelConstructionScraper } from "./hamel-construction.js";
 import { pomerleauScraper } from "./pomerleau.js";
+import { plombierExpertScraper } from "./plombierexpert.js";
 import { lafontaineScraper } from "./lafontaine.js";
 import { ebcScraper } from "./ebc.js";
 import { leqelScraper } from "./leqel.js";
@@ -22,6 +23,7 @@ import { stefetmaxScraper } from "./stefetmax.js";
 import { droletConstructionScraper } from "./droletconstruction.js";
 import { electriciteMc2Scraper } from "./electricitemc2.js";
 import { glrScraper } from "./glr.js";
+import { bellemareScraper } from "./bellemare.js";
 import { excavationsRsrScraper } from "./excavationsrsr.js";
 import { galileeScraper } from "./galilee.js";
 import { intermatScraper } from "./intermat.js";
@@ -48,6 +50,7 @@ const BESPOKE = {
   "atwill-morin": atwillMorinScraper,
   "hamelconstruction-com": hamelConstructionScraper,
   pomerleau: pomerleauScraper,
+  "plombierexpert-ca": plombierExpertScraper,
   lafontaine: lafontaineScraper,
   ebc: ebcScraper,
   leqel: leqelScraper,
@@ -68,6 +71,7 @@ const BESPOKE = {
   "droletconstruction-com": droletConstructionScraper,
   "electricitemc2-com": electriciteMc2Scraper,
   glr: glrScraper,
+  "groupebellemare-com": bellemareScraper,
   "excavationsrsr-com": excavationsRsrScraper,
   galilee: galileeScraper,
   intermat: intermatScraper,

@@ -1470,9 +1470,9 @@
   },
   {
     "id": "plombierexpert-ca",
-    "name": "Bâtiment Expert",
+    "name": "Plombier Expert",
     "homepage": "https://plombierexpert.ca",
-    "careersUrl": "https://plombierexpert.ca/nous-joindre/",
+    "careersUrl": "https://plombierexpert.ca/carrieres/",
     "method": "html",
     "region": "Estrie",
     "rbq": "5845-0701-01",
@@ -1658,9 +1658,9 @@
   },
   {
     "id": "groupebellemare-com",
-    "name": "Bellemare Manutention inc.",
+    "name": "Groupe Bellemare",
     "homepage": "https://www.groupebellemare.com",
-    "careersUrl": "https://bellemare.njoyn.com/cl3/xweb/Xweb.asp?tbtoken=Zl9bShtYDVBzYQZ5QlVSYU9OBGZcaVVdel1MIl8ND3lbW0sYL0odBhZ9cDcYGhBRTXJsF3Y%3D&chk=ZVpaShM%3D&page=joblisting&CLID=53428&lang=2",
+    "careersUrl": "https://bellemare.njoyn.com/cl3/xweb/Xweb.asp?page=joblisting&CLID=53428&lang=2",
     "method": "html",
     "region": "Mauricie",
     "rbq": "5824-9970-01",
