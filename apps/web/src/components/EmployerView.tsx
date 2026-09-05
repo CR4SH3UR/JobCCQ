@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { getEmployer, labelForRegion, type Job } from "@jobccq/shared";
+import { ccqTradeLabel, getEmployer, labelForRegion, type Job } from "@jobccq/shared";
 import { Badge } from "./Badge";
 import { JobCard } from "./JobCard";
-import { initials } from "@/lib/format";
+import { FollowEmployerButton } from "./FollowEmployerButton";
+import { initials, timeAgo } from "@/lib/format";
 import { getJobsBySource, invalidateJobsCache } from "@/lib/data";
 import { useLivePoll } from "@/lib/live";
 import { organizationLd, ldJson } from "@/lib/jsonld";
@@ -68,8 +69,30 @@ export function EmployerView({ slug }: { slug: string }) {
     );
   }
 
-  const region = employer?.region;
   const sectors = employer?.sectors ?? [];
+
+  // Données enrichies dérivées des offres : logo réel, régions réellement
+  // couvertes, dernière publication, métiers CCQ présents.
+  const logoUrl = jobs.find((j) => j.companyLogoUrl)?.companyLogoUrl;
+  const careersUrl = employer?.careersUrl;
+  const regionLabels = useMemo(() => {
+    const ids = new Set<string>();
+    if (employer?.region) ids.add(employer.region);
+    for (const j of jobs) if (j.regionId) ids.add(j.regionId);
+    return [...ids].map((id) => labelForRegion(id) ?? id);
+  }, [jobs, employer?.region]);
+  const lastPosted = useMemo(() => {
+    const dates = jobs.map((j) => j.postedAt ?? j.scrapedAt).filter(Boolean) as string[];
+    return dates.length ? dates.reduce((a, b) => (a > b ? a : b)) : undefined;
+  }, [jobs]);
+  const trades = useMemo(() => {
+    const set = new Set<string>();
+    for (const j of jobs) {
+      const t = ccqTradeLabel(j.title);
+      if (t) set.add(t);
+    }
+    return [...set].slice(0, 8);
+  }, [jobs]);
 
   return (
     <div>
@@ -83,17 +106,30 @@ export function EmployerView({ slug }: { slug: string }) {
             <span className="text-slate-400"> › {name}</span>
           </nav>
           <div className="flex items-start gap-4">
-            <span className="grid h-16 w-16 shrink-0 place-items-center rounded-xl bg-brand-50 text-lg font-bold text-brand-700 ring-1 ring-brand-100">
-              {initials(name)}
-            </span>
-            <div className="min-w-0">
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={logoUrl}
+                alt={name}
+                className="h-16 w-16 shrink-0 rounded-xl object-contain ring-1 ring-slate-100"
+              />
+            ) : (
+              <span className="grid h-16 w-16 shrink-0 place-items-center rounded-xl bg-brand-50 text-lg font-bold text-brand-700 ring-1 ring-brand-100">
+                {initials(name)}
+              </span>
+            )}
+            <div className="min-w-0 flex-1">
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">{name}</h1>
               <p className="mt-1 text-slate-600">
-                {jobs.length} poste{jobs.length > 1 ? "s" : ""} ouvert
-                {jobs.length > 1 ? "s" : ""}
+                {jobs.length} poste{jobs.length > 1 ? "s" : ""} ouvert{jobs.length > 1 ? "s" : ""}
+                {lastPosted && timeAgo(lastPosted) ? ` · dernière offre ${timeAgo(lastPosted)}` : ""}
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                {region && <Badge tone="brand">{labelForRegion(region) ?? region}</Badge>}
+                {regionLabels.map((r) => (
+                  <Badge key={r} tone="brand">
+                    {r}
+                  </Badge>
+                ))}
                 {employer?.rbq && <Badge>RBQ {employer.rbq}</Badge>}
                 {sectors.map((s) => (
                   <Badge key={s} tone="amber">
@@ -101,16 +137,39 @@ export function EmployerView({ slug }: { slug: string }) {
                   </Badge>
                 ))}
               </div>
-              {employer?.homepage && (
-                <a
-                  href={employer.homepage}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 inline-block text-sm font-medium text-brand-700 hover:underline"
-                >
-                  Site web de l'entreprise ↗
-                </a>
+              {trades.length > 0 && (
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <span className="text-xs text-slate-500">Métiers :</span>
+                  {trades.map((t) => (
+                    <Badge key={t}>{t}</Badge>
+                  ))}
+                </div>
               )}
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                {careersUrl && (
+                  <a
+                    href={careersUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-brand-700 hover:underline"
+                  >
+                    Portail carrières ↗
+                  </a>
+                )}
+                {employer?.homepage && (
+                  <a
+                    href={employer.homepage}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-brand-700 hover:underline"
+                  >
+                    Site web ↗
+                  </a>
+                )}
+              </div>
+              <div className="mt-4">
+                <FollowEmployerButton slug={slug} name={name} />
+              </div>
             </div>
           </div>
         </div>
