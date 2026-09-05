@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ccqTradeLabel, getEmployer, labelForRegion, rbqLicenceUrl, type Job } from "@jobccq/shared";
+import { ccqTradeLabel, employerRegionId, getEmployer, labelForRegion, rbqLicenceUrl, similarEmployers, type HiringCompany, type Job } from "@jobccq/shared";
 import { Badge } from "./Badge";
 import { JobCard } from "./JobCard";
 import { FollowEmployerButton } from "./FollowEmployerButton";
 import { initials, timeAgo } from "@/lib/format";
-import { getJobsBySource, invalidateJobsCache } from "@/lib/data";
+import { getJobsBySource, invalidateJobsCache, searchCompanies, buildQuery } from "@/lib/data";
 import { useLivePoll } from "@/lib/live";
 import { organizationLd, ldJson } from "@/lib/jsonld";
 
@@ -16,6 +16,7 @@ export function EmployerView({ slug }: { slug: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [similar, setSimilar] = useState<HiringCompany[]>([]);
 
   const employer = getEmployer(slug);
   const name = employer?.name ?? jobs[0]?.company ?? slug;
@@ -73,6 +74,27 @@ export function EmployerView({ slug }: { slug: string }) {
     }
     return [...set].slice(0, 8);
   }, [jobs]);
+
+  useEffect(() => {
+    const current: HiringCompany = {
+      company: name,
+      openings: jobs.length,
+      categories: [...new Set(jobs.map((j) => j.categoryId).filter((id): id is string => !!id))],
+      regions: [
+        ...new Set(
+          [employerRegionId(slug), ...jobs.map((j) => j.regionId)].filter((id): id is string => !!id),
+        ),
+      ],
+      sources: [slug],
+    };
+    let alive = true;
+    searchCompanies(buildQuery({}))
+      .then((r) => alive && setSimilar(similarEmployers(current, r.companies)))
+      .catch(() => alive && setSimilar([]));
+    return () => {
+      alive = false;
+    };
+  }, [slug, name, jobs]);
 
   if (loading) {
     return (
@@ -211,6 +233,30 @@ export function EmployerView({ slug }: { slug: string }) {
           </div>
         ) : (
           <p className="text-slate-500">Aucune offre ouverte pour le moment.</p>
+        )}
+
+        {similar.length > 0 && (
+          <section className="mt-10">
+            <h2 className="mb-4 text-xl font-bold tracking-tight">Employeurs similaires</h2>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {similar.map((c) => {
+                const href = c.sources[0] ? `/entreprises/${c.sources[0]}/` : "/entreprises";
+                return (
+                  <Link key={c.company} href={href} className="card flex flex-col p-4 hover:border-brand-200">
+                    <h3 className="truncate font-semibold">{c.company}</h3>
+                    <p className="text-sm text-brand-700">
+                      {c.openings} poste{c.openings > 1 ? "s" : ""} ouvert{c.openings > 1 ? "s" : ""}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {c.regions.slice(0, 2).map((r) => (
+                        <Badge key={r}>{labelForRegion(r)}</Badge>
+                      ))}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
         )}
       </div>
 

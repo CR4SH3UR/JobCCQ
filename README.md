@@ -237,7 +237,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [ ] 23. Classement « qui recrute le plus » par région et par métier
 - [x] 24. Badge « vérifié » exposé côté site (champ `verified` de l'admin)
 - [x] 25. Lien licence RBQ vers le registre public (recherche de licence)
-- [ ] 26. Employeurs similaires sur une fiche (même région/secteur)
+- [x] 26. Employeurs similaires sur une fiche (même région/secteur)
 - [ ] 27. Historique de recrutement d'un employeur (mini-graphe dans le temps)
 - [ ] 57. Page « qui recrute près de chez moi » (code postal → même index villes/régions)
 - [ ] 58. Fusion manuelle de deux fiches employeur (doublons discovered)

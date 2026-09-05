@@ -256,6 +256,37 @@ export function toHiringCompanies(jobs: Job[]): HiringCompany[] {
     .sort((a, b) => b.openings - a.openings);
 }
 
+/**
+ * Employeurs proches : même région et/ou même domaine, hors l'employeur courant.
+ * Sert la section « Employeurs similaires » des fiches entreprise.
+ */
+export function similarEmployers(
+  current: HiringCompany,
+  companies: HiringCompany[],
+  limit = 6,
+): HiringCompany[] {
+  const mySources = new Set(current.sources);
+  const myName = current.company.trim().toLowerCase();
+  const myRegs = new Set(current.regions);
+  const myCats = new Set(current.categories);
+  return companies
+    .filter((c) => {
+      if (c.company.trim().toLowerCase() === myName) return false;
+      if (c.sources.some((s) => mySources.has(s))) return false;
+      return true;
+    })
+    .map((c) => {
+      let score = 0;
+      for (const r of c.regions) if (myRegs.has(r)) score += 2;
+      for (const cat of c.categories) if (myCats.has(cat)) score += 2;
+      return { c, score };
+    })
+    .filter((s) => s.score > 0)
+    .sort((a, b) => b.score - a.score || b.c.openings - a.c.openings)
+    .slice(0, limit)
+    .map((s) => s.c);
+}
+
 // Réexport des libellés utiles côté logique de filtrage.
 export {
   labelForRegion,
