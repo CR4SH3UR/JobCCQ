@@ -49,6 +49,7 @@ import { betonFondationPlusScraper } from "./betonfondationplus.js";
 import { betonSurfaceScraper } from "./betonsurface.js";
 import { bousadaScraper } from "./bousada.js";
 import { bellemareScraper, groupebellemareScraper } from "./bellemare.js";
+import { betonGlScraper } from "./betongl.js";
 import { buildDiscoveredScraper } from "./discovered.js";
 
 /**
@@ -110,6 +111,7 @@ const BESPOKE = {
   "betonfondationplus-com": betonFondationPlusScraper,
   "betonsurface-ca": betonSurfaceScraper,
   "bousada-com": bousadaScraper,
+  "betongl-com": betonGlScraper,
   "bellemare-njoyn": bellemareScraper,
   "groupebellemare-com": groupebellemareScraper,
 } satisfies Record<CustomScraperId, Scraper>;
