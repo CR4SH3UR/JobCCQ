@@ -2,11 +2,21 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { DISCOVERED_EMPLOYERS, type DiscoveredMethod } from "@jobccq/shared";
+import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, type DiscoveredMethod } from "@jobccq/shared";
 import { API_URL, getStats, searchJobs, buildQuery, adminFetch } from "@/lib/data";
 import { useAuth } from "@/lib/auth";
 import { encryptJson, decryptJson, saveVault, loadVault, clearVault, type AdminSecrets } from "@/lib/vault";
 import { Badge } from "./Badge";
+
+/**
+ * Régions administratives du Québec sélectionnables pour un employeur. On exclut
+ * télétravail / hors-Québec / non précisé (non pertinents pour le LIEU d'un
+ * employeur). Le libellé sans parenthèse correspond au format stocké et se
+ * « slugifie » vers l'id de région attendu par la chaîne de traitement.
+ */
+const REGION_OPTIONS = QUEBEC_REGIONS.filter(
+  (r) => !["teletravail", "canada-autre", "autre"].includes(r.id),
+).map((r) => r.label.replace(/\s*\(.*\)\s*$/, ""));
 
 type Employer = {
   id: string;
@@ -1747,7 +1757,10 @@ export function AdminExplorer() {
                 <input placeholder="Nom" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className="rounded border border-slate-300 px-2 py-1 text-xs" />
                 <input placeholder="URL carrières (https://…)" value={form.careersUrl} onChange={(e) => setForm((f) => ({ ...f, careersUrl: e.target.value }))} className="rounded border border-slate-300 px-2 py-1 font-mono text-xs sm:col-span-2" />
                 <input placeholder="Site web (optionnel — déduit de l'URL)" value={form.homepage} onChange={(e) => setForm((f) => ({ ...f, homepage: e.target.value }))} className="rounded border border-slate-300 px-2 py-1 font-mono text-xs" />
-                <input placeholder="Région (optionnel)" value={form.region} onChange={(e) => setForm((f) => ({ ...f, region: e.target.value }))} className="rounded border border-slate-300 px-2 py-1 text-xs" />
+                <select value={form.region} onChange={(e) => setForm((f) => ({ ...f, region: e.target.value }))} className="rounded border border-slate-300 px-2 py-1 text-xs">
+                  <option value="">Région (optionnel)</option>
+                  {REGION_OPTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
+                </select>
                 <select value={form.method} onChange={(e) => setForm((f) => ({ ...f, method: e.target.value as DiscoveredMethod }))} className="rounded border border-slate-300 px-2 py-1 text-xs">
                   {METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
                 </select>
@@ -2190,7 +2203,21 @@ function Row({
           <div className="grid gap-2 sm:grid-cols-3">
             <label className="flex flex-col gap-0.5">
               <span className="text-slate-500">Région</span>
-              <input value={region} onChange={(ev) => setRegion(ev.target.value)} className="rounded border border-slate-300 px-2 py-1" />
+              <select
+                value={region}
+                onChange={(ev) => setRegion(ev.target.value)}
+                className="rounded border border-slate-300 px-2 py-1"
+              >
+                <option value="">— Aucune —</option>
+                {region !== "" && !REGION_OPTIONS.includes(region) && (
+                  <option value={region}>{region} (actuel)</option>
+                )}
+                {REGION_OPTIONS.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
             </label>
             <label className="flex flex-col gap-0.5">
               <span className="text-slate-500">Site web</span>
