@@ -146,14 +146,14 @@ function ApplicationTrack({ id }: { id: string }) {
   if (!rec) return null;
   const due = isReminderDue(rec.remindAt);
   return (
-    <div className="mt-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900/60">
+    <div className="mt-1 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-800">
       <div className="flex flex-wrap items-end gap-2">
         <label className="flex flex-col gap-0.5">
           <span className="text-[11px] uppercase tracking-wide text-slate-500">Statut</span>
           <select
             value={rec.status}
             onChange={(e) => patchApplication(id, { status: e.target.value as typeof rec.status })}
-            className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
+            className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm"
           >
             {APPLICATION_STATUSES.map((s) => (
               <option key={s.id} value={s.id}>
@@ -168,8 +168,8 @@ function ApplicationTrack({ id }: { id: string }) {
             type="date"
             value={rec.remindAt}
             onChange={(e) => patchApplication(id, { remindAt: e.target.value })}
-            className={`rounded-lg border bg-white px-2 py-1 text-sm dark:bg-slate-900 ${
-              due ? "border-amber-400" : "border-slate-200 dark:border-slate-700"
+            className={`rounded-lg border bg-white px-2 py-1 text-sm ${
+              due ? "border-amber-400" : "border-slate-200"
             }`}
           />
         </label>
@@ -184,7 +184,7 @@ function ApplicationTrack({ id }: { id: string }) {
           }}
           rows={2}
           placeholder="Relancer, nom du recruteur, suite…"
-          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
+          className="w-full rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm"
         />
       </label>
     </div>
