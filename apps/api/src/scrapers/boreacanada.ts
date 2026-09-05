@@ -2,17 +2,19 @@ import * as cheerio from "cheerio";
 import type { AnyNode } from "domhandler";
 import type { RawJob } from "@jobccq/shared";
 import type { Scraper, ScrapeContext, ScrapeParams } from "./types.js";
-import { cleanText, slugify } from "./util.js";
+import { absolute, cleanText, slugify } from "./util.js";
 
 /**
  * BoreA Canada (boreacanada.com) — producteur de produits naturels de la
  * forêt boréale.
  *
- * La page /emplois/ est une page de carrière statique qui présente les postes
- * ouverts comme de simples titres de texte sous la section
- * « Opportunités de carrière ». Il n'y a pas de liens distincts par poste.
- * Le parseur fabrique donc une URL par poste en ajoutant un fragment basé sur
- * le titre du poste (slugifié) pour éviter les collisions.
+ * La page /emplois/ (refonte Bricks) présente désormais chaque poste sous forme
+ * de carte : un lien `<a class="work-offer-card__title" href="…">Titre</a>`
+ * dans la grille « work-offer_grid », sous la section « Opportunités de
+ * carrière ». On lit ces cartes en priorité (chaque poste a alors sa propre
+ * URL). En repli — pour une ancienne version de la page où les postes étaient
+ * de simples titres — on parcourt les titres (h2–h6) suivant la section et on
+ * fabrique une URL par ancre slugifiée.
  */
 const ID = "boreacanada-com";
 const COMPANY = "BoreA Canada";
@@ -29,6 +31,32 @@ function isJobTitle(text: string): boolean {
   if (/^\d+\./.test(t)) return false; // items numérotés
   const wordCount = t.split(/\s+/).length;
   return wordCount <= 10 && wordCount >= 2;
+}
+
+/**
+ * Cartes de poste de la refonte Bricks : liens `.work-offer-card__title`.
+ * Chaque carte expose un titre et (souvent) un lien vers la fiche du poste.
+ */
+function collectCardJobs($: cheerio.CheerioAPI, baseUrl: string): RawJob[] {
+  const jobs: RawJob[] = [];
+  const seen = new Set<string>();
+
+  $("a.work-offer-card__title").each((_, el) => {
+    const $el = $(el);
+    const title = cleanText($el.text());
+    if (!title || title.length < 3 || title.length > 120 || title.endsWith("?")) return;
+
+    const href = ($el.attr("href") ?? "").trim();
+    const url = href
+      ? absolute(baseUrl.split("#")[0]!, href)
+      : `${baseUrl.split("#")[0]}#${slugify(title)}`;
+    if (seen.has(url)) return;
+
+    seen.add(url);
+    jobs.push({ sourceId: ID, url, title, company: COMPANY, tags: [] });
+  });
+
+  return jobs;
 }
 
 /** Collecte les titres de poste présents dans la section « Opportunités de carrière ». */
@@ -64,9 +92,8 @@ function collectJobTitles($: cheerio.CheerioAPI): string[] {
   return titles;
 }
 
-/** Parse la page carrières de BoreA Canada et retourne une offre par titre trouvé. */
-export function parseBoreA(html: string, baseUrl = CAREERS_URL): RawJob[] {
-  const $ = cheerio.load(html);
+/** Repli : fabrique une offre par titre trouvé sous la section carrière. */
+function collectHeadingJobs($: cheerio.CheerioAPI, baseUrl: string): RawJob[] {
   const jobs: RawJob[] = [];
   const seen = new Set<string>();
 
@@ -76,16 +103,19 @@ export function parseBoreA(html: string, baseUrl = CAREERS_URL): RawJob[] {
     if (seen.has(url)) continue;
 
     seen.add(url);
-    jobs.push({
-      sourceId: ID,
-      url,
-      title,
-      company: COMPANY,
-      tags: [],
-    });
+    jobs.push({ sourceId: ID, url, title, company: COMPANY, tags: [] });
   }
 
   return jobs;
+}
+
+/** Parse la page carrières de BoreA Canada et retourne une offre par poste trouvé. */
+export function parseBoreA(html: string, baseUrl = CAREERS_URL): RawJob[] {
+  const $ = cheerio.load(html);
+  // Structure actuelle (cartes Bricks) en priorité ; repli sur les titres.
+  const cardJobs = collectCardJobs($, baseUrl);
+  if (cardJobs.length > 0) return cardJobs;
+  return collectHeadingJobs($, baseUrl);
 }
 
 export const boreACanadaScraper: Scraper = {
