@@ -101,14 +101,67 @@ export async function getHiringCompanies(
   return toHiringCompanies(filtered.items);
 }
 
+/** Une offre touchée par le scrape (pour le diff affiché dans les logs). */
+export interface JobDiffEntry {
+  title: string;
+  url: string;
+}
+
 export interface UpsertResult {
   inserted: number;
   updated: number;
+  /** Offres nouvellement insérées. */
+  added: JobDiffEntry[];
+  /** Offres déjà en base dont le contenu a réellement changé. */
+  changed: JobDiffEntry[];
+}
+
+/** Champs comparés pour détecter un vrai changement de contenu. */
+const DIFF_SELECT = {
+  url: true,
+  title: true,
+  company: true,
+  location: true,
+  regionId: true,
+  city: true,
+  remote: true,
+  categoryId: true,
+  employmentType: true,
+  salaryMin: true,
+  salaryMax: true,
+  salaryPeriod: true,
+  description: true,
+  postedAt: true,
+} as const;
+
+type DiffRow = {
+  [K in keyof typeof DIFF_SELECT]: K extends "postedAt" ? Date | null : string | number | null;
+};
+
+/** L'offre existante diffère-t-elle du contenu fraîchement scrapé ? */
+function rowChanged(row: DiffRow, data: ReturnType<typeof jobToRow>): boolean {
+  const sameTime = (a: Date | null, b: Date | null) =>
+    (a?.getTime() ?? null) === (b?.getTime() ?? null);
+  return (
+    row.title !== data.title ||
+    row.company !== data.company ||
+    row.location !== data.location ||
+    row.regionId !== data.regionId ||
+    row.city !== data.city ||
+    row.remote !== data.remote ||
+    row.categoryId !== data.categoryId ||
+    row.employmentType !== data.employmentType ||
+    row.salaryMin !== data.salaryMin ||
+    row.salaryMax !== data.salaryMax ||
+    row.salaryPeriod !== data.salaryPeriod ||
+    row.description !== data.description ||
+    !sameTime(row.postedAt, data.postedAt)
+  );
 }
 
 /** Insère ou met à jour un lot d'offres (dédupliquées par id). */
 export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
-  if (jobs.length === 0) return { inserted: 0, updated: 0 };
+  if (jobs.length === 0) return { inserted: 0, updated: 0, added: [], changed: [] };
 
   // Déduplication + upsert par **URL** (clé unique en base). Une même offre peut
   // être publiée par deux sources (ex. un employeur curé et son doublon
@@ -119,19 +172,22 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
   const byUrl = new Map(jobs.map((j) => [j.url, j]));
   const unique = [...byUrl.values()];
 
-  const existing = new Set(
+  const existing = new Map(
     (
       await prisma.job.findMany({
         where: { url: { in: unique.map((j) => j.url) } },
-        select: { url: true },
+        select: DIFF_SELECT,
       })
-    ).map((r) => r.url),
+    ).map((r) => [r.url, r as DiffRow]),
   );
 
   let inserted = 0;
   let updated = 0;
+  const added: JobDiffEntry[] = [];
+  const changed: JobDiffEntry[] = [];
   for (const job of unique) {
     const data = jobToRow(job);
+    const prev = existing.get(job.url);
     await prisma.job.upsert({
       where: { url: job.url },
       create: data,
@@ -156,10 +212,15 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
         postedAt: data.postedAt,
       },
     });
-    if (existing.has(job.url)) updated += 1;
-    else inserted += 1;
+    if (prev) {
+      updated += 1;
+      if (rowChanged(prev, data)) changed.push({ title: job.title, url: job.url });
+    } else {
+      inserted += 1;
+      added.push({ title: job.title, url: job.url });
+    }
   }
-  return { inserted, updated };
+  return { inserted, updated, added, changed };
 }
 
 /**
@@ -182,7 +243,7 @@ export async function syncSourceJobs(
   sourceId: string,
   jobs: Job[],
   opts: { reachableEmpty?: boolean; explicitEmpty?: boolean; force?: boolean } = {},
-): Promise<UpsertResult & { removed: number }> {
+): Promise<UpsertResult & { removed: number; removedJobs: JobDiffEntry[] }> {
   if (jobs.length === 0) {
     const { reachableEmpty = false, explicitEmpty = false } = opts;
     // 0 offre : la page a été récupérée (site joignable) et n'a aucune offre.
@@ -192,18 +253,20 @@ export async function syncSourceJobs(
     // jamais à vider sur un scrape à 0 (sinon un 403 transitoire effacerait tout).
     // - `explicitEmpty` (« aucune offre en ce moment ») : purge toute taille.
     // - `reachableEmpty` (page réelle, 0 offre) : purge des petites sources.
-    if (explicitEmpty) {
+    const purge = async () => {
+      const gone = await prisma.job.findMany({
+        where: { sourceId },
+        select: { title: true, url: true },
+      });
       const del = await prisma.job.deleteMany({ where: { sourceId } });
-      return { inserted: 0, updated: 0, removed: del.count };
-    }
+      return { inserted: 0, updated: 0, added: [], changed: [], removed: del.count, removedJobs: gone };
+    };
+    if (explicitEmpty) return purge();
     if (reachableEmpty) {
       const existingCount = await prisma.job.count({ where: { sourceId } });
-      if (existingCount <= REACHABLE_EMPTY_PURGE_MAX) {
-        const del = await prisma.job.deleteMany({ where: { sourceId } });
-        return { inserted: 0, updated: 0, removed: del.count };
-      }
+      if (existingCount <= REACHABLE_EMPTY_PURGE_MAX) return purge();
     }
-    return { inserted: 0, updated: 0, removed: 0 };
+    return { inserted: 0, updated: 0, added: [], changed: [], removed: 0, removedJobs: [] };
   }
 
   const existingCount = await prisma.job.count({ where: { sourceId } });
@@ -215,14 +278,19 @@ export async function syncSourceJobs(
   // (remplacement propre demandé, ex. employeur mal configuré : Balvent 36 → 2).
   const suspicious = !opts.force && existingCount >= 10 && jobs.length < existingCount * 0.4;
   let removed = 0;
+  let removedJobs: JobDiffEntry[] = [];
   if (!suspicious) {
     const keep = jobs.map((j) => j.id);
+    removedJobs = await prisma.job.findMany({
+      where: { sourceId, id: { notIn: keep } },
+      select: { title: true, url: true },
+    });
     const del = await prisma.job.deleteMany({
       where: { sourceId, id: { notIn: keep } },
     });
     removed = del.count;
   }
-  return { ...res, removed };
+  return { ...res, removed, removedJobs };
 }
 
 /** Statistiques globales pour la page d'accueil / le tableau de bord. */

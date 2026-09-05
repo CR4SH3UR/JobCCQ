@@ -53,6 +53,27 @@ async function main() {
         (r.error ? ` (${r.error})` : ""),
     );
   }
+
+  // Diff des offres : ce qui a été ajouté / modifié / retiré pendant ce run.
+  const DIFF_MAX = 10;
+  const withDiff = reports.filter(
+    (r) => r.diff && (r.diff.added.length || r.diff.changed.length || r.diff.removed.length),
+  );
+  if (withDiff.length) {
+    console.log("\n=== Diff des offres ===");
+    for (const r of withDiff) {
+      const d = r.diff!;
+      console.log(`\n${r.sourceId} (+${d.added.length} ~${d.changed.length} -${d.removed.length})`);
+      const show = (sign: string, entries: { title: string; url: string }[]) => {
+        for (const e of entries.slice(0, DIFF_MAX)) console.log(`  ${sign} ${e.title}`);
+        if (entries.length > DIFF_MAX)
+          console.log(`  ${sign} … et ${entries.length - DIFF_MAX} autres`);
+      };
+      show("+", d.added);
+      show("~", d.changed);
+      show("-", d.removed);
+    }
+  }
 }
 
 main()

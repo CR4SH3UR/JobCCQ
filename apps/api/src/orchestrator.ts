@@ -1,7 +1,7 @@
 import { RawJobSchema, type Job } from "@jobccq/shared";
 import { prisma } from "./db.js";
 import { normalizeRawJob, isJunkTitle } from "./normalize.js";
-import { syncSourceJobs, upsertJobs } from "./repository.js";
+import { syncSourceJobs, upsertJobs, type JobDiffEntry } from "./repository.js";
 import { createHttpContext } from "./scrapers/http.js";
 import { getScraper, listScraperIds } from "./scrapers/registry.js";
 import type { Scraper, ScrapeParams } from "./scrapers/types.js";
@@ -22,6 +22,24 @@ export interface RunReport {
   updated: number;
   status: "success" | "error";
   error?: string;
+  /** Diff des offres : ajoutées / modifiées / retirées (titres + URLs). */
+  diff?: { added: JobDiffEntry[]; changed: JobDiffEntry[]; removed: JobDiffEntry[] };
+}
+
+/** Nombre max de lignes de diff loguées par catégorie (lisibilité console). */
+const DIFF_LOG_MAX = 10;
+
+function logDiff(
+  log: (m: string) => void,
+  diff: { added: JobDiffEntry[]; changed: JobDiffEntry[]; removed: JobDiffEntry[] },
+): void {
+  const show = (sign: string, entries: JobDiffEntry[]) => {
+    for (const e of entries.slice(0, DIFF_LOG_MAX)) log(`${sign} ${e.title} — ${e.url}`);
+    if (entries.length > DIFF_LOG_MAX) log(`${sign} … et ${entries.length - DIFF_LOG_MAX} autres`);
+  };
+  show("+", diff.added);
+  show("~", diff.changed);
+  show("-", diff.removed);
 }
 
 /**
@@ -73,7 +91,7 @@ export async function runScraperInstance(
       jobs.push(job);
     }
 
-    const { inserted, updated } =
+    const result =
       persist === "sync"
         ? await syncSourceJobs(sourceId, jobs, {
             reachableEmpty: reachableEmpty && jobs.length === 0,
@@ -81,12 +99,21 @@ export async function runScraperInstance(
             force,
           })
         : await upsertJobs(jobs);
+    const { inserted, updated } = result;
+    const removed = "removed" in result ? result.removed : 0;
+    const removedJobs: JobDiffEntry[] =
+      "removedJobs" in result ? (result.removedJobs as JobDiffEntry[]) : [];
+    const diff = { added: result.added, changed: result.changed, removed: removedJobs };
     await prisma.scrapeRun.update({
       where: { id: run.id },
       data: { status: "success", found: raw.length, inserted, updated, finishedAt: new Date() },
     });
-    log(`terminé : ${raw.length} trouvées, ${inserted} ajoutées, ${updated} mises à jour`);
-    return { report: { sourceId, found: raw.length, inserted, updated, status: "success" }, jobs };
+    log(`terminé : ${raw.length} trouvées, ${inserted} ajoutées, ${updated} mises à jour, ${removed} retirées`);
+    logDiff(log, diff);
+    return {
+      report: { sourceId, found: raw.length, inserted, updated, status: "success", diff },
+      jobs,
+    };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     await prisma.scrapeRun.update({
