@@ -4,15 +4,17 @@ import { useEffect, useMemo, useState } from "react";
 import { API_URL } from "@/lib/data";
 import { isAdminEmail } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
-
-type AdminUserRow = {
-  id: string;
-  email: string;
-  createdAt: string | null;
-  lastSignInAt: string | null;
-  confirmedAt: string | null;
-  providers: string[];
-};
+import {
+  filterUsers,
+  formatAbsoluteDate,
+  formatRelativeDate,
+  paginate,
+  sortUsers,
+  type AdminUserRow,
+  type UserFilter,
+  type UserSortDir,
+  type UserSortKey,
+} from "@/lib/admin-users-table";
 
 type UsersState = {
   loading: boolean;
@@ -33,87 +35,134 @@ type InviteResponse = {
   error?: string;
 };
 
-type UserFilter = "all" | "admin" | "confirmed" | "unconfirmed" | "recent";
-type UserSort = "newest" | "oldest" | "email" | "lastSignIn";
-
-function formatDate(value: string | null): string {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "-";
-  return new Intl.DateTimeFormat("fr-CA", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
-}
+const PAGE_SIZE = 25;
 
 function escapeCsv(value: string): string {
   return `"${value.replaceAll('"', '""')}"`;
-}
-
-function isRecent(value: string | null): boolean {
-  if (!value) return false;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return false;
-  const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
-  return date.getTime() >= thirtyDaysAgo;
-}
-
-function sortDate(value: string | null): number {
-  if (!value) return 0;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? 0 : date.getTime();
 }
 
 function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
 }
 
+function Badge({
+  children,
+  tone,
+}: {
+  children: React.ReactNode;
+  tone: "sky" | "slate" | "amber" | "emerald" | "rose";
+}) {
+  const cls = {
+    sky: "bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-200",
+    slate: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
+    amber: "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-200",
+    emerald: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200",
+    rose: "bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-200",
+  }[tone];
+  return (
+    <span className={`inline-flex rounded px-1.5 py-0.5 text-[10px] font-semibold ${cls}`}>{children}</span>
+  );
+}
+
+function SortTh({
+  label,
+  active,
+  dir,
+  onClick,
+  align = "left",
+}: {
+  label: string;
+  active: boolean;
+  dir: UserSortDir;
+  onClick: () => void;
+  align?: "left" | "right";
+}) {
+  const ariaSort = active ? (dir === "asc" ? "ascending" : "descending") : "none";
+  return (
+    <th
+      aria-sort={ariaSort}
+      className={`py-2 font-semibold ${align === "right" ? "px-3 text-right" : "pr-3 text-left"}`}
+    >
+      <button
+        type="button"
+        onClick={onClick}
+        className={`inline-flex items-center gap-1 hover:text-slate-900 dark:hover:text-white ${
+          active ? "text-slate-900 dark:text-white" : ""
+        }`}
+      >
+        {label}
+        <span className="text-[10px] text-slate-400" aria-hidden>
+          {active ? (dir === "asc" ? "↑" : "↓") : "↕"}
+        </span>
+      </button>
+    </th>
+  );
+}
+
 export function AdminUsers() {
   const [state, setState] = useState<UsersState>({ loading: false, users: [], total: 0 });
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<UserFilter>("all");
-  const [sort, setSort] = useState<UserSort>("newest");
+  const [sortKey, setSortKey] = useState<UserSortKey>("createdAt");
+  const [sortDir, setSortDir] = useState<UserSortDir>("desc");
+  const [page, setPage] = useState(1);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteMessage, setInviteMessage] = useState<string | undefined>();
   const [inviteError, setInviteError] = useState<string | undefined>();
   const [inviting, setInviting] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState("");
 
   const stats = useMemo(() => {
     const adminCount = state.users.filter((user) => isAdminEmail(user.email)).length;
     const confirmedCount = state.users.filter((user) => !!user.confirmedAt).length;
-    const recentCount = state.users.filter((user) => isRecent(user.lastSignInAt)).length;
+    const recentCount = state.users.filter((user) => {
+      const t = user.lastSignInAt ? Date.parse(user.lastSignInAt) : 0;
+      return t > 0 && Date.now() - t <= 30 * 24 * 60 * 60 * 1000;
+    }).length;
+    const neverCount = state.users.filter((user) => !user.lastSignInAt).length;
     return {
       adminCount,
       confirmedCount,
       recentCount,
+      neverCount,
       unconfirmedCount: Math.max(0, state.users.length - confirmedCount),
     };
   }, [state.users]);
 
-  const visibleUsers = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return state.users
-      .filter((user) => {
-        const matchesQuery =
-          !needle ||
-          user.email.toLowerCase().includes(needle) ||
-          user.id.toLowerCase().includes(needle) ||
-          user.providers.some((provider) => provider.toLowerCase().includes(needle));
-        if (!matchesQuery) return false;
-        if (filter === "admin") return isAdminEmail(user.email);
-        if (filter === "confirmed") return !!user.confirmedAt;
-        if (filter === "unconfirmed") return !user.confirmedAt;
-        if (filter === "recent") return isRecent(user.lastSignInAt);
-        return true;
-      })
-      .sort((a, b) => {
-        if (sort === "email") return a.email.localeCompare(b.email, "fr-CA");
-        if (sort === "oldest") return sortDate(a.createdAt) - sortDate(b.createdAt);
-        if (sort === "lastSignIn") return sortDate(b.lastSignInAt) - sortDate(a.lastSignInAt);
-        return sortDate(b.createdAt) - sortDate(a.createdAt);
-      });
-  }, [filter, query, sort, state.users]);
+  const visibleUsers = useMemo(
+    () => sortUsers(filterUsers(state.users, filter, query, isAdminEmail), sortKey, sortDir),
+    [filter, query, sortDir, sortKey, state.users],
+  );
+
+  const pageCount = Math.max(1, Math.ceil(visibleUsers.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const pageRows = paginate(visibleUsers, safePage, PAGE_SIZE);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filter, query, sortKey, sortDir]);
+
+  const toggleSort = (key: UserSortKey) => {
+    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(key);
+      setSortDir(key === "email" ? "asc" : "desc");
+    }
+  };
+
+  const flashCopied = (id: string) => {
+    setCopied(id);
+    window.setTimeout(() => setCopied((c) => (c === id ? "" : c)), 1600);
+  };
+
+  const copyText = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      flashCopied(id);
+    } catch {
+      setInviteError("Copie impossible. Ton navigateur bloque peut-être le presse-papiers.");
+    }
+  };
 
   const loadFromApi = async (token: string): Promise<UsersResponse> => {
     const res = await fetch(`${API_URL}/admin/users?perPage=200`, {
@@ -222,13 +271,7 @@ export function AdminUsers() {
 
   const copyEmails = async () => {
     const emails = visibleUsers.map((user) => user.email).filter(Boolean).join(", ");
-    try {
-      await navigator.clipboard.writeText(emails);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
-    } catch {
-      setInviteError("Copie impossible. Ton navigateur bloque peut-être le presse-papiers.");
-    }
+    await copyText(emails, "all");
   };
 
   const exportUsersCsv = () => {
@@ -255,13 +298,22 @@ export function AdminUsers() {
     if (supabase) void loadUsers();
   }, []);
 
+  const kpis: { label: string; value: number; filter: UserFilter }[] = [
+    { label: "Comptes", value: state.total, filter: "all" },
+    { label: "Admins", value: stats.adminCount, filter: "admin" },
+    { label: "Confirmés", value: stats.confirmedCount, filter: "confirmed" },
+    { label: "À confirmer", value: stats.unconfirmedCount, filter: "unconfirmed" },
+    { label: "Actifs 30 j", value: stats.recentCount, filter: "recent" },
+    { label: "Jamais vus", value: stats.neverCount, filter: "never" },
+  ];
+
   return (
     <section className="card mb-4 p-4 text-sm dark:border-slate-700 dark:bg-slate-900">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-base font-bold text-slate-900 dark:text-slate-50">Utilisateurs</h2>
           <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-            Comptes Supabase Auth, visibles et modifiables seulement par admin.
+            Comptes Supabase Auth. Clique une carte pour filtrer, un en-tête pour trier.
           </p>
         </div>
         <button
@@ -284,27 +336,33 @@ export function AdminUsers() {
         </p>
       ) : (
         <>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-            {[
-              ["Comptes", state.total],
-              ["Admins", stats.adminCount],
-              ["Confirmés", stats.confirmedCount],
-              ["À confirmer", stats.unconfirmedCount],
-              ["Actifs 30 j", stats.recentCount],
-            ].map(([label, value]) => (
-              <div key={label} className="rounded-lg border border-slate-200 p-3 dark:border-slate-700">
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{label}</p>
-                <p className="mt-1 text-xl font-bold text-slate-900 dark:text-slate-50">{value}</p>
-              </div>
-            ))}
+          <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            {kpis.map((k) => {
+              const on = filter === k.filter;
+              return (
+                <button
+                  key={k.filter}
+                  type="button"
+                  onClick={() => setFilter(k.filter)}
+                  className={`rounded-lg border p-3 text-left transition ${
+                    on
+                      ? "border-brand-400 bg-brand-50 dark:border-brand-400 dark:bg-brand-500/15"
+                      : "border-slate-200 hover:border-brand-300 dark:border-slate-700 dark:hover:border-brand-500"
+                  }`}
+                >
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">{k.label}</p>
+                  <p className="mt-1 text-xl font-bold text-slate-900 dark:text-slate-50">{k.value}</p>
+                </button>
+              );
+            })}
           </div>
 
           <div className="mt-4 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
-            <div className="grid gap-2 lg:grid-cols-[1fr_auto_auto_auto]">
+            <div className="grid gap-2 lg:grid-cols-[1fr_auto_auto]">
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Chercher courriel, ID, connexion..."
+                placeholder="Chercher courriel, ID, connexion…"
                 className="min-h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-sky-500 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-50 dark:placeholder:text-slate-500"
               />
               <select
@@ -317,16 +375,7 @@ export function AdminUsers() {
                 <option value="confirmed">Confirmés</option>
                 <option value="unconfirmed">Non confirmés</option>
                 <option value="recent">Actifs 30 jours</option>
-              </select>
-              <select
-                value={sort}
-                onChange={(event) => setSort(event.target.value as UserSort)}
-                className="min-h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-50"
-              >
-                <option value="newest">Plus récents</option>
-                <option value="oldest">Plus anciens</option>
-                <option value="email">Courriel A-Z</option>
-                <option value="lastSignIn">Dernière connexion</option>
+                <option value="never">Jamais connectés</option>
               </select>
               <div className="flex gap-2">
                 <button
@@ -335,7 +384,7 @@ export function AdminUsers() {
                   disabled={visibleUsers.length === 0}
                   className="min-h-10 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:border-slate-600 dark:text-slate-100 dark:hover:bg-slate-800"
                 >
-                  {copied ? "Copié" : "Copier courriels"}
+                  {copied === "all" ? "Copié" : "Copier courriels"}
                 </button>
                 <button
                   type="button"
@@ -378,44 +427,126 @@ export function AdminUsers() {
             ) : null}
           </div>
 
-          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-            {visibleUsers.length} affiché{visibleUsers.length > 1 ? "s" : ""} sur {state.total}.
-          </p>
-          <div className="mt-3 overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200 text-left text-xs dark:divide-slate-700">
-              <thead className="text-slate-500 dark:text-slate-400">
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <p>
+              {visibleUsers.length} affiché{visibleUsers.length > 1 ? "s" : ""} sur {state.total}
+              {pageCount > 1 ? ` · page ${safePage}/${pageCount}` : ""}
+              {state.loading ? " · chargement…" : ""}
+              {(filter !== "all" || query.trim()) && (
+                <>
+                  {" · "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFilter("all");
+                      setQuery("");
+                    }}
+                    className="font-semibold text-brand-700 hover:underline dark:text-brand-300"
+                  >
+                    Réinitialiser
+                  </button>
+                </>
+              )}
+            </p>
+            {pageCount > 1 && (
+              <span className="flex gap-1">
+                <button
+                  type="button"
+                  disabled={safePage <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="rounded border border-slate-200 px-2 py-1 font-semibold disabled:opacity-40 dark:border-slate-600"
+                >
+                  Préc.
+                </button>
+                <button
+                  type="button"
+                  disabled={safePage >= pageCount}
+                  onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+                  className="rounded border border-slate-200 px-2 py-1 font-semibold disabled:opacity-40 dark:border-slate-600"
+                >
+                  Suiv.
+                </button>
+              </span>
+            )}
+          </div>
+
+          <div className="mt-2 max-h-[36rem] overflow-auto rounded-lg border border-slate-200 dark:border-slate-700">
+            <table className="min-w-full text-left text-xs">
+              <thead className="sticky top-0 bg-slate-50 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                 <tr>
-                  <th className="py-2 pr-3 font-semibold">Courriel</th>
-                  <th className="px-3 py-2 font-semibold">Rôle</th>
-                  <th className="px-3 py-2 font-semibold">Créé</th>
-                  <th className="px-3 py-2 font-semibold">Dernière connexion</th>
-                  <th className="px-3 py-2 font-semibold">Confirmé</th>
+                  <SortTh label="Courriel" active={sortKey === "email"} dir={sortDir} onClick={() => toggleSort("email")} />
+                  <th className="px-3 py-2 font-semibold">Statut</th>
+                  <SortTh
+                    label="Inscrit"
+                    active={sortKey === "createdAt"}
+                    dir={sortDir}
+                    onClick={() => toggleSort("createdAt")}
+                  />
+                  <SortTh
+                    label="Dernière visite"
+                    active={sortKey === "lastSignInAt"}
+                    dir={sortDir}
+                    onClick={() => toggleSort("lastSignInAt")}
+                  />
                   <th className="px-3 py-2 font-semibold">Connexion</th>
+                  <th className="px-3 py-2 text-right font-semibold">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {visibleUsers.map((user) => (
-                  <tr key={user.id}>
-                    <td className="max-w-[16rem] break-all py-2 pr-3 font-medium text-slate-800 dark:text-slate-100">
-                      {user.email}
-                    </td>
-                    <td className="px-3 py-2">
-                      <span className={isAdminEmail(user.email) ? "font-bold text-sky-700 dark:text-sky-300" : "text-slate-600 dark:text-slate-300"}>
-                        {isAdminEmail(user.email) ? "Admin" : "Utilisateur"}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 text-slate-600 dark:text-slate-300">{formatDate(user.createdAt)}</td>
-                    <td className="px-3 py-2 text-slate-600 dark:text-slate-300">{formatDate(user.lastSignInAt)}</td>
-                    <td className="px-3 py-2 text-slate-600 dark:text-slate-300">{formatDate(user.confirmedAt)}</td>
-                    <td className="px-3 py-2 text-slate-600 dark:text-slate-300">
-                      {user.providers.length ? user.providers.join(", ") : "email"}
-                    </td>
-                  </tr>
-                ))}
+                {pageRows.map((user) => {
+                  const admin = isAdminEmail(user.email);
+                  return (
+                    <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                      <td className="max-w-[18rem] py-2.5 pl-3 pr-3">
+                        <a
+                          href={`mailto:${user.email}`}
+                          className="break-all font-medium text-slate-800 hover:text-brand-700 dark:text-slate-100"
+                        >
+                          {user.email}
+                        </a>
+                        <p className="mt-0.5 truncate font-mono text-[10px] text-slate-400" title={user.id}>
+                          {user.id.slice(0, 8)}…
+                        </p>
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <span className="flex flex-wrap gap-1">
+                          <Badge tone={admin ? "sky" : "slate"}>{admin ? "Admin" : "Compte"}</Badge>
+                          {user.confirmedAt ? (
+                            <Badge tone="emerald">Confirmé</Badge>
+                          ) : (
+                            <Badge tone="amber">À confirmer</Badge>
+                          )}
+                          {!user.lastSignInAt ? <Badge tone="rose">Jamais vu</Badge> : null}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2.5 text-slate-600 dark:text-slate-300" title={formatAbsoluteDate(user.createdAt)}>
+                        {formatRelativeDate(user.createdAt)}
+                      </td>
+                      <td
+                        className="px-3 py-2.5 text-slate-600 dark:text-slate-300"
+                        title={formatAbsoluteDate(user.lastSignInAt)}
+                      >
+                        {formatRelativeDate(user.lastSignInAt)}
+                      </td>
+                      <td className="px-3 py-2.5 text-slate-600 dark:text-slate-300">
+                        {user.providers.length ? user.providers.join(", ") : "email"}
+                      </td>
+                      <td className="px-3 py-2.5 text-right">
+                        <button
+                          type="button"
+                          onClick={() => void copyText(user.email, user.id)}
+                          className="font-semibold text-brand-700 hover:underline"
+                        >
+                          {copied === user.id ? "Copié" : "Copier"}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
                 {!state.loading && visibleUsers.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-4 text-center text-slate-500 dark:text-slate-400">
-                      Aucun compte trouvé.
+                    <td colSpan={6} className="py-8 text-center text-slate-500 dark:text-slate-400">
+                      Aucun compte dans ce filtre.
                     </td>
                   </tr>
                 )}
