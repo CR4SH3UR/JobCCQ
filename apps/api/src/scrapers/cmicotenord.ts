@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import type { RawJob } from "@jobccq/shared";
+import { detailsFromText, mergeJobDetails } from "./job-details.js";
 import type { Scraper, ScrapeContext, ScrapeParams } from "./types.js";
 import { cleanText, slugify } from "./util.js";
 
@@ -26,20 +27,33 @@ export function parseCmiCoteNord(html: string, baseUrl = CAREERS_URL): RawJob[] 
   const jobs: RawJob[] = [];
   const seen = new Set<string>();
 
+  const pageText = cleanText($("main").text() || $("body").text());
+  const start = pageText.search(/postes?\s+disponibles/i);
+  const slice = (start >= 0 ? pageText.slice(start, start + 2000) : pageText).replace(
+    /^postes?\s+disponibles\s*/i,
+    "",
+  );
+  const meta = detailsFromText(slice);
+
   $("a.wixui-button, a[href*='.pdf']").each((_, el) => {
     const title = cleanText($(el).attr("aria-label") || $(el).find(".wixui-button__label").text() || $(el).text());
     if (!title || title.length < 4 || title.length > 120 || NOT_A_JOB.test(title)) return;
     const url = `${base}#${slugify(title)}`;
     if (seen.has(url)) return;
     seen.add(url);
-    jobs.push({
-      sourceId: ID,
-      url,
-      title,
-      company: COMPANY,
-      location: LOCATION,
-      tags: [],
-    });
+    jobs.push(
+      mergeJobDetails(
+        {
+          sourceId: ID,
+          url,
+          title,
+          company: COMPANY,
+          location: LOCATION,
+          tags: [],
+        },
+        meta,
+      ),
+    );
   });
 
   return jobs;

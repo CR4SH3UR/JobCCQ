@@ -80,6 +80,7 @@ faire tout le fetch dans `scrape`. Squelette :
 import * as cheerio from "cheerio";
 import type { RawJob } from "@jobccq/shared";
 import type { Scraper, ScrapeContext, ScrapeParams } from "./types.js";
+import { enrichJobsFromDetails } from "./job-details.js";
 import { absolute, cleanText } from "./util.js";
 
 const ID = "mon-employeur-com";
@@ -118,7 +119,9 @@ export const monEmployeurScraper: Scraper = {
       ctx.log(`${ID} — échec de récupération : ${(err as Error).message}`);
       return [];
     }
-    const jobs = parseMonEmployeur(html, CAREERS_URL);
+    const jobs = await enrichJobsFromDetails(parseMonEmployeur(html, CAREERS_URL), ctx, {
+      listUrl: CAREERS_URL,
+    });
     ctx.log(`${ID} — ${jobs.length} poste(s) trouvé(s)`);
     if (jobs.length === 0) ctx.markNoOpenings?.();   // page joignable mais 0 offre
     return jobs;
@@ -129,6 +132,12 @@ export const monEmployeurScraper: Scraper = {
 Notes :
 - Utiliser les helpers de `./util.js` : `absolute`, `cleanText`, `slugify`,
   `parseFrenchDate`, `mapEmploymentType`, `mapSalaryUnit`.
+- **Description, salaire et villes** : les remplir dès que la page les expose.
+  - Sur la liste (accordéon, carte) : texte du volet + `detailsFromText` /
+    `mergeJobDetails` (`./job-details.js`).
+  - Fiches distinctes (`/emploi/…`) : après `parseList`, appeler
+    `enrichJobsFromDetails` (JSON-LD puis HTML : description complète,
+    fourchette salariale, villes).
 - Quand une offre n'a pas d'URL propre, fabriquer une ancre stable :
   `` `${baseUrl.split("#")[0]}#${slugify(title)}` ``.
 - Appeler `ctx.markNoOpenings?.()` quand la page est joignable mais sans offre

@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import type { RawJob } from "@jobccq/shared";
+import { enrichJobsFromDetails } from "./job-details.js";
 import type { Scraper, ScrapeContext, ScrapeParams } from "./types.js";
 import { absolute, cleanText } from "./util.js";
 
@@ -66,7 +67,9 @@ export const crBessetteScraper: Scraper = {
       ctx.log(`${ID} — échec de récupération : ${(err as Error).message}`);
       return [];
     }
-    const jobs = parseCrBessette(html, CAREERS_URL);
+    const jobs = await enrichJobsFromDetails(parseCrBessette(html, CAREERS_URL), ctx, {
+      listUrl: CAREERS_URL,
+    });
     ctx.log(`${ID} — ${jobs.length} poste(s) trouvé(s)`);
     if (jobs.length === 0) ctx.markNoOpenings?.();
     return jobs;
