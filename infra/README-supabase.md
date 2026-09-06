@@ -61,7 +61,13 @@ create policy "update own applications" on public.applications for update using 
 alter table public.applications add column if not exists status text not null default 'postule';
 alter table public.applications add column if not exists note text;
 alter table public.applications add column if not exists remind_at date;
+alter table public.applications add column if not exists remind_notified_at timestamptz;
 ```
+
+Le cron `notify.yml` (après chaque scrape **et** tous les jours) envoie un rappel
+quand `remind_at` est échu : courriel Resend, push Expo, ntfy / webhook déjà
+réglés sur tes alertes emploi. `remind_notified_at` évite le doublon ; changer
+la date de rappel réarme l'envoi.
 
 > Tant que cette table n'existe pas, la fonctionnalité marche quand même en
 > **local** (localStorage) — la synchro entre appareils s'active dès la table créée.
@@ -360,10 +366,11 @@ create policy "delete own alerts" on public.job_alerts for delete using (auth.ui
 
 ## 4. Déclenchement
 
-`notify.yml` s'exécute **après chaque scraping réussi** (`workflow_run`) et peut être
-lancé à la main (onglet **Actions → Notifier les alertes emploi → Run workflow**). Seules
-les offres créées **depuis le dernier envoi** de chaque alerte sont incluses (pas de
-doublon, pas de spam d'anciennes offres).
+`notify.yml` s'exécute **après chaque scraping réussi**, **tous les jours à 13:00 UTC**
+(rappels de candidature), et à la main (onglet **Actions → Notifier les alertes emploi
+→ Run workflow**). Seules les offres créées **depuis le dernier envoi** de chaque
+alerte sont incluses (pas de doublon). Les rappels « Relancer le » partent une fois
+par date d'échéance.
 
 # Clics « Postuler » (stats admin)
 
