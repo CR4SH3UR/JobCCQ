@@ -39,4 +39,7 @@ export const env = {
   SCRAPE_PROXY_HOSTS:
     process.env.SCRAPE_PROXY_HOSTS ??
     "jobillico.com,desfor.com,alarme-bois-francs.com,ardecconstruction.com",
+  /** DSN Sentry pour le tracking d'erreurs. Vide = Sentry désactivé. */
+  SENTRY_DSN: process.env.SENTRY_DSN ?? "",
+  ENVIRONMENT: process.env.NODE_ENV ?? "development",
 };

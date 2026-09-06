@@ -6,6 +6,9 @@ import { Tabs } from "expo-router";
 import { StatusBar, Text } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { colors } from "@/theme";
+import { initSentry } from "@/sentry.config";
+
+initSentry();
 
 /** Icône d'onglet minimaliste (emoji) — pas de librairie d'icônes externe. */
 function TabIcon({ symbol, color }: { symbol: string; color: string }) {

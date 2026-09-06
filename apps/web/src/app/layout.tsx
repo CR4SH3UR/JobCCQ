@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AppShell } from "@/components/AppShell";
 import { siteUrl } from "@/lib/site";
+import { initSentry } from "@/sentry.config";
+
+initSentry();
 
 // Analytics léger et respectueux de la vie privée (Plausible), activé seulement
 // si NEXT_PUBLIC_PLAUSIBLE_DOMAIN est défini au build. Aucun cookie, aucune

@@ -1,5 +1,14 @@
+import * as Sentry from "@sentry/node";
 import { env } from "./env.js";
 import { buildServer } from "./server.js";
+
+if (env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: env.SENTRY_DSN,
+    environment: env.ENVIRONMENT,
+    tracesSampleRate: 1.0,
+  });
+}
 
 const app = buildServer();
 

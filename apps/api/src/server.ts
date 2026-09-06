@@ -1,5 +1,6 @@
 import Fastify, { type FastifyInstance } from "fastify";
 import cors from "@fastify/cors";
+import * as Sentry from "@sentry/node";
 import {
   EMPLOYMENT_TYPES,
   JOB_CATEGORIES,
@@ -167,6 +168,13 @@ export function buildServer(): FastifyInstance {
       return report;
     },
   );
+
+  app.setErrorHandler((err, req, reply) => {
+    Sentry.captureException(err);
+    app.log.error(err);
+    reply.code(500);
+    return { error: "Erreur serveur interne" };
+  });
 
   return app;
 }
