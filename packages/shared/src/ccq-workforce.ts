@@ -9,7 +9,8 @@
  * n'est pas connu — le baromètre affiche alors « à renseigner » plutôt que
  * d'inventer une valeur. La clé DOIT être un id de `CCQ_TRADES` (garde-fou :
  * `unknownWorkforceIds()`, testé). Exemple à confirmer et décommenter :
- *
+  
+Briqueteur-maçon: 5 228,
  *   electricien: 21000,
  *   charpentier-menuisier: 45000,
  */
