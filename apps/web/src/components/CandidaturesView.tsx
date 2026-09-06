@@ -2,7 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import type { Job } from "@jobccq/shared";
+import {
+  googleCalendarUrl,
+  icsCalendar,
+  reminderCalendarEvent,
+  type Job,
+} from "@jobccq/shared";
 import { searchJobs, buildQuery } from "@/lib/data";
 import { JobCard } from "./JobCard";
 import {
@@ -14,7 +19,7 @@ import {
   useApplications,
 } from "@/lib/applications";
 import { useAuth } from "@/lib/auth";
-import { downloadCsv } from "@/lib/format";
+import { downloadCsv, downloadIcs } from "@/lib/format";
 import { siteUrl } from "@/lib/site";
 import { supabaseEnabled } from "@/lib/supabase";
 
@@ -70,6 +75,28 @@ export function CandidaturesView() {
     downloadCsv("jobccq-candidatures.csv", lines.join("\n"));
   };
 
+  const exportIcs = () => {
+    const base = siteUrl("/").replace(/\/$/, "");
+    const events = items
+      .map((j) => {
+        const rec = records.get(j.id);
+        if (!rec?.remindAt) return null;
+        return reminderCalendarEvent({
+          jobId: j.id,
+          title: j.title,
+          company: j.company,
+          statusLabel: labelForApplicationStatus(rec.status),
+          note: rec.note,
+          remindAt: rec.remindAt,
+          url: `${base}/emplois/${j.id}/`,
+        });
+      })
+      .filter((e): e is NonNullable<typeof e> => e !== null);
+    const ics = icsCalendar(events);
+    if (ics) downloadIcs("jobccq-rappels.ics", ics);
+  };
+  const reminderCount = items.filter((j) => records.get(j.id)?.remindAt).length;
+
   return (
     <div>
       {error && (
@@ -118,20 +145,31 @@ export function CandidaturesView() {
               {items.length > 1 ? "s" : ""} suivie{items.length > 1 ? "s" : ""}
             </p>
             {items.length > 0 && (
-              <button
-                type="button"
-                onClick={exportCsv}
-                className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
-                Export CSV
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={exportCsv}
+                  className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  Export CSV
+                </button>
+                {reminderCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={exportIcs}
+                    className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    Export calendrier (.ics)
+                  </button>
+                )}
+              </div>
             )}
           </div>
           <div className="space-y-3">
             {items.map((job) => (
               <div key={job.id}>
                 <JobCard job={job} />
-                <ApplicationTrack id={job.id} />
+                <ApplicationTrack job={job} />
               </div>
             ))}
           </div>
@@ -147,7 +185,8 @@ export function CandidaturesView() {
   );
 }
 
-function ApplicationTrack({ id }: { id: string }) {
+function ApplicationTrack({ job }: { job: Job }) {
+  const id = job.id;
   const rec = useApplicationRecords().get(id);
   const [note, setNote] = useState(rec?.note ?? "");
   useEffect(() => {
@@ -155,6 +194,19 @@ function ApplicationTrack({ id }: { id: string }) {
   }, [rec?.note]);
   if (!rec) return null;
   const due = isReminderDue(rec.remindAt);
+  const fiche = `${siteUrl("/").replace(/\/$/, "")}/emplois/${job.id}/`;
+  const cal = rec.remindAt
+    ? reminderCalendarEvent({
+        jobId: job.id,
+        title: job.title,
+        company: job.company,
+        statusLabel: labelForApplicationStatus(rec.status),
+        note: rec.note,
+        remindAt: rec.remindAt,
+        url: fiche,
+      })
+    : null;
+  const gcal = cal ? googleCalendarUrl(cal) : null;
   return (
     <div className="mt-1 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-800">
       <div className="flex flex-wrap items-end gap-2">
@@ -183,6 +235,27 @@ function ApplicationTrack({ id }: { id: string }) {
             }`}
           />
         </label>
+        {cal && (
+          <div className="flex flex-wrap items-center gap-2 pb-0.5">
+            <button
+              type="button"
+              onClick={() => downloadIcs(`jobccq-rappel-${job.id}.ics`, icsCalendar([cal]))}
+              className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Ajouter au calendrier
+            </button>
+            {gcal && (
+              <a
+                href={gcal}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs font-medium text-brand-700 hover:underline"
+              >
+                Google Agenda
+              </a>
+            )}
+          </div>
+        )}
       </div>
       {supabaseEnabled && (
         <p className="mt-1.5 text-[11px] text-slate-500">
