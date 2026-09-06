@@ -41,7 +41,11 @@ export function pickPeerEmployerId(
   if (viaExtra) return viaExtra.id;
   const peer = employers.find((e) => {
     if (!customIds.has(e.id)) return false;
-    return hostOf(e.careersUrl) === host || hostOf(e.homepage ?? "") === host;
+    const careersHost = hostOf(e.careersUrl);
+    const homeHost = hostOf(e.homepage ?? "");
+    if (isPortalCareersUrl(e.careersUrl) && careersHost === host) return false;
+    if (homeHost && isPortalCareersUrl(e.homepage ?? "") && homeHost === host) return false;
+    return careersHost === host || homeHost === host;
   });
   return peer?.id;
 }
@@ -61,6 +65,12 @@ export function extraCareersAbsorbs(
 const isJobillicoUrl = (url: string): boolean =>
   /jobillico\.com\/(?:[a-z]{2}\/)?(?:voir-entreprise|employeurs)\//i.test(url) ||
   /jobillico\.com\/.*voir-liste-emplois/i.test(url);
+
+/** Portail d'offres (Jobillico, Indeed…) — pas le site de l'employeur. */
+export function isPortalCareersUrl(url: string): boolean {
+  const h = hostOf(url);
+  return h.includes("jobillico.com") || h.includes("indeed.") || isJobillicoUrl(url);
+}
 
 /** Méthode du 2e lien : `method2` si fournie, sinon Jobillico détecté, sinon html. */
 export function guessExtraMethod(url: string, method2?: string): DiscoveredMethod {

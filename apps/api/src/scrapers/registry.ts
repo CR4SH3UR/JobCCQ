@@ -70,7 +70,7 @@ import { canInspecScraper } from "./caninspec.js";
 import { cdPeintreScraper } from "./cdpeintre.js";
 import { casParCasScraper } from "./casparcas.js";
 import { buildDiscoveredScraper } from "./discovered.js";
-import { extraCareersAbsorbs, extraCareersConfig, pickPeerEmployerId, withExtraCareersScraper } from "./extra-careers.js";
+import { extraCareersAbsorbs, extraCareersConfig, isPortalCareersUrl, pickPeerEmployerId, withExtraCareersScraper } from "./extra-careers.js";
 import { ccqConstructionScraper } from "./ccq-construction.js";
 
 /**
@@ -186,15 +186,14 @@ type ExtraPeerEmployer = {
   careersUrl2?: string | null;
 };
 
-/** Scraper du 1er lien : Jobillico (générique) si le perso est pour le 2e site. */
+/** Scraper du 1er lien : Jobillico (générique) si l'URL 1 est un portail. */
 export function primaryScraperFor(d: DiscoveredEmployer): Scraper {
-  const extra = extraCareersConfig(d);
   const b = bespokeScraper(d.id);
   if (!b) return buildDiscoveredScraper(d);
-  if (!extra) return b;
-  const extraWants = pickPeerEmployerId(extra.careersUrl, [d], CUSTOM_SCRAPER_ID_SET) === d.id;
-  const primaryWants = pickPeerEmployerId(d.careersUrl, [d], CUSTOM_SCRAPER_ID_SET) === d.id;
-  return extraWants && !primaryWants ? buildDiscoveredScraper(d) : b;
+  // Le parseur perso vise le site de l'employeur (excavationcaf.ca), pas
+  // Jobillico. Sinon on ne visite jamais la liste d'emplois du 1er lien.
+  if (isPortalCareersUrl(d.careersUrl)) return buildDiscoveredScraper(d);
+  return b;
 }
 
 /** Scraper sur mesure d'un autre employeur du même hôte, pour `careersUrl2`. */
@@ -204,6 +203,7 @@ export function extraBespokeFor(
 ): Scraper | undefined {
   const cfg = extraCareersConfig(d);
   if (!cfg) return undefined;
+  if (isPortalCareersUrl(cfg.careersUrl)) return undefined;
   const peer = pickPeerEmployerId(cfg.careersUrl, employers, CUSTOM_SCRAPER_ID_SET);
   return peer ? bespokeScraper(peer) : undefined;
 }
