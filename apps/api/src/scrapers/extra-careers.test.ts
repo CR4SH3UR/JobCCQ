@@ -56,11 +56,12 @@ describe("mergeRawJobsByUrl", () => {
       job("https://jobillico.com/x", "Soudeur Jobillico", "other"),
       job("https://acme.ca/j/1", "Soudeur (dup)", "other"),
     ];
-    const merged = mergeRawJobsByUrl(a, b);
+    const merged = mergeRawJobsByUrl(a, b, "jobillico");
     assert.equal(merged.length, 3);
     assert.equal(merged[0]!.title, "Soudeur");
     assert.equal(merged[2]!.sourceId, "acme-ca");
     assert.equal(merged[2]!.url, "https://jobillico.com/x");
+    assert.ok(merged[2]!.tags?.includes("via:jobillico"));
   });
 });
 

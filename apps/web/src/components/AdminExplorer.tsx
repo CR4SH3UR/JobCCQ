@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, hasCustomScraper, mergeEmployerFields, pickKeepEmployerId, type DiscoveredMethod, type Job } from "@jobccq/shared";
+import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, careersMethodForUrl, careersMethodLabel, hasCustomScraper, mergeEmployerFields, pickKeepEmployerId, type DiscoveredMethod, type Job } from "@jobccq/shared";
 import { API_URL, STATIC, getStats, searchAdminJobs, buildQuery, adminFetch, invalidateJobOverrides } from "@/lib/data";
 import { previewEmployer, fetchEmployerHtml } from "@/lib/admin-preview";
 import { useAuth } from "@/lib/auth";
@@ -2794,7 +2794,7 @@ function Row({
   tursoUrl: string;
   tursoToken: string;
   onToggleSelect: (id: string) => void;
-  onPatch: (id: string, patch: Partial<Employer>) => void;
+  onPatch: (id: string, patch: Partial<Employer>) => void | Promise<void>;
   onScrape: (id: string) => void;
   onScrapeForce: (id: string) => void;
   onPurge: (id: string) => void;
@@ -3031,7 +3031,17 @@ function Row({
         {save && <SaveBadge save={save} />}
         {scrapeEnabled && !disabled && (
           <button
-            onClick={() => onScrape(e.id)}
+            onClick={async () => {
+              if (dirty) {
+                await onPatch(e.id, {
+                  careersUrl: url.trim(),
+                  name: name.trim(),
+                  careersUrl2: url2.trim() || null,
+                  method2: url2.trim() ? method2 : null,
+                });
+              }
+              onScrape(e.id);
+            }}
             className="rounded-lg border border-brand-300 px-2.5 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-50"
           >
             {scrape?.status === "run" ? "Scraping…" : "Re-scraper"}
@@ -3160,13 +3170,24 @@ function Row({
           ) : (
             <>
               <div className="mb-1 text-[10px] text-slate-400">
-                {offers.rows.length} affichée(s){count > offers.rows.length ? ` sur ${count}` : ""} — cliquer sur une offre pour l’éditer dans une fenêtre.
+                {offers.rows.length} affichée(s){count > offers.rows.length ? ` sur ${count}` : ""}
+                {(() => {
+                  const by: Record<string, number> = {};
+                  for (const row of offers.rows) {
+                    const m = careersMethodForUrl(row.url, e, row.tags);
+                    by[m] = (by[m] ?? 0) + 1;
+                  }
+                  const parts = Object.entries(by).map(([m, n]) => `${n} ${careersMethodLabel(m)}`);
+                  return parts.length ? ` — ${parts.join(" · ")}` : "";
+                })()}
+                {" "}— cliquer sur une offre pour l’éditer dans une fenêtre.
               </div>
               <ul className="space-y-1">
                 {offers.rows.map((o) => (
                   <li key={o.id}>
                     <OfferRowItem
                       o={o}
+                      employer={e}
                       persistEnabled={mode !== "loading"}
                       mode={mode}
                       tursoUrl={tursoUrl}
@@ -3308,7 +3329,17 @@ function Row({
             {save && <SaveBadge save={save} />}
             {forceEnabled && !disabled && (
               <button
-                onClick={() => onScrapeForce(e.id)}
+                onClick={async () => {
+                  if (dirty) {
+                    await onPatch(e.id, {
+                      careersUrl: url.trim(),
+                      name: name.trim(),
+                      careersUrl2: url2.trim() || null,
+                      method2: url2.trim() ? method2 : null,
+                    });
+                  }
+                  onScrapeForce(e.id);
+                }}
                 title="Re-scraper en ignorant le garde-fou anti-purge (remplace les offres même si le site en renvoie moins/zéro). Pour un employeur mal configuré."
                 className="rounded-lg border border-amber-400 px-2.5 py-1 font-semibold text-amber-700 hover:bg-amber-50"
               >
@@ -3400,6 +3431,7 @@ function Row({
  */
 function OfferRowItem({
   o,
+  employer,
   persistEnabled,
   mode,
   tursoUrl,
@@ -3407,6 +3439,7 @@ function OfferRowItem({
   onMutate,
 }: {
   o: OfferRow;
+  employer: Pick<Employer, "careersUrl" | "method" | "careersUrl2" | "method2">;
   persistEnabled: boolean;
   mode: Mode;
   tursoUrl: string;
@@ -3513,6 +3546,9 @@ function OfferRowItem({
     setTimeout(() => setSave(undefined), 4000);
   };
 
+  const via = careersMethodForUrl(o.url, employer, o.tags);
+  const viaLabel = careersMethodLabel(via);
+
   return (
     <>
       <button
@@ -3521,7 +3557,12 @@ function OfferRowItem({
         className="flex w-full cursor-pointer items-baseline justify-between gap-2 rounded border border-slate-200 bg-white px-2 py-1.5 text-left hover:bg-slate-100"
         title="Cliquer pour éditer cette offre"
       >
-        <span className="truncate text-brand-700">{o.title || "(sans titre)"}</span>
+        <span className="flex min-w-0 items-center gap-1.5">
+          <Badge tone={via === "jobillico" ? "brand" : "slate"} title={`Méthode : ${via}`} className="px-1.5 py-0 text-[10px]">
+            {viaLabel}
+          </Badge>
+          <span className="truncate text-brand-700">{o.title || "(sans titre)"}</span>
+        </span>
         <span className="shrink-0 text-slate-400">
           {o.offConstruction ? "hors construction · " : ""}
           {o.city ?? ""}{o.postedAt ? `${o.city ? " · " : ""}${relTime(o.postedAt)}` : ""}

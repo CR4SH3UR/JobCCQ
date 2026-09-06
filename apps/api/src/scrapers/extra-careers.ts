@@ -1,4 +1,5 @@
 import type { DiscoveredEmployer, DiscoveredMethod, RawJob } from "@jobccq/shared";
+import { viaTag } from "@jobccq/shared";
 import { buildDiscoveredScraper } from "./discovered.js";
 import type { Scraper } from "./types.js";
 
@@ -32,14 +33,16 @@ export function extraCareersConfig(
 }
 
 /** Union des offres : le 1er lien gagne en cas d'URL identique ; sourceId unifié. */
-export function mergeRawJobsByUrl(primary: RawJob[], extra: RawJob[]): RawJob[] {
+export function mergeRawJobsByUrl(primary: RawJob[], extra: RawJob[], extraMethod?: string): RawJob[] {
   const sourceId = primary[0]?.sourceId ?? extra[0]?.sourceId;
   const seen = new Set(primary.map((j) => j.url));
   const out = [...primary];
+  const tag = extraMethod ? viaTag(extraMethod) : undefined;
   for (const j of extra) {
     if (seen.has(j.url)) continue;
     seen.add(j.url);
-    out.push(sourceId ? { ...j, sourceId } : j);
+    const tagged = tag && !(j.tags ?? []).includes(tag) ? { ...j, tags: [...(j.tags ?? []), tag] } : j;
+    out.push(sourceId ? { ...tagged, sourceId } : tagged);
   }
   return out;
 }
@@ -74,10 +77,11 @@ export function withExtraCareersScraper(
       try {
         ctx.log(`${d.id} — 2e carrière (${extra.method}) : ${extra.careersUrl}`);
         b = await extraScraper.scrape(params, ctx);
+        ctx.log(`${d.id} — 2e carrière : ${b.length} poste(s)`);
       } catch (err) {
         ctx.log(`${d.id} — 2e carrière échouée : ${(err as Error).message}`);
       }
-      return mergeRawJobsByUrl(a, b);
+      return mergeRawJobsByUrl(a, b, extra.method);
     },
   };
 }
