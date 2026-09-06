@@ -5,6 +5,8 @@ import {
   attachDuplicateAlts,
   isLinkStatus,
   collapseHiringPoints,
+  appendJobHistory,
+  parseJobHistory,
   type HiringCompany,
   type HiringHistory,
   type Job,
@@ -50,6 +52,10 @@ export function rowToJob(row: PrismaJob): Job {
     postedAt: row.postedAt?.toISOString(),
     scrapedAt: row.scrapedAt.toISOString(),
     linkStatus: isLinkStatus(row.linkStatus) ? row.linkStatus : undefined,
+    history: (() => {
+      const h = parseJobHistory(row.historyJson);
+      return h.length ? h : undefined;
+    })(),
   };
 }
 
@@ -78,6 +84,7 @@ export function jobToRow(job: Job) {
     postedAt: job.postedAt ? new Date(job.postedAt) : null,
     scrapedAt: job.scrapedAt ? new Date(job.scrapedAt) : new Date(),
     linkStatus: job.linkStatus ?? null,
+    historyJson: job.history?.length ? JSON.stringify(job.history) : null,
   };
 }
 
@@ -144,6 +151,8 @@ const DIFF_SELECT = {
   salaryPeriod: true,
   description: true,
   postedAt: true,
+  linkStatus: true,
+  historyJson: true,
 } as const;
 
 type DiffRow = {
@@ -151,6 +160,38 @@ type DiffRow = {
 };
 
 /** L'offre existante diffère-t-elle du contenu fraîchement scrapé ? */
+function salaryLabel(min: number | null, max: number | null, period: string | null): string {
+  if (min == null && max == null) return "non renseigné";
+  const unit = period ? ` / ${period}` : "";
+  if (min != null && max != null && min !== max) return `${min}–${max}${unit}`;
+  return `${min ?? max}${unit}`;
+}
+
+function nextHistory(prev: DiffRow, data: ReturnType<typeof jobToRow>): string | null {
+  let events = parseJobHistory(typeof prev.historyJson === "string" ? prev.historyJson : null);
+  const at = new Date().toISOString();
+  if (prev.title !== data.title) {
+    events = appendJobHistory(events, {
+      at,
+      field: "title",
+      from: String(prev.title),
+      to: data.title,
+    });
+  }
+  if (prev.salaryMin !== data.salaryMin || prev.salaryMax !== data.salaryMax) {
+    events = appendJobHistory(events, {
+      at,
+      field: "salary",
+      from: salaryLabel(prev.salaryMin as number | null, prev.salaryMax as number | null, prev.salaryPeriod as string | null),
+      to: salaryLabel(data.salaryMin, data.salaryMax, data.salaryPeriod),
+    });
+  }
+  if (prev.linkStatus === "gone" && data.linkStatus === "ok") {
+    events = appendJobHistory(events, { at, field: "reactivated" });
+  }
+  return events.length ? JSON.stringify(events) : (typeof prev.historyJson === "string" ? prev.historyJson : null);
+}
+
 function rowChanged(row: DiffRow, data: ReturnType<typeof jobToRow>): boolean {
   const sameTime = (a: Date | null, b: Date | null) =>
     (a?.getTime() ?? null) === (b?.getTime() ?? null);
@@ -200,11 +241,10 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
   for (const job of unique) {
     const data = jobToRow(job);
     const prev = existing.get(job.url);
+    const historyJson = prev ? nextHistory(prev, data) : data.historyJson;
     await prisma.job.upsert({
       where: { url: job.url },
-      create: data,
-      // On ne réécrit pas scrapedAt/createdAt à chaque passage inutilement,
-      // mais on rafraîchit le contenu susceptible d'avoir changé.
+      create: { ...data, historyJson },
       update: {
         title: data.title,
         company: data.company,
@@ -222,7 +262,7 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
         tags: data.tags,
         languages: data.languages,
         postedAt: data.postedAt,
-        // Ne pas écraser un statut déjà sondé si LINK_CHECK=0 (champ absent).
+        historyJson,
         ...(data.linkStatus != null ? { linkStatus: data.linkStatus } : {}),
       },
     });
@@ -257,7 +297,7 @@ export async function syncSourceJobs(
   sourceId: string,
   jobs: Job[],
   opts: { reachableEmpty?: boolean; explicitEmpty?: boolean; force?: boolean } = {},
-): Promise<UpsertResult & { removed: number; removedJobs: JobDiffEntry[] }> {
+): Promise<UpsertResult & { removed: number; removedJobs: JobDiffEntry[]; rollbackJobs: Job[] }> {
   if (jobs.length === 0) {
     const { reachableEmpty = false, explicitEmpty = false } = opts;
     // 0 offre : la page a été récupérée (site joignable) et n'a aucune offre.
@@ -268,19 +308,24 @@ export async function syncSourceJobs(
     // - `explicitEmpty` (« aucune offre en ce moment ») : purge toute taille.
     // - `reachableEmpty` (page réelle, 0 offre) : purge des petites sources.
     const purge = async () => {
-      const gone = await prisma.job.findMany({
-        where: { sourceId },
-        select: { title: true, url: true },
-      });
+      const goneRows = await prisma.job.findMany({ where: { sourceId } });
       const del = await prisma.job.deleteMany({ where: { sourceId } });
-      return { inserted: 0, updated: 0, added: [], changed: [], removed: del.count, removedJobs: gone };
+      return {
+        inserted: 0,
+        updated: 0,
+        added: [],
+        changed: [],
+        removed: del.count,
+        removedJobs: goneRows.map((r) => ({ title: r.title, url: r.url })),
+        rollbackJobs: goneRows.map(rowToJob),
+      };
     };
     if (explicitEmpty) return purge();
     if (reachableEmpty) {
       const existingCount = await prisma.job.count({ where: { sourceId } });
       if (existingCount <= REACHABLE_EMPTY_PURGE_MAX) return purge();
     }
-    return { inserted: 0, updated: 0, added: [], changed: [], removed: 0, removedJobs: [] };
+    return { inserted: 0, updated: 0, added: [], changed: [], removed: 0, removedJobs: [], rollbackJobs: [] };
   }
 
   const existingCount = await prisma.job.count({ where: { sourceId } });
@@ -293,18 +338,27 @@ export async function syncSourceJobs(
   const suspicious = !opts.force && existingCount >= 10 && jobs.length < existingCount * 0.4;
   let removed = 0;
   let removedJobs: JobDiffEntry[] = [];
+  let rollbackJobs: Job[] = [];
   if (!suspicious) {
     const keep = jobs.map((j) => j.id);
-    removedJobs = await prisma.job.findMany({
+    const goneRows = await prisma.job.findMany({
       where: { sourceId, id: { notIn: keep } },
-      select: { title: true, url: true },
     });
+    removedJobs = goneRows.map((r) => ({ title: r.title, url: r.url }));
+    rollbackJobs = goneRows.map(rowToJob);
     const del = await prisma.job.deleteMany({
       where: { sourceId, id: { notIn: keep } },
     });
     removed = del.count;
   }
-  return { ...res, removed, removedJobs };
+  return { ...res, removed, removedJobs, rollbackJobs };
+}
+
+/** Restaure des offres (rollback d'un scrape qui les avait retirées). */
+export async function restoreJobs(jobs: Job[]): Promise<{ restored: number }> {
+  if (!jobs.length) return { restored: 0 };
+  const res = await upsertJobs(jobs);
+  return { restored: res.inserted + res.updated };
 }
 
 /** Historique des scrapes réussis (offres trouvées) par employeur. */

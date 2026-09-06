@@ -74,6 +74,8 @@ async function main() {
   await libsql.execute("ALTER TABLE Employer ADD COLUMN notes TEXT").catch(() => {});
   await libsql.execute("ALTER TABLE ScrapeRun ADD COLUMN diffJson TEXT").catch(() => {});
   await libsql.execute("ALTER TABLE Job ADD COLUMN linkStatus TEXT").catch(() => {});
+  await libsql.execute("ALTER TABLE Job ADD COLUMN historyJson TEXT").catch(() => {});
+  await libsql.execute("ALTER TABLE ScrapeRun ADD COLUMN rollbackJson TEXT").catch(() => {});
   console.log("✅ Schéma appliqué sur la base cible.");
 
   // Table vierge (idempotent) : on repart d'un état propre avant l'insertion en

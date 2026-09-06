@@ -58,6 +58,18 @@ export const JobSchema = z.object({
    */
   distanceKm: z.number().nonnegative().optional(),
 
+  /** Événements d'historique (salaire / titre / réactivation), pas un journal complet. */
+  history: z
+    .array(
+      z.object({
+        at: z.string(),
+        field: z.enum(["salary", "title", "reactivated"]),
+        from: z.string().optional(),
+        to: z.string().optional(),
+      }),
+    )
+    .optional(),
+
   /**
    * Autres sources du même poste (doublons inter-portails). Calculé à la
    * lecture (`collapseDuplicates` / `attachDuplicateAlts`), pas persisté.

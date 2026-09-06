@@ -64,6 +64,8 @@ model Job {
   scrapedAt      DateTime  @default(now())
   /// ok | gone | unknown — sonde HTTP du lien original (idée 18).
   linkStatus     String?
+  /// Historique compact JSON (salaire / titre / réactivation).
+  historyJson    String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
@@ -83,7 +85,9 @@ model ScrapeRun {
   inserted   Int       @default(0)
   updated    Int       @default(0)
   /// Diff JSON { added, changed, removed } (titres + URLs), plafonné.
-  diffJson   String?
+  diffJson     String?
+  /// Offres retirées (JSON Job[]) pour un rollback du run.
+  rollbackJson String?
   error      String?
   startedAt  DateTime  @default(now())
   finishedAt DateTime?

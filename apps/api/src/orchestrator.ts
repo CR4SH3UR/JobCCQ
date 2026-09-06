@@ -121,6 +121,7 @@ export async function runScraperInstance(
     const removed = "removed" in result ? result.removed : 0;
     const removedJobs: JobDiffEntry[] =
       "removedJobs" in result ? (result.removedJobs as JobDiffEntry[]) : [];
+    const rollbackJobs = "rollbackJobs" in result ? result.rollbackJobs : [];
     const diff = { added: result.added, changed: result.changed, removed: removedJobs };
     const runUpdate = {
       status: "success" as const,
@@ -132,10 +133,21 @@ export async function runScraperInstance(
     try {
       await prisma.scrapeRun.update({
         where: { id: run.id },
-        data: { ...runUpdate, diffJson: JSON.stringify(compactDiff(diff)) },
+        data: {
+          ...runUpdate,
+          diffJson: JSON.stringify(compactDiff(diff)),
+          rollbackJson: rollbackJobs.length ? JSON.stringify(rollbackJobs) : null,
+        },
       });
     } catch {
-      await prisma.scrapeRun.update({ where: { id: run.id }, data: runUpdate });
+      try {
+        await prisma.scrapeRun.update({
+          where: { id: run.id },
+          data: { ...runUpdate, diffJson: JSON.stringify(compactDiff(diff)) },
+        });
+      } catch {
+        await prisma.scrapeRun.update({ where: { id: run.id }, data: runUpdate });
+      }
     }
     log(`terminé : ${raw.length} trouvées, ${inserted} ajoutées, ${updated} mises à jour, ${removed} retirées`);
     logDiff(log, diff);

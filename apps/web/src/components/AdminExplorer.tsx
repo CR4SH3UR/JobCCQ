@@ -1085,6 +1085,55 @@ export function AdminExplorer() {
     setOffersData((d) => (id in d ? { ...d, [id]: { loading: false, rows: [] } } : d));
   };
 
+  const rollbackOffers = async (id: string) => {
+    const name = employers.find((e) => e.id === id)?.name ?? id;
+    if (!window.confirm(`Remettre les offres retirées par le dernier scrape de « ${name} » ?`)) return;
+    try {
+      if (mode === "api") {
+        const r = await adminFetch(`${API_URL}/admin/employers/${id}/rollback`, { method: "POST" });
+        const d = (await r.json().catch(() => ({}))) as { error?: string; restored?: number };
+        if (!r.ok) throw new Error(d.error ?? `HTTP ${r.status}`);
+        setBulkMsg(`${d.restored ?? 0} offre(s) restaurée(s) pour ${name}.`);
+      } else if (mode === "turso") {
+        const rows = await tursoRows(
+          tursoUrl,
+          tursoToken,
+          "SELECT rollbackJson FROM ScrapeRun WHERE sourceId=? AND rollbackJson IS NOT NULL AND rollbackJson != '' ORDER BY id DESC LIMIT 1",
+          [id],
+        );
+        const raw = rows[0]?.rollbackJson;
+        const jobs = raw ? (JSON.parse(String(raw)) as Job[]) : [];
+        if (!jobs.length) throw new Error("Aucun snapshot de rollback.");
+        let restored = 0;
+        for (const j of jobs) {
+          await tursoExec(
+            tursoUrl,
+            tursoToken,
+            `INSERT OR REPLACE INTO Job (id, sourceId, url, title, company, companyLogoUrl, location, regionId, city, remote, categoryId, employmentType, salaryMin, salaryMax, salaryPeriod, currency, description, tags, languages, postedAt, scrapedAt, linkStatus)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+            [
+              j.id, j.sourceId, j.url, j.title, j.company, j.companyLogoUrl ?? null, j.location ?? null,
+              j.regionId ?? null, j.city ?? null, j.remote ?? null, j.categoryId ?? null, j.employmentType ?? null,
+              j.salaryMin ?? null, j.salaryMax ?? null, j.salaryPeriod ?? null, j.currency ?? "CAD",
+              j.description ?? null, JSON.stringify(j.tags ?? []), JSON.stringify(j.languages ?? []),
+              j.postedAt ?? null, j.scrapedAt ?? new Date().toISOString(), j.linkStatus ?? null,
+            ],
+          );
+          restored += 1;
+        }
+        setBulkMsg(`${restored} offre(s) restaurée(s) pour ${name}.`);
+      } else {
+        setBulkMsg("Rollback indisponible en mode local.");
+        return;
+      }
+      logAudit("purge", { targetId: id, targetName: name, detail: "rollback scrape" });
+      await refreshCounts();
+      notifyJobsChanged();
+    } catch (err) {
+      setBulkMsg(`Rollback impossible : ${(err as Error).message}`);
+    }
+  };
+
   const publishChanges = async () => {
     setPublish({ status: "run" });
     try {
@@ -2661,6 +2710,7 @@ export function AdminExplorer() {
                 onScrape={scrapeOne}
                 onScrapeForce={scrapeForce}
                 onPurge={purgeOffers}
+                onRollback={rollbackOffers}
                 onDelete={deleteEmployer}
                 onToggleOffers={toggleOffers}
                 onMutateOffer={(employerId, offerId, patch) =>
@@ -2711,7 +2761,7 @@ function SaveBadge({ save }: { save: SaveState }) {
 }
 
 function Row({
-  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, forceEnabled, save, sectorOptions, mode, tursoUrl, tursoToken, onToggleSelect, onPatch, onScrape, onScrapeForce, onPurge, onDelete, onToggleOffers, onMutateOffer, onShowDuplicates,
+  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, forceEnabled, save, sectorOptions, mode, tursoUrl, tursoToken, onToggleSelect, onPatch, onScrape, onScrapeForce, onPurge, onRollback, onDelete, onToggleOffers, onMutateOffer, onShowDuplicates,
 }: {
   e: Employer;
   count: number;
@@ -2735,6 +2785,7 @@ function Row({
   onScrape: (id: string) => void;
   onScrapeForce: (id: string) => void;
   onPurge: (id: string) => void;
+  onRollback: (id: string) => void;
   onDelete: (id: string) => void;
   onToggleOffers: (id: string) => void;
   onMutateOffer: (employerId: string, offerId: string, patch: OfferPatch) => void;
@@ -3011,6 +3062,15 @@ function Row({
         >
           {disabled ? "Activer" : "Désactiver"}
         </button>
+        {purgeEnabled && (
+          <button
+            onClick={() => onRollback(e.id)}
+            title="Remettre les offres retirées par le dernier scrape"
+            className="rounded-lg border border-amber-300 px-2.5 py-1 text-xs font-semibold text-amber-800 hover:bg-amber-50"
+          >
+            ↩ Rollback
+          </button>
+        )}
         {purgeEnabled && count > 0 && (
           <button
             onClick={() => onPurge(e.id)}

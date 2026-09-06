@@ -21,6 +21,7 @@ import {
   ccqWageForJob,
   formatCcqHourly,
   CCQ_SALARY_URL,
+  formatHistoryEvent,
   type Job,
 } from "@jobccq/shared";
 import { Badge } from "./Badge";
@@ -176,6 +177,19 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
             <CompletenessNote job={job} />
             <CcqWageNote job={job} />
             <MatchNote job={job} />
+            {job.history && job.history.length > 0 && (
+              <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Historique</p>
+                <ul className="mt-1 space-y-0.5 text-sm text-slate-600">
+                  {job.history.slice().reverse().map((e, i) => (
+                    <li key={`${e.at}-${i}`}>
+                      {formatHistoryEvent(e)}
+                      <span className="ml-1 text-xs text-slate-400">{timeAgo(e.at)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <div className="mt-6 flex flex-wrap gap-3">
               <ApplyLink

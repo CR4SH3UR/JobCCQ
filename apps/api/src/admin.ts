@@ -5,13 +5,13 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { createClient, type User } from "@supabase/supabase-js";
-import type { DiscoveredEmployer } from "@jobccq/shared";
+import type { DiscoveredEmployer, Job } from "@jobccq/shared";
 import { failingScrapers, mergeEmployerFields } from "@jobccq/shared";
 import { buildDiscoveredScraper } from "./scrapers/discovered.js";
 import { bespokeScraper } from "./scrapers/registry.js";
 import { runScraperInstance } from "./orchestrator.js";
 import { prisma } from "./db.js";
-import { rowToJob, reassignJobsToEmployer } from "./repository.js";
+import { rowToJob, reassignJobsToEmployer, restoreJobs } from "./repository.js";
 import { fetchHtml, createHttpContext } from "./scrapers/http.js";
 import { toPreviewSample, fixtureFilename } from "./preview.js";
 
@@ -553,6 +553,29 @@ export function registerAdminRoutes(app: FastifyInstance): void {
   app.delete<{ Params: { id: string } }>("/admin/employers/:id/offers", { preHandler: adminGuard }, async (req) => {
     const del = await prisma.job.deleteMany({ where: { sourceId: req.params.id } });
     return { removed: del.count };
+  });
+
+  // Remet les offres retirées par le dernier scrape (colonne rollbackJson).
+  app.post<{ Params: { id: string } }>("/admin/employers/:id/rollback", { preHandler: adminGuard }, async (req, reply) => {
+    const id = req.params.id;
+    const run = await prisma.scrapeRun.findFirst({
+      where: { sourceId: id, rollbackJson: { not: null } },
+      orderBy: { id: "desc" },
+    });
+    if (!run?.rollbackJson) {
+      reply.code(404);
+      return { error: "Aucun snapshot de rollback pour cet employeur." };
+    }
+    let jobs: Job[] = [];
+    try {
+      const parsed = JSON.parse(run.rollbackJson) as unknown;
+      jobs = Array.isArray(parsed) ? (parsed as Job[]) : [];
+    } catch {
+      reply.code(500);
+      return { error: "Snapshot de rollback illisible." };
+    }
+    const { restored } = await restoreJobs(jobs);
+    return { restored, fromRun: run.id };
   });
 
   // Édition d'une offre (titre, lieu, catégorie, description…). Identifiant = Job.id.

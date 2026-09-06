@@ -225,7 +225,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [ ] 17. Traduction FR↔EN des offres unilingues (libellé « traduit automatiquement »)
 - [x] 18. Détection d'offres expirées (vérif du lien : 404/redirection → « peut-être pourvue »)
 - [x] 19. Ancienneté visible et cohérente partout (« il y a 2 j »)
-- [ ] 20. Historique d'une offre (salaire modifié, réactivée…)
+- [x] 20. Historique d'une offre (salaire modifié, réactivée…)
 - [x] 54. Extraire contacts RH publics (courriel / téléphone) dans la fiche
 - [x] 55. Extraire avantages (REER, assurances, camion fourni) à côté des exigences
 - [x] 56. Flag admin « hors construction » → masquée du site public
@@ -286,7 +286,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 69. Module Offres (recherche, édition, suppression, export CSV)
 - [x] 70. Import CSV d'employeurs (même format que l'export)
 - [x] 71. Tester une URL carrières (probe HTTP) + notes internes + copier id/URLs
-- [ ] 72. Rollback d'un scrape (remettre les offres d'avant le run)
+- [x] 72. Rollback d'un scrape (remettre les offres d'avant le run)
 - [x] 73. Stats clics « Postuler » par offre / source (site public → admin)
 
 ### 📱 Mobile & plateforme
