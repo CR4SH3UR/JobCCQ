@@ -257,6 +257,7 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
       where: { url: job.url },
       create: { ...data, historyJson },
       update: {
+        id: data.id,
         sourceId: data.sourceId,
         title: data.title,
         company: data.company,
@@ -353,14 +354,18 @@ export async function syncSourceJobs(
   let removedJobs: JobDiffEntry[] = [];
   let rollbackJobs: Job[] = [];
   if (!suspicious) {
-    const keep = jobs.map((j) => j.id);
+    // Identité = URL (clé unique). L'`id` Prisma est un hash `sourceId|url` : si
+    // l'upsert vient de réattribuer une offre (autre fiche → celle-ci), l'ancienne
+    // `id` ne matche plus le hash courant. Juger par `id` retranchait alors les
+    // 12 postes qu'on venait d'attacher (Groupe Gagné / ggci3.com).
+    const keepUrls = jobs.map((j) => j.url);
     const goneRows = await prisma.job.findMany({
-      where: { sourceId, id: { notIn: keep } },
+      where: { sourceId, url: { notIn: keepUrls } },
     });
     removedJobs = goneRows.map((r) => ({ title: r.title, url: r.url }));
     rollbackJobs = goneRows.map(rowToJob);
     const del = await prisma.job.deleteMany({
-      where: { sourceId, id: { notIn: keep } },
+      where: { sourceId, url: { notIn: keepUrls } },
     });
     removed = del.count;
   }
