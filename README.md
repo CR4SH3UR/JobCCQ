@@ -189,7 +189,7 @@ Pour régénérer l'instantané à partir de la vraie base (après un scraping) 
 - [x] Ajouter d'autres entrepreneurs (Broccolini, Kiewit, Eurovia, Construction Demathieu & Bard…)
 - [x] Brancher le Carrefour construction de la CCQ (ccq.org)
 - [x] Planification du scraping (cron) + déduplication inter-sources plus fine
-- [x] Alertes courriel (Resend) et push Expo
+- [x] Alertes courriel (Resend), push Expo et ntfy
 - [x] Comptes utilisateurs, offres sauvegardées, recherches enregistrées
 
 ## Licence
@@ -249,7 +249,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 28. Alertes courriel réelles (digest quotidien/hebdo d'une recherche enregistrée)
 - [x] 29. Notifications push mobiles (Expo push) sur nouvelles offres
 - [x] 30. Flux RSS des offres (`/emplois.rss` sur le site statique, `/api/jobs.rss` + bouton RSS de la recherche)
-- [x] 31. Webhook Discord/Slack pour une recherche
+- [x] 31. Webhook Discord/Slack / ntfy pour une recherche
 - [x] 32. Réglages de fréquence & silence par alerte (instantané / quotidien / hebdo / pause)
 - [x] 59. Alerte admin (courriel/Slack) si une grosse source tombe à 0 offre
 - [x] 60. Webhook « scrape terminé » (même canal que les webhooks de recherche)

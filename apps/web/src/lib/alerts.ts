@@ -33,6 +33,7 @@ export function filterQuery(q: JobQuery): Partial<JobQuery> {
   if (q.alertFrequency) out.alertFrequency = q.alertFrequency;
   if (q.alertPaused) out.alertPaused = true;
   if (q.webhookUrl) out.webhookUrl = q.webhookUrl;
+  if (q.ntfyTopic) out.ntfyTopic = q.ntfyTopic;
   return out as Partial<JobQuery>;
 }
 

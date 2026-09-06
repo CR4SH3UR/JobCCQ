@@ -435,3 +435,24 @@ create policy "delete push token" on public.push_tokens
 
 > Pas de `SELECT` public : le cron lit la table avec la clé `service_role`.
 
+# Notifications ntfy
+
+[ntfy](https://ntfy.sh) : tu t'abonnes à un **topic** dans l'app (Android/iOS/bureau),
+JobCCQ y publie après chaque scrape.
+
+## Alertes (compte)
+
+Sur `/alertes`, champ **ntfy** : nom de topic (`jobccq-mes-alertes`) ou URL
+(`https://ntfy.sh/jobccq-mes-alertes`). Choisis un topic long, difficile à deviner
+(le topic public est lisible par quiconque le connaît).
+
+## Scrape admin (secret GitHub)
+
+| Nom | Type | Valeur |
+| --- | --- | --- |
+| `NTFY_TOPIC` | Secret | topic (ex. `jobccq-scrape-xxxx`) ou URL complète |
+| `NTFY_SERVER` | Secret | optionnel, défaut `https://ntfy.sh` |
+| `NTFY_TOKEN` | Secret | optionnel, si le topic est protégé |
+
+Le workflow `notify.yml` envoie alors le résumé de scrape (comme `WEBHOOK_SCRAPE_URL`).
+

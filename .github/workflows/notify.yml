@@ -35,6 +35,9 @@ jobs:
       NOTIFY_FROM: ${{ vars.NOTIFY_FROM }}
       NOTIFY_SITE_URL: https://cr4sh3ur.github.io/JobCCQ
       WEBHOOK_SCRAPE_URL: ${{ secrets.WEBHOOK_SCRAPE_URL }}
+      NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      NTFY_SERVER: ${{ secrets.NTFY_SERVER }}
+      NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 

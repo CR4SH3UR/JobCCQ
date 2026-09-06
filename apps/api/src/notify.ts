@@ -18,6 +18,7 @@ import { prisma } from "./db.js";
 import { rowToJob } from "./repository.js";
 import { formatJobsWebhook, postWebhook } from "./webhooks.js";
 import { formatExpoPush, sendExpoPush } from "./expo-push.js";
+import { postNtfy } from "./ntfy.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -175,9 +176,14 @@ async function main() {
     const email = userRes?.user?.email;
     const label = alert.label?.trim() || "Nouvelles offres";
     const hook = alert.query.webhookUrl?.trim();
+    const ntfy = alert.query.ntfyTopic?.trim();
     let ok = false;
     if (hook) {
       ok = await postWebhook(hook, formatJobsWebhook(label, matched), "JobCCQ");
+    }
+    if (ntfy) {
+      const click = `${SITE_URL}/emplois`;
+      if (await postNtfy(ntfy, `JobCCQ — ${label}`, formatJobsWebhook(label, matched), click)) ok = true;
     }
     if (email && RESEND_API_KEY && (await sendEmail(email, label, matched))) ok = true;
     if (ok) {
@@ -208,10 +214,11 @@ async function main() {
   await prisma.$disconnect();
 }
 
-/** Fin de scrape + sources tombées à 0 (WEBHOOK_SCRAPE_URL). */
+/** Fin de scrape + sources tombées à 0 (WEBHOOK_SCRAPE_URL / NTFY_TOPIC). */
 async function notifyAdminHooks(): Promise<void> {
-  const url = process.env.WEBHOOK_SCRAPE_URL?.trim();
-  if (!url) return;
+  const hook = process.env.WEBHOOK_SCRAPE_URL?.trim();
+  const ntfy = process.env.NTFY_TOPIC?.trim();
+  if (!hook && !ntfy) return;
   const since = new Date(Date.now() - 8 * HOUR);
   const runs = await prisma.scrapeRun.findMany({
     where: { finishedAt: { gte: since } },
@@ -239,8 +246,14 @@ async function notifyAdminHooks(): Promise<void> {
     `${latest.size} source(s) · ${ok} succès · ${err} erreur(s)`,
     dropped.length ? `⚠ tombées à 0 : ${dropped.join(", ")}` : "Aucune grosse source à 0.",
   ].join("\n");
-  const sent = await postWebhook(url, text, "JobCCQ — scrape");
-  console.log(sent ? "Webhook scrape envoyé." : "Webhook scrape échoué.");
+  if (hook) {
+    const sent = await postWebhook(hook, text, "JobCCQ — scrape");
+    console.log(sent ? "Webhook scrape envoyé." : "Webhook scrape échoué.");
+  }
+  if (ntfy) {
+    const sent = await postNtfy(ntfy, "JobCCQ — scrape", text, `${SITE_URL}/emplois`);
+    console.log(sent ? "ntfy scrape envoyé." : "ntfy scrape échoué.");
+  }
 }
 
 main().catch((err) => {

@@ -157,6 +157,8 @@ export const JobQuerySchema = z.object({
   alertFrequency: z.enum(["instant", "daily", "weekly"]).optional(),
   alertPaused: z.coerce.boolean().optional(),
   webhookUrl: z.string().trim().optional(),
+  /** Topic ntfy (`jobccq-alertes`) ou URL `https://ntfy.sh/…`. */
+  ntfyTopic: z.string().trim().optional(),
   sort: z.enum(SORT_OPTIONS).default("recent"),
   page: z.coerce.number().int().positive().default(1),
   pageSize: z.coerce.number().int().positive().max(100).default(20),

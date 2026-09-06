@@ -98,7 +98,7 @@ export function AlertesView() {
       ) : (
         <div className="space-y-2">
           <p className="mb-1 text-sm text-slate-600">
-            {alerts.length} alerte{alerts.length > 1 ? "s" : ""} · courriel et/ou webhook Discord/Slack.
+            {alerts.length} alerte{alerts.length > 1 ? "s" : ""} · courriel, webhook et/ou ntfy.
           </p>
           {alerts.map((a: JobAlert) => (
             <article key={a.id} className="card space-y-2 p-3">
@@ -156,6 +156,20 @@ export function AlertesView() {
                     onBlur={(e) => {
                       const v = e.target.value.trim();
                       if (v !== (a.query.webhookUrl ?? "")) void patchQuery(a, { webhookUrl: v || undefined });
+                    }}
+                    className="min-w-0 flex-1 rounded border border-slate-200 px-1.5 py-1"
+                  />
+                </label>
+                <label className="flex min-w-[10rem] flex-1 items-center gap-1 text-slate-600">
+                  ntfy
+                  <input
+                    type="text"
+                    defaultValue={a.query.ntfyTopic ?? ""}
+                    placeholder="topic ou https://ntfy.sh/…"
+                    disabled={busy === a.id}
+                    onBlur={(e) => {
+                      const v = e.target.value.trim();
+                      if (v !== (a.query.ntfyTopic ?? "")) void patchQuery(a, { ntfyTopic: v || undefined });
                     }}
                     className="min-w-0 flex-1 rounded border border-slate-200 px-1.5 py-1"
                   />
