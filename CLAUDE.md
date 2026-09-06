@@ -102,3 +102,32 @@ Il n'y a pas de script `test` dans les `package.json` — utiliser la commande
 - **ESLint n'est pas configuré** : `npm run lint -w @jobccq/web` (`next lint`)
   ouvre un assistant interactif → ne pas s'en servir comme garde-fou CI. Le
   garde-fou réel est `typecheck` + les tests scrapers.
+
+## Sentry — Tracking d'erreurs (#112)
+
+Sentry est intégré dans l'**API**, la **web**, et l'**app mobile** pour capturer
+et tracer les erreurs en production. L'intégration est **optionnelle** : sans
+DSN, Sentry est simplement désactivé.
+
+### Configuration
+
+| Plateforme | Variable d'env | Notes |
+| --- | --- | --- |
+| API (Node.js) | `SENTRY_DSN` | Fastify capture les erreurs via handler |
+| Web (Next.js) | `NEXT_PUBLIC_SENTRY_DSN` | Init dans `apps/web/src/sentry.config.ts` |
+| Mobile (Expo) | `EXPO_PUBLIC_SENTRY_DSN` | Init dans `apps/mobile/src/sentry.config.ts` |
+
+Chaque plateforme lit son DSN au démarrage. Les trois fonctionnent indépendamment.
+
+### Exemple
+
+```bash
+# API avec Sentry
+SENTRY_DSN=https://key@org.sentry.io/project npm run dev:api
+
+# Web (Sentry facultatif, le site fonctionne sans)
+NEXT_PUBLIC_SENTRY_DSN=https://key@org.sentry.io/project npm run dev:web
+
+# Mobile (même pattern)
+EXPO_PUBLIC_SENTRY_DSN=https://key@org.sentry.io/project npm start
+```
