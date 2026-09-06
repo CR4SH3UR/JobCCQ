@@ -7,9 +7,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { createClient, type User } from "@supabase/supabase-js";
 import type { DiscoveredEmployer, Job } from "@jobccq/shared";
 import { failingScrapers, mergeEmployerFields } from "@jobccq/shared";
-import { buildDiscoveredScraper } from "./scrapers/discovered.js";
-import { withExtraCareersScraper } from "./scrapers/extra-careers.js";
-import { bespokeScraper, extraBespokeFor } from "./scrapers/registry.js";
+import { scraperForEmployer, primaryScraperFor } from "./scrapers/registry.js";
 import { runScraperInstance } from "./orchestrator.js";
 import { prisma } from "./db.js";
 import { rowToJob, reassignJobsToEmployer, restoreJobs } from "./repository.js";
@@ -375,7 +373,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       reply.code(404);
       return { error: "Employeur introuvable" };
     }
-    const scraper = bespokeScraper(employer.id) ?? buildDiscoveredScraper(employer);
+    const scraper = primaryScraperFor(employer);
     const url = employer.careersUrl;
     try {
       let raw;
@@ -540,13 +538,8 @@ export function registerAdminRoutes(app: FastifyInstance): void {
         reply.code(404);
         return { error: "Employeur introuvable" };
       }
-      // Scraper sur mesure s'il en existe un (EBC, Pomerleau, Béluga…), sinon on
-      // reconstruit depuis la config éditée (prend en compte une URL modifiée).
-      const scraper = withExtraCareersScraper(
-        employer,
-        bespokeScraper(employer.id) ?? buildDiscoveredScraper(employer),
-        extraBespokeFor(employer, list),
-      );
+      // Jobillico au 1er lien + scraper perso du 2e site si besoin.
+      const scraper = scraperForEmployer(employer, list);
       const { report, jobs } = await runScraperInstance(scraper, {
         maxPages: req.body?.maxPages ?? 2,
       });

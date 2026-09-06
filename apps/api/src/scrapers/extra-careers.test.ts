@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { RawJob } from "@jobccq/shared";
 import {
+  extraCareersAbsorbs,
   extraCareersConfig,
   mergeRawJobsByUrl,
   pickPeerEmployerId,
@@ -64,6 +65,17 @@ describe("mergeRawJobsByUrl", () => {
     assert.equal(merged[2]!.url, "https://jobillico.com/x");
     assert.ok(merged[2]!.tags?.includes("via:jobillico"));
   });
+
+  it("réattribue toutes les offres à la fiche scrapée, pas à l'ancien id du parseur", () => {
+    const merged = mergeRawJobsByUrl(
+      [job("https://jobillico.com/x", "Soudeur", "charles-auguste-fortier-inc-caf")],
+      [job("https://excavationcaf.ca/#meca", "Mécanicien", "cafortier-com")],
+      "html",
+      "charles-auguste-fortier-inc-caf",
+    );
+    assert.equal(merged.length, 2);
+    assert.ok(merged.every((j) => j.sourceId === "charles-auguste-fortier-inc-caf"));
+  });
 });
 
 describe("pickPeerEmployerId", () => {
@@ -74,17 +86,23 @@ describe("pickPeerEmployerId", () => {
       homepage: "https://excavationcaf.ca",
     },
     {
+      id: "charles-auguste-fortier-inc-caf",
+      careersUrl: "https://www.jobillico.com/fr/employeurs/charles-auguste-fortier-inc-caf/voir-liste-emplois",
+      homepage: "https://www.jobillico.com/voir-entreprise/charles-auguste-fortier-inc-caf",
+      careersUrl2: "https://excavationcaf.ca/#carrieres",
+    },
+    {
       id: "other-ca",
       careersUrl: "https://other.ca/jobs",
       homepage: "https://other.ca",
     },
   ];
-  const custom = new Set(["cafortier-com"]);
+  const custom = new Set(["charles-auguste-fortier-inc-caf"]);
 
-  it("relie le 2e lien au scraper sur mesure du même hôte", () => {
+  it("relie le 2e lien à la fiche qui l'a déclaré, pas à l'ancienne", () => {
     assert.equal(
       pickPeerEmployerId("https://excavationcaf.ca/#carrieres", employers, custom),
-      "cafortier-com",
+      "charles-auguste-fortier-inc-caf",
     );
   });
 
@@ -93,11 +111,28 @@ describe("pickPeerEmployerId", () => {
   });
 });
 
+describe("extraCareersAbsorbs", () => {
+  it("détecte l'ancienne fiche dont le site est déjà le 2e lien d'une autre", () => {
+    assert.equal(
+      extraCareersAbsorbs(
+        { id: "cafortier-com", careersUrl: "https://excavationcaf.ca/#carrieres" },
+        [
+          {
+            id: "charles-auguste-fortier-inc-caf",
+            careersUrl2: "https://excavationcaf.ca/#carrieres",
+          },
+        ],
+      ),
+      true,
+    );
+  });
+});
+
 describe("withExtraCareersScraper", () => {
   it("enchaîne le scrape principal et le 2e lien", async () => {
     const primary: Scraper = {
-      id: "acme-ca",
-      scrape: async () => [job("https://acme.ca/j/1", "Soudeur")],
+      id: "cafortier-com",
+      scrape: async () => [job("https://acme.ca/j/1", "Soudeur", "cafortier-com")],
     };
     const wrapped = withExtraCareersScraper(
       {
@@ -120,7 +155,9 @@ describe("withExtraCareersScraper", () => {
       {},
       { fetchHtml: async () => "", log: (m) => logs.push(m) },
     );
+    assert.equal(wrapped.id, "acme-ca");
     assert.equal(out.length, 2);
+    assert.equal(out[0]!.sourceId, "acme-ca");
     assert.equal(out[1]!.title, "Coffreur");
     assert.equal(out[1]!.sourceId, "acme-ca");
     assert.match(logs.join("\n"), /2e carrière/);

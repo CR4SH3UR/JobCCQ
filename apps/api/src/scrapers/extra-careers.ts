@@ -22,21 +22,40 @@ function hostOf(url: string): string {
 
 /**
  * Employeur qui a déjà un scraper sur mesure pour le même hôte que `extraUrl`
- * (ex. excavationcaf.ca → cafortier-com). Sans ça, le 2e lien retombe sur le
+ * (ex. excavationcaf.ca → charles-auguste-fortier-inc-caf). Sans ça, le 2e lien retombe sur le
  * parseur HTML générique et rate les offres en texte libre.
  */
 export function pickPeerEmployerId(
   extraUrl: string,
-  employers: readonly { id: string; careersUrl: string; homepage?: string }[],
+  employers: readonly {
+    id: string;
+    careersUrl: string;
+    homepage?: string;
+    careersUrl2?: string | null;
+  }[],
   customIds: ReadonlySet<string>,
 ): string | undefined {
   const host = hostOf(extraUrl);
   if (!host) return undefined;
+  const viaExtra = employers.find((e) => customIds.has(e.id) && hostOf(e.careersUrl2 ?? "") === host);
+  if (viaExtra) return viaExtra.id;
   const peer = employers.find((e) => {
     if (!customIds.has(e.id)) return false;
     return hostOf(e.careersUrl) === host || hostOf(e.homepage ?? "") === host;
   });
   return peer?.id;
+}
+
+/** L'ancienne fiche dont le site est déjà le 2e lien d'un autre employeur. */
+export function extraCareersAbsorbs(
+  d: { id: string; careersUrl: string },
+  employers: readonly { id: string; enabled?: boolean; careersUrl2?: string | null }[],
+): boolean {
+  const host = hostOf(d.careersUrl);
+  if (!host) return false;
+  return employers.some(
+    (e) => e.id !== d.id && e.enabled !== false && hostOf(e.careersUrl2 ?? "") === host,
+  );
 }
 
 const isJobillicoUrl = (url: string): boolean =>
@@ -68,14 +87,15 @@ export function mergeRawJobsByUrl(
   sourceIdOverride?: string,
 ): RawJob[] {
   const sourceId = sourceIdOverride ?? primary[0]?.sourceId ?? extra[0]?.sourceId;
+  const remap = (j: RawJob): RawJob => (sourceId && j.sourceId !== sourceId ? { ...j, sourceId } : j);
   const seen = new Set(primary.map((j) => j.url));
-  const out = [...primary];
+  const out = primary.map(remap);
   const tag = extraMethod ? viaTag(extraMethod) : undefined;
   for (const j of extra) {
     if (seen.has(j.url)) continue;
     seen.add(j.url);
     const tagged = tag && !(j.tags ?? []).includes(tag) ? { ...j, tags: [...(j.tags ?? []), tag] } : j;
-    out.push(sourceId ? { ...tagged, sourceId } : tagged);
+    out.push(remap(tagged));
   }
   return out;
 }
@@ -102,7 +122,7 @@ export function withExtraCareersScraper(
       method: extra.method,
     });
   return {
-    id: primary.id,
+    id: d.id,
     parseList: primary.parseList?.bind(primary),
     async scrape(params, ctx) {
       const a = await primary.scrape(params, ctx);

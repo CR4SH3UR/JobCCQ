@@ -7,6 +7,7 @@ import {
   collapseHiringPoints,
   appendJobHistory,
   parseJobHistory,
+  hasCustomScraper,
   type HiringCompany,
   type HiringHistory,
   type Job,
@@ -221,8 +222,9 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
   // être publiée par deux sources (ex. un employeur curé et son doublon
   // découvert partagent la même page Jobillico) : elles produisent la même URL
   // sous des id différents. Cibler l'URL évite la violation `unique(url)`.
-  // On réécrit `sourceId` : le scrape courant récupère l'offre (ex. 2e site
-  // carrières dont les URLs vivaient déjà sous une autre fiche).
+  // On réécrit `sourceId` pour que le scrape courant récupère l'offre (2e site
+  // dont les URLs vivaient sous une autre fiche), sauf si l'offre appartient
+  // déjà à un scraper perso : l'ancienne fiche générique ne doit pas la reprendre.
   const byUrl = new Map(jobs.map((j) => [j.url, j]));
   const unique = [...byUrl.values()];
 
@@ -242,6 +244,14 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
   for (const job of unique) {
     const data = jobToRow(job);
     const prev = existing.get(job.url);
+    if (
+      prev &&
+      prev.sourceId !== data.sourceId &&
+      hasCustomScraper(String(prev.sourceId)) &&
+      !hasCustomScraper(data.sourceId)
+    ) {
+      continue;
+    }
     const historyJson = prev ? nextHistory(prev, data) : data.historyJson;
     await prisma.job.upsert({
       where: { url: job.url },

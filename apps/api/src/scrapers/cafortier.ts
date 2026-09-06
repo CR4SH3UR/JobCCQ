@@ -24,7 +24,7 @@ import { cleanText, slugify } from "./util.js";
  * un poste autonome). Postuler = courriel (emploi@cafortier.com) → pas d'URL par
  * poste ; on ancre chaque offre sur `#<slug>` pour un identifiant stable.
  */
-const ID = "cafortier-com";
+const ID = "charles-auguste-fortier-inc-caf";
 const COMPANY = "Charles-Auguste Fortier inc.";
 const BASE = "https://excavationcaf.ca/";
 
