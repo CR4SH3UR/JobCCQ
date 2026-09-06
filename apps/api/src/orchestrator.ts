@@ -82,12 +82,26 @@ export async function runScraperInstance(
     // petites sources seulement, cf. syncSourceJobs).
     let reachableEmpty = false;
     let explicitEmpty = false;
+    // Issue du **dernier** fetch (message si échec 403/404/5xx/réseau, effacé sur
+    // un succès ultérieur). Sert à ne pas compter comme « succès, 0 offre » une
+    // source dont la récupération a échoué : beaucoup de scrapers avalent l'échec
+    // et renvoient `[]` par résilience (protection anti-purge), mais le statut
+    // doit rester « échec ». Ignoré si des offres ont quand même été produites
+    // (scraper multi-pages qui tolère l'échec d'une page tardive) ou si un repli
+    // a réussi ensuite (ex. Zoho : RSS en 403 → JSON de la page carrières).
+    let fetchError: string | undefined;
     const raw = await scraper.scrape(
       params,
-      createHttpContext(log, (explicit) => {
-        reachableEmpty = true;
-        explicitEmpty = explicit;
-      }),
+      createHttpContext(
+        log,
+        (explicit) => {
+          reachableEmpty = true;
+          explicitEmpty = explicit;
+        },
+        (errorMessage) => {
+          fetchError = errorMessage;
+        },
+      ),
     );
 
     const jobs: Job[] = [];
@@ -105,6 +119,22 @@ export async function runScraperInstance(
         continue;
       }
       jobs.push(job);
+    }
+
+    // Aucune offre ET la récupération a échoué (403/404/5xx/timeout) → c'est un
+    // échec, pas un « succès, 0 offre ». On marque la source en erreur et on ne
+    // synchronise pas (aucune purge : l'état existant est conservé, comme pour
+    // toute exception ci-dessous).
+    if (jobs.length === 0 && fetchError) {
+      await prisma.scrapeRun.update({
+        where: { id: run.id },
+        data: { status: "error", error: fetchError, finishedAt: new Date() },
+      });
+      log(`échec : ${fetchError}`);
+      return {
+        report: { sourceId, found: 0, inserted: 0, updated: 0, status: "error", error: fetchError },
+        jobs: [],
+      };
     }
 
     await annotateLinkStatus(jobs, log);
