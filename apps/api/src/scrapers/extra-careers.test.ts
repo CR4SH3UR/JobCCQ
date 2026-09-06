@@ -4,6 +4,7 @@ import type { RawJob } from "@jobccq/shared";
 import {
   extraCareersConfig,
   mergeRawJobsByUrl,
+  pickPeerEmployerId,
   withExtraCareersScraper,
 } from "./extra-careers.js";
 import type { Scraper } from "./types.js";
@@ -62,6 +63,33 @@ describe("mergeRawJobsByUrl", () => {
     assert.equal(merged[2]!.sourceId, "acme-ca");
     assert.equal(merged[2]!.url, "https://jobillico.com/x");
     assert.ok(merged[2]!.tags?.includes("via:jobillico"));
+  });
+});
+
+describe("pickPeerEmployerId", () => {
+  const employers = [
+    {
+      id: "cafortier-com",
+      careersUrl: "https://excavationcaf.ca/#carrieres",
+      homepage: "https://excavationcaf.ca",
+    },
+    {
+      id: "other-ca",
+      careersUrl: "https://other.ca/jobs",
+      homepage: "https://other.ca",
+    },
+  ];
+  const custom = new Set(["cafortier-com"]);
+
+  it("relie le 2e lien au scraper sur mesure du même hôte", () => {
+    assert.equal(
+      pickPeerEmployerId("https://excavationcaf.ca/#carrieres", employers, custom),
+      "cafortier-com",
+    );
+  });
+
+  it("ignore un hôte sans scraper perso", () => {
+    assert.equal(pickPeerEmployerId("https://other.ca/jobs", employers, custom), undefined);
   });
 });
 

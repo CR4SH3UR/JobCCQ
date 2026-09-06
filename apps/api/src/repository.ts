@@ -138,6 +138,7 @@ export interface UpsertResult {
 /** Champs comparés pour détecter un vrai changement de contenu. */
 const DIFF_SELECT = {
   url: true,
+  sourceId: true,
   title: true,
   company: true,
   location: true,
@@ -219,9 +220,9 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
   // Déduplication + upsert par **URL** (clé unique en base). Une même offre peut
   // être publiée par deux sources (ex. un employeur curé et son doublon
   // découvert partagent la même page Jobillico) : elles produisent la même URL
-  // sous des id différents. Cibler l'URL évite la violation `unique(url)` qui
-  // faisait planter tout le scrape ; la 1re source qui l'a insérée en garde
-  // l'attribution.
+  // sous des id différents. Cibler l'URL évite la violation `unique(url)`.
+  // On réécrit `sourceId` : le scrape courant récupère l'offre (ex. 2e site
+  // carrières dont les URLs vivaient déjà sous une autre fiche).
   const byUrl = new Map(jobs.map((j) => [j.url, j]));
   const unique = [...byUrl.values()];
 
@@ -246,6 +247,7 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
       where: { url: job.url },
       create: { ...data, historyJson },
       update: {
+        sourceId: data.sourceId,
         title: data.title,
         company: data.company,
         companyLogoUrl: data.companyLogoUrl,
@@ -268,7 +270,8 @@ export async function upsertJobs(jobs: Job[]): Promise<UpsertResult> {
     });
     if (prev) {
       updated += 1;
-      if (rowChanged(prev, data)) changed.push({ title: job.title, url: job.url });
+      if (prev.sourceId !== data.sourceId) added.push({ title: job.title, url: job.url });
+      else if (rowChanged(prev, data)) changed.push({ title: job.title, url: job.url });
     } else {
       inserted += 1;
       added.push({ title: job.title, url: job.url });

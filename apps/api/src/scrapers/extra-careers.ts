@@ -11,6 +11,34 @@ export type ExtraCareersEmployer = Pick<DiscoveredEmployer, "id" | "name" | "hom
 
 const normUrl = (u: string): string => u.trim().replace(/\/+$/, "").toLowerCase();
 
+function hostOf(url: string): string {
+  try {
+    const href = url.includes("://") ? url : `https://${url}`;
+    return new URL(href).hostname.replace(/^www\./i, "").toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Employeur qui a déjà un scraper sur mesure pour le même hôte que `extraUrl`
+ * (ex. excavationcaf.ca → cafortier-com). Sans ça, le 2e lien retombe sur le
+ * parseur HTML générique et rate les offres en texte libre.
+ */
+export function pickPeerEmployerId(
+  extraUrl: string,
+  employers: readonly { id: string; careersUrl: string; homepage?: string }[],
+  customIds: ReadonlySet<string>,
+): string | undefined {
+  const host = hostOf(extraUrl);
+  if (!host) return undefined;
+  const peer = employers.find((e) => {
+    if (!customIds.has(e.id)) return false;
+    return hostOf(e.careersUrl) === host || hostOf(e.homepage ?? "") === host;
+  });
+  return peer?.id;
+}
+
 const isJobillicoUrl = (url: string): boolean =>
   /jobillico\.com\/(?:[a-z]{2}\/)?(?:voir-entreprise|employeurs)\//i.test(url) ||
   /jobillico\.com\/.*voir-liste-emplois/i.test(url);
@@ -33,8 +61,13 @@ export function extraCareersConfig(
 }
 
 /** Union des offres : le 1er lien gagne en cas d'URL identique ; sourceId unifié. */
-export function mergeRawJobsByUrl(primary: RawJob[], extra: RawJob[], extraMethod?: string): RawJob[] {
-  const sourceId = primary[0]?.sourceId ?? extra[0]?.sourceId;
+export function mergeRawJobsByUrl(
+  primary: RawJob[],
+  extra: RawJob[],
+  extraMethod?: string,
+  sourceIdOverride?: string,
+): RawJob[] {
+  const sourceId = sourceIdOverride ?? primary[0]?.sourceId ?? extra[0]?.sourceId;
   const seen = new Set(primary.map((j) => j.url));
   const out = [...primary];
   const tag = extraMethod ? viaTag(extraMethod) : undefined;
@@ -81,7 +114,7 @@ export function withExtraCareersScraper(
       } catch (err) {
         ctx.log(`${d.id} — 2e carrière échouée : ${(err as Error).message}`);
       }
-      return mergeRawJobsByUrl(a, b, extra.method);
+      return mergeRawJobsByUrl(a, b, extra.method, d.id);
     },
   };
 }

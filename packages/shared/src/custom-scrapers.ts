@@ -23,7 +23,7 @@ export const CUSTOM_SCRAPER_IDS = [
   "refrabec",
   "amenagementgrenon-com",
   "guay",
-  "cafortier",
+  "cafortier-com",
   "canam",
   "groupe-canam-duplicate",
   "revenco",

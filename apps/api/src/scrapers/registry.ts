@@ -1,4 +1,9 @@
-import { CUSTOM_SCRAPER_IDS, DISCOVERED_EMPLOYERS, type CustomScraperId } from "@jobccq/shared";
+import {
+  CUSTOM_SCRAPER_IDS,
+  CUSTOM_SCRAPER_ID_SET,
+  DISCOVERED_EMPLOYERS,
+  type CustomScraperId,
+} from "@jobccq/shared";
 import type { Scraper } from "./types.js";
 import { atwillMorinScraper } from "./atwill-morin.js";
 import { hamelConstructionScraper } from "./hamel-construction.js";
@@ -64,7 +69,7 @@ import { canInspecScraper } from "./caninspec.js";
 import { cdPeintreScraper } from "./cdpeintre.js";
 import { casParCasScraper } from "./casparcas.js";
 import { buildDiscoveredScraper } from "./discovered.js";
-import { withExtraCareersScraper } from "./extra-careers.js";
+import { extraCareersConfig, pickPeerEmployerId, withExtraCareersScraper } from "./extra-careers.js";
 import { ccqConstructionScraper } from "./ccq-construction.js";
 
 /**
@@ -93,7 +98,7 @@ const BESPOKE = {
   refrabec: refrabecScraper,
   "amenagementgrenon-com": amenagementGrenonScraper,
   guay: guayScraper,
-  cafortier: cafortierScraper,
+  "cafortier-com": cafortierScraper,
   canam: canamScraper,
   "groupe-canam-duplicate": groupeCanamDuplicateScraper,
   revenco: revencoScraper,
@@ -154,7 +159,7 @@ const BESPOKE = {
 export const SCRAPERS: Record<string, Scraper> = Object.fromEntries(
   DISCOVERED_EMPLOYERS.filter((d) => d.enabled !== false).map((d) => [
     d.id,
-    withExtraCareersScraper(d, bespokeScraper(d.id) ?? buildDiscoveredScraper(d)),
+    withExtraCareersScraper(d, bespokeScraper(d.id) ?? buildDiscoveredScraper(d), extraBespokeFor(d)),
   ]),
 );
 
@@ -163,7 +168,7 @@ export function getScraper(id: string): Scraper | undefined {
   const d = DISCOVERED_EMPLOYERS.find((x) => x.id === id);
   const primary = d ? (bespokeScraper(id) ?? buildDiscoveredScraper(d)) : bespokeScraper(id);
   if (!primary) return undefined;
-  return d ? withExtraCareersScraper(d, primary) : primary;
+  return d ? withExtraCareersScraper(d, primary, extraBespokeFor(d)) : primary;
 }
 
 /**
@@ -173,6 +178,17 @@ export function getScraper(id: string): Scraper | undefined {
  */
 export function bespokeScraper(id: string): Scraper | undefined {
   return CUSTOM_SCRAPER_IDS.includes(id as CustomScraperId) ? BESPOKE[id as CustomScraperId] : undefined;
+}
+
+/** Scraper sur mesure d'un autre employeur du même hôte, pour `careersUrl2`. */
+export function extraBespokeFor(
+  d: { id: string; careersUrl: string; careersUrl2?: string; method2?: string },
+  employers: readonly { id: string; careersUrl: string; homepage?: string }[] = DISCOVERED_EMPLOYERS,
+): Scraper | undefined {
+  const cfg = extraCareersConfig(d);
+  if (!cfg) return undefined;
+  const peer = pickPeerEmployerId(cfg.careersUrl, employers, CUSTOM_SCRAPER_ID_SET);
+  return peer ? bespokeScraper(peer) : undefined;
 }
 
 export function listScraperIds(): string[] {

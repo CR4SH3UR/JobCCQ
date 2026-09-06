@@ -9,7 +9,7 @@ import type { DiscoveredEmployer, Job } from "@jobccq/shared";
 import { failingScrapers, mergeEmployerFields } from "@jobccq/shared";
 import { buildDiscoveredScraper } from "./scrapers/discovered.js";
 import { withExtraCareersScraper } from "./scrapers/extra-careers.js";
-import { bespokeScraper } from "./scrapers/registry.js";
+import { bespokeScraper, extraBespokeFor } from "./scrapers/registry.js";
 import { runScraperInstance } from "./orchestrator.js";
 import { prisma } from "./db.js";
 import { rowToJob, reassignJobsToEmployer, restoreJobs } from "./repository.js";
@@ -545,6 +545,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       const scraper = withExtraCareersScraper(
         employer,
         bespokeScraper(employer.id) ?? buildDiscoveredScraper(employer),
+        extraBespokeFor(employer, list),
       );
       const { report, jobs } = await runScraperInstance(scraper, {
         maxPages: req.body?.maxPages ?? 2,
