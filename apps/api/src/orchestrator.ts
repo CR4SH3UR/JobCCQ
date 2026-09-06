@@ -151,7 +151,7 @@ export async function runScraperInstance(
     const removed = "removed" in result ? result.removed : 0;
     const removedJobs: JobDiffEntry[] =
       "removedJobs" in result ? (result.removedJobs as JobDiffEntry[]) : [];
-    const rollbackJobs = "rollbackJobs" in result ? result.rollbackJobs : [];
+    const rollbackJobs = "rollbackJobs" in result ? (result.rollbackJobs as Job[]) : [];
     const diff = { added: result.added, changed: result.changed, removed: removedJobs };
     const runUpdate = {
       status: "success" as const,
