@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import type { Job } from "@jobccq/shared";
-import { jobsToCsv } from "@jobccq/shared";
+import { jobsToCsv, recommendJobs, type Job } from "@jobccq/shared";
 import { searchJobs, buildQuery } from "@/lib/data";
 import { JobCard } from "./JobCard";
+import { ForYouSection } from "./ForYouSection";
 import { useFavorites } from "@/lib/favorites";
+import { useApplications } from "@/lib/applications";
 import { downloadCsv } from "@/lib/format";
 import { siteUrl } from "@/lib/site";
 
@@ -18,6 +19,7 @@ import { siteUrl } from "@/lib/site";
  */
 export function FavorisView() {
   const favorites = useFavorites();
+  const applications = useApplications();
   const [allJobs, setAllJobs] = useState<Job[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +38,14 @@ export function FavorisView() {
     [allJobs, favorites],
   );
   const missing = allJobs ? favorites.size - items.length : 0;
+  const recs = useMemo(() => {
+    if (!allJobs) return [];
+    return recommendJobs(
+      allJobs,
+      { favoriteIds: [...favorites], appliedIds: [...applications] },
+      { limit: 6 },
+    );
+  }, [allJobs, favorites, applications]);
 
   return (
     <div>
@@ -98,6 +108,17 @@ export function FavorisView() {
             </p>
           )}
         </>
+      )}
+
+      {recs.length > 0 && (
+        <ForYouSection
+          embedded
+          jobs={recs.map((r) => r.job)}
+          reasonsById={new Map(recs.map((r) => [r.job.id, r.reasons]))}
+          title="D'autres offres pour toi"
+          subtitle="Proches de tes favoris et candidatures"
+          href="/emplois"
+        />
       )}
     </div>
   );

@@ -328,7 +328,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 ### 🤖 IA & recommandation
 
 - [x] 76. Recherche sémantique (ontologie des métiers de la construction — « poseur de gypse » ↔ « finisseur intérieur ») + mots-outils ignorés dans les requêtes-phrases
-- [ ] 77. Recommandations « offres pour toi » à partir des favoris/candidatures (filtrage collaboratif simple)
+- [x] 77. Recommandations « offres pour toi » à partir des favoris/candidatures (filtrage collaboratif simple)
 - [ ] 78. Appariement CV → offres : téléverser un CV, extraire métiers/compétences, classer les offres
 - [ ] 79. Assistant conversationnel « trouve-moi un emploi » (langage naturel → filtres) via l'API Claude
 - [ ] 80. Génération d'une lettre de présentation adaptée à l'offre (brouillon éditable)
@@ -353,7 +353,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 ### 🛡️ Confiance, intégrité & conformité
 
 - [ ] 92. Détection d'offres frauduleuses (salaire aberrant, courriel gratuit, « paiement à l'avance »)
-- [ ] 93. Signalement d'une offre par les utilisateurs (expirée / trompeuse / doublon) + file de modération
+- [x] 93. Signalement d'une offre par les utilisateurs (expirée / trompeuse / doublon) + file de modération
 - [ ] 94. Détection d'employeurs fantômes (aucune licence RBQ + aucune présence web)
 - [ ] 95. Journal de conformité scraping (respect `robots.txt`, throttling, ToS) consultable par source
 - [ ] 96. Politique de rétention & anonymisation (Loi 25 QC) + purge automatique

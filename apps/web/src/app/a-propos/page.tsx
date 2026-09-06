@@ -53,13 +53,14 @@ export default function AProposPage() {
 
       <h2>Signaler une erreur ou demander un retrait</h2>
       <p>
-        Une information est inexacte, ou vous souhaitez qu'une offre ou une fiche soit corrigée ou
-        retirée ? Écrivez-nous à{" "}
+        Sur chaque fiche d'offre, le bouton <strong>Signaler</strong> permet d'indiquer qu'une offre
+        est expirée, trompeuse ou en doublon — la file arrive dans la console d'administration. Vous
+        pouvez aussi nous écrire à{" "}
         <ContactEmailButton
           label={LEGAL.contactEmail}
           className="text-brand-600 underline underline-offset-2 hover:text-brand-700"
         />{" "}
-        — nous traiterons votre demande rapidement.
+        pour une correction ou un retrait.
       </p>
 
       <h2>En savoir plus</h2>

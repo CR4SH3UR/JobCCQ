@@ -32,6 +32,7 @@ import { AlsoOnBadge } from "./AlsoOnBadge";
 import { FavoriteButton } from "./FavoriteButton";
 import { AppliedButton } from "./AppliedButton";
 import { ApplyLink } from "./ApplyLink";
+import { ReportJobButton } from "./ReportJobButton";
 import { formatSalary, initials, timeAgo } from "@/lib/format";
 import { getJobById, getSimilarJobs } from "@/lib/data";
 import { mergeLiveJob } from "@/lib/merge-job";
@@ -218,6 +219,7 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
               <AppliedButton id={job.id} />
               <FavoriteButton id={job.id} />
               <CompareDetailButton id={job.id} />
+              <ReportJobButton job={job} />
             </div>
             {lastApplyClickAt && (
               <p className="mt-2 text-xs text-slate-500">

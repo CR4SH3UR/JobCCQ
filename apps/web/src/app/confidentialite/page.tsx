@@ -33,7 +33,8 @@ export default function ConfidentialitePage() {
         </li>
         <li>
           <strong>Préférences locales</strong> — thème (clair/sombre) et favoris hors connexion,
-          stockés dans votre navigateur (<em>localStorage</em>), jamais transmis à nos serveurs.
+          stockés dans votre navigateur (<em>localStorage</em>). Un miroir des signalements déjà
+          envoyés y figure aussi (l'envoi lui-même sert à la modération).
         </li>
       </ul>
       <p>
@@ -47,6 +48,7 @@ export default function ConfidentialitePage() {
         <li>Vous authentifier et synchroniser vos favoris entre vos appareils.</li>
         <li>Vous envoyer, si vous y consentez, des alertes courriel sur de nouvelles offres.</li>
         <li>Assurer la sécurité et le bon fonctionnement du service.</li>
+        <li>Traiter les signalements d'offres (expirée, trompeuse, doublon) pour la modération.</li>
       </ul>
 
       <h2>Consentement</h2>
@@ -65,7 +67,8 @@ export default function ConfidentialitePage() {
       <p>Nous faisons appel à des fournisseurs qui traitent des données pour notre compte :</p>
       <ul>
         <li>
-          <strong>Supabase</strong> — authentification et base de données (favoris, alertes).
+          <strong>Supabase</strong> — authentification et base de données (favoris, alertes,
+          signalements).
         </li>
         <li>
           <strong>Resend</strong> — envoi des courriels d'alerte et de connexion.

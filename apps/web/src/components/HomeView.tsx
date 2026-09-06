@@ -9,6 +9,7 @@ import {
   labelForRegion,
   profileIsSet,
   rankJobsByProfile,
+  recommendJobs,
   type HiringCompany,
   type Job,
 } from "@jobccq/shared";
@@ -19,7 +20,10 @@ import { initials } from "@/lib/format";
 import { JobCard } from "./JobCard";
 import { SponsorBanner } from "./SponsorBanner";
 import { OnboardingCard } from "./OnboardingCard";
+import { ForYouSection } from "./ForYouSection";
 import { useProfile } from "@/lib/profile";
+import { useFavorites } from "@/lib/favorites";
+import { useApplications } from "@/lib/applications";
 import { filtersToQueryString, profileToFilters } from "@/lib/search-url";
 
 /** Régions « fourre-tout » à ne pas proposer comme raccourci de navigation. */
@@ -32,35 +36,59 @@ export function HomeView() {
   const [companies, setCompanies] = useState<HiringCompany[]>([]);
   const [latest, setLatest] = useState<Job[]>([]);
   const [forYou, setForYou] = useState<Job[]>([]);
+  const [forYouReasons, setForYouReasons] = useState<Map<string, string[]>>(new Map());
+  const [forYouMode, setForYouMode] = useState<"collaborative" | "profile" | "none">("none");
   const [offline, setOffline] = useState(false);
   const profile = useProfile();
+  const favorites = useFavorites();
+  const applications = useApplications();
 
   const load = useCallback(() => {
+    const signals = { favoriteIds: [...favorites], appliedIds: [...applications] };
+    const hasSignals = signals.favoriteIds.length + signals.appliedIds.length > 0;
     const personalized = profileIsSet(profile);
     Promise.all([
       getStats(),
       searchCompanies(buildQuery({})),
       searchJobs(buildQuery({ sort: "recent", pageSize: 6 })),
-      personalized
-        ? searchJobs(
-            buildQuery({
-              trades: profile.trades.length ? profile.trades : undefined,
-              regions: profile.regions.length ? profile.regions : undefined,
-              remote: profile.remote.length ? profile.remote : undefined,
-              sort: "recent",
-              pageSize: 40,
-            }),
-          )
-        : Promise.resolve(null),
+      hasSignals
+        ? searchJobs(buildQuery({ sort: "recent", pageSize: 400 }))
+        : personalized
+          ? searchJobs(
+              buildQuery({
+                trades: profile.trades.length ? profile.trades : undefined,
+                regions: profile.regions.length ? profile.regions : undefined,
+                remote: profile.remote.length ? profile.remote : undefined,
+                sort: "recent",
+                pageSize: 40,
+              }),
+            )
+          : Promise.resolve(null),
     ])
-      .then(([s, c, j, mine]) => {
+      .then(([s, c, j, pool]) => {
         setStats(s);
         setCompanies(c.companies.slice(0, 8));
         setLatest(j.items.slice(0, 6));
-        setForYou(mine ? rankJobsByProfile(mine.items, profile).slice(0, 6) : []);
+        if (hasSignals && pool) {
+          const recs = recommendJobs(pool.items, signals, { profile, limit: 6 });
+          if (recs.length) {
+            setForYou(recs.map((r) => r.job));
+            setForYouReasons(new Map(recs.map((r) => [r.job.id, r.reasons])));
+            setForYouMode("collaborative");
+            return;
+          }
+        }
+        setForYouReasons(new Map());
+        if (personalized && pool) {
+          setForYou(rankJobsByProfile(pool.items, profile).slice(0, 6));
+          setForYouMode("profile");
+        } else {
+          setForYou([]);
+          setForYouMode("none");
+        }
       })
       .catch(() => setOffline(true));
-  }, [profile]);
+  }, [profile, favorites, applications]);
 
   useEffect(() => {
     load();
@@ -224,25 +252,25 @@ export function HomeView() {
         </section>
       )}
 
-      {/* Offres pour le profil visiteur */}
-      {forYou.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pb-4">
-          <div className="mb-4 flex items-end justify-between">
-            <h2 className="text-xl font-bold tracking-tight">Pour toi</h2>
-            <Link
-              href={`/emplois?${filtersToQueryString(profileToFilters(profile))}`}
-              className="text-sm font-semibold text-brand-600 hover:underline"
-            >
-              Voir toutes →
-            </Link>
-          </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            {forYou.map((job) => (
-              <JobCard key={job.id} job={job} />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Offres pour le visiteur : favoris/candidatures, sinon profil métier */}
+      <ForYouSection
+        jobs={forYou}
+        reasonsById={forYouMode === "collaborative" ? forYouReasons : undefined}
+        subtitle={
+          forYouMode === "collaborative"
+            ? "D'après tes favoris et candidatures"
+            : forYouMode === "profile"
+              ? "Selon tes métiers et régions"
+              : undefined
+        }
+        href={
+          forYouMode === "profile"
+            ? `/emplois?${filtersToQueryString(profileToFilters(profile))}`
+            : forYouMode === "collaborative"
+              ? "/emplois"
+              : undefined
+        }
+      />
 
       {/* Dernières offres */}
       {latest.length > 0 && (
