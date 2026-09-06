@@ -384,6 +384,7 @@ export const SORT_OPTIONS = [
   "salary_asc",
   "company",
   "relevance",
+  "distance",
 ] as const;
 export type SortOption = (typeof SORT_OPTIONS)[number];
 

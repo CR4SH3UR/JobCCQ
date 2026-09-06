@@ -247,6 +247,8 @@ function toParams(q: JobQuery): URLSearchParams {
   if (q.ccqOnly) p.set("ccqOnly", "1");
   if (q.trades?.length) p.set("trades", q.trades.join(","));
   if (q.shifts?.length) p.set("shifts", q.shifts.join(","));
+  if (q.near) p.set("near", q.near);
+  if (q.radiusKm != null) p.set("radiusKm", String(q.radiusKm));
   p.set("sort", q.sort);
   p.set("page", String(q.page));
   p.set("pageSize", String(q.pageSize));

@@ -140,7 +140,7 @@ npm run scrape -- pomerleau         # une source
 | `GET` | `/api/meta` | Taxonomies (pour construire l'UI) |
 | `POST` | `/api/scrape` | Déclenche un scraping |
 
-Filtres de `/api/jobs` : `q`, `company`, `regions`, `cities`, `categories`, `employmentTypes`, `remote`, `sources`, `languages`, `salaryMin`, `postedWithinDays`, `sort`, `page`, `pageSize`, `trades`, `shifts` (les tableaux sont séparés par des virgules).
+Filtres de `/api/jobs` : `q`, `company`, `regions`, `cities`, `categories`, `employmentTypes`, `remote`, `sources`, `languages`, `salaryMin`, `postedWithinDays`, `sort`, `page`, `pageSize`, `trades`, `shifts`, `near`, `radiusKm` (les tableaux sont séparés par des virgules).
 
 ---
 
@@ -200,12 +200,12 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 
 ### 🔎 Recherche & découverte
 
-- [ ] 1. Recherche géographique par rayon (« à moins de X km de mon code postal ») en plus des 17 régions
-- [ ] 2. Carte interactive des offres (Leaflet/MapLibre) par région/ville
+- [x] 1. Recherche géographique par rayon (« à moins de X km de mon code postal ») en plus des 17 régions
+- [x] 2. Carte interactive des offres (Leaflet/MapLibre) par région/ville
 - [x] 3. Autocomplétion dans la barre de recherche (métiers, entreprises, villes)
 - [x] 4. Correction de fautes de frappe + synonymes de métiers (« charpentier » ↔ « menuisier »)
 - [x] 5. Filtre « nouveautés » (offres ajoutées depuis ma dernière visite)
-- [ ] 6. Tri par distance (en plus de pertinence / date / salaire)
+- [x] 6. Tri par distance (en plus de pertinence / date / salaire)
 - [x] 7. Recherches enregistrées (combinaison de filtres nommée — dans ce navigateur)
 - [x] 8. URL de recherche partageables (filtres encodés dans l'URL)
 - [x] 9. Pages de résultats préconstruites SEO (`/emplois/region/monteregie`, `/emplois/metier/electricien`)

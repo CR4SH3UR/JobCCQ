@@ -48,6 +48,8 @@ function parseJobQuery(raw: Record<string, unknown>): JobQuery {
     ccqOnly: raw.ccqOnly === "1" || raw.ccqOnly === true,
     trades: asArray(raw.trades),
     shifts: asArray(raw.shifts)?.filter((s) => s === "jour" || s === "soir" || s === "nuit"),
+    near: raw.near,
+    radiusKm: raw.radiusKm,
     sort: raw.sort,
     page: raw.page,
     pageSize: raw.pageSize,

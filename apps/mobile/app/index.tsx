@@ -35,6 +35,7 @@ const SORT_LABELS: Record<SortOption, string> = {
   salary_desc: "Salaire (élevé → bas)",
   salary_asc: "Salaire (bas → élevé)",
   company: "Entreprise (A → Z)",
+  distance: "Distance",
 };
 
 type FetchMode = "replace" | "append" | "refresh";

@@ -13,6 +13,7 @@ import {
   WORK_SHIFT_FILTERS,
   ccqTradeById,
   profileIsSet,
+  RADIUS_KM_OPTIONS,
   type JobQuery,
   type JobSearchResult,
   type SortOption,
@@ -55,6 +56,7 @@ const SORT_LABELS: Record<SortOption, string> = {
   salary_desc: "Salaire (élevé → bas)",
   salary_asc: "Salaire (bas → élevé)",
   company: "Entreprise (A → Z)",
+  distance: "Distance",
 };
 
 const POSTED_OPTIONS = [
@@ -115,6 +117,8 @@ export function EmploisExplorer() {
   const [ccqOnly, setCcqOnly] = useState(false);
   const [trades, setTrades] = useState<string[]>([]);
   const [shifts, setShifts] = useState<string[]>([]);
+  const [near, setNear] = useState("");
+  const [radiusKm, setRadiusKm] = useState("");
   const [sort, setSort] = useState<SortOption>("recent");
   const [page, setPage] = useState(1);
 
@@ -145,6 +149,8 @@ export function EmploisExplorer() {
     setCcqOnly(f.ccqOnly);
     setTrades(f.trades);
     setShifts(f.shifts);
+    setNear(f.near);
+    setRadiusKm(f.radiusKm);
     setSort(f.sort);
     setPage(f.page);
   }, []);
@@ -198,6 +204,8 @@ export function EmploisExplorer() {
   const dq = useDebounce(q);
   const dcity = useDebounce(city);
 
+  const dnear = useDebounce(near);
+
   const query = useMemo<JobQuery>(
     () =>
       buildQuery({
@@ -217,11 +225,13 @@ export function EmploisExplorer() {
         ccqOnly: ccqOnly || undefined,
         trades: trades.length ? trades : undefined,
         shifts: shifts.length ? (shifts as JobQuery["shifts"]) : undefined,
-        sort,
+        near: dnear || undefined,
+        radiusKm: radiusKm ? Number(radiusKm) : dnear ? 50 : undefined,
+        sort: sort === "distance" && !dnear ? "recent" : sort,
         page,
         pageSize: PAGE_SIZE,
       }),
-    [dq, dcity, sel, salaryMin, salaryListed, postedWithinDays, lastVisit, ccqOnly, trades, shifts, sort, page],
+    [dq, dcity, dnear, sel, salaryMin, salaryListed, postedWithinDays, lastVisit, ccqOnly, trades, shifts, radiusKm, sort, page],
   );
 
   // État des filtres courant (immédiat) — pour enregistrer une recherche et
@@ -242,10 +252,12 @@ export function EmploisExplorer() {
       ccqOnly,
       trades,
       shifts,
+      near,
+      radiusKm,
       sort,
       page,
     }),
-    [q, city, sel, salaryMin, salaryListed, postedWithinDays, ccqOnly, trades, shifts, sort, page],
+    [q, city, sel, salaryMin, salaryListed, postedWithinDays, ccqOnly, trades, shifts, near, radiusKm, sort, page],
   );
 
   // URL partageable : on reflète les filtres (débounce sur mot-clé/ville) dans la
@@ -316,6 +328,8 @@ export function EmploisExplorer() {
     setCcqOnly(false);
     setTrades([]);
     setShifts([]);
+    setNear("");
+    setRadiusKm("");
     setSort("recent");
     setPage(1);
   };
@@ -329,7 +343,9 @@ export function EmploisExplorer() {
     (postedWithinDays ? 1 : 0) +
     (ccqOnly ? 1 : 0) +
     trades.length +
-    shifts.length;
+    shifts.length +
+    (near ? 1 : 0) +
+    (radiusKm ? 1 : 0);
 
   // Libellé lisible de la recherche courante (pour nommer une alerte).
   const alertLabel = (): string => {
@@ -521,6 +537,11 @@ export function EmploisExplorer() {
                 Quart {WORK_SHIFT_FILTERS.find((x) => x.id === id)?.label ?? id}
               </Chip>
             ))}
+            {near && (
+              <Chip onClear={() => { setNear(""); setRadiusKm(""); }}>
+                ≤ {radiusKm || 50} km de {near}
+              </Chip>
+            )}
             <button
               type="button"
               onClick={resetAll}
@@ -630,6 +651,41 @@ export function EmploisExplorer() {
                   <span className="text-sm text-slate-700">{s.label}</span>
                 </label>
               ))}
+            </div>
+
+            {/* Distance */}
+            <div className="border-b border-slate-100 py-3">
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                À moins de
+              </h4>
+              <input
+                type="text"
+                value={near}
+                onChange={(e) => {
+                  setNear(e.target.value);
+                  setPage(1);
+                  if (e.target.value && sort === "recent") setSort("distance");
+                }}
+                placeholder="Code postal ou ville"
+                aria-label="Origine (code postal ou ville)"
+                className="mb-2 w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm outline-none focus:border-brand-400"
+              />
+              <select
+                value={radiusKm}
+                onChange={(e) => {
+                  setRadiusKm(e.target.value);
+                  setPage(1);
+                }}
+                disabled={!near}
+                className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm outline-none focus:border-brand-400 disabled:opacity-50"
+              >
+                <option value="">50 km (défaut)</option>
+                {RADIUS_KM_OPTIONS.map((n) => (
+                  <option key={n} value={String(n)}>
+                    {n} km
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Salaire */}

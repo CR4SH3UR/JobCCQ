@@ -53,4 +53,10 @@ describe("search-url — codec des filtres", () => {
     assert.equal(parseFiltersFromQueryString(qs).trades.join(","), "electricien,plombier");
     assert.equal(filtersToQueryString(parseFiltersFromQueryString(qs)), qs);
   });
+
+  it("encode le rayon et l'origine", () => {
+    const qs = filtersToQueryString({ ...EMPTY_FILTERS, near: "H2X 1Y4", radiusKm: "50" });
+    assert.equal(parseFiltersFromQueryString(qs).near, "H2X 1Y4");
+    assert.equal(parseFiltersFromQueryString(qs).radiusKm, "50");
+  });
 });

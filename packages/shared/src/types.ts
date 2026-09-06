@@ -53,6 +53,12 @@ export const JobSchema = z.object({
   linkStatus: z.enum(["ok", "gone", "unknown"]).optional(),
 
   /**
+   * Distance (km) à l'origine de la recherche « près de ». Calculée à la
+   * lecture, pas persistée.
+   */
+  distanceKm: z.number().nonnegative().optional(),
+
+  /**
    * Autres sources du même poste (doublons inter-portails). Calculé à la
    * lecture (`collapseDuplicates` / `attachDuplicateAlts`), pas persisté.
    */
@@ -101,6 +107,7 @@ export const SORT_OPTIONS = [
   "salary_asc",
   "company",
   "relevance",
+  "distance",
 ] as const;
 export type SortOption = (typeof SORT_OPTIONS)[number];
 
@@ -130,6 +137,10 @@ export const JobQuerySchema = z.object({
   trades: z.array(z.string()).optional(),
   /** Quart de travail détecté dans la description (jour / soir / nuit). */
   shifts: z.array(z.enum(["jour", "soir", "nuit"])).optional(),
+  /** Code postal ou ville d'origine pour le filtre rayon / tri distance. */
+  near: z.string().trim().optional(),
+  /** Rayon en km autour de `near` (ignoré sans origine résoluble). */
+  radiusKm: z.coerce.number().int().positive().max(500).optional(),
   sort: z.enum(SORT_OPTIONS).default("recent"),
   page: z.coerce.number().int().positive().default(1),
   pageSize: z.coerce.number().int().positive().max(100).default(20),

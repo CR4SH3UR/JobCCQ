@@ -87,6 +87,9 @@ export function JobCard({ job }: { job: Job }) {
               </span>
             )}
             {place && <span className="text-slate-500"> · {place}</span>}
+            {job.distanceKm != null && (
+              <span className="text-slate-500"> · {job.distanceKm} km</span>
+            )}
           </p>
 
           <div className="mt-2.5 flex flex-wrap items-center gap-1.5">

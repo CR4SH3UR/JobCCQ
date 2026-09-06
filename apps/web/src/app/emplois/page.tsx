@@ -30,6 +30,10 @@ export default function EmploisPage() {
               comparateur
             </Link>
             {" · "}
+            <Link href="/emplois/carte/" className="font-medium text-brand-700 hover:underline">
+              carte
+            </Link>
+            {" · "}
             <a href="/emplois.rss" className="font-medium text-brand-700 hover:underline">
               flux RSS
             </a>

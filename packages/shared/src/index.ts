@@ -22,6 +22,7 @@ export * from "./scraper-health.js";
 export * from "./preview-html.js";
 export * from "./profile-match.js";
 export * from "./postal.js";
+export * from "./geo.js";
 export * from "./duplicates.js";
 export * from "./hiring-history.js";
 export * from "./merge-employers.js";

@@ -26,6 +26,7 @@ import { expandTerm } from "./synonyms.js";
 import { detectShift } from "./extract.js";
 import { annualizedSalary } from "./salary.js";
 import { collapseDuplicates } from "./duplicates.js";
+import { coordsForJob, haversineKm, originFromNear } from "./geo.js";
 
 const norm = normalizeText;
 
@@ -106,6 +107,13 @@ export function matchesQuery(job: Job, query: JobQuery): boolean {
     const shift = detectShift(job.title, job.description);
     if (!shift || !query.shifts.includes(shift)) return false;
   }
+  if (query.radiusKm != null && query.near) {
+    if (job.remote === "teletravail") return true;
+    const origin = originFromNear(query.near);
+    const here = coordsForJob(job);
+    if (!origin || !here) return false;
+    if (haversineKm(origin, here) > query.radiusKm) return false;
+  }
   return true;
 }
 
@@ -117,6 +125,8 @@ function compareBySort(sort: SortOption): (a: Job, b: Job) => number {
       return (a, b) => (annualizedSalary(a) ?? Infinity) - (annualizedSalary(b) ?? Infinity);
     case "company":
       return (a, b) => a.company.localeCompare(b.company, "fr");
+    case "distance":
+      return (a, b) => (a.distanceKm ?? 1e9) - (b.distanceKm ?? 1e9);
     case "recent":
     case "relevance":
     default:
@@ -186,14 +196,22 @@ export function computeFacets(jobs: Job[]): JobFacets {
  */
 export function applyQuery(jobs: Job[], query: JobQuery): JobSearchResult {
   const filtered = collapseDuplicates(jobs.filter((j) => matchesQuery(j, query)));
+  const origin = originFromNear(query.near);
+  const withDist: Job[] = origin
+    ? filtered.map((j) => {
+        const c = coordsForJob(j);
+        if (!c) return j;
+        return { ...j, distanceKm: Math.round(haversineKm(origin, c)) };
+      })
+    : filtered;
 
-  const facets = computeFacets(filtered);
+  const facets = computeFacets(withDist);
 
   let sorted: Job[];
   if (query.sort === "relevance" && query.q) {
-    sorted = [...filtered].sort((a, b) => relevanceScore(b, query.q!) - relevanceScore(a, query.q!));
+    sorted = [...withDist].sort((a, b) => relevanceScore(b, query.q!) - relevanceScore(a, query.q!));
   } else {
-    sorted = [...filtered].sort(compareBySort(query.sort));
+    sorted = [...withDist].sort(compareBySort(query.sort));
   }
 
   const total = sorted.length;

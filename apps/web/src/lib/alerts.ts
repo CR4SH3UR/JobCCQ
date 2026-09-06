@@ -28,6 +28,8 @@ export function filterQuery(q: JobQuery): Partial<JobQuery> {
   if (q.postedSince) out.postedSince = q.postedSince;
   if (q.trades?.length) out.trades = q.trades;
   if (q.shifts?.length) out.shifts = q.shifts;
+  if (q.near) out.near = q.near;
+  if (q.radiusKm != null) out.radiusKm = q.radiusKm;
   return out as Partial<JobQuery>;
 }
 

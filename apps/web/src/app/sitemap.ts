@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const pages: MetadataRoute.Sitemap = [
     { url: siteUrl("/"), changeFrequency: "daily", priority: 1 },
     { url: siteUrl("/emplois/"), changeFrequency: "daily", priority: 0.9 },
+    { url: siteUrl("/emplois/carte/"), changeFrequency: "daily", priority: 0.7 },
     { url: siteUrl("/emplois/region/"), changeFrequency: "weekly", priority: 0.6 },
     { url: siteUrl("/emplois/metier/"), changeFrequency: "weekly", priority: 0.6 },
     { url: siteUrl("/entreprises/"), changeFrequency: "weekly", priority: 0.7 },

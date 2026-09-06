@@ -26,6 +26,10 @@ export interface SearchFilters {
   /** Métiers CCQ (ids). */
   trades: string[];
   shifts: string[];
+  /** Code postal ou ville (filtre rayon). */
+  near: string;
+  /** Rayon en km (vide = pas de filtre distance). */
+  radiusKm: string;
   sort: SortOption;
   page: number;
 }
@@ -45,6 +49,8 @@ export const EMPTY_FILTERS: SearchFilters = {
   ccqOnly: false,
   trades: [],
   shifts: [],
+  near: "",
+  radiusKm: "",
   sort: "recent",
   page: 1,
 };
@@ -69,6 +75,8 @@ export function hasActiveFilters(f: SearchFilters): boolean {
     f.ccqOnly ||
     f.trades.length > 0 ||
     f.shifts.length > 0 ||
+    !!f.near ||
+    !!f.radiusKm ||
     MULTI_KEYS.some((k) => f[k].length > 0)
   );
 }
@@ -85,6 +93,8 @@ export function filtersToParams(f: SearchFilters): URLSearchParams {
   if (f.ccqOnly) p.set("ccqOnly", "1");
   if (f.trades.length) p.set("trades", f.trades.join(","));
   if (f.shifts.length) p.set("shifts", f.shifts.join(","));
+  if (f.near) p.set("near", f.near);
+  if (f.radiusKm) p.set("radiusKm", f.radiusKm);
   if (f.sort && f.sort !== "recent") p.set("sort", f.sort);
   if (f.page > 1) p.set("page", String(f.page));
   return p;
@@ -121,6 +131,8 @@ export function parseFilters(params: URLSearchParams): SearchFilters {
     ccqOnly: params.get("ccqOnly") === "1",
     trades: splitList(params.get("trades")),
     shifts: splitList(params.get("shifts")).filter((s) => s === "jour" || s === "soir" || s === "nuit"),
+    near: params.get("near") ?? "",
+    radiusKm: params.get("radiusKm") ?? "",
     sort,
     page: Number.isFinite(pageRaw) && pageRaw > 1 ? Math.floor(pageRaw) : 1,
   };
