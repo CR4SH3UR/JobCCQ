@@ -76,6 +76,58 @@ describe("mergeRawJobsByUrl", () => {
     assert.equal(merged.length, 2);
     assert.ok(merged.every((j) => j.sourceId === "charles-auguste-fortier-inc-caf"));
   });
+
+  it("à URL identique, garde la version la plus complète", () => {
+    const thin: RawJob = job("https://acme.ca/j/1", "Soudeur");
+    const rich: RawJob = {
+      ...job("https://acme.ca/j/1", "Soudeur certifié", "other"),
+      location: "Québec, QC",
+      salaryMin: 28,
+      salaryMax: 34,
+      salaryPeriod: "heure",
+      description: "Poste de soudeur en chantier, quart de jour, avantages sociaux inclus. ".repeat(3),
+      employmentType: "temps-plein",
+    };
+    const merged = mergeRawJobsByUrl([thin], [rich], "html");
+    assert.equal(merged.length, 1);
+    assert.equal(merged[0]!.title, "Soudeur certifié");
+    assert.equal(merged[0]!.salaryMin, 28);
+    assert.equal(merged[0]!.location, "Québec, QC");
+    assert.ok((merged[0]!.description?.length ?? 0) >= 80);
+  });
+
+  it("même titre sur 2 sites : une seule offre, celle qui a le plus de champs", () => {
+    const site = job("https://excavationcaf.ca/#soudeur", "Soudeur");
+    const portal: RawJob = {
+      ...job("https://www.jobillico.com/fr/emploi/123", "Soudeur", "other"),
+      location: "Québec",
+      employmentType: "temps-plein",
+      description: "Recherche un soudeur d'expérience pour nos chantiers de la Capitale-Nationale. ".repeat(2),
+    };
+    const merged = mergeRawJobsByUrl([site], [portal], "jobillico");
+    assert.equal(merged.length, 1);
+    assert.match(merged[0]!.url, /jobillico/);
+    assert.equal(merged[0]!.location, "Québec");
+    assert.ok(merged[0]!.tags?.includes("via:jobillico"));
+  });
+
+  it("complète les champs vides de l'offre retenue avec l'autre source", () => {
+    const withPay: RawJob = {
+      ...job("https://acme.ca/j/1", "Coffreur"),
+      salaryMin: 32,
+      salaryPeriod: "heure",
+    };
+    const withPlace: RawJob = {
+      ...job("https://www.jobillico.com/fr/emploi/9", "Coffreur", "other"),
+      location: "Lévis",
+      employmentType: "temps-plein",
+    };
+    const merged = mergeRawJobsByUrl([withPay], [withPlace], "jobillico");
+    assert.equal(merged.length, 1);
+    assert.equal(merged[0]!.salaryMin, 32);
+    assert.equal(merged[0]!.location, "Lévis");
+    assert.equal(merged[0]!.employmentType, "temps-plein");
+  });
 });
 
 describe("pickPeerEmployerId", () => {

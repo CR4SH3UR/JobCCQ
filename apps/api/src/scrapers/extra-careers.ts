@@ -1,5 +1,5 @@
 import type { DiscoveredEmployer, DiscoveredMethod, RawJob } from "@jobccq/shared";
-import { viaTag } from "@jobccq/shared";
+import { normalizeTitle, viaTag } from "@jobccq/shared";
 import { buildDiscoveredScraper } from "./discovered.js";
 import type { Scraper } from "./types.js";
 
@@ -79,7 +79,80 @@ export function extraCareersConfig(
   return { careersUrl: url2, method: guessExtraMethod(url2, d.method2) };
 }
 
-/** Union des offres : le 1er lien gagne en cas d'URL identique ; sourceId unifié. */
+/** Combien de champs utiles sont remplis (salaire, lieu, description…). */
+function rawJobScore(j: RawJob): number {
+  let n = 0;
+  if (j.salaryMin != null || j.salaryMax != null) n += 10;
+  if (j.location) n += 10;
+  if (j.description && j.description.length >= 80) n += 10;
+  if (j.employmentType) n += 10;
+  if (j.postedAt) n += 10;
+  n += Math.min(8, Math.floor((j.description?.length ?? 0) / 80));
+  return n;
+}
+
+/** Lien de candidature réel > ancre `#poste` d'une page d'accueil. */
+function urlQuality(url: string): number {
+  if (/jobillico|indeed|workday|greenhouse|lever|smartrecruiters/i.test(url)) return 2;
+  try {
+    const u = new URL(url);
+    if (u.hash && !u.search) return 0;
+  } catch {
+    /* ignore */
+  }
+  return 1;
+}
+
+function preferRawJob(a: RawJob, b: RawJob): RawJob {
+  const sa = rawJobScore(a);
+  const sb = rawJobScore(b);
+  if (sa !== sb) return sa > sb ? a : b;
+  const ua = urlQuality(a.url);
+  const ub = urlQuality(b.url);
+  if (ua !== ub) return ua > ub ? a : b;
+  return a;
+}
+
+function samePlace(a?: string, b?: string): boolean {
+  const la = (a ?? "").trim().toLowerCase();
+  const lb = (b ?? "").trim().toLowerCase();
+  if (!la || !lb) return true;
+  return la === lb;
+}
+
+/** Même URL, ou même titre (lieu compatible) — un poste publié sur les 2 sites. */
+export function isSameRawJob(a: RawJob, b: RawJob): boolean {
+  if (normUrl(a.url) === normUrl(b.url)) return true;
+  const ta = normalizeTitle(a.title);
+  const tb = normalizeTitle(b.title);
+  if (!ta || ta !== tb) return false;
+  return samePlace(a.location, b.location);
+}
+
+/** Garde la fiche la plus complète et y verse les champs manquants de l'autre. */
+export function mergeRicherRawJob(a: RawJob, b: RawJob): RawJob {
+  const keep = preferRawJob(a, b);
+  const other = keep === a ? b : a;
+  const description =
+    (keep.description?.length ?? 0) >= (other.description?.length ?? 0)
+      ? keep.description
+      : other.description;
+  return {
+    ...keep,
+    location: keep.location || other.location,
+    remote: keep.remote || other.remote,
+    employmentType: keep.employmentType || other.employmentType,
+    salaryMin: keep.salaryMin ?? other.salaryMin,
+    salaryMax: keep.salaryMax ?? other.salaryMax,
+    salaryPeriod: keep.salaryPeriod || other.salaryPeriod,
+    description: description || other.description,
+    postedAt: keep.postedAt || other.postedAt,
+    companyLogoUrl: keep.companyLogoUrl || other.companyLogoUrl,
+    tags: [...new Set([...(keep.tags ?? []), ...(other.tags ?? [])])],
+  };
+}
+
+/** Union des offres : on garde la version la plus complète ; sourceId unifié. */
 export function mergeRawJobsByUrl(
   primary: RawJob[],
   extra: RawJob[],
@@ -88,14 +161,26 @@ export function mergeRawJobsByUrl(
 ): RawJob[] {
   const sourceId = sourceIdOverride ?? primary[0]?.sourceId ?? extra[0]?.sourceId;
   const remap = (j: RawJob): RawJob => (sourceId && j.sourceId !== sourceId ? { ...j, sourceId } : j);
-  const seen = new Set(primary.map((j) => j.url));
-  const out = primary.map(remap);
   const tag = extraMethod ? viaTag(extraMethod) : undefined;
-  for (const j of extra) {
-    if (seen.has(j.url)) continue;
-    seen.add(j.url);
+  const taggedExtra = extra.map((j) => {
     const tagged = tag && !(j.tags ?? []).includes(tag) ? { ...j, tags: [...(j.tags ?? []), tag] } : j;
-    out.push(remap(tagged));
+    return remap(tagged);
+  });
+  const out: RawJob[] = [];
+  const usedExtra = new Set<number>();
+
+  for (const p of primary.map(remap)) {
+    const ei = taggedExtra.findIndex((e, i) => !usedExtra.has(i) && isSameRawJob(p, e));
+    if (ei >= 0) {
+      usedExtra.add(ei);
+      out.push(mergeRicherRawJob(p, taggedExtra[ei]!));
+    } else {
+      out.push(p);
+    }
+  }
+  for (let i = 0; i < taggedExtra.length; i++) {
+    if (usedExtra.has(i)) continue;
+    out.push(taggedExtra[i]!);
   }
   return out;
 }
