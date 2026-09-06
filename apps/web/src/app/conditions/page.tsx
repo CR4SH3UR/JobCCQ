@@ -88,7 +88,15 @@ export default function ConditionsPage() {
         Les présentes conditions sont régies par les lois applicables dans la {LEGAL.jurisdiction}.
       </p>
 
-      <h2>10. Modifications</h2>
+      <h2>10. Commandites</h2>
+      <p>
+        {LEGAL.siteName} peut afficher des <strong>placements payants</strong> (bannière, employeur
+        en vedette, offre épinglée). Ils sont <strong>toujours identifiés</strong> (« Commandité »,
+        « Épinglée »). Ils ne remplacent pas les offres agrégées et n'utilisent pas de témoins
+        publicitaires. Détail des packs : <a href="/commandite">page commandite</a>.
+      </p>
+
+      <h2>11. Modifications</h2>
       <p>
         Nous pouvons modifier ces conditions ; la date de mise à jour figure en haut de la page.
       </p>

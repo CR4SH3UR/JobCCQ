@@ -18,10 +18,11 @@ import {
   type JobQuery,
   type JobSearchResult,
   type SortOption,
+  type Job,
   type SuggestEntry,
   jobsToRss,
 } from "@jobccq/shared";
-import { searchJobs, buildQuery, invalidateJobsCache, getSearchVocabulary } from "@/lib/data";
+import { searchJobs, getJobById, buildQuery, invalidateJobsCache, getSearchVocabulary } from "@/lib/data";
 import { useLivePoll } from "@/lib/live";
 import {
   filtersToQueryString,
@@ -39,7 +40,7 @@ import { FacetGroup } from "./FacetGroup";
 import { Pagination } from "./Pagination";
 import { Badge } from "./Badge";
 import { SponsorBanner } from "./SponsorBanner";
-import { isSponsoredEmployer } from "@/lib/sponsors";
+import { PINNED_JOB_IDS, isSponsoredEmployer, pinJobsFirst } from "@/lib/sponsors";
 import { cn, timeAgo } from "@/lib/format";
 import { useAuth } from "@/lib/auth";
 import { createAlert, filterQuery } from "@/lib/alerts";
@@ -132,6 +133,7 @@ export function EmploisExplorer() {
   const { user, enabled: authEnabled } = useAuth();
   const recentApplyClicks = useRecentApplyClicks();
   const [alertMsg, setAlertMsg] = useState<string | null>(null);
+  const [pinnedJobs, setPinnedJobs] = useState<Job[]>([]);
 
   // Applique un état de filtres complet à l'UI (amorçage URL, recherche
   // enregistrée). `page` par défaut à 1 sauf indication contraire.
@@ -292,6 +294,20 @@ export function EmploisExplorer() {
     };
   }, [query]);
 
+  useEffect(() => {
+    if (!PINNED_JOB_IDS.length) {
+      setPinnedJobs([]);
+      return;
+    }
+    let alive = true;
+    Promise.all(PINNED_JOB_IDS.map((id) => getJobById(id))).then((jobs) => {
+      if (alive) setPinnedJobs(jobs.filter((j): j is Job => !!j));
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   // Rafraîchissement silencieux (polling + notification admin cross-onglet).
   const refresh = useCallback(() => {
     searchJobs(query)
@@ -405,13 +421,15 @@ export function EmploisExplorer() {
   const resumeClick = recentApplyClicks[0];
   const resumeAgo = resumeClick ? timeAgo(new Date(resumeClick.at).toISOString()) : null;
 
-  // Offres « en vedette » (commanditées) remontées en tête de la page courante.
+  // Employeurs Or/Argent remontés sur la page ; Bronze (épinglées) en tête de la page 1.
   const items = useMemo(() => {
     if (!result) return [];
-    return [...result.items].sort(
+    const ranked = [...result.items].sort(
       (a, b) => Number(isSponsoredEmployer(b.sourceId)) - Number(isSponsoredEmployer(a.sourceId)),
     );
-  }, [result]);
+    if (page !== 1 || !pinnedJobs.length) return ranked;
+    return pinJobsFirst([...pinnedJobs, ...ranked], PINNED_JOB_IDS);
+  }, [result, page, pinnedJobs]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">

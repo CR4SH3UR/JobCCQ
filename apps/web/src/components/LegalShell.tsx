@@ -16,6 +16,9 @@ export function LegalShell({ title, children }: { title: string; children: React
       <div className="legal-prose mt-6 space-y-4 text-slate-600">{children}</div>
 
       <div className="mt-10 flex flex-wrap gap-x-4 gap-y-1 border-t border-slate-200 pt-4 text-sm">
+        <Link href="/commandite" className="text-brand-600 hover:underline">
+          Commandite
+        </Link>
         <Link href="/a-propos" className="text-brand-600 hover:underline">
           À propos
         </Link>

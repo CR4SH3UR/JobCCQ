@@ -21,7 +21,7 @@ import { Badge } from "./Badge";
 import { MatchBadge } from "./MatchBadge";
 import { AlsoOnBadge } from "./AlsoOnBadge";
 import { cn, formatSalary, initials, timeAgo } from "@/lib/format";
-import { isSponsoredEmployer } from "@/lib/sponsors";
+import { isPinnedJob, isSponsoredEmployer } from "@/lib/sponsors";
 import { toggleFavorite, useIsFavorite } from "@/lib/favorites";
 import { toggleApplied, useHasApplied } from "@/lib/applications";
 import { COMPARE_MAX, toggleCompare, useCompareIds, useIsCompared } from "@/lib/compare";
@@ -37,6 +37,7 @@ export function JobCard({ job }: { job: Job }) {
   const posted = timeAgo(job.postedAt ?? job.scrapedAt);
   const sectors = sectorsForJob(job);
   const sponsored = isSponsoredEmployer(job.sourceId);
+  const pinned = isPinnedJob(job.id);
   const applied = useHasApplied(job.id);
   const lastApplyClickAt = useLastApplyClickAt(job.id);
   const ccq = ccqTradeLabel(job.title);
@@ -57,7 +58,7 @@ export function JobCard({ job }: { job: Job }) {
         "card group p-4 transition-shadow hover:shadow-md",
         // Offre déjà postulée : contour vert (prioritaire sur le liseré
         // « commandité » ambre). Sinon, liseré ambre pour les commandités.
-        applied ? "ring-2 ring-green-400" : sponsored && "ring-2 ring-amber-300",
+        applied ? "ring-2 ring-green-400" : pinned ? "ring-2 ring-orange-400" : sponsored && "ring-2 ring-amber-300",
       )}
     >
       <div className="flex gap-3">
@@ -115,6 +116,11 @@ export function JobCard({ job }: { job: Job }) {
                 }
               >
                 {ccqWage ? `CCQ · ${formatCcqHourly(ccqWage.hourly)}` : "CCQ"}
+              </Badge>
+            )}
+            {pinned && (
+              <Badge tone="amber" title="Offre commanditée, épinglée en tête des résultats">
+                ★ Épinglée
               </Badge>
             )}
             {sponsored && <Badge tone="amber">★ Commandité</Badge>}
