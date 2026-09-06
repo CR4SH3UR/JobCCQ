@@ -2,7 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { DISCOVERED_EMPLOYERS } from "@jobccq/shared";
-import { SPONSOR_CONFIG, type Sponsor, type SponsorConfig } from "@/lib/sponsors";
+import {
+  SPONSOR_CONFIG,
+  parsePinnedList,
+  parseSponsorTier,
+  type PinnedJob,
+  type Sponsor,
+  type SponsorConfig,
+} from "@/lib/sponsors";
 
 /**
  * Éditeur des commandites (console d'administration).
@@ -47,6 +54,8 @@ function readToken(): string {
 export function AdminSponsors() {
   const [cfg, setCfg] = useState<SponsorConfig>(SPONSOR_CONFIG);
   const [featInput, setFeatInput] = useState("");
+  const [pinId, setPinId] = useState("");
+  const [pinUntil, setPinUntil] = useState("");
   const [status, setStatus] = useState<{ k: "idle" | "run" | "ok" | "err"; msg?: string }>({ k: "idle" });
 
   // Charge la version la plus récente committée (évite de repartir d'un bundle périmé).
@@ -60,7 +69,12 @@ export function AdminSponsors() {
         );
         if (r.ok) {
           const d = (await r.json()) as SponsorConfig;
-          setCfg({ contactEmail: d.contactEmail ?? "", sponsors: d.sponsors ?? [], featured: d.featured ?? [] });
+          setCfg({
+            contactEmail: d.contactEmail ?? "",
+            sponsors: d.sponsors ?? [],
+            featured: d.featured ?? [],
+            pinned: parsePinnedList(d.pinned),
+          });
         }
       } catch {
         /* garde le bundle */
@@ -83,6 +97,24 @@ export function AdminSponsors() {
       { id: `sponsor-${cfg.sponsors.length + 1}`, name: "", tagline: "", url: "", tier: "argent" },
     ]);
   const removeSponsor = (i: number) => setSponsors(cfg.sponsors.filter((_, idx) => idx !== i));
+
+  const addPinned = () => {
+    const jobId = pinId.trim();
+    if (!jobId || cfg.pinned.some((p) => p.jobId === jobId)) return;
+    const until = pinUntil.trim().slice(0, 10);
+    const next: PinnedJob = until ? { jobId, until } : { jobId };
+    setCfg((c) => ({ ...c, pinned: [...c.pinned, next] }));
+    setPinId("");
+  };
+  const removePinned = (jobId: string) =>
+    setCfg((c) => ({ ...c, pinned: c.pinned.filter((p) => p.jobId !== jobId) }));
+  const patchPinned = (jobId: string, until: string) =>
+    setCfg((c) => ({
+      ...c,
+      pinned: c.pinned.map((p) =>
+        p.jobId === jobId ? { jobId, ...(until.trim() ? { until: until.trim().slice(0, 10) } : {}) } : p,
+      ),
+    }));
 
   const addFeatured = (raw: string) => {
     const id = raw.trim();
@@ -112,10 +144,17 @@ export function AdminSponsors() {
             name: s.name.trim(),
             tagline: s.tagline.trim(),
             url: s.url.trim(),
-            tier: s.tier ?? "argent",
+            tier: parseSponsorTier(s.tier),
             ...(s.logoUrl?.trim() ? { logoUrl: s.logoUrl.trim() } : {}),
           })),
         featured: [...new Set(cfg.featured.map((f) => f.trim()).filter(Boolean))],
+        pinned: cfg.pinned
+          .map((p) => {
+            const jobId = p.jobId.trim();
+            const until = (p.until ?? "").trim().slice(0, 10);
+            return jobId ? (until ? { jobId, until } : { jobId }) : null;
+          })
+          .filter((p): p is PinnedJob => !!p),
       };
       const cur = await fetch(`${base}?ref=main`, { headers: GH_HEADERS(token) });
       const sha = cur.ok ? (await cur.json()).sha : undefined;
@@ -175,11 +214,12 @@ export function AdminSponsors() {
                     <span className="text-xs font-medium text-slate-500">Niveau :</span>
                     <select
                       value={s.tier ?? "argent"}
-                      onChange={(e) => updateSponsor(i, { tier: e.target.value as "or" | "argent" })}
+                      onChange={(e) => updateSponsor(i, { tier: parseSponsorTier(e.target.value) })}
                       className="rounded border border-slate-300 px-2 py-1 text-xs"
                     >
-                      <option value="or">🥇 Or (bannière vedette, rotative)</option>
-                      <option value="argent">🥈 Argent (grille compacte)</option>
+                      <option value="or">Or (bannière vedette, rotative)</option>
+                      <option value="argent">Argent (grille compacte)</option>
+                      <option value="bronze">Bronze (bandeau compact)</option>
                     </select>
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2">
@@ -220,7 +260,7 @@ export function AdminSponsors() {
 
           {/* Employeurs en vedette */}
           <div>
-            <h3 className="mb-2 font-semibold text-slate-700">Employeurs en vedette (offres épinglées + badge)</h3>
+            <h3 className="mb-2 font-semibold text-slate-700">Employeurs en vedette (pack Or — badge + carte accueil)</h3>
             <div className="mb-2 flex flex-wrap gap-1.5">
               {cfg.featured.length === 0 && <span className="text-slate-500">Aucun employeur en vedette.</span>}
               {cfg.featured.map((id) => (
@@ -258,6 +298,57 @@ export function AdminSponsors() {
                 className="rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-semibold hover:bg-slate-100"
               >
                 + Mettre en vedette
+              </button>
+            </div>
+          </div>
+
+          {/* Offres Bronze épinglées */}
+          <div>
+            <h3 className="mb-2 font-semibold text-slate-700">
+              Offres épinglées (pack Bronze — 7 jours, 2 max. en tête de liste)
+            </h3>
+            <div className="mb-2 space-y-2">
+              {cfg.pinned.length === 0 && <p className="text-slate-500">Aucune offre épinglée.</p>}
+              {cfg.pinned.map((p) => (
+                <div key={p.jobId} className="flex flex-wrap items-center gap-2">
+                  <code className="rounded bg-slate-100 px-2 py-1 text-xs text-slate-800">{p.jobId}</code>
+                  <input
+                    type="date"
+                    value={p.until ?? ""}
+                    onChange={(e) => patchPinned(p.jobId, e.target.value)}
+                    className="rounded border border-slate-300 px-2 py-1 text-xs"
+                    title="Date de fin (incluse)"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removePinned(p.jobId)}
+                    className="text-xs font-medium text-red-600 hover:underline"
+                  >
+                    Retirer
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                value={pinId}
+                onChange={(e) => setPinId(e.target.value)}
+                placeholder="Id d'offre (ex. 84d4276fd589a5b3)"
+                className="min-w-[16rem] flex-1 rounded border border-slate-300 px-2 py-1 font-mono text-xs"
+              />
+              <input
+                type="date"
+                value={pinUntil}
+                onChange={(e) => setPinUntil(e.target.value)}
+                className="rounded border border-slate-300 px-2 py-1 text-xs"
+                title="Fin d'épingle (incluse)"
+              />
+              <button
+                type="button"
+                onClick={addPinned}
+                className="rounded-lg border border-slate-300 px-2.5 py-1 text-xs font-semibold hover:bg-slate-100"
+              >
+                + Épingler
               </button>
             </div>
           </div>

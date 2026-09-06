@@ -1,35 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ContactEmailButton } from "@/components/ContactEmailButton";
-import { SPONSORS, SPONSOR_CONTACT_EMAIL, type Sponsor } from "@/lib/sponsors";
+import Link from "next/link";
+import { SPONSORS, type Sponsor } from "@/lib/sponsors";
 import { cn, initials } from "@/lib/format";
 import { optimizedLogoUrl } from "@/lib/logo-url";
 
 /**
- * Bannière de commandite — niveaux **or** (bannière vedette, rotative) et
- * **argent** (grille compacte). S'il n'y a aucun commanditaire, affiche l'encart
- * « Votre entreprise ici ». Configuration éditable dans la console d'admin.
+ * Bannière de commandite — **or** (vedette rotative), **argent** (grille),
+ * **bronze** (bandeau compact). S'il n'y a aucun commanditaire, affiche
+ * l'encart « Votre entreprise ici » vers `/commandite`.
  */
 const ROTATE_MS = 6000;
 
 export function SponsorBanner({ className = "" }: { className?: string }) {
   const gold = SPONSORS.filter((s) => s.tier === "or");
-  const silver = SPONSORS.filter((s) => s.tier !== "or");
+  const silver = SPONSORS.filter((s) => (s.tier ?? "argent") === "argent");
+  const bronze = SPONSORS.filter((s) => s.tier === "bronze");
 
   // La bannière vedette (rotative) prend le niveau le plus élevé présent.
   const hero = gold.length ? gold : silver;
   const heroGold = gold.length > 0;
   const grid = gold.length ? silver : [];
 
-  if (hero.length === 0) {
-    if (!SPONSOR_CONTACT_EMAIL) return null;
+  if (hero.length === 0 && bronze.length === 0) {
     return <EmptyPrompt className={className} />;
   }
 
   return (
     <div className={className}>
-      <Rotator list={hero} gold={heroGold} />
+      {hero.length > 0 && <Rotator list={hero} gold={heroGold} />}
       {grid.length > 0 && (
         <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {grid.map((s) => (
@@ -37,6 +37,7 @@ export function SponsorBanner({ className = "" }: { className?: string }) {
           ))}
         </div>
       )}
+      {bronze.length > 0 && <BronzeStrip list={bronze} className={hero.length ? "mt-2" : ""} />}
     </div>
   );
 }
@@ -120,7 +121,7 @@ function BannerCard({ s, gold }: { s: Sponsor; gold: boolean }) {
             : "bg-slate-200 text-slate-600",
         )}
       >
-        {gold ? "🥇 Or" : "🥈 Argent"}
+        {gold ? "Or" : "Argent"}
       </span>
 
       <Logo s={s} size={gold ? "lg" : "md"} gold={gold} />
@@ -159,7 +160,7 @@ function SilverMini({ s }: { s: Sponsor }) {
       className="group relative flex items-center gap-3 overflow-hidden rounded-xl border border-slate-300 bg-gradient-to-br from-slate-100 to-white p-3.5 shadow-sm transition-shadow hover:shadow-md"
     >
       <span className="absolute right-0 top-0 rounded-bl-lg bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-600">
-        🥈 Argent
+        Argent
       </span>
       <Logo s={s} size="sm" gold={false} />
       <div className="min-w-0 pr-12">
@@ -170,20 +171,28 @@ function SilverMini({ s }: { s: Sponsor }) {
   );
 }
 
-function Logo({ s, size, gold }: { s: Sponsor; size: "sm" | "md" | "lg"; gold: boolean }) {
-  const dim = size === "lg" ? "h-16 w-16" : size === "md" ? "h-12 w-12" : "h-11 w-11";
-  const src = optimizedLogoUrl(s.logoUrl, size === "lg" ? 128 : size === "md" ? 96 : 88);
+function Logo({ s, size, gold }: { s: Sponsor; size: "xs" | "sm" | "md" | "lg"; gold: boolean }) {
+  const dim =
+    size === "lg" ? "h-16 w-16" : size === "md" ? "h-12 w-12" : size === "sm" ? "h-11 w-11" : "h-6 w-6";
+  const src = optimizedLogoUrl(
+    s.logoUrl,
+    size === "lg" ? 128 : size === "md" ? 96 : size === "sm" ? 88 : 48,
+  );
   if (src) {
     // eslint-disable-next-line @next/next/no-img-element
     return (
       <img
         src={src}
         alt={s.name}
-        width={size === "lg" ? 64 : size === "md" ? 48 : 44}
-        height={size === "lg" ? 64 : size === "md" ? 48 : 44}
+        width={size === "lg" ? 64 : size === "md" ? 48 : size === "sm" ? 44 : 24}
+        height={size === "lg" ? 64 : size === "md" ? 48 : size === "sm" ? 44 : 24}
         loading="lazy"
         decoding="async"
-        className={cn(dim, "shrink-0 rounded-xl bg-white object-contain p-1 ring-1 ring-slate-200")}
+        className={cn(
+          dim,
+          "shrink-0 bg-white object-contain ring-1 ring-slate-200",
+          size === "xs" ? "rounded-md p-0.5" : "rounded-xl p-1",
+        )}
       />
     );
   }
@@ -191,7 +200,8 @@ function Logo({ s, size, gold }: { s: Sponsor; size: "sm" | "md" | "lg"; gold: b
     <span
       className={cn(
         dim,
-        "grid shrink-0 place-items-center rounded-xl text-sm font-bold ring-1",
+        "grid shrink-0 place-items-center font-bold ring-1",
+        size === "xs" ? "rounded-md text-[10px]" : "rounded-xl text-sm",
         gold
           ? "bg-white text-amber-700 ring-amber-200 dark:bg-amber-950/30"
           : "bg-brand-50 text-brand-700 ring-brand-100",
@@ -202,13 +212,35 @@ function Logo({ s, size, gold }: { s: Sponsor; size: "sm" | "md" | "lg"; gold: b
   );
 }
 
+/** Bandeau compact (niveau bronze) : logos + nom, sous Or/Argent. */
+function BronzeStrip({ list, className }: { list: Sponsor[]; className?: string }) {
+  return (
+    <div className={cn("flex flex-wrap items-center gap-2", className)}>
+      <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+        Bronze
+      </span>
+      {list.map((s) => (
+        <a
+          key={s.id}
+          href={s.url}
+          target="_blank"
+          rel="sponsored noopener noreferrer"
+          title={s.tagline || s.name}
+          className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50/70 px-2.5 py-1 text-xs font-medium text-orange-950 hover:border-orange-300 hover:bg-orange-50 dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-orange-100"
+        >
+          <Logo s={s} size="xs" gold={false} />
+          <span className="max-w-[10rem] truncate">{s.name}</span>
+        </a>
+      ))}
+    </div>
+  );
+}
+
 /** Encart « Votre entreprise ici » quand aucun commanditaire n'est configuré. */
 function EmptyPrompt({ className }: { className: string }) {
   return (
-    <ContactEmailButton
-      email={SPONSOR_CONTACT_EMAIL}
-      label="Devenir commanditaire"
-      subject="Commandite JobCCQc"
+    <Link
+      href="/commandite"
       className={cn(
         "card group flex w-full items-center justify-between gap-4 border-dashed p-4 text-left text-sm transition-colors hover:border-brand-400 hover:bg-brand-50/40",
         className,
@@ -221,13 +253,14 @@ function EmptyPrompt({ className }: { className: string }) {
         <div>
           <p className="font-semibold text-slate-800">Votre entreprise ici</p>
           <p className="text-slate-500">
-            Rejoignez une audience de la construction au Québec — commanditez JobCCQc.
+            Trois packs — Argent, Or, Bronze (offre épinglée). Tarifs et contact sur la page
+            commandite.
           </p>
         </div>
       </div>
       <span className="hidden shrink-0 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white transition-transform group-hover:scale-105 sm:inline">
-        Devenir commanditaire
+        Voir les packs
       </span>
-    </ContactEmailButton>
+    </Link>
   );
 }

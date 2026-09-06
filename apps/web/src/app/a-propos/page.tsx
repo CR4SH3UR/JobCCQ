@@ -65,8 +65,9 @@ export default function AProposPage() {
 
       <h2>En savoir plus</h2>
       <p>
-        Consultez notre <a href="/confidentialite">politique de confidentialité</a> et nos{" "}
-        <a href="/conditions">conditions d'utilisation</a>.
+        Consultez notre <a href="/confidentialite">politique de confidentialité</a>, nos{" "}
+        <a href="/conditions">conditions d'utilisation</a> et la page{" "}
+        <a href="/commandite">commandite</a> (placements identifiés, sans cookies publicitaires).
       </p>
     </LegalShell>
   );
