@@ -46,7 +46,7 @@ export const CCQ_WORKFORCE: Readonly<Record<string, number | null>> = {
   "operateur-equipement-lourd": 14740,
   peintre: 6862,
   platrier: 4116,
-  plombier: 11353,
+  plombier: null,
   "poseur-revetements-souples": 1336,
   "poseur-systemes-interieurs": 3021,
   "serrurier-batiment": null,

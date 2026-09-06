@@ -56,7 +56,7 @@ TRADE_LABELS: dict[str, list[str]] = {
     "operateur-equipement-lourd": ["Opérateur de pelles", "Opérateur d'équipement lourd"],
     "peintre": ["Peintre"],
     "platrier": ["Plâtrier"],
-    "plombier": ["Tuyauteur"],
+    "plombier": [],
     "poseur-revetements-souples": ["Poseur de revêtements souples"],
     "poseur-systemes-interieurs": ["Poseur de systèmes intérieurs"],
     "serrurier-batiment": [],

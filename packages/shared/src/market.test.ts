@@ -50,7 +50,7 @@ describe("ccq-workforce", () => {
     assert.equal(workforceFor("electricien"), 25149);
     assert.equal(workforceFor("charpentier-menuisier"), 56432);
     assert.equal(workforceFor("operateur-equipement-lourd"), 14740);
-    assert.equal(workforceFor("plombier"), 11353);
+    assert.equal(workforceFor("plombier"), null);
     assert.equal(workforceFor("contremaitre"), null);
   });
 
