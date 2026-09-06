@@ -36,9 +36,22 @@ export function downloadCsv(filename: string, csv: string): void {
   downloadBlob(filename, new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }));
 }
 
-/** Télécharge une invitation calendrier (.ics). */
+/** Télécharge une invitation calendrier (.ics) — export groupé. */
 export function downloadIcs(filename: string, ics: string): void {
   downloadBlob(filename, new Blob([ics], { type: "text/calendar;charset=utf-8" }));
+}
+
+/** URI `data:` pour qu'un clic ouvre l'app calendrier (sans `download`). */
+export function icsDataUri(ics: string): string {
+  return `data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`;
+}
+
+/** Ouvre le .ics dans l'app calendrier du système, au lieu de forcer un fichier. */
+export function openIcs(ics: string): void {
+  const a = document.createElement("a");
+  a.href = icsDataUri(ics);
+  a.rel = "noopener";
+  a.click();
 }
 
 /** Initiales d'une entreprise (pour l'avatar de repli). */
