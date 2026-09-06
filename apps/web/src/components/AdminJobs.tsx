@@ -6,7 +6,12 @@ import type { Job } from "@jobccq/shared";
 import { ensureTursoAdminColumns, tursoCreds, tursoExec, tursoRows } from "@/lib/admin-turso";
 import { AdminOfferEditor, type OfferPatch, type OfferRow, type SaveState } from "./AdminOfferEditor";
 import { logAudit } from "@/lib/admin-audit";
-import { attachOffConstruction, fetchJobOverrides, upsertJobOverride } from "@/lib/job-overrides";
+import {
+  attachOffConstruction,
+  fetchJobOverrides,
+  isModerationHidden,
+  upsertJobOverride,
+} from "@/lib/job-overrides";
 import { supabaseEnabled } from "@/lib/supabase";
 
 function whenMs(v: unknown): number | null {
@@ -16,11 +21,17 @@ function whenMs(v: unknown): number | null {
   return Number.isNaN(t) ? null : t;
 }
 
-async function withFlags<T extends OfferRow>(rows: T[]): Promise<(T & { offConstruction: boolean })[]> {
+async function withFlags<T extends OfferRow>(
+  rows: T[],
+): Promise<(T & { offConstruction: boolean; hidden: boolean })[]> {
   try {
-    return attachOffConstruction(rows, await fetchJobOverrides());
+    const overrides = await fetchJobOverrides();
+    return attachOffConstruction(rows, overrides).map((r) => ({
+      ...r,
+      hidden: isModerationHidden(overrides.get(r.id)),
+    }));
   } catch {
-    return rows.map((r) => ({ ...r, offConstruction: false }));
+    return rows.map((r) => ({ ...r, offConstruction: false, hidden: false }));
   }
 }
 
@@ -96,7 +107,7 @@ export function AdminJobs() {
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [rows, setRows] = useState<(OfferRow & { sourceId?: string })[]>([]);
+  const [rows, setRows] = useState<(OfferRow & { sourceId?: string; hidden?: boolean })[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [mode, setMode] = useState<"api" | "turso" | "static">("static");
@@ -303,6 +314,11 @@ export function AdminJobs() {
                 {o.offConstruction && (
                   <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">
                     hors construction
+                  </span>
+                )}
+                {o.hidden && (
+                  <span className="ml-2 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-800">
+                    masquée
                   </span>
                 )}
               </button>

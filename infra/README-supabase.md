@@ -401,6 +401,57 @@ create policy "admins read apply_clicks" on public.apply_clicks
   using ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']));
 ```
 
+# Signalements d'offres (modération)
+
+Chaque fiche a un bouton **Signaler** (expirée / trompeuse / doublon) :
+
+- **localStorage** (`jobccq:job-reports`) — un signalement par offre et par navigateur ;
+- **table `job_reports`** — insert anonyme ou authentifié, lecture/maj **admin**.
+
+La console `/admin` → **Signalements** liste la file. « Masquer du site » pose
+`hidden: true` sur le patch `job_overrides` (même overlay que les éditions).
+
+## Table + RLS (SQL, une seule fois)
+
+**SQL Editor → New query**, colle et exécute (remplace le courriel admin) :
+
+```sql
+create table if not exists public.job_reports (
+  id           uuid        primary key default gen_random_uuid(),
+  job_id       text        not null,
+  source_id    text,
+  title        text,
+  company      text,
+  url          text,
+  reason       text        not null check (reason in ('expired', 'misleading', 'duplicate')),
+  comment      text,
+  reporter_id  uuid        references auth.users (id) on delete set null,
+  status       text        not null default 'pending'
+               check (status in ('pending', 'reviewed', 'dismissed', 'actioned')),
+  created_at   timestamptz not null default now(),
+  reviewed_at  timestamptz,
+  reviewed_by  text
+);
+
+create index if not exists job_reports_status_idx on public.job_reports (status, created_at desc);
+create index if not exists job_reports_job_idx on public.job_reports (job_id);
+
+alter table public.job_reports enable row level security;
+
+create policy "insert job_reports" on public.job_reports
+  for insert to anon, authenticated
+  with check (coalesce(status, 'pending') = 'pending');
+
+create policy "admins read job_reports" on public.job_reports
+  for select to authenticated
+  using ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']));
+
+create policy "admins update job_reports" on public.job_reports
+  for update to authenticated
+  using ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']))
+  with check ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']));
+```
+
 # Notifications push Expo (app mobile)
 
 L'app enregistre un **jeton Expo** dans `push_tokens`. Après chaque scrape, le

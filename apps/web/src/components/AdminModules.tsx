@@ -7,8 +7,9 @@ import { AdminSponsors } from "@/components/AdminSponsors";
 import { AdminUsers } from "@/components/AdminUsers";
 import { AdminDashboard } from "@/components/AdminDashboard";
 import { AdminJobs } from "@/components/AdminJobs";
+import { AdminReports } from "@/components/AdminReports";
 
-type AdminModuleKey = "overview" | "users" | "sources" | "jobs" | "sponsors" | "regions";
+type AdminModuleKey = "overview" | "users" | "sources" | "jobs" | "reports" | "sponsors" | "regions";
 
 const MODULES: Array<{
   key: AdminModuleKey;
@@ -41,6 +42,12 @@ const MODULES: Array<{
     action: "Gérer",
   },
   {
+    key: "reports",
+    title: "Signalements",
+    description: "Offres signalées, file de modération.",
+    action: "Traiter",
+  },
+  {
     key: "sponsors",
     title: "Sponsors",
     description: "Commandites et employeurs en vedette.",
@@ -65,7 +72,7 @@ export function AdminModules() {
           Centre de contrôle JobCCQc
         </h1>
         <p className="mt-1 max-w-2xl text-sm text-slate-600 dark:text-slate-300">
-          Modules : tableau de bord, comptes, sources, offres, commandites et régions.
+          Modules : tableau de bord, comptes, sources, offres, signalements, commandites et régions.
         </p>
       </header>
 
@@ -94,6 +101,7 @@ export function AdminModules() {
       {active === "users" ? <AdminUsers /> : null}
       {active === "sources" ? <AdminExplorer /> : null}
       {active === "jobs" ? <AdminJobs /> : null}
+      {active === "reports" ? <AdminReports /> : null}
       {active === "sponsors" ? <AdminSponsors /> : null}
       {active === "regions" ? <AdminRegions /> : null}
     </div>

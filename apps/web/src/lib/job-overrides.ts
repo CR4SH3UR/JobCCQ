@@ -61,6 +61,16 @@ export function isOffConstruction(patch?: StoredPatch | null): boolean {
   return patch?.offConstruction === true;
 }
 
+/** Masquée suite à un signalement (file de modération). */
+export function isModerationHidden(patch?: StoredPatch | null): boolean {
+  return patch?.hidden === true;
+}
+
+/** Hors construction ou masquée par modération — absente du site public. */
+export function isHiddenFromPublic(patch?: StoredPatch | null): boolean {
+  return isOffConstruction(patch) || isModerationHidden(patch);
+}
+
 /**
  * Overlay admin sans masquer : sert la console (pour dé-flagger une offre).
  */
@@ -77,7 +87,7 @@ export function overlayJobs(jobs: Job[], overrides: Map<string, StoredPatch>): J
  * Sert le site public (recherche, fiches, stats).
  */
 export function publicJobs(jobs: Job[], overrides: Map<string, StoredPatch>): Job[] {
-  return overlayJobs(jobs, overrides).filter((j) => !isOffConstruction(overrides.get(j.id)));
+  return overlayJobs(jobs, overrides).filter((j) => !isHiddenFromPublic(overrides.get(j.id)));
 }
 
 /** Pose le flag overlay sur des lignes admin (l'offre reste visible dans la console). */
@@ -154,8 +164,12 @@ function normalizePatch(patch: OfferPatch): StoredPatch {
 export async function upsertJobOverride(jobId: string, patch: OfferPatch): Promise<void> {
   const { supabase } = await import("./supabase");
   if (!supabase) throw new Error("Supabase n'est pas configuré.");
+  const stored = normalizePatch(patch);
+  const existing = (await fetchJobOverrides()).get(jobId);
+  // Une édition depuis l'éditeur ne doit pas lever un masquage posé par un signalement.
+  if (existing?.hidden === true) stored.hidden = true;
   const { error } = await supabase.from("job_overrides").upsert(
-    { job_id: jobId, patch: normalizePatch(patch), updated_at: new Date().toISOString() },
+    { job_id: jobId, patch: stored, updated_at: new Date().toISOString() },
     { onConflict: "job_id" },
   );
   if (error) throw new Error(error.message);
@@ -169,5 +183,21 @@ export async function deleteJobOverride(jobId: string): Promise<void> {
   const { supabase } = await import("./supabase");
   if (!supabase) throw new Error("Supabase n'est pas configuré.");
   const { error } = await supabase.from("job_overrides").delete().eq("job_id", jobId);
+  if (error) throw new Error(error.message);
+}
+
+/**
+ * Pose ou lève le flag `hidden` sans écraser le reste du patch (titre, etc.).
+ * Sert la file de signalements : masquer une offre du site public.
+ */
+export async function setJobHidden(jobId: string, hidden: boolean): Promise<void> {
+  const { supabase } = await import("./supabase");
+  if (!supabase) throw new Error("Supabase n'est pas configuré.");
+  const existing = (await fetchJobOverrides()).get(jobId) ?? {};
+  const patch: StoredPatch = { ...existing, hidden };
+  const { error } = await supabase.from("job_overrides").upsert(
+    { job_id: jobId, patch, updated_at: new Date().toISOString() },
+    { onConflict: "job_id" },
+  );
   if (error) throw new Error(error.message);
 }
