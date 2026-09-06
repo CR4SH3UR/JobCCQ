@@ -40,7 +40,42 @@ describe("jobs-shards", () => {
     const { manifest: next } = buildManifest([j("a", "montreal"), j("c", "laval")]);
     const plan = planSnapshotFetch(manifest, next);
     assert.equal(plan.kind, "shards");
-    if (plan.kind === "shards") assert.deepEqual(plan.keys, ["laval"]);
+    if (plan.kind === "shards") {
+      assert.deepEqual(plan.keys, ["laval"]);
+      assert.deepEqual(plan.drop, []);
+    }
+  });
+
+  it("retire du cache fusionné les shards disparus", () => {
+    const cachedJobs = [j("m1", "montreal"), j("l1", "laval")];
+    const cached = buildManifest(cachedJobs).manifest;
+    const liveJobs = [j("m1", "montreal")];
+    const live = buildManifest(liveJobs).manifest;
+
+    const plan = planSnapshotFetch(cached, live);
+    assert.equal(plan.kind, "shards");
+    if (plan.kind !== "shards") return;
+    assert.deepEqual(plan.keys, []);
+    assert.deepEqual(plan.drop, ["laval"]);
+
+    const merged = applyShardUpdate(cachedJobs, {}, plan.drop);
+    assert.deepEqual(
+      merged.map((x) => x.id),
+      ["m1"],
+    );
+  });
+
+  it("remplace un shard changé et retire un shard disparu dans le même delta", () => {
+    const cachedJobs = [j("m1", "montreal"), j("l1", "laval")];
+    const next = applyShardUpdate(
+      cachedJobs,
+      { montreal: [j("m2", "montreal")] },
+      ["laval"],
+    );
+    assert.deepEqual(
+      next.map((x) => x.id).sort(),
+      ["m2"],
+    );
   });
 
   it("hashText est stable", () => {
