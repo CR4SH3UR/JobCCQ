@@ -64,6 +64,7 @@ import { canInspecScraper } from "./caninspec.js";
 import { cdPeintreScraper } from "./cdpeintre.js";
 import { casParCasScraper } from "./casparcas.js";
 import { buildDiscoveredScraper } from "./discovered.js";
+import { withExtraCareersScraper } from "./extra-careers.js";
 import { ccqConstructionScraper } from "./ccq-construction.js";
 
 /**
@@ -153,14 +154,16 @@ const BESPOKE = {
 export const SCRAPERS: Record<string, Scraper> = Object.fromEntries(
   DISCOVERED_EMPLOYERS.filter((d) => d.enabled !== false).map((d) => [
     d.id,
-    bespokeScraper(d.id) ?? buildDiscoveredScraper(d),
+    withExtraCareersScraper(d, bespokeScraper(d.id) ?? buildDiscoveredScraper(d)),
   ]),
 );
 
 export function getScraper(id: string): Scraper | undefined {
-  // Repli bespoke : un scrape ciblé (console admin / Actions) doit marcher
-  // même si Turso n'a pas encore la fiche (export:employers l'aurait omise).
-  return SCRAPERS[id] ?? bespokeScraper(id);
+  if (SCRAPERS[id]) return SCRAPERS[id];
+  const d = DISCOVERED_EMPLOYERS.find((x) => x.id === id);
+  const primary = d ? (bespokeScraper(id) ?? buildDiscoveredScraper(d)) : bespokeScraper(id);
+  if (!primary) return undefined;
+  return d ? withExtraCareersScraper(d, primary) : primary;
 }
 
 /**

@@ -24,6 +24,8 @@ export interface SyncableEmployer {
   homepage: string;
   careersUrl: string;
   method: string;
+  careersUrl2?: string;
+  method2?: string;
   region?: string;
   rbq?: string;
   scope?: string;
@@ -56,6 +58,8 @@ export function toEmployerRow(e: SyncableEmployer) {
     homepage: e.homepage,
     careersUrl: e.careersUrl,
     method: e.method,
+    careersUrl2: e.careersUrl2 ?? null,
+    method2: e.method2 ?? null,
     region: e.region ?? null,
     rbq: e.rbq ?? null,
     scope: e.scope ?? null,

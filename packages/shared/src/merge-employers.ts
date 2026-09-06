@@ -9,6 +9,9 @@ export interface MergeableEmployer {
   homepage: string;
   careersUrl: string;
   method: string;
+  /** 2e page carrières (ex. Jobillico en plus du site officiel). */
+  careersUrl2?: string | null;
+  method2?: string | null;
   region?: string | null;
   rbq?: string | null;
   scope?: string | null;
@@ -17,6 +20,9 @@ export interface MergeableEmployer {
   enabled?: boolean;
   notes?: string | null;
 }
+
+const sameUrl = (a?: string | null, b?: string | null): boolean =>
+  (a ?? "").trim().replace(/\/+$/, "").toLowerCase() === (b ?? "").trim().replace(/\/+$/, "").toLowerCase();
 
 /** Choisit l'id à conserver (scraper sur mesure > vérifié > plus d'offres). */
 export function pickKeepEmployerId(
@@ -41,10 +47,14 @@ export function mergeEmployerFields(keep: MergeableEmployer, drop: MergeableEmpl
     .map((s) => (s ?? "").trim())
     .filter(Boolean)
     .join("\n");
+  const dropAsSecond =
+    drop.careersUrl && !sameUrl(keep.careersUrl, drop.careersUrl) ? drop.careersUrl : undefined;
   return {
     ...keep,
     homepage: keep.homepage || drop.homepage,
     careersUrl: keep.careersUrl || drop.careersUrl,
+    careersUrl2: keep.careersUrl2 || dropAsSecond || drop.careersUrl2 || undefined,
+    method2: keep.method2 || (dropAsSecond ? drop.method : undefined) || drop.method2 || undefined,
     region: keep.region || drop.region,
     rbq: keep.rbq || drop.rbq,
     scope: keep.scope || drop.scope,

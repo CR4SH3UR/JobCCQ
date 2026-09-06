@@ -32,6 +32,8 @@ type Employer = {
   homepage: string;
   careersUrl: string;
   method: DiscoveredMethod;
+  careersUrl2?: string | null;
+  method2?: DiscoveredMethod | null;
   region?: string;
   rbq?: string;
   scope?: string;
@@ -363,6 +365,8 @@ function rowToEmployer(r: Record<string, unknown>): Employer {
     homepage: String(r.homepage),
     careersUrl: String(r.careersUrl),
     method: r.method as DiscoveredMethod,
+    careersUrl2: r.careersUrl2 ? String(r.careersUrl2) : undefined,
+    method2: r.method2 ? (r.method2 as DiscoveredMethod) : undefined,
     region: r.region ? String(r.region) : undefined,
     rbq: r.rbq ? String(r.rbq) : undefined,
     scope: r.scope ? String(r.scope) : undefined,
@@ -684,7 +688,7 @@ export function AdminExplorer() {
             const rows = await tursoRows(
               tUrl,
               tTok,
-              "SELECT id,name,homepage,careersUrl,method,region,rbq,scope,sectors,verified,enabled,notes FROM Employer ORDER BY name",
+              "SELECT id,name,homepage,careersUrl,method,careersUrl2,method2,region,rbq,scope,sectors,verified,enabled,notes FROM Employer ORDER BY name",
             );
             if (!alive) return;
             setEmployers(rows.map(rowToEmployer));
@@ -888,7 +892,7 @@ export function AdminExplorer() {
         const rows = await tursoRows(
           tursoUrl,
           tursoToken,
-          "SELECT id,name,homepage,careersUrl,method,region,rbq,scope,sectors,verified,enabled,notes FROM Employer ORDER BY name",
+          "SELECT id,name,homepage,careersUrl,method,careersUrl2,method2,region,rbq,scope,sectors,verified,enabled,notes FROM Employer ORDER BY name",
         ).catch(() => null);
         if (rows) setEmployers(rows.map(rowToEmployer));
       } else if (mode === "api") {
@@ -971,7 +975,7 @@ export function AdminExplorer() {
       // Écriture directe dans la table Employer (base partagée), en direct.
       const cols: string[] = [];
       const args: unknown[] = [];
-      for (const k of ["name", "careersUrl", "method", "homepage", "region", "scope", "rbq"] as const) {
+      for (const k of ["name", "careersUrl", "method", "careersUrl2", "method2", "homepage", "region", "scope", "rbq"] as const) {
         if (k in patch) {
           cols.push(`${k}=?`);
           args.push((patch as Record<string, unknown>)[k]);
@@ -1149,7 +1153,10 @@ export function AdminExplorer() {
   const cleanList = () =>
     employers.map((e) => ({
       id: e.id, name: e.name, homepage: e.homepage, careersUrl: e.careersUrl,
-      method: e.method, region: e.region, rbq: e.rbq, scope: e.scope, sectors: e.sectors,
+      method: e.method,
+      ...(e.careersUrl2 ? { careersUrl2: e.careersUrl2 } : {}),
+      ...(e.careersUrl2 && e.method2 ? { method2: e.method2 } : {}),
+      region: e.region, rbq: e.rbq, scope: e.scope, sectors: e.sectors,
       ...(e.verified ? { verified: true } : {}),
       ...(e.enabled === false ? { enabled: false } : {}),
     }));
@@ -1425,6 +1432,8 @@ export function AdminExplorer() {
         name: cur.name,
         careersUrl: cur.careersUrl,
         method: cur.method,
+        careersUrl2: cur.careersUrl2,
+        method2: cur.method2,
       };
       if (cur.verified) m.verified = true;
       else delete m.verified;
@@ -1638,6 +1647,8 @@ export function AdminExplorer() {
       ...keep,
       homepage: merged.homepage,
       careersUrl: merged.careersUrl,
+      careersUrl2: merged.careersUrl2 || undefined,
+      method2: (merged.method2 as DiscoveredMethod | undefined) || undefined,
       region: merged.region || undefined,
       rbq: merged.rbq || undefined,
       scope: merged.scope || undefined,
@@ -1695,10 +1706,12 @@ export function AdminExplorer() {
         const empAffected = await tursoExec(
           tursoUrl,
           tursoToken,
-          `UPDATE Employer SET homepage=?, careersUrl=?, region=?, rbq=?, scope=?, sectors=?, verified=?, enabled=?, notes=?, updatedAt=? WHERE id=?`,
+          `UPDATE Employer SET homepage=?, careersUrl=?, careersUrl2=?, method2=?, region=?, rbq=?, scope=?, sectors=?, verified=?, enabled=?, notes=?, updatedAt=? WHERE id=?`,
           [
             nextKeep.homepage,
             nextKeep.careersUrl,
+            nextKeep.careersUrl2 ?? null,
+            nextKeep.method2 ?? null,
             nextKeep.region ?? null,
             nextKeep.rbq ?? null,
             nextKeep.scope ?? null,
@@ -1852,7 +1865,7 @@ export function AdminExplorer() {
       if (methodFilter !== "all" && e.method !== methodFilter) return false;
       if (regionFilter !== "all" && (e.region ?? "") !== regionFilter) return false;
       if (!q) return true;
-      return (e.name + " " + e.careersUrl + " " + e.homepage + " " + e.method + " " + (e.region ?? "") + " " + (hasCustomScraper(e.id) ? "scraper personnalisé sur mesure" : "scraper générique"))
+      return (e.name + " " + e.careersUrl + " " + (e.careersUrl2 ?? "") + " " + e.homepage + " " + e.method + " " + (e.region ?? "") + " " + (hasCustomScraper(e.id) ? "scraper personnalisé sur mesure" : "scraper générique"))
         .toLowerCase()
         .includes(q);
     });
@@ -2792,10 +2805,21 @@ function Row({
   onShowDuplicates: () => void;
 }) {
   const [url, setUrl] = useState(e.careersUrl);
+  const [url2, setUrl2] = useState(e.careersUrl2 ?? "");
+  const [method2, setMethod2] = useState<DiscoveredMethod>(e.method2 ?? "jobillico");
   const [name, setName] = useState(e.name);
-  useEffect(() => { setUrl(e.careersUrl); setName(e.name); }, [e.careersUrl, e.name]);
+  useEffect(() => {
+    setUrl(e.careersUrl);
+    setUrl2(e.careersUrl2 ?? "");
+    setMethod2(e.method2 ?? "jobillico");
+    setName(e.name);
+  }, [e.careersUrl, e.careersUrl2, e.method2, e.name]);
 
-  const dirty = url !== e.careersUrl || name !== e.name;
+  const dirty =
+    url !== e.careersUrl ||
+    name !== e.name ||
+    url2 !== (e.careersUrl2 ?? "") ||
+    (url2.trim() !== "" && method2 !== (e.method2 ?? "jobillico"));
 
   // Édition avancée (repliée par défaut) : champs acceptés par le backend mais
   // absents de la ligne principale (région, site web, portée).
@@ -2947,6 +2971,33 @@ function Row({
         <a href={url} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" title="Ouvrir">
           Ouvrir ↗
         </a>
+        <input
+          value={url2}
+          onChange={(ev) => {
+            const v = ev.target.value;
+            setUrl2(v);
+            if (/jobillico\.com/i.test(v)) setMethod2("jobillico");
+          }}
+          placeholder="2e carrière (Jobillico, autre site…)"
+          spellCheck={false}
+          title="Deuxième page carrières scrapée sous le même employeur"
+          className="min-w-[14rem] flex-1 rounded-lg border border-dashed border-slate-300 px-2 py-1 font-mono text-xs outline-none focus:border-brand-400"
+        />
+        {url2.trim() !== "" && (
+          <select
+            value={method2}
+            onChange={(ev) => setMethod2(ev.target.value as DiscoveredMethod)}
+            title="Méthode du 2e lien"
+            className="rounded border border-slate-200 px-1.5 py-0.5 text-xs"
+          >
+            {METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
+          </select>
+        )}
+        {url2.trim() !== "" && (
+          <a href={url2} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" title="Ouvrir le 2e lien">
+            2e ↗
+          </a>
+        )}
         {count > 0 && (
           <button
             onClick={() => onToggleOffers(e.id)}
@@ -2965,7 +3016,14 @@ function Row({
         </button>
         <button
           disabled={!dirty}
-          onClick={() => onPatch(e.id, { careersUrl: url.trim(), name: name.trim() })}
+          onClick={() =>
+            onPatch(e.id, {
+              careersUrl: url.trim(),
+              name: name.trim(),
+              careersUrl2: url2.trim() || null,
+              method2: url2.trim() ? method2 : null,
+            })
+          }
           className="rounded-lg bg-brand-600 px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-30"
         >
           Enregistrer

@@ -33,6 +33,8 @@ async function main() {
     o.sectors = JSON.parse(e.sectors || "[]");
     if (e.verified) o.verified = true;
     if (!e.enabled) o.enabled = false;
+    if (e.careersUrl2) o.careersUrl2 = e.careersUrl2;
+    if (e.method2) o.method2 = e.method2;
     return o;
   });
   await writeFile(OUT, JSON.stringify(list, null, 2) + "\n");

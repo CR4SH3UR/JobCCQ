@@ -43,6 +43,8 @@ type Employer = {
   homepage: string;
   careersUrl: string;
   method: string;
+  careersUrl2?: string;
+  method2?: string;
   region?: string;
   rbq?: string;
   scope?: string;
@@ -72,6 +74,8 @@ async function main() {
   const libsql = createClient({ url, authToken: process.env.TURSO_AUTH_TOKEN });
   await libsql.executeMultiple(safeDdl);
   await libsql.execute("ALTER TABLE Employer ADD COLUMN notes TEXT").catch(() => {});
+  await libsql.execute("ALTER TABLE Employer ADD COLUMN careersUrl2 TEXT").catch(() => {});
+  await libsql.execute("ALTER TABLE Employer ADD COLUMN method2 TEXT").catch(() => {});
   await libsql.execute("ALTER TABLE ScrapeRun ADD COLUMN diffJson TEXT").catch(() => {});
   await libsql.execute("ALTER TABLE Job ADD COLUMN linkStatus TEXT").catch(() => {});
   await libsql.execute("ALTER TABLE Job ADD COLUMN historyJson TEXT").catch(() => {});
@@ -91,6 +95,8 @@ async function main() {
     homepage: e.homepage,
     careersUrl: e.careersUrl,
     method: e.method,
+    careersUrl2: e.careersUrl2 ?? null,
+    method2: e.method2 ?? null,
     region: e.region ?? null,
     rbq: e.rbq ?? null,
     scope: e.scope ?? null,

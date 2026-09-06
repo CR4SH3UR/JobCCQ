@@ -8,6 +8,7 @@ import { createClient, type User } from "@supabase/supabase-js";
 import type { DiscoveredEmployer, Job } from "@jobccq/shared";
 import { failingScrapers, mergeEmployerFields } from "@jobccq/shared";
 import { buildDiscoveredScraper } from "./scrapers/discovered.js";
+import { withExtraCareersScraper } from "./scrapers/extra-careers.js";
 import { bespokeScraper } from "./scrapers/registry.js";
 import { runScraperInstance } from "./orchestrator.js";
 import { prisma } from "./db.js";
@@ -53,6 +54,7 @@ type AdminUserRow = {
 /** Ligne Prisma Employer → forme DiscoveredEmployer de l'API. */
 function rowToEmployer(row: {
   id: string; name: string; homepage: string; careersUrl: string; method: string;
+  careersUrl2?: string | null; method2?: string | null;
   region: string | null; rbq: string | null; scope: string | null; sectors: string;
   verified: boolean; enabled: boolean; notes?: string | null;
 }): Employer {
@@ -62,6 +64,8 @@ function rowToEmployer(row: {
     homepage: row.homepage,
     careersUrl: row.careersUrl,
     method: row.method as DiscoveredEmployer["method"],
+    ...(row.careersUrl2 ? { careersUrl2: row.careersUrl2 } : {}),
+    ...(row.method2 ? { method2: row.method2 as DiscoveredEmployer["method"] } : {}),
     ...(row.region ? { region: row.region } : {}),
     ...(row.rbq ? { rbq: row.rbq } : {}),
     ...(row.scope ? { scope: row.scope } : {}),
@@ -143,7 +147,7 @@ export async function adminGuard(req: FastifyRequest, reply: FastifyReply) {
   if ("error" in denied) return reply.send(denied);
 }
 
-const EDITABLE = new Set(["name", "careersUrl", "method", "homepage", "region", "scope", "rbq", "sectors", "verified", "enabled", "notes"]);
+const EDITABLE = new Set(["name", "careersUrl", "method", "careersUrl2", "method2", "homepage", "region", "scope", "rbq", "sectors", "verified", "enabled", "notes"]);
 
 export function registerAdminRoutes(app: FastifyInstance): void {
   // Liste des comptes Supabase Auth. Nécessite un appel serveur avec secret key :
@@ -499,8 +503,11 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       if (USE_TURSO) {
         // Écriture directe dans la table Employer (base partagée).
         const data: Record<string, unknown> = {};
-        for (const k of ["name", "careersUrl", "method", "homepage", "region", "scope", "rbq"]) {
-          if (k in patch) data[k] = patch[k];
+        for (const k of ["name", "careersUrl", "method", "careersUrl2", "method2", "homepage", "region", "scope", "rbq"]) {
+          if (k in patch) {
+            const v = patch[k];
+            data[k] = (k === "careersUrl2" || k === "method2") && (v == null || v === "") ? null : v;
+          }
         }
         if ("sectors" in patch) data.sectors = JSON.stringify(patch.sectors ?? []);
         if ("verified" in patch) data.verified = !!patch.verified;
@@ -535,7 +542,10 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       }
       // Scraper sur mesure s'il en existe un (EBC, Pomerleau, Béluga…), sinon on
       // reconstruit depuis la config éditée (prend en compte une URL modifiée).
-      const scraper = bespokeScraper(employer.id) ?? buildDiscoveredScraper(employer);
+      const scraper = withExtraCareersScraper(
+        employer,
+        bespokeScraper(employer.id) ?? buildDiscoveredScraper(employer),
+      );
       const { report, jobs } = await runScraperInstance(scraper, {
         maxPages: req.body?.maxPages ?? 2,
       });
@@ -694,6 +704,8 @@ export function registerAdminRoutes(app: FastifyInstance): void {
         ...keep,
         homepage: merged.homepage,
         careersUrl: merged.careersUrl,
+        ...(merged.careersUrl2 ? { careersUrl2: merged.careersUrl2 } : {}),
+        ...(merged.method2 ? { method2: merged.method2 as Employer["method2"] } : {}),
         ...(merged.region ? { region: merged.region } : { region: keep.region }),
         ...(merged.rbq ? { rbq: merged.rbq } : {}),
         ...(merged.scope ? { scope: merged.scope } : {}),
@@ -708,6 +720,8 @@ export function registerAdminRoutes(app: FastifyInstance): void {
           data: {
             homepage: nextKeep.homepage,
             careersUrl: nextKeep.careersUrl,
+            careersUrl2: nextKeep.careersUrl2 ?? null,
+            method2: nextKeep.method2 ?? null,
             region: nextKeep.region ?? null,
             rbq: nextKeep.rbq ?? null,
             scope: nextKeep.scope ?? null,

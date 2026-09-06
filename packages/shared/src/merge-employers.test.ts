@@ -45,4 +45,12 @@ describe("mergeEmployerFields", () => {
     assert.ok(m.sectors?.includes("Génie civil"));
     assert.match(m.notes ?? "", /acme-inc/);
   });
+
+  it("absorbe l'URL du drop comme 2e carrière si elle diffère", () => {
+    const drop = { ...b, careersUrl: "https://www.jobillico.com/fr/voir-entreprise/Acme/1/", method: "jobillico" };
+    const m = mergeEmployerFields(a, drop);
+    assert.equal(m.careersUrl, "https://acme.com/jobs");
+    assert.equal(m.careersUrl2, drop.careersUrl);
+    assert.equal(m.method2, "jobillico");
+  });
 });

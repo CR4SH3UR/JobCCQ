@@ -11,6 +11,8 @@ export interface DiffEmployer {
   name?: string;
   careersUrl?: string;
   method?: string;
+  careersUrl2?: string;
+  method2?: string;
   region?: string;
   homepage?: string;
   rbq?: string;
@@ -46,6 +48,8 @@ const COMPARED_FIELDS = [
   "name",
   "careersUrl",
   "method",
+  "careersUrl2",
+  "method2",
   "region",
   "homepage",
   "rbq",

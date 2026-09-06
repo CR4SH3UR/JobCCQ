@@ -39,6 +39,8 @@ export async function tursoExec(url: string, token: string, sql: string, args: u
 /** Ajoute les colonnes admin récentes si elles n'existent pas encore (Turso). */
 export async function ensureTursoAdminColumns(url: string, token: string): Promise<void> {
   await tursoExec(url, token, "ALTER TABLE Employer ADD COLUMN notes TEXT").catch(() => {});
+  await tursoExec(url, token, "ALTER TABLE Employer ADD COLUMN careersUrl2 TEXT").catch(() => {});
+  await tursoExec(url, token, "ALTER TABLE Employer ADD COLUMN method2 TEXT").catch(() => {});
   await tursoExec(url, token, "ALTER TABLE ScrapeRun ADD COLUMN diffJson TEXT").catch(() => {});
   await tursoExec(url, token, "ALTER TABLE Job ADD COLUMN linkStatus TEXT").catch(() => {});
   await tursoExec(url, token, "ALTER TABLE Job ADD COLUMN historyJson TEXT").catch(() => {});

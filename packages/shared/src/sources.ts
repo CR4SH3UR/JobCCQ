@@ -89,6 +89,9 @@ export interface DiscoveredEmployer {
   /** URL de la page carrières (ou du flux/endpoint pour un ATS). */
   readonly careersUrl: string;
   readonly method: DiscoveredMethod;
+  /** 2e page carrières (ex. Jobillico en plus du site officiel). Scrapée sous le même id. */
+  readonly careersUrl2?: string;
+  readonly method2?: DiscoveredMethod;
   /** Région administrative RBQ (indicative). */
   readonly region?: string;
   /** Numéro de licence RBQ (indicatif, dérivé du registre). */

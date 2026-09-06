@@ -25,6 +25,8 @@ export async function ensureSchemaColumns(): Promise<void> {
       });
       try {
         await client.execute("ALTER TABLE Employer ADD COLUMN notes TEXT").catch(() => {});
+        await client.execute("ALTER TABLE Employer ADD COLUMN careersUrl2 TEXT").catch(() => {});
+        await client.execute("ALTER TABLE Employer ADD COLUMN method2 TEXT").catch(() => {});
         await client.execute("ALTER TABLE ScrapeRun ADD COLUMN diffJson TEXT").catch(() => {});
         await client.execute("ALTER TABLE Job ADD COLUMN linkStatus TEXT").catch(() => {});
         await client.execute("ALTER TABLE Job ADD COLUMN historyJson TEXT").catch(() => {});

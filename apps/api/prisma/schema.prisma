@@ -22,6 +22,9 @@ model Employer {
   homepage   String
   careersUrl String
   method     String
+  /// 2e page carrières (Jobillico, autre ATS) — scrapée sous le même id.
+  careersUrl2 String?
+  method2     String?
   region     String?
   rbq        String?
   scope      String?
