@@ -1,6 +1,8 @@
 {
   "contactEmail": "contact@jobccqc.ca",
   "sponsors": [],
-  "featured": [],
+  "featured": [
+    "hamel-construction"
+  ],
   "pinned": []
 }
