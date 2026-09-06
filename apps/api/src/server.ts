@@ -14,6 +14,7 @@ import {
 import {
   getHiringCompanies,
   getJobById,
+  getScraperMetrics,
   getStats,
   searchJobs,
 } from "./repository.js";
@@ -146,6 +147,11 @@ export function buildServer(): FastifyInstance {
 
   // Statistiques globales.
   app.get("/api/stats", async () => getStats());
+
+  // Métriques historisées des scrapers (#113) : taux de succès, durée, volume.
+  app.get<{ Querystring: { limit?: string } }>("/api/scraper-metrics", async (req) =>
+    getScraperMetrics(Math.min(2000, Math.max(1, Number(req.query.limit) || 300))),
+  );
 
   // Déclenche un scraping (nécessite un accès réseau aux sources).
   app.post<{ Body: { sourceId?: string; query?: string; location?: string; maxPages?: number } }>(

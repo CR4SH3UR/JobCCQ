@@ -7,11 +7,13 @@ import {
   collapseHiringPoints,
   appendJobHistory,
   parseJobHistory,
+  computeScraperMetrics,
   type HiringCompany,
   type HiringHistory,
   type Job,
   type JobQuery,
   type JobSearchResult,
+  type ScraperMetrics,
 } from "@jobccq/shared";
 import { prisma } from "./db.js";
 
@@ -424,4 +426,22 @@ export async function getStats() {
     byCategory: byCategory.map((c) => ({ id: c.categoryId ?? "autre", count: c._count })),
     recentRuns: lastRuns,
   };
+}
+
+/**
+ * Métriques historisées des scrapers (#113) : lit les N derniers runs de
+ * `ScrapeRun` et agrège par source (taux de succès, durée moyenne, tendance de
+ * volume) via la logique partagée.
+ */
+export async function getScraperMetrics(limit = 300): Promise<ScraperMetrics> {
+  const runs = await prisma.scrapeRun.findMany({ orderBy: { id: "desc" }, take: limit });
+  return computeScraperMetrics(
+    runs.map((r) => ({
+      sourceId: r.sourceId,
+      status: r.status,
+      found: r.found,
+      startedAt: r.startedAt ? r.startedAt.toISOString() : null,
+      finishedAt: r.finishedAt ? r.finishedAt.toISOString() : null,
+    })),
+  );
 }

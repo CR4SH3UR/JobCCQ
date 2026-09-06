@@ -19,8 +19,11 @@ export async function fetchRenderedHtml(url: string, log: (m: string) => void): 
     };
   };
   try {
-    // Playwright est optionnel (pas dans package.json) — import dynamique.
-    // @ts-expect-error module optionnel, pas dans package.json
+    // Playwright est optionnel — import dynamique. On tolère les deux états
+    // (module présent OU absent selon l'environnement) : `@ts-ignore` plutôt que
+    // `@ts-expect-error`, qui échouerait quand les types de `playwright` sont
+    // résolus (ex. hoisté par `@playwright/test` du site).
+    // @ts-ignore module optionnel, résolution variable selon l'installation
     pw = (await import("playwright")) as typeof pw;
   } catch {
     throw new Error(

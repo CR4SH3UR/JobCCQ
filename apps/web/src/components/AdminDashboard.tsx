@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FAILING_ALERT_DAYS, failingScrapers, type FailingSource } from "@jobccq/shared";
+import {
+  FAILING_ALERT_DAYS,
+  failingScrapers,
+  computeScraperMetrics,
+  sparklinePoints,
+  type FailingSource,
+  type ScraperMetrics,
+  type SourceMetrics,
+} from "@jobccq/shared";
 import { API_URL, STATIC, adminFetch, getStats } from "@/lib/data";
 import { ensureTursoAdminColumns, tursoCreds, tursoRows } from "@/lib/admin-turso";
 import { ApplyClicksPanel } from "./ApplyClicksPanel";
@@ -32,6 +40,8 @@ type DashData = {
   failingSources: FailingSource[];
   topSources: { id: string; name: string; count: number }[];
   recentRuns: DashRun[];
+  /** Métriques historisées des scrapers (#113) : taux de succès, durée, volume. */
+  metrics?: ScraperMetrics;
   source: "api" | "turso" | "static";
 };
 
@@ -63,7 +73,7 @@ async function loadFromTurso(): Promise<DashData | null> {
   if (!creds) return null;
   await ensureTursoAdminColumns(creds.url, creds.token);
   const n = async (sql: string) => Number((await tursoRows(creds.url, creds.token, sql))[0]?.n ?? 0);
-  const [totalJobs, totalEmployers, enabledEmployers, verifiedEmployers, bySource, runs, employers, scraped, latest, lastOk] =
+  const [totalJobs, totalEmployers, enabledEmployers, verifiedEmployers, bySource, runs, employers, scraped, latest, lastOk, metricRuns] =
     await Promise.all([
       n("SELECT COUNT(*) AS n FROM Job"),
       n("SELECT COUNT(*) AS n FROM Employer"),
@@ -94,6 +104,11 @@ async function loadFromTurso(): Promise<DashData | null> {
         creds.url,
         creds.token,
         "SELECT sourceId, MAX(finishedAt) AS lastOk FROM ScrapeRun WHERE status='success' GROUP BY sourceId",
+      ).catch(() => []),
+      tursoRows(
+        creds.url,
+        creds.token,
+        "SELECT sourceId, status, found, startedAt, finishedAt FROM ScrapeRun ORDER BY id DESC LIMIT 300",
       ).catch(() => []),
     ]);
   const nameById = Object.fromEntries(employers.map((e) => [String(e.id), String(e.name)]));
@@ -138,6 +153,15 @@ async function loadFromTurso(): Promise<DashData | null> {
       at: r.finishedAt ? String(r.finishedAt) : r.startedAt ? String(r.startedAt) : null,
       diff: parseDiff(r.diffJson),
     })),
+    metrics: computeScraperMetrics(
+      metricRuns.map((r) => ({
+        sourceId: String(r.sourceId),
+        status: String(r.status ?? ""),
+        found: Number(r.found ?? 0),
+        startedAt: r.startedAt ? String(r.startedAt) : null,
+        finishedAt: r.finishedAt ? String(r.finishedAt) : null,
+      })),
+    ),
     source: "turso",
   };
 }
@@ -156,7 +180,16 @@ export function AdminDashboard() {
           const r = await adminFetch(`${API_URL}/admin/dashboard`);
           if (r.ok) {
             const d = (await r.json()) as DashData;
-            setData({ ...d, source: "api", failingSources: d.failingSources ?? [] });
+            let metrics = d.metrics;
+            if (!metrics) {
+              try {
+                const mr = await fetch(`${API_URL}/api/scraper-metrics?limit=300`, { cache: "no-store" });
+                if (mr.ok) metrics = (await mr.json()) as ScraperMetrics;
+              } catch {
+                /* métriques indisponibles : le reste du tableau de bord suffit */
+              }
+            }
+            setData({ ...d, source: "api", failingSources: d.failingSources ?? [], metrics });
             return;
           }
         } catch {
@@ -318,7 +351,71 @@ export function AdminDashboard() {
           )}
         </section>
       </div>
+      {data.metrics && data.metrics.sources.length > 0 && (
+        <section className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-sm font-bold">Métriques scrapers (historique)</h2>
+            <span className="text-xs text-slate-500">
+              {data.metrics.totalRuns} runs · {Math.round(data.metrics.successRate * 100)}% de succès
+            </span>
+          </div>
+          <div className="mt-2 max-h-96 overflow-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-left text-slate-500">
+                  <th className="py-1 pr-2 font-semibold">Source</th>
+                  <th className="py-1 pr-2 text-right font-semibold">Succès</th>
+                  <th className="py-1 pr-2 text-right font-semibold">Durée moy.</th>
+                  <th className="py-1 pr-2 text-right font-semibold">Runs</th>
+                  <th className="py-1 font-semibold">Volume</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.metrics.sources.map((s) => (
+                  <MetricsRow key={s.sourceId} s={s} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
       <ApplyClicksPanel />
     </div>
+  );
+}
+
+function fmtDuration(ms: number | null): string {
+  if (ms == null) return "—";
+  const s = Math.round(ms / 1000);
+  return s < 60 ? `${s} s` : `${Math.floor(s / 60)} min ${s % 60} s`;
+}
+
+/** Sparkline du volume d'offres (du plus ancien au plus récent). */
+function VolumeSparkline({ values }: { values: number[] }) {
+  const d = sparklinePoints(values, 90, 20, 2);
+  if (!d) return <span className="text-slate-400">—</span>;
+  return (
+    <svg viewBox="0 0 90 20" width={90} height={20} className="text-brand-600" role="img" aria-label="Tendance du volume d'offres">
+      <polyline points={d} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function MetricsRow({ s }: { s: SourceMetrics }) {
+  const pct = Math.round(s.successRate * 100);
+  const tone = pct >= 80 ? "text-green-600" : pct >= 50 ? "text-amber-600" : "text-red-600";
+  return (
+    <tr className="border-t border-slate-100 dark:border-slate-800">
+      <td className="py-1 pr-2 font-medium">
+        {s.sourceId}
+        {s.lastStatus === "error" && <span title="Dernier run en erreur"> ❌</span>}
+      </td>
+      <td className={`py-1 pr-2 text-right font-semibold tabular-nums ${tone}`}>{pct}%</td>
+      <td className="py-1 pr-2 text-right tabular-nums text-slate-500">{fmtDuration(s.avgDurationMs)}</td>
+      <td className="py-1 pr-2 text-right tabular-nums text-slate-500">{s.runs}</td>
+      <td className="py-1">
+        <VolumeSparkline values={s.volumeTrend} />
+      </td>
+    </tr>
   );
 }

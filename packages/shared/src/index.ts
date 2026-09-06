@@ -26,6 +26,7 @@ export * from "./postal.js";
 export * from "./geo.js";
 export * from "./duplicates.js";
 export * from "./hiring-history.js";
+export * from "./scraper-metrics.js";
 export * from "./merge-employers.js";
 export * from "./link-status.js";
 export * from "./job-history.js";
