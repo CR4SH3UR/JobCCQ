@@ -1,7 +1,7 @@
 /**
  * Invitations calendrier (.ics) pour les rappels de candidature.
- * Fichier téléchargeable + URL Google Calendar. Dates en journée entière
- * (America/Toronto implicite côté client).
+ * iOS : fichier / data URI. Android : Google Agenda (sinon Chrome
+ * télécharge le .ics). Dates en journée entière.
  */
 
 export interface CalendarEvent {
@@ -151,4 +151,15 @@ export function googleCalendarUrl(event: CalendarEvent): string | null {
   if (event.description) q.set("details", event.description);
   if (event.url) q.set("location", event.url);
   return `https://calendar.google.com/calendar/render?${q.toString()}`;
+}
+
+/** Chrome Android télécharge un `data:text/calendar` : on passe par Google Agenda (ouvre l'appli). */
+export function isAndroidUserAgent(ua: string): boolean {
+  return /Android/i.test(ua) && !/Windows Phone/i.test(ua);
+}
+
+/** Href à ouvrir pour ajouter le rappel (Android ≠ iOS). */
+export function calendarOpenHref(event: CalendarEvent, ua: string, icsHref: string): string {
+  if (isAndroidUserAgent(ua)) return googleCalendarUrl(event) ?? icsHref;
+  return icsHref;
 }
