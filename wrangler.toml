@@ -1,0 +1,23 @@
+# Config Wrangler du proxy de scraping JobCCQ (Cloudflare Worker « jobccq »).
+#
+# Placée à la RACINE du dépôt : l'intégration Cloudflare « Workers Builds »
+# construit depuis la racine par défaut, elle a donc besoin d'un wrangler.toml
+# ici (sinon `wrangler deploy` échoue immédiatement, « no config found »).
+# Le nom « jobccq » correspond au service Cloudflare que ce build déploie.
+#
+# Déploiement manuel :
+#   npx wrangler login
+#   npx wrangler secret put PROXY_TOKEN     # jeton (voir infra/README-proxy.md)
+#   npx wrangler deploy
+# Après le deploy : mettre l'URL affichée (https://jobccq.<compte>.workers.dev)
+# dans le secret GitHub SCRAPE_PROXY_URL, et le même jeton dans SCRAPE_PROXY_TOKEN.
+
+name = "jobccq"
+main = "infra/jobillico-proxy-worker.js"
+compatibility_date = "2025-01-01"
+
+# Hôtes autorisés par le proxy (anti relais ouvert). « * » = tout hôte — sûr car
+# le jeton PROXY_TOKEN reste OBLIGATOIRE. Le jeton n'est PAS ici (c'est un
+# secret) : `npx wrangler secret put PROXY_TOKEN`.
+[vars]
+ALLOW_HOSTS = "*"
