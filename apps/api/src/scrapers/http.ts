@@ -155,13 +155,43 @@ export async function fetchHtml(url: string, opts: FetchOptions = {}): Promise<s
   }
 }
 
+/**
+ * Enveloppe une fonction de fetch pour **signaler l'issue de chaque appel**
+ * (`onSettled` : message d'erreur en cas d'échec, `undefined` en cas de succès),
+ * avant de relancer une éventuelle erreur.
+ *
+ * Beaucoup de scrapers font `catch { return [] }` par résilience (protection
+ * anti-purge) : sans ce signal, l'orchestrateur ne pourrait pas distinguer un
+ * vrai échec réseau (403/404/5xx/timeout) d'un « site joignable, 0 offre » et
+ * compterait un blocage comme un succès vide. On efface l'erreur sur un succès
+ * ultérieur pour ne suivre que l'issue du **dernier** fetch : un repli qui
+ * réussit (ex. Zoho : RSS en 403 → JSON de la page carrières) n'est donc pas
+ * compté comme un échec.
+ */
+export function withFetchErrorSignal(
+  fetchFn: (url: string, opts?: FetchOptions) => Promise<string>,
+  onSettled?: (errorMessage: string | undefined) => void,
+): (url: string, opts?: FetchOptions) => Promise<string> {
+  return async (url, opts) => {
+    try {
+      const html = await fetchFn(url, opts);
+      onSettled?.(undefined);
+      return html;
+    } catch (err) {
+      onSettled?.(err instanceof Error ? err.message : String(err));
+      throw err;
+    }
+  };
+}
+
 /** Contexte de scraping par défaut (réseau réel). */
 export function createHttpContext(
   log: (m: string) => void = () => {},
   onNoOpenings?: (explicit: boolean) => void,
+  onFetchSettled?: (errorMessage: string | undefined) => void,
 ): ScrapeContext {
   return {
-    fetchHtml: (url, opts) => fetchHtml(url, opts),
+    fetchHtml: withFetchErrorSignal((url, opts) => fetchHtml(url, opts), onFetchSettled),
     log,
     ...(onNoOpenings ? { markNoOpenings: (explicit = false) => onNoOpenings(explicit) } : {}),
   };

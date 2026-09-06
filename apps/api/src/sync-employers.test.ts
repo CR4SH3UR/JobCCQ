@@ -33,4 +33,12 @@ describe("employersToInsert", () => {
     const git = [e("a"), e("b")];
     assert.deepEqual(employersToInsert(git, new Set(["a", "b"])), []);
   });
+
+  it("déduplique un id présent deux fois dans git", () => {
+    const git = [e("dup"), e("dup", { name: "Doublon" }), e("autre")];
+    assert.deepEqual(
+      employersToInsert(git, new Set()).map((x) => x.id),
+      ["dup", "autre"],
+    );
+  });
 });

@@ -32,12 +32,21 @@ export interface SyncableEmployer {
   enabled?: boolean;
 }
 
-/** Fiches git à créer en base : absentes, et non désactivées. */
+/**
+ * Fiches git à créer en base : absentes, non désactivées, et dédupliquées par
+ * id (un même id ne doit apparaître qu'une fois dans le lot d'insertion —
+ * `createMany` n'ayant pas de `skipDuplicates` sur SQLite/libSQL).
+ */
 export function employersToInsert(
   fromGit: readonly SyncableEmployer[],
   existingIds: ReadonlySet<string>,
 ): SyncableEmployer[] {
-  return fromGit.filter((e) => !existingIds.has(e.id) && e.enabled !== false);
+  const seen = new Set<string>();
+  return fromGit.filter((e) => {
+    if (existingIds.has(e.id) || e.enabled === false || seen.has(e.id)) return false;
+    seen.add(e.id);
+    return true;
+  });
 }
 
 export function toEmployerRow(e: SyncableEmployer) {
@@ -70,9 +79,10 @@ async function main() {
     console.log(`Aucun employeur git manquant (${existingIds.size} déjà en base).`);
     return;
   }
+  // `missing` est déjà dédupliqué par id (cf. employersToInsert) et exclut les
+  // ids présents en base : pas de `skipDuplicates` (non supporté sur SQLite/libSQL).
   await prisma.employer.createMany({
     data: missing.map(toEmployerRow),
-    skipDuplicates: true,
   });
   console.log(
     `✅ ${missing.length} employeur(s) ajouté(s) depuis git : ${missing.map((e) => e.id).join(", ")}`,
