@@ -52,3 +52,23 @@ export function hiringExtent(points: HiringPoint[]): { min: number; max: number 
   const found = points.map((p) => p.found);
   return { min: Math.min(...found), max: Math.max(...found) };
 }
+
+/**
+ * Agrège l'historique de **tous les employeurs** en une série « marché » : pour
+ * chaque jour, la somme des offres trouvées lors des scrapes de ce jour. Donne
+ * la tendance du volume total d'offres ouvertes dans le temps (dashboard public).
+ * Approximation assumée : un jour où seuls certains employeurs ont été scrapés
+ * sous-estime le total — c'est une tendance, pas un décompte exact.
+ */
+export function aggregateMarketHistory(history: HiringHistory, max = 30): HiringPoint[] {
+  const byDay = new Map<string, number>();
+  for (const points of Object.values(history)) {
+    for (const p of points ?? []) {
+      if (!p?.at || !Number.isFinite(p.found)) continue;
+      const day = p.at.slice(0, 10); // regroupe par jour (YYYY-MM-DD)
+      byDay.set(day, (byDay.get(day) ?? 0) + p.found);
+    }
+  }
+  const merged: HiringPoint[] = [...byDay.entries()].map(([at, found]) => ({ at, found }));
+  return collapseHiringPoints(merged, max);
+}

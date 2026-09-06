@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { applyQuery } from "./filters.js";
-import { expandTerm } from "./synonyms.js";
+import { expandTerm, expandSemantic } from "./synonyms.js";
 import { boundedLevenshtein, fuzzyIncludes, normalizeText } from "./text.js";
 import { suggest } from "./suggest.js";
 import type { Job, JobQuery } from "./types.js";
@@ -45,6 +45,45 @@ describe("recherche — synonymes de métiers", () => {
     assert.ok(expandTerm("charpentier").includes("menuisier"));
     assert.ok(expandTerm("soudeur").includes("welder"));
     assert.deepEqual(expandTerm("motinconnu"), ["motinconnu"]); // pas de synonyme
+  });
+});
+
+describe("recherche — sémantique (ontologie des métiers)", () => {
+  const jobs = [
+    job("Finisseur intérieur"),
+    job("Coffreur-charpentier"),
+    job("Frigoriste résidentiel"),
+    job("Électricien de chantier"),
+    job("Adjointe administrative"),
+  ];
+
+  it("« poseur de gypse » trouve « Finisseur intérieur » (même famille)", () => {
+    const t = titlesFor(jobs, "poseur de gypse");
+    assert.ok(t.includes("Finisseur intérieur"));
+  });
+
+  it("« charpentier » trouve « Coffreur » (charpente/coffrage)", () => {
+    assert.ok(titlesFor(jobs, "charpentier").includes("Coffreur-charpentier"));
+  });
+
+  it("« plombier » trouve « Frigoriste » (mécanique du bâtiment)", () => {
+    assert.ok(titlesFor(jobs, "plombier").includes("Frigoriste résidentiel"));
+  });
+
+  it("précision : « charpentier » ne ramène PAS « Électricien »", () => {
+    const t = titlesFor(jobs, "charpentier");
+    assert.ok(!t.includes("Électricien de chantier"));
+    assert.ok(!t.includes("Adjointe administrative"));
+  });
+
+  it("expandSemantic relie les métiers d'une même famille", () => {
+    assert.ok(expandSemantic("gypse").includes("finisseur interieur"));
+    assert.ok(expandSemantic("charpentier").includes("coffreur"));
+    // inclut aussi les synonymes stricts, et le mot lui-même
+    assert.ok(expandSemantic("charpentier").includes("menuisier"));
+    assert.ok(expandSemantic("charpentier").includes("charpentier"));
+    // un métier hors ontologie retombe sur ses seuls synonymes
+    assert.deepEqual(expandSemantic("motinconnu"), ["motinconnu"]);
   });
 });
 

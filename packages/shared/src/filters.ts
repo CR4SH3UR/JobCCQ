@@ -22,13 +22,23 @@ import {
 import { sourceName } from "./sources.js";
 import { isCcqTrade, ccqTradeOf } from "./ccq.js";
 import { normalizeText, fuzzyIncludes } from "./text.js";
-import { expandTerm } from "./synonyms.js";
+import { expandSemantic } from "./synonyms.js";
 import { detectShift } from "./extract.js";
 import { annualizedSalary } from "./salary.js";
 import { collapseDuplicates } from "./duplicates.js";
 import { coordsForJob, haversineKm, originFromNear } from "./geo.js";
 
 const norm = normalizeText;
+
+/**
+ * Mots-outils (FR + quelques EN) ignorés dans une requête **multi-mots** : sans
+ * ça, « poseur de gypse » ou « opérateur de grue » exigeraient que « de »
+ * matche l'offre (ET logique), ce qui casse les recherches par expression.
+ */
+const STOPWORDS = new Set([
+  "de", "du", "des", "la", "le", "les", "l", "d", "un", "une", "et", "en",
+  "au", "aux", "a", "sur", "pour", "the", "of", "and", "in", "for",
+]);
 
 function daysSince(iso?: string): number | undefined {
   if (!iso) return undefined;
@@ -39,15 +49,16 @@ function daysSince(iso?: string): number | undefined {
 
 /**
  * Un mot de la requête correspond-il à l'offre ?
- *  1. Sous-chaîne directe **ou synonyme de métier** sur tout le texte (titre,
- *     entreprise, description, tags) — ex. « charpentier » ↔ « menuisier ».
+ *  1. Sous-chaîne directe, **synonyme** ou **métier relié** (ontologie) sur tout
+ *     le texte (titre, entreprise, description, tags) — ex. « charpentier » ↔
+ *     « menuisier », « poseur de gypse » ↔ « finisseur intérieur ».
  *  2. Sinon, tolérance aux fautes de frappe sur les champs courts (titre +
  *     entreprise + tags) — ex. « charpentié » → « charpentier ». On limite le
  *     flou aux champs courts pour rester rapide et précis (pas la description).
  */
 function wordMatches(word: string, fullText: string, shortText: string): boolean {
   if (!word) return true;
-  for (const term of expandTerm(word)) {
+  for (const term of expandSemantic(word)) {
     if (fullText.includes(term)) return true;
   }
   return fuzzyIncludes(shortText, word);
@@ -61,8 +72,12 @@ function matchesText(job: Job, q: string): boolean {
     [job.title, job.company, job.description ?? "", (job.tags ?? []).join(" ")].join(" "),
   );
   const shortText = norm([job.title, job.company, (job.tags ?? []).join(" ")].join(" "));
-  // Chaque mot de la requête doit correspondre (ET logique).
-  return needle.split(/\s+/).every((word) => wordMatches(word, fullText, shortText));
+  // Chaque mot « significatif » de la requête doit correspondre (ET logique).
+  // On retire les mots-outils (« de », « la »…) ; si la requête n'en contient
+  // que, on la garde telle quelle pour ne pas tout laisser passer.
+  const all = needle.split(/\s+/).filter(Boolean);
+  const words = all.filter((w) => !STOPWORDS.has(w));
+  return (words.length ? words : all).every((word) => wordMatches(word, fullText, shortText));
 }
 
 export function matchesQuery(job: Job, query: JobQuery): boolean {

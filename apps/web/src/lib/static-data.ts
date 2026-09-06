@@ -14,6 +14,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  aggregateMarketHistory,
   CCQ_TRADES,
   ccqTradeOf,
   DISABLED_SOURCE_IDS,
@@ -21,8 +22,12 @@ import {
   labelForRegion,
   QUEBEC_REGIONS,
   rankHiringCompanies,
+  tensionPer1000,
+  workforceFor,
   type DiscoveredEmployer,
   type HiringCompany,
+  type HiringHistory,
+  type HiringPoint,
   type Job,
 } from "@jobccq/shared";
 
@@ -151,4 +156,68 @@ export function companiesByRegion(regionId: string): HiringCompany[] {
 /** Classement des employeurs qui recrutent pour un métier CCQ. */
 export function companiesByTrade(tradeId: string): HiringCompany[] {
   return rankHiringCompanies(allJobs(), { tradeId });
+}
+
+// --- Dashboard « marché » (#82) + baromètre de tension (#84) --------------
+
+let historyCache: HiringHistory | null = null;
+
+/** Historique de recrutement lu sur disque au build (`public/data/hiring-history.json`). */
+function loadHiringHistory(): HiringHistory {
+  if (!historyCache) {
+    const path = join(process.cwd(), "public", "data", "hiring-history.json");
+    try {
+      historyCache = existsSync(path) ? (JSON.parse(readFileSync(path, "utf8")) as HiringHistory) : {};
+    } catch {
+      historyCache = {};
+    }
+  }
+  return historyCache;
+}
+
+/** Série « marché » : total des offres trouvées par jour, tous employeurs confondus. */
+export function marketHistory(max = 30): HiringPoint[] {
+  return aggregateMarketHistory(loadHiringHistory(), max);
+}
+
+export interface MarketOverview {
+  readonly jobs: number;
+  readonly employers: number;
+  readonly regions: number;
+  readonly trades: number;
+}
+
+/** Chiffres clés du marché (instantané courant). */
+export function marketOverview(): MarketOverview {
+  return {
+    jobs: allJobs().length,
+    employers: employerIdsWithJobs().length,
+    regions: regionsWithCounts().length,
+    trades: tradesWithCounts().length,
+  };
+}
+
+export interface TradeTension extends FacetLink {
+  /** Effectif CCQ (main-d'œuvre active), si renseigné. */
+  readonly workforce: number | null;
+  /** Offres pour 1000 travailleurs, si l'effectif est connu. */
+  readonly tension: number | null;
+}
+
+/**
+ * Baromètre de tension par métier : nombre d'offres (demande) et, si l'effectif
+ * CCQ est renseigné dans `CCQ_WORKFORCE`, le ratio offres/1000 travailleurs.
+ * Trié par tension décroissante quand elle existe, sinon par volume d'offres.
+ */
+export function tradeTension(): TradeTension[] {
+  const rows = tradesWithCounts().map((t) => {
+    const workforce = workforceFor(t.id);
+    return { ...t, workforce, tension: tensionPer1000(t.count, workforce) };
+  });
+  return rows.sort((a, b) => {
+    if (a.tension != null && b.tension != null) return b.tension - a.tension;
+    if (a.tension != null) return -1;
+    if (b.tension != null) return 1;
+    return b.count - a.count;
+  });
 }
