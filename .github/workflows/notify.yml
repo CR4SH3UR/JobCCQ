@@ -1,8 +1,8 @@
 name: Notifier les alertes emploi
 
-# Envoie les courriels d'alerte (offres correspondant aux recherches sauvegardées
-# des utilisateurs) APRÈS chaque scraping réussi, quand des offres fraîches
-# viennent d'arriver dans Turso. Déclenchable aussi à la main.
+# Envoie les courriels d'alerte et les push Expo (offres correspondant aux
+# recherches sauvegardées / jetons) APRÈS chaque scraping réussi. Déclenchable
+# aussi à la main.
 #
 # Ne fait rien tant que Supabase + Resend ne sont pas configurés (le script sort
 # proprement). Voir infra/README-supabase.md.

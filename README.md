@@ -15,7 +15,9 @@
 > (Hamel, JM Demers, JC Drolet, Lefrançois, LEQEL). Chaque type de portail a un
 > scraper réutilisable, donc un nouvel employeur s'ajoute en une ligne de config.
 > Quelques sites restent hors de portée d'un simple `fetch` (protection
-> anti-robot type Cloudflare) et demanderaient un rendu headless.
+> anti-robot type Cloudflare) et demanderaient un rendu headless. **CCQ** :
+> le portail carrières public (`carriere.ccq.org`) est branché ; le Carnet
+> référence construction (ex-Carrefour) reste derrière un compte, non importé.
 
 ---
 
@@ -88,7 +90,7 @@ Toutes les sources sont déclarées dans **`packages/shared/src/sources.ts`**. C
 | `experimental` | Scraper écrit, à valider contre le site réel |
 | `planned` | Site répertorié, scraper à écrire |
 
-Sources branchées (portails carrières d'employeurs de la construction) : **Pomerleau** (Avature), **EBC** (RSS WordPress), **Les Excavations Lafontaine** (Zoho Recruit), **Atwill-Morin** (BambooHR), **Hamel Construction** (Wix) et **LEQEL** (liens HTML). Répertorié pour plus tard : **CCQ — Carrefour construction**.
+Sources branchées (portails carrières d'employeurs de la construction) : **Pomerleau** (Avature), **EBC** (RSS WordPress), **Les Excavations Lafontaine** (Zoho Recruit), **Atwill-Morin** (BambooHR), **Hamel Construction** (Wix) et **LEQEL** (liens HTML). **CCQ** : offres publiques du portail carrières SuccessFactors.
 
 ### Ajouter une source
 
@@ -185,9 +187,9 @@ Pour régénérer l'instantané à partir de la vraie base (après un scraping) 
 
 - [x] Brancher 6 employeurs de la construction (Pomerleau, EBC, Lafontaine, Atwill-Morin, Hamel, LEQEL)
 - [x] Ajouter d'autres entrepreneurs (Broccolini, Kiewit, Eurovia, Construction Demathieu & Bard…)
-- [ ] Brancher le Carrefour construction de la CCQ (ccq.org)
+- [x] Brancher le Carrefour construction de la CCQ (ccq.org)
 - [x] Planification du scraping (cron) + déduplication inter-sources plus fine
-- [x] Alertes courriel (Resend) ; push Expo encore à brancher
+- [x] Alertes courriel (Resend) et push Expo
 - [x] Comptes utilisateurs, offres sauvegardées, recherches enregistrées
 
 ## Licence
@@ -245,7 +247,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 ### 🔔 Alertes & notifications
 
 - [x] 28. Alertes courriel réelles (digest quotidien/hebdo d'une recherche enregistrée)
-- [ ] 29. Notifications push mobiles (Expo push) sur nouvelles offres
+- [x] 29. Notifications push mobiles (Expo push) sur nouvelles offres
 - [x] 30. Flux RSS des offres (`/emplois.rss` sur le site statique, `/api/jobs.rss` + bouton RSS de la recherche)
 - [x] 31. Webhook Discord/Slack pour une recherche
 - [x] 32. Réglages de fréquence & silence par alerte (instantané / quotidien / hebdo / pause)
@@ -268,7 +270,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 39. Planification cron du scraping + backoff par source
 - [x] 40. Dashboard de santé des scrapers (sources en échec depuis N jours + alerte)
 - [x] 41. Nouveaux helpers ATS : Greenhouse, Lever, Recruitee, SmartRecruiters, Teamtailor
-- [ ] 42. Import CCQ « Carrefour construction » (ccq.org)
+- [x] 42. Import CCQ « Carrefour construction » (ccq.org)
 - [x] 43. Découverte semi-auto d'employeurs à partir du registre RBQ
 - [x] 44. Tests de non-régression par fixtures HTML (alerte si un parseur casse)
 - [x] 63. Preview parseur sans écrire en base (admin, `parseList` local ou JSON-LD/RSS via Supabase)

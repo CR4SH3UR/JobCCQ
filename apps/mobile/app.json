@@ -7,7 +7,7 @@
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "plugins": ["expo-router"],
+    "plugins": ["expo-router", "expo-notifications"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.jobccq.mobile"

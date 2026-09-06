@@ -400,3 +400,38 @@ create policy "admins read apply_clicks" on public.apply_clicks
   using ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']));
 ```
 
+# Notifications push Expo (app mobile)
+
+L'app enregistre un **jeton Expo** dans `push_tokens`. Après chaque scrape, le
+même workflow `notify.yml` envoie un résumé des nouvelles offres via l'API
+publique Expo (`https://exp.host/--/api/v2/push/send`) — **aucun secret Expo**.
+
+Dans l'app : onglet **Favoris** → « Activer les notifications » (téléphone
+physique + Expo Go). Variables `EXPO_PUBLIC_SUPABASE_URL` et
+`EXPO_PUBLIC_SUPABASE_ANON_KEY` (même projet que le site).
+
+```sql
+create table if not exists public.push_tokens (
+  token            text        primary key,
+  user_id          uuid        references auth.users (id) on delete set null,
+  query            jsonb       not null default '{}'::jsonb,
+  enabled          boolean     not null default true,
+  platform         text,
+  last_notified_at timestamptz not null default now(),
+  updated_at       timestamptz not null default now()
+);
+
+alter table public.push_tokens enable row level security;
+
+create policy "insert push token" on public.push_tokens
+  for insert to anon, authenticated with check (true);
+
+create policy "update push token" on public.push_tokens
+  for update to anon, authenticated using (true) with check (true);
+
+create policy "delete push token" on public.push_tokens
+  for delete to anon, authenticated using (true);
+```
+
+> Pas de `SELECT` public : le cron lit la table avec la clé `service_role`.
+

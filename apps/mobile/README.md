@@ -127,6 +127,8 @@ apps/mobile/
 - **Sources** (`app/sources.tsx`) — répertoire des sites d'emploi surveillés par JobCCQ, classés
   en « Sources connectées » et « Sites répertoriés (à connecter) », avec badges région, méthode
   de collecte, statut et volume d'offres.
+- **Favoris** — offres sauvegardées + bouton pour activer les **notifications push** (Expo Go
+  sur un téléphone ; `EXPO_PUBLIC_SUPABASE_URL` / `ANON_KEY` requis).
 
 ## Notes techniques
 

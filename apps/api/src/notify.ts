@@ -6,7 +6,7 @@
  *  2. cherche dans Turso les offres **nouvelles** (créées depuis le dernier envoi)
  *     qui correspondent aux critères de chaque alerte (logique de filtrage
  *     partagée `applyQuery`) ;
- *  3. envoie un courriel récapitulatif via Resend ;
+ *  3. envoie un courriel récapitulatif via Resend et/ou un push Expo ;
  *  4. avance `last_notified_at` pour ne pas renvoyer les mêmes offres.
  *
  * Tout est no-op (sortie 0) si les variables ne sont pas configurées → le
@@ -17,6 +17,7 @@ import { applyQuery, type Job, type JobQuery } from "@jobccq/shared";
 import { prisma } from "./db.js";
 import { rowToJob } from "./repository.js";
 import { formatJobsWebhook, postWebhook } from "./webhooks.js";
+import { formatExpoPush, sendExpoPush } from "./expo-push.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -39,6 +40,31 @@ type AlertRow = {
   query: Partial<JobQuery>;
   last_notified_at: string;
 };
+
+type PushTokenRow = {
+  token: string;
+  user_id: string | null;
+  query: Partial<JobQuery>;
+  last_notified_at: string;
+  enabled: boolean;
+};
+
+function matchNewJobs(
+  newJobs: Job[],
+  createdAtById: Map<string, number>,
+  query: Partial<JobQuery>,
+  cutoff: number,
+): Job[] {
+  const candidates = newJobs.filter((j) => (createdAtById.get(j.id) ?? 0) > cutoff);
+  if (candidates.length === 0) return [];
+  const q = {
+    ...query,
+    sort: query.sort ?? "recent",
+    page: 1,
+    pageSize: MAX_PER_EMAIL,
+  } as JobQuery;
+  return applyQuery(candidates, q).items;
+}
 
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -103,61 +129,81 @@ async function main() {
     process.exitCode = 1;
     return;
   }
-  if (!alerts || alerts.length === 0) {
-    console.log("Aucune alerte enregistrée.");
+  const { data: tokenData, error: tokenErr } = await supa
+    .from("push_tokens")
+    .select("token,user_id,query,last_notified_at,enabled")
+    .eq("enabled", true);
+  if (tokenErr) {
+    console.log("Jetons push ignorés :", tokenErr.message);
+  }
+
+  const alertRows = (alerts ?? []) as AlertRow[];
+  const tokenRows = (tokenErr ? [] : (tokenData ?? [])) as PushTokenRow[];
+  if (alertRows.length === 0 && tokenRows.length === 0) {
+    console.log("Aucune alerte ni jeton push.");
     await notifyAdminHooks();
     await prisma.$disconnect();
     return;
   }
 
-  // Fenêtre globale : on charge une fois les offres créées après le plus ancien
-  // « dernier envoi » de toutes les alertes, puis on filtre par alerte.
-  const oldest = (alerts as AlertRow[]).reduce(
-    (min, a) => Math.min(min, new Date(a.last_notified_at).getTime()),
+  // Fenêtre globale : offres créées après le plus ancien « dernier envoi ».
+  const oldest = [...alertRows.map((a) => new Date(a.last_notified_at).getTime()), ...tokenRows.map((t) => new Date(t.last_notified_at).getTime())].reduce(
+    (min, t) => Math.min(min, t),
     Date.now(),
   );
   const rows = await prisma.job.findMany({ where: { createdAt: { gt: new Date(oldest) } } });
   const createdAtById = new Map(rows.map((r) => [r.id, r.createdAt.getTime()]));
   const newJobs = rows.map(rowToJob);
-  console.log(`${alerts.length} alerte(s) · ${newJobs.length} offre(s) nouvelles depuis ${new Date(oldest).toISOString()}`);
+  console.log(
+    `${alertRows.length} alerte(s) · ${tokenRows.length} jeton(s) · ${newJobs.length} offre(s) depuis ${new Date(oldest).toISOString()}`,
+  );
 
+  const matchedByUser = new Map<string, Job[]>();
   let sent = 0;
-  for (const alert of alerts as AlertRow[]) {
+  for (const alert of alertRows) {
     if (alert.query.alertPaused) continue;
     const cutoff = new Date(alert.last_notified_at).getTime();
     if (shouldSkipByFrequency(alert.query.alertFrequency, cutoff, Date.now())) continue;
-    const candidates = newJobs.filter((j) => (createdAtById.get(j.id) ?? 0) > cutoff);
-    if (candidates.length === 0) continue;
-
-    const query = {
-      ...alert.query,
-      sort: alert.query.sort ?? "recent",
-      page: 1,
-      pageSize: MAX_PER_EMAIL,
-    } as JobQuery;
-    const matched = applyQuery(candidates, query).items;
+    const matched = matchNewJobs(newJobs, createdAtById, alert.query, cutoff);
     if (matched.length === 0) continue;
 
-    // Email résolu côté serveur (service_role) : on ne fait jamais confiance à
-    // une adresse fournie par le client (anti-usurpation).
+    const prev = matchedByUser.get(alert.user_id) ?? [];
+    const seen = new Set(prev.map((j) => j.id));
+    matchedByUser.set(alert.user_id, [...prev, ...matched.filter((j) => !seen.has(j.id))]);
+
     const { data: userRes } = await supa.auth.admin.getUserById(alert.user_id);
     const email = userRes?.user?.email;
-    if (!email) continue;
-
     const label = alert.label?.trim() || "Nouvelles offres";
     const hook = alert.query.webhookUrl?.trim();
     let ok = false;
     if (hook) {
       ok = await postWebhook(hook, formatJobsWebhook(label, matched), "JobCCQ");
     }
-    if (RESEND_API_KEY && (await sendEmail(email, label, matched))) ok = true;
+    if (email && RESEND_API_KEY && (await sendEmail(email, label, matched))) ok = true;
     if (ok) {
       await supa.from("job_alerts").update({ last_notified_at: new Date().toISOString() }).eq("id", alert.id);
       sent += 1;
-      console.log(`✉️  ${email} — ${matched.length} offre(s) · « ${label} »`);
+      console.log(`✉️  ${email ?? "webhook"} — ${matched.length} offre(s) · « ${label} »`);
     }
   }
-  console.log(`Terminé : ${sent} courriel(s) envoyé(s).`);
+
+  let pushed = 0;
+  for (const row of tokenRows) {
+    const cutoff = new Date(row.last_notified_at).getTime();
+    const fromAlert = row.user_id ? matchedByUser.get(row.user_id) ?? [] : [];
+    const pool = fromAlert.length
+      ? fromAlert
+      : matchNewJobs(newJobs, createdAtById, row.query ?? {}, cutoff);
+    const matched = pool.filter((j) => (createdAtById.get(j.id) ?? 0) > cutoff);
+    if (matched.length === 0) continue;
+    const n = await sendExpoPush([row.token], formatExpoPush(matched, "Nouvelles offres"));
+    if (n > 0) {
+      await supa.from("push_tokens").update({ last_notified_at: new Date().toISOString() }).eq("token", row.token);
+      pushed += 1;
+      console.log(`📱  jeton …${row.token.slice(-8)} — ${matched.length} offre(s)`);
+    }
+  }
+  console.log(`Terminé : ${sent} courriel(s) · ${pushed} push.`);
   await notifyAdminHooks();
   await prisma.$disconnect();
 }
