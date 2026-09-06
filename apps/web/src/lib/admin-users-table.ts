@@ -7,9 +7,15 @@ export type AdminUserRow = {
   lastSignInAt: string | null;
   confirmedAt: string | null;
   providers: string[];
+  bannedUntil?: string | null;
 };
 
-export type UserFilter = "all" | "admin" | "confirmed" | "unconfirmed" | "recent" | "never";
+export type UserFilter = "all" | "admin" | "confirmed" | "unconfirmed" | "recent" | "never" | "banned";
+
+export function isUserBanned(user: Pick<AdminUserRow, "bannedUntil">, now = Date.now()): boolean {
+  const t = sortDate(user.bannedUntil ?? null);
+  return t > now;
+}
 export type UserSortKey = "email" | "createdAt" | "lastSignInAt" | "confirmedAt";
 export type UserSortDir = "asc" | "desc";
 
@@ -73,6 +79,7 @@ export function filterUsers(
     if (filter === "unconfirmed") return !user.confirmedAt;
     if (filter === "recent") return isRecent(user.lastSignInAt, now);
     if (filter === "never") return !user.lastSignInAt;
+    if (filter === "banned") return isUserBanned(user, now);
     return true;
   });
 }

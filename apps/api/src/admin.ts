@@ -47,6 +47,7 @@ type AdminUserRow = {
   lastSignInAt: string | null;
   confirmedAt: string | null;
   providers: string[];
+  bannedUntil?: string | null;
 };
 
 /** Ligne Prisma Employer → forme DiscoveredEmployer de l'API. */
@@ -91,6 +92,7 @@ function userToRow(user: User): AdminUserRow {
   const appProviders = user.app_metadata?.providers;
   if (Array.isArray(appProviders)) appProviders.forEach((p) => providers.add(String(p)));
   user.identities?.forEach((identity) => providers.add(identity.provider));
+  const bannedUntil = (user as User & { banned_until?: string | null }).banned_until ?? null;
   return {
     id: user.id,
     email: user.email ?? user.phone ?? "(sans courriel)",
@@ -98,6 +100,7 @@ function userToRow(user: User): AdminUserRow {
     lastSignInAt: user.last_sign_in_at ?? null,
     confirmedAt: user.email_confirmed_at ?? user.confirmed_at ?? null,
     providers: [...providers].sort(),
+    bannedUntil,
   };
 }
 
@@ -195,6 +198,42 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       return { error: error.message };
     }
     return { invited: true, email };
+  });
+
+  // Bannir / débannir un compte Auth (ban_duration côté Supabase).
+  app.post<{ Body: { userId?: string; ban?: boolean } }>("/admin/users/ban", async (req, reply) => {
+    const denied = await requireAdminUser(req, reply);
+    if ("error" in denied) return denied;
+
+    const userId = String(req.body?.userId ?? "").trim();
+    const ban = req.body?.ban !== false;
+    if (!userId) {
+      reply.code(400);
+      return { error: "Identifiant manquant." };
+    }
+
+    const admin = createClient(SUPABASE_URL!, SUPABASE_ADMIN_KEY!, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    });
+    const { data: existing, error: lookupError } = await admin.auth.admin.getUserById(userId);
+    if (lookupError || !existing.user) {
+      reply.code(404);
+      return { error: lookupError?.message ?? "Compte introuvable." };
+    }
+    const targetEmail = existing.user.email?.trim().toLowerCase() ?? "";
+    if (targetEmail && ADMIN_EMAILS.includes(targetEmail)) {
+      reply.code(400);
+      return { error: "On ne bannit pas un administrateur." };
+    }
+
+    const { error } = await admin.auth.admin.updateUserById(userId, {
+      ban_duration: ban ? "876000h" : "none",
+    });
+    if (error) {
+      reply.code(502);
+      return { error: error.message };
+    }
+    return { banned: ban, userId, email: targetEmail };
   });
 
   // Liste de tous les employeurs découverts (données fraîches du fichier).

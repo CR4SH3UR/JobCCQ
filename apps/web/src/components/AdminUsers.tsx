@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { API_URL } from "@/lib/data";
-import { isAdminEmail } from "@/lib/auth";
+import { isAdminEmail, useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import {
   filterUsers,
   formatAbsoluteDate,
   formatRelativeDate,
+  isUserBanned,
   paginate,
   sortUsers,
   type AdminUserRow,
@@ -100,6 +101,7 @@ function SortTh({
 }
 
 export function AdminUsers() {
+  const { user: me } = useAuth();
   const [state, setState] = useState<UsersState>({ loading: false, users: [], total: 0 });
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<UserFilter>("all");
@@ -120,11 +122,13 @@ export function AdminUsers() {
       return t > 0 && Date.now() - t <= 30 * 24 * 60 * 60 * 1000;
     }).length;
     const neverCount = state.users.filter((user) => !user.lastSignInAt).length;
+    const bannedCount = state.users.filter((user) => isUserBanned(user)).length;
     return {
       adminCount,
       confirmedCount,
       recentCount,
       neverCount,
+      bannedCount,
       unconfirmedCount: Math.max(0, state.users.length - confirmedCount),
     };
   }, [state.users]);
@@ -269,13 +273,48 @@ export function AdminUsers() {
     }
   };
 
+  const setBan = async (target: AdminUserRow, ban: boolean) => {
+    setInviteMessage(undefined);
+    setInviteError(undefined);
+    if (isAdminEmail(target.email) || target.email === me?.email) {
+      setInviteError("On ne bannit pas un admin ni son propre compte.");
+      return;
+    }
+    if (ban && !confirm(`Bannir ${target.email} ? Il ne pourra plus se connecter.`)) return;
+    try {
+      const { data } = await supabase!.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) throw new Error("Session Supabase absente. Reconnecte-toi au panel admin.");
+      try {
+        const res = await fetch(`${API_URL}/admin/users/ban`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: target.id, ban }),
+        });
+        const body = (await res.json().catch(() => ({}))) as { error?: string };
+        if (!res.ok) throw new Error(body.error ?? `API admin HTTP ${res.status}`);
+      } catch (apiError) {
+        const { data: edge, error } = await supabase!.functions.invoke<{ error?: string }>("admin-users", {
+          method: "POST",
+          body: { userId: target.id, ban },
+        });
+        if (error) throw new Error(`${error.message} (${(apiError as Error).message})`);
+        if (edge?.error) throw new Error(edge.error);
+      }
+      setInviteMessage(ban ? `${target.email} est banni.` : `${target.email} n'est plus banni.`);
+      await loadUsers();
+    } catch (error) {
+      setInviteError((error as Error).message);
+    }
+  };
+
   const copyEmails = async () => {
     const emails = visibleUsers.map((user) => user.email).filter(Boolean).join(", ");
     await copyText(emails, "all");
   };
 
   const exportUsersCsv = () => {
-    const header = ["email", "role", "createdAt", "lastSignInAt", "confirmedAt", "providers"];
+    const header = ["email", "role", "createdAt", "lastSignInAt", "confirmedAt", "providers", "bannedUntil"];
     const rows = visibleUsers.map((user) => [
       user.email,
       isAdminEmail(user.email) ? "admin" : "utilisateur",
@@ -283,6 +322,7 @@ export function AdminUsers() {
       user.lastSignInAt ?? "",
       user.confirmedAt ?? "",
       user.providers.join("; "),
+      user.bannedUntil ?? "",
     ]);
     const csv = [header, ...rows].map((row) => row.map(escapeCsv).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -305,6 +345,7 @@ export function AdminUsers() {
     { label: "À confirmer", value: stats.unconfirmedCount, filter: "unconfirmed" },
     { label: "Actifs 30 j", value: stats.recentCount, filter: "recent" },
     { label: "Jamais vus", value: stats.neverCount, filter: "never" },
+    { label: "Bannis", value: stats.bannedCount, filter: "banned" },
   ];
 
   return (
@@ -336,7 +377,7 @@ export function AdminUsers() {
         </p>
       ) : (
         <>
-          <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-7">
             {kpis.map((k) => {
               const on = filter === k.filter;
               return (
@@ -376,6 +417,7 @@ export function AdminUsers() {
                 <option value="unconfirmed">Non confirmés</option>
                 <option value="recent">Actifs 30 jours</option>
                 <option value="never">Jamais connectés</option>
+                <option value="banned">Bannis</option>
               </select>
               <div className="flex gap-2">
                 <button
@@ -517,6 +559,7 @@ export function AdminUsers() {
                             <Badge tone="amber">À confirmer</Badge>
                           )}
                           {!user.lastSignInAt ? <Badge tone="rose">Jamais vu</Badge> : null}
+                          {isUserBanned(user) ? <Badge tone="rose">Banni</Badge> : null}
                         </span>
                       </td>
                       <td className="px-3 py-2.5 text-slate-600 dark:text-slate-300" title={formatAbsoluteDate(user.createdAt)}>
@@ -532,13 +575,26 @@ export function AdminUsers() {
                         {user.providers.length ? user.providers.join(", ") : "email"}
                       </td>
                       <td className="px-3 py-2.5 text-right">
-                        <button
-                          type="button"
-                          onClick={() => void copyText(user.email, user.id)}
-                          className="font-semibold text-brand-700 hover:underline"
-                        >
-                          {copied === user.id ? "Copié" : "Copier"}
-                        </button>
+                        <span className="flex flex-wrap justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => void copyText(user.email, user.id)}
+                            className="font-semibold text-brand-700 hover:underline"
+                          >
+                            {copied === user.id ? "Copié" : "Copier"}
+                          </button>
+                          {!admin && user.email !== me?.email && (
+                            <button
+                              type="button"
+                              onClick={() => void setBan(user, !isUserBanned(user))}
+                              className={`font-semibold hover:underline ${
+                                isUserBanned(user) ? "text-emerald-700" : "text-red-700"
+                              }`}
+                            >
+                              {isUserBanned(user) ? "Débannir" : "Bannir"}
+                            </button>
+                          )}
+                        </span>
                       </td>
                     </tr>
                   );

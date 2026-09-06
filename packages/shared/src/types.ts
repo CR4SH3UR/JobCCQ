@@ -43,6 +43,8 @@ export const JobSchema = z.object({
 
   /** Date de publication (ISO), si connue. */
   postedAt: z.string().datetime().optional(),
+  /** Date limite de candidature (YYYY-MM-DD), extraite à la lecture. */
+  closesAt: z.string().optional(),
   /** Date de collecte par le scraper (ISO). */
   scrapedAt: z.string().datetime(),
 
@@ -120,6 +122,7 @@ export const SORT_OPTIONS = [
   "company",
   "relevance",
   "distance",
+  "closing",
 ] as const;
 export type SortOption = (typeof SORT_OPTIONS)[number];
 

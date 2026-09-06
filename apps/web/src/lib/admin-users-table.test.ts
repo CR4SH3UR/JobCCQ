@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import {
   filterUsers,
   formatRelativeDate,
+  isUserBanned,
   paginate,
   sortUsers,
   type AdminUserRow,
@@ -39,6 +40,16 @@ describe("admin-users-table", () => {
     assert.equal(filterUsers(users, "unconfirmed", "", isAdmin, now).length, 1);
     assert.equal(filterUsers(users, "recent", "", isAdmin, now)[0]?.email, "boss@job.cc");
     assert.equal(filterUsers(users, "all", "hamel", isAdmin, now).length, 2);
+    assert.equal(
+      filterUsers(
+        [u({ email: "spam@x.ca", bannedUntil: "2027-01-01T00:00:00.000Z" })],
+        "banned",
+        "",
+        () => false,
+        now,
+      ).length,
+      1,
+    );
   });
 
   it("trie par courriel et paginé", () => {
@@ -51,6 +62,12 @@ describe("admin-users-table", () => {
       paginate(sortUsers(users, "email", "asc"), 2, 2).map((x) => x.email),
       ["z@x.ca"],
     );
+  });
+
+  it("détecte un ban actif, expiré ou absent", () => {
+    assert.equal(isUserBanned({ bannedUntil: "2027-01-01T00:00:00.000Z" }, now), true);
+    assert.equal(isUserBanned({ bannedUntil: "2026-01-01T00:00:00.000Z" }, now), false);
+    assert.equal(isUserBanned({}, now), false);
   });
 
   it("affiche une date relative", () => {

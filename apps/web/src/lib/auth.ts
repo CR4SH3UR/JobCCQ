@@ -69,6 +69,9 @@ function friendlyAuthError(raw: string): string {
   if (/signups? not allowed|disabled/.test(m)) {
     return "Les inscriptions sont désactivées pour le moment.";
   }
+  if (/banned|user is banned/.test(m)) {
+    return "Ce compte a été suspendu.";
+  }
   return "Connexion impossible pour le moment. Réessaie dans quelques minutes.";
 }
 

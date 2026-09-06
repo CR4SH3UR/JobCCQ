@@ -278,8 +278,8 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 61. Marquer « déjà postulé » depuis la fiche (compte existant)
 - [x] 62. Score d'adéquation offre ↔ profil (métiers / régions du compte)
 - [x] 102. Rappels d'échéance en invitation calendrier (`.ics` / Google Calendar)
-- [ ] 104. Date limite d'offre extraite + tri « ferme bientôt »
-- [ ] 105. Modèles de courriel de relance générés selon le statut de candidature
+- [x] 104. Date limite d'offre extraite + tri « ferme bientôt »
+- [x] 105. Modèles de courriel de relance générés selon le statut de candidature
 - [x] 106. Reprise « là où j'en étais » (mémo local des clics « Postuler »)
 
 ### 🕷️ Scraping, sources & pipeline

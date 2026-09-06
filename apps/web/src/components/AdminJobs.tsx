@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { API_URL, adminFetch, searchAdminJobs, buildQuery, invalidateJobOverrides } from "@/lib/data";
-import type { Job } from "@jobccq/shared";
+import { flagWeirdTitle, type Job } from "@jobccq/shared";
 import { ensureTursoAdminColumns, tursoCreds, tursoExec, tursoRows } from "@/lib/admin-turso";
 import { AdminOfferEditor, type OfferPatch, type OfferRow, type SaveState } from "./AdminOfferEditor";
 import { logAudit } from "@/lib/admin-audit";
@@ -114,6 +114,7 @@ export function AdminJobs() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [saves, setSaves] = useState<Record<string, SaveState>>({});
   const [msg, setMsg] = useState("");
+  const [weirdOnly, setWeirdOnly] = useState(false);
   const pageSize = 40;
 
   const load = useCallback(async (query: string, p: number) => {
@@ -281,6 +282,8 @@ export function AdminJobs() {
   };
 
   const pages = Math.max(1, Math.ceil(total / pageSize));
+  const flaggedRows = rows.filter((o) => flagWeirdTitle(o.title));
+  const visibleRows = weirdOnly ? flaggedRows : rows;
 
   return (
     <div className="space-y-3">
@@ -298,6 +301,10 @@ export function AdminJobs() {
         >
           Export CSV (page)
         </button>
+        <label className="flex items-center gap-1.5 text-xs font-semibold text-amber-800">
+          <input type="checkbox" checked={weirdOnly} onChange={(e) => setWeirdOnly(e.target.checked)} />
+          Titres douteux ({flaggedRows.length} sur cette page)
+        </label>
       </div>
       <p className="text-xs text-slate-500">
         {loading ? "Chargement…" : `${total} offre(s)`} · mode {mode}
@@ -305,12 +312,22 @@ export function AdminJobs() {
       </p>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <ul className="space-y-2">
-        {rows.map((o) => (
+        {visibleRows.map((o) => {
+          const flag = flagWeirdTitle(o.title);
+          return (
           <li key={o.id} className="rounded-lg border border-slate-200 bg-white p-3 text-sm dark:border-slate-700 dark:bg-slate-900">
             <div className="flex flex-wrap items-start gap-2">
               <button type="button" className="flex-1 text-left" onClick={() => setOpenId(openId === o.id ? null : o.id)}>
                 <span className="font-semibold">{o.title}</span>
                 <span className="ml-2 text-slate-500">{o.company}{o.city ? ` · ${o.city}` : ""}</span>
+                {flag && (
+                  <span
+                    className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800"
+                    title={flag.label}
+                  >
+                    titre douteux
+                  </span>
+                )}
                 {o.offConstruction && (
                   <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">
                     hors construction
@@ -346,7 +363,8 @@ export function AdminJobs() {
               </div>
             )}
           </li>
-        ))}
+          );
+        })}
       </ul>
       {pages > 1 && (
         <div className="flex items-center gap-2 text-xs">

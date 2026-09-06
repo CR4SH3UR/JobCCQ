@@ -24,6 +24,7 @@ import { isCcqTrade, ccqTradeOf } from "./ccq.js";
 import { normalizeText, fuzzyIncludes } from "./text.js";
 import { expandSemantic } from "./synonyms.js";
 import { detectShift } from "./extract.js";
+import { closesAtSortValue, extractClosesAt } from "./closes-at.js";
 import { annualizedSalary } from "./salary.js";
 import { collapseDuplicates } from "./duplicates.js";
 import { coordsForJob, haversineKm, originFromNear } from "./geo.js";
@@ -142,6 +143,10 @@ function compareBySort(sort: SortOption): (a: Job, b: Job) => number {
       return (a, b) => a.company.localeCompare(b.company, "fr");
     case "distance":
       return (a, b) => (a.distanceKm ?? 1e9) - (b.distanceKm ?? 1e9);
+    case "closing":
+      return (a, b) =>
+        closesAtSortValue(a.closesAt ?? extractClosesAt(a.title, a.description)) -
+        closesAtSortValue(b.closesAt ?? extractClosesAt(b.title, b.description));
     case "recent":
     case "relevance":
     default:
@@ -219,14 +224,19 @@ export function applyQuery(jobs: Job[], query: JobQuery): JobSearchResult {
         return { ...j, distanceKm: Math.round(haversineKm(origin, c)) };
       })
     : filtered;
+  const withDates: Job[] = withDist.map((j) => {
+    if (j.closesAt) return j;
+    const closesAt = extractClosesAt(j.title, j.description) ?? undefined;
+    return closesAt ? { ...j, closesAt } : j;
+  });
 
-  const facets = computeFacets(withDist);
+  const facets = computeFacets(withDates);
 
   let sorted: Job[];
   if (query.sort === "relevance" && query.q) {
-    sorted = [...withDist].sort((a, b) => relevanceScore(b, query.q!) - relevanceScore(a, query.q!));
+    sorted = [...withDates].sort((a, b) => relevanceScore(b, query.q!) - relevanceScore(a, query.q!));
   } else {
-    sorted = [...withDist].sort(compareBySort(query.sort));
+    sorted = [...withDates].sort(compareBySort(query.sort));
   }
 
   const total = sorted.length;
