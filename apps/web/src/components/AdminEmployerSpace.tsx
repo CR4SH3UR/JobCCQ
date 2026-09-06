@@ -1,11 +1,31 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { getEmployer, labelForClaimStatus, labelForEmployerJobStatus } from "@jobccq/shared";
-import { fetchAllClaims, setClaimStatus, type EmployerClaim } from "@/lib/employer-claims";
+import {
+  canRevokeClaim,
+  claimantLabel,
+  getEmployer,
+  labelForClaimStatus,
+  labelForEmployerJobStatus,
+} from "@jobccq/shared";
+import {
+  fetchAllClaims,
+  lookupUserEmails,
+  revokeClaim,
+  setClaimStatus,
+  withLookupEmails,
+  type EmployerClaim,
+} from "@/lib/employer-claims";
 import { fetchAllEmployerJobs, setEmployerJobStatus, type EmployerJobRow } from "@/lib/employer-jobs";
 import { invalidateJobsCache } from "@/lib/data";
 import { Badge } from "./Badge";
+
+function formatWhen(iso: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return new Intl.DateTimeFormat("fr-CA", { dateStyle: "medium", timeStyle: "short" }).format(d);
+}
 
 /** File admin : réclamations + offres employeur. */
 export function AdminEmployerSpace() {
@@ -13,11 +33,13 @@ export function AdminEmployerSpace() {
   const [jobs, setJobs] = useState<EmployerJobRow[]>([]);
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
+  const [busyKey, setBusyKey] = useState("");
 
   const load = useCallback(async () => {
     try {
       const [c, j] = await Promise.all([fetchAllClaims(), fetchAllEmployerJobs()]);
-      setClaims(c);
+      const emails = await lookupUserEmails(c.map((x) => x.userId));
+      setClaims(withLookupEmails(c, emails));
       setJobs(j);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Chargement impossible");
@@ -28,6 +50,20 @@ export function AdminEmployerSpace() {
     void load();
   }, [load]);
 
+  const act = async (key: string, fn: () => Promise<void>, done: string) => {
+    setBusyKey(key);
+    setError("");
+    try {
+      await fn();
+      setMsg(done);
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Action impossible");
+    } finally {
+      setBusyKey("");
+    }
+  };
+
   return (
     <div className="space-y-6">
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -37,41 +73,78 @@ export function AdminEmployerSpace() {
         <h2 className="mb-2 font-semibold">Réclamations</h2>
         <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
           {claims.length === 0 && <li className="px-4 py-3 text-sm text-slate-500">Aucune réclamation.</li>}
-          {claims.map((c) => (
-            <li key={`${c.userId}-${c.employerId}`} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
-              <span>
-                {getEmployer(c.employerId)?.name ?? c.employerId}{" "}
-                <Badge>{labelForClaimStatus(c.status)}</Badge>
-                {c.note ? <span className="text-slate-400"> — {c.note}</span> : null}
-              </span>
-              {c.status === "pending" && (
-                <span className="flex gap-2">
-                  <button
-                    type="button"
-                    className="rounded-lg bg-green-600 px-2 py-1 text-xs font-semibold text-white"
-                    onClick={async () => {
-                      await setClaimStatus(c.userId, c.employerId, "approved");
-                      setMsg("Réclamation approuvée.");
-                      await load();
-                    }}
-                  >
-                    Approuver
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded-lg bg-slate-200 px-2 py-1 text-xs font-semibold"
-                    onClick={async () => {
-                      await setClaimStatus(c.userId, c.employerId, "rejected");
-                      setMsg("Réclamation refusée.");
-                      await load();
-                    }}
-                  >
-                    Refuser
-                  </button>
+          {claims.map((c) => {
+            const key = `${c.userId}-${c.employerId}`;
+            const who = claimantLabel(c.email, c.userId);
+            const when = formatWhen(c.createdAt);
+            return (
+              <li key={key} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
+                <span>
+                  <span className="font-medium">{getEmployer(c.employerId)?.name ?? c.employerId}</span>{" "}
+                  <Badge>{labelForClaimStatus(c.status)}</Badge>
+                  <span className="mt-0.5 block text-slate-600">
+                    de{" "}
+                    {c.email ? (
+                      <a className="font-medium text-brand-700 hover:underline" href={`mailto:${c.email}`}>
+                        {c.email}
+                      </a>
+                    ) : (
+                      <span className="font-medium">{who}</span>
+                    )}
+                    {when ? <span className="text-slate-400"> · {when}</span> : null}
+                  </span>
+                  {c.note ? <span className="block text-slate-400">{c.note}</span> : null}
                 </span>
-              )}
-            </li>
-          ))}
+                {c.status === "pending" && (
+                  <span className="flex gap-2">
+                    <button
+                      type="button"
+                      disabled={busyKey === key}
+                      className="rounded-lg bg-green-600 px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                      onClick={() =>
+                        act(key, () => setClaimStatus(c.userId, c.employerId, "approved"), "Réclamation approuvée.")
+                      }
+                    >
+                      Approuver
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busyKey === key}
+                      className="rounded-lg bg-slate-200 px-2 py-1 text-xs font-semibold disabled:opacity-50"
+                      onClick={() =>
+                        act(key, () => setClaimStatus(c.userId, c.employerId, "rejected"), "Réclamation refusée.")
+                      }
+                    >
+                      Refuser
+                    </button>
+                  </span>
+                )}
+                {canRevokeClaim(c.status) && (
+                  <button
+                    type="button"
+                    disabled={busyKey === key}
+                    className="rounded-lg border border-red-200 bg-red-50 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50"
+                    onClick={() => {
+                      if (
+                        !confirm(
+                          `Révoquer la fiche ${getEmployer(c.employerId)?.name ?? c.employerId} pour ${who} ?`,
+                        )
+                      ) {
+                        return;
+                      }
+                      void act(
+                        key,
+                        () => revokeClaim(c.userId, c.employerId),
+                        "Réclamation révoquée — le compte n'a plus accès à cette fiche.",
+                      );
+                    }}
+                  >
+                    Révoquer
+                  </button>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </section>
 

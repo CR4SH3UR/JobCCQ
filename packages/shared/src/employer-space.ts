@@ -5,7 +5,7 @@
 import { hashText } from "./jobs-shards.js";
 import type { Job } from "./types.js";
 
-export const CLAIM_STATUSES = ["pending", "approved", "rejected"] as const;
+export const CLAIM_STATUSES = ["pending", "approved", "rejected", "revoked"] as const;
 export type ClaimStatus = (typeof CLAIM_STATUSES)[number];
 
 export const EMPLOYER_JOB_STATUSES = ["pending", "approved", "rejected"] as const;
@@ -141,7 +141,23 @@ export function filterByEmployers<T extends { sourceId: string }>(
 }
 
 export function labelForClaimStatus(s: ClaimStatus): string {
-  return s === "approved" ? "Approuvée" : s === "rejected" ? "Refusée" : "En attente";
+  if (s === "approved") return "Approuvée";
+  if (s === "rejected") return "Refusée";
+  if (s === "revoked") return "Révoquée";
+  return "En attente";
+}
+
+/** Courriel du demandeur, ou repli lisible si on n'a que l'id du compte. */
+export function claimantLabel(email?: string | null, userId?: string | null): string {
+  const mail = (email ?? "").trim();
+  if (mail) return mail;
+  const id = (userId ?? "").trim();
+  if (!id || id === "local") return "compte local (ce navigateur)";
+  return `compte ${id.slice(0, 8)}…`;
+}
+
+export function canRevokeClaim(status: ClaimStatus): boolean {
+  return status === "approved";
 }
 
 export function labelForEmployerJobStatus(s: EmployerJobStatus): string {

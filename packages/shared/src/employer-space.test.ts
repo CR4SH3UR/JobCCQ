@@ -1,11 +1,14 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  canRevokeClaim,
+  claimantLabel,
   draftToJob,
   employerJobId,
   filterByEmployers,
   isEmployerPostedJobId,
   jobDetailHref,
+  labelForClaimStatus,
   parseEmployerPatch,
   validateEmployerJobDraft,
 } from "./employer-space.js";
@@ -36,6 +39,15 @@ describe("employer-space", () => {
       description: "Bonjour",
     });
     assert.equal(parseEmployerPatch({ logoUrl: "https://cdn.ex/logo.png" }).logoUrl, "https://cdn.ex/logo.png");
+  });
+
+  it("affiche le demandeur et autorise la révocation d'une fiche approuvée", () => {
+    assert.equal(claimantLabel("marie@hamel.ca", "uuid-long"), "marie@hamel.ca");
+    assert.equal(claimantLabel("", "abcd1234-ffff"), "compte abcd1234…");
+    assert.equal(claimantLabel("", "local"), "compte local (ce navigateur)");
+    assert.equal(canRevokeClaim("approved"), true);
+    assert.equal(canRevokeClaim("pending"), false);
+    assert.equal(labelForClaimStatus("revoked"), "Révoquée");
   });
 
   it("filtre les stats par employeur réclamé", () => {

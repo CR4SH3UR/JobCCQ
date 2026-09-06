@@ -122,7 +122,7 @@ export function EmployerSpaceView() {
                     setBusy(true);
                     setMsg("");
                     try {
-                      await submitClaim(e.id, user?.id ?? "");
+                      await submitClaim(e.id, user?.id ?? "", "", user?.email ?? "");
                       setMsg(`Demande envoyée pour ${e.name}.`);
                       await reload();
                     } catch (err) {
