@@ -8,18 +8,16 @@
  * Convention : laisser un métier **absent** (ou `null`) tant que le chiffre
  * n'est pas connu — le baromètre affiche alors « à renseigner » plutôt que
  * d'inventer une valeur. La clé DOIT être un id de `CCQ_TRADES` (garde-fou :
- * `unknownWorkforceIds()`, testé). Exemple à confirmer et décommenter :
-  
-*Briqueteur-maçon: 5 228,
+ * `unknownWorkforceIds()`, testé). Exemple :
+ *
  *   electricien: 21000,
  *   charpentier-menuisier: 45000,
  */
-briqueteur-macon: 5228,
-
 import { CCQ_TRADES } from "./ccq.js";
 
 export const CCQ_WORKFORCE: Readonly<Record<string, number | null>> = {
-  // À compléter avec les effectifs officiels CCQ, un métier par ligne.
+  "briqueteur-macon": 5228,
+  // À compléter avec les autres effectifs officiels CCQ, un métier par ligne.
 };
 
 /** Effectif d'un métier, ou `null` si non renseigné. */

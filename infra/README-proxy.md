@@ -38,18 +38,22 @@ bloquée. Le plus simple et **gratuit** : un **Cloudflare Worker**.
 
 #### A1. Avec Wrangler (recommandé)
 
-Tout est déjà prêt dans `infra/` (`wrangler.toml` + le Worker). Depuis le dépôt :
+Tout est déjà prêt : `wrangler.toml` à la **racine** du dépôt (service `jobccq`,
+qui pointe sur `infra/jobillico-proxy-worker.js`). Depuis la racine :
 
 ```bash
-cd infra
 npx wrangler login                    # ouvre le navigateur, autorise
 npx wrangler secret put PROXY_TOKEN   # colle un jeton aléatoire, garde-le
 npx wrangler deploy
 ```
 
 Génère le jeton avec `openssl rand -hex 24`. À la fin, Wrangler affiche l'URL
-publique (`https://jobccq-proxy.<compte>.workers.dev`) — note-la. **Passe à
+publique (`https://jobccq.<compte>.workers.dev`) — note-la. **Passe à
 l'étape 3** (le jeton est déjà configuré).
+
+> L'intégration Cloudflare **« Workers Builds »** (déploiement auto à chaque
+> push) utilise ce même `wrangler.toml` racine : garde son **répertoire racine =
+> racine du dépôt** dans le dashboard Cloudflare.
 
 #### A2. Sans Wrangler (éditeur en ligne)
 
@@ -78,9 +82,9 @@ Génère un jeton, par exemple : `openssl rand -hex 24`.
 >
 > **Avec Wrangler** (au lieu du tableau de bord) : `ALLOW_HOSTS` est une
 > **variable** (pas un secret), donc **pas** `wrangler secret put` (erreur
-> « Binding name already in use »). Le `wrangler.toml` fourni met déjà
-> `ALLOW_HOSTS = "*"` → un simple `cd infra && npx wrangler deploy` suffit ; ou
-> sans éditer le fichier : `npx wrangler deploy --var ALLOW_HOSTS:"*"`.
+> « Binding name already in use »). Le `wrangler.toml` racine met déjà
+> `ALLOW_HOSTS = "*"` → un simple `npx wrangler deploy` (depuis la racine)
+> suffit ; ou sans éditer le fichier : `npx wrangler deploy --var ALLOW_HOSTS:"*"`.
 
 ### 3. Donner l'URL + le jeton à GitHub Actions
 
@@ -89,7 +93,7 @@ Dans le dépôt GitHub → **Settings** → **Secrets and variables** → **Acti
 
 | Secret               | Valeur                                                    |
 | -------------------- | -------------------------------------------------------- |
-| `SCRAPE_PROXY_URL`   | l'URL du Worker (ex. `https://jobccq-proxy.xxx.workers.dev`) |
+| `SCRAPE_PROXY_URL`   | l'URL du Worker (ex. `https://jobccq.xxx.workers.dev`) |
 | `SCRAPE_PROXY_TOKEN` | le même jeton que `PROXY_TOKEN`                           |
 
 C'est tout. Au prochain scraping (planifié le lundi, ou lancé manuellement via
@@ -99,7 +103,7 @@ par le Worker. Vérifie dans les logs : plus de `HTTP 403` sur `jobillico.com`.
 ### Tester le Worker à la main
 
 ```
-curl "https://jobccq-proxy.xxx.workers.dev/?url=https%3A%2F%2Fwww.jobillico.com%2Fvoir-entreprise%2Fnordex&token=TON_JETON"
+curl "https://jobccq.xxx.workers.dev/?url=https%3A%2F%2Fwww.jobillico.com%2Fvoir-entreprise%2Fnordex&token=TON_JETON"
 ```
 
 Une page HTML (statut 200) = OK. `403 Forbidden` = jeton absent/incorrect.
