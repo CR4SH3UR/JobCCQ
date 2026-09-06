@@ -64,6 +64,7 @@ import { canInspecScraper } from "./caninspec.js";
 import { cdPeintreScraper } from "./cdpeintre.js";
 import { casParCasScraper } from "./casparcas.js";
 import { buildDiscoveredScraper } from "./discovered.js";
+import { ccqConstructionScraper } from "./ccq-construction.js";
 
 /**
  * Scrapers **sur mesure** (bespoke) de certains employeurs, indexés par id.
@@ -146,14 +147,19 @@ const BESPOKE = {
  * Registre des scrapers branchés. La clé est l'`id` de l'employeur dans
  * `discovered.json`. Les sources désactivées (`enabled === false`) ne sont pas
  * branchées. Chaque employeur utilise son scraper bespoke s'il en a un, sinon le
- * scraper générique construit à partir de sa méthode.
+ * scraper générique construit à partir de sa méthode. `ccq-construction` est une
+ * source hors discovered (portail public de la Commission).
  */
-export const SCRAPERS: Record<string, Scraper> = Object.fromEntries(
-  DISCOVERED_EMPLOYERS.filter((d) => d.enabled !== false).map((d) => [
-    d.id,
-    bespokeScraper(d.id) ?? buildDiscoveredScraper(d),
-  ]),
-);
+export const SCRAPERS: Record<string, Scraper> = {
+  ...Object.fromEntries(
+    DISCOVERED_EMPLOYERS.filter((d) => d.enabled !== false).map((d) => [
+      d.id,
+      bespokeScraper(d.id) ?? buildDiscoveredScraper(d),
+    ]),
+  ),
+  // Source (pas un employeur discovered) : portail carrières public de la CCQ.
+  "ccq-construction": ccqConstructionScraper,
+};
 
 export function getScraper(id: string): Scraper | undefined {
   return SCRAPERS[id];

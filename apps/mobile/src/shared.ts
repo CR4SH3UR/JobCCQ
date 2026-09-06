@@ -211,11 +211,11 @@ export const JOB_SOURCES: readonly JobSource[] = [
   {
     id: "ccq-construction",
     name: "CCQ — Carrefour construction",
-    homepage: "https://www.ccq.org",
+    homepage: "https://carriere.ccq.org/",
     region: "QC",
-    scope: "Commission de la construction du Québec — métiers de la construction",
+    scope: "Commission de la construction du Québec — portail carrières public",
     method: "html",
-    status: "planned",
+    status: "active",
     language: "fr",
   },
   {

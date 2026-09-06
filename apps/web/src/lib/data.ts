@@ -50,6 +50,7 @@ export async function adminFetch(url: string, init: RequestInit = {}): Promise<R
 
 /** Sources disposant d'un scraper (miroir de apps/api/src/scrapers/registry.ts). */
 const SCRAPER_IDS = new Set([
+  "ccq-construction",
   "atwill-morin",
   "hamel-construction",
   "pomerleau",

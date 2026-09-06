@@ -44,17 +44,19 @@ export const JOB_SOURCES = [
   // Les employeurs curés (Pomerleau, EBC, Béluga, Atwill-Morin…) ont été migrés
   // vers discovered.json : ils sont désormais visibles et éditables dans la
   // console d'admin comme tous les autres, tout en gardant leur scraper dédié
-  // (voir BESPOKE dans apps/api/src/scrapers/registry.ts). Ne reste ici que la
-  // CCQ, qui n'est pas un employeur (répertoire, non scrapé).
+  // (voir BESPOKE dans apps/api/src/scrapers/registry.ts). La CCQ reste ici :
+  // ce n'est pas un employeur discovered, c'est une source (portail carrières).
   {
     id: "ccq-construction",
     name: "CCQ — Carrefour construction",
-    homepage: "https://www.ccq.org",
+    homepage: "https://carriere.ccq.org/",
     region: "QC",
-    scope: "Commission de la construction du Québec — métiers de la construction",
+    scope: "Commission de la construction du Québec — portail carrières public",
     method: "html",
-    status: "planned",
+    status: "active",
     language: "fr",
+    notes:
+      "SuccessFactors public (carriere.ccq.org). Le Carnet référence construction (ex-Carrefour) exige un compte — non importé.",
   },
 ] as const satisfies readonly JobSource[];
 
