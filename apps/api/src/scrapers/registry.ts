@@ -76,6 +76,7 @@ import { ccqConstructionScraper } from "./ccq-construction.js";
  * les autres employeurs, on construit le scraper à partir de la méthode détectée.
  */
 const BESPOKE = {
+  "ccq-construction": ccqConstructionScraper,
   "atwill-morin": atwillMorinScraper,
   "hamelconstruction-com": hamelConstructionScraper,
   pomerleau: pomerleauScraper,
@@ -147,19 +148,14 @@ const BESPOKE = {
  * Registre des scrapers branchés. La clé est l'`id` de l'employeur dans
  * `discovered.json`. Les sources désactivées (`enabled === false`) ne sont pas
  * branchées. Chaque employeur utilise son scraper bespoke s'il en a un, sinon le
- * scraper générique construit à partir de sa méthode. `ccq-construction` est une
- * source hors discovered (portail public de la Commission).
+ * scraper générique construit à partir de sa méthode.
  */
-export const SCRAPERS: Record<string, Scraper> = {
-  ...Object.fromEntries(
-    DISCOVERED_EMPLOYERS.filter((d) => d.enabled !== false).map((d) => [
-      d.id,
-      bespokeScraper(d.id) ?? buildDiscoveredScraper(d),
-    ]),
-  ),
-  // Source (pas un employeur discovered) : portail carrières public de la CCQ.
-  "ccq-construction": ccqConstructionScraper,
-};
+export const SCRAPERS: Record<string, Scraper> = Object.fromEntries(
+  DISCOVERED_EMPLOYERS.filter((d) => d.enabled !== false).map((d) => [
+    d.id,
+    bespokeScraper(d.id) ?? buildDiscoveredScraper(d),
+  ]),
+);
 
 export function getScraper(id: string): Scraper | undefined {
   return SCRAPERS[id];

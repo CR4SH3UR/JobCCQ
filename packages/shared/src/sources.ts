@@ -126,8 +126,11 @@ const DISCOVERED_AS_SOURCES: readonly JobSource[] = DISCOVERED_EMPLOYERS.map((d)
   enabled: d.enabled,
 }));
 
-/** Toutes les sources : catalogue curé + employeurs auto-découverts. */
-export const ALL_SOURCES: readonly JobSource[] = [...JOB_SOURCES, ...DISCOVERED_AS_SOURCES];
+/** Toutes les sources : catalogue curé + employeurs auto-découverts (sans doublon d'id). */
+export const ALL_SOURCES: readonly JobSource[] = [
+  ...JOB_SOURCES,
+  ...DISCOVERED_AS_SOURCES.filter((d) => !JOB_SOURCES.some((s) => s.id === d.id)),
+];
 
 const SOURCE_BY_ID: Record<string, JobSource> = Object.fromEntries(
   ALL_SOURCES.map((s) => [s.id, s]),

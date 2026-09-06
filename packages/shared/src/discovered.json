@@ -1,5 +1,18 @@
 [
   {
+    "id": "ccq-construction",
+    "name": "CCQ — Carrefour construction",
+    "homepage": "https://www.ccq.org",
+    "careersUrl": "https://carriere.ccq.org/search/",
+    "method": "html",
+    "region": "Montréal",
+    "scope": "Commission de la construction du Québec — portail carrières public. Le Carnet référence construction (ex-Carrefour) exige un compte — non scrapé.",
+    "sectors": [
+      "Construction générale"
+    ],
+    "verified": true
+  },
+  {
     "id": "groupepiche-ca",
     "name": "ITR Acoustique MTL inc.",
     "homepage": "https://www.itracoustique.com",
