@@ -18,6 +18,9 @@ import {
   extractBenefits,
   summarizeDescription,
   matchJobToProfile,
+  ccqWageForJob,
+  formatCcqHourly,
+  CCQ_SALARY_URL,
   type Job,
 } from "@jobccq/shared";
 import { Badge } from "./Badge";
@@ -171,6 +174,7 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
               </p>
             )}
             <CompletenessNote job={job} />
+            <CcqWageNote job={job} />
             <MatchNote job={job} />
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -396,6 +400,38 @@ function CompletenessNote({ job }: { job: Job }) {
   return (
     <p className="mt-3 text-xs text-slate-500">
       Fiche {c.score}/{c.max} — manque {c.missing.join(", ")}.
+    </p>
+  );
+}
+
+function CcqWageNote({ job }: { job: Job }) {
+  const w = ccqWageForJob(job.title, job);
+  if (!w) return null;
+  const vs =
+    w.vsOffer === "below"
+      ? "L'offre est sous ce taux compagnon."
+      : w.vsOffer === "above"
+        ? "L'offre est au-dessus de ce taux compagnon."
+        : w.vsOffer === "near"
+          ? "L'offre est proche de ce taux compagnon."
+          : null;
+  return (
+    <p className="mt-3 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-sm text-violet-900 dark:border-violet-500/40 dark:bg-violet-500/15 dark:text-violet-100">
+      Grille CCQ · {w.tradeLabel} compagnon ({w.sector}) :{" "}
+      <span className="font-semibold">{formatCcqHourly(w.hourly)}</span>
+      {vs ? ` — ${vs}` : ""}
+      {w.isolatedNote
+        ? " Taux majoré possible (chantiers isolés / Baie-James)."
+        : ""}{" "}
+      <a
+        href={CCQ_SALARY_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-medium underline decoration-violet-400/60 underline-offset-2 hover:decoration-violet-600"
+      >
+        Source CCQ
+      </a>
+      <span className="text-violet-700 dark:text-violet-200"> · 26 avr. 2026</span>
     </p>
   );
 }

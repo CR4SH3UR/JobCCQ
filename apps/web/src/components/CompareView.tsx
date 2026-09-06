@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ccqTradeLabel,
+  ccqWageForJob,
+  formatCcqHourly,
   extractBenefits,
   extractRequirements,
   labelForEmployment,
@@ -95,6 +97,13 @@ export function CompareView() {
       },
     },
     { label: "Salaire", cell: (j) => formatSalary(j) ?? "Non renseigné" },
+    {
+      label: "Grille CCQ",
+      cell: (j) => {
+        const w = ccqWageForJob(j.title, j);
+        return w ? `${w.tradeLabel} · ${formatCcqHourly(w.hourly)}` : "—";
+      },
+    },
     { label: "Type", cell: (j) => (j.employmentType ? labelForEmployment(j.employmentType) ?? j.employmentType : "—") },
     { label: "Présentiel", cell: (j) => (j.remote ? labelForRemote(j.remote) ?? j.remote : "—") },
     { label: "Métier CCQ", cell: (j) => ccqTradeLabel(j.title) ?? "—" },

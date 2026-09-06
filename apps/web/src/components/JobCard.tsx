@@ -10,6 +10,8 @@ import {
   labelForRemote,
   sectorsForJob,
   ccqTradeLabel,
+  ccqWageForJob,
+  formatCcqHourly,
   sourceName,
   rbqLicenceUrl,
   jobCompleteness,
@@ -35,6 +37,7 @@ export function JobCard({ job }: { job: Job }) {
   const sponsored = isSponsoredEmployer(job.sourceId);
   const applied = useHasApplied(job.id);
   const ccq = ccqTradeLabel(job.title);
+  const ccqWage = ccqWageForJob(job.title);
   const employer = getEmployer(job.sourceId);
   const rbq = employer?.rbq;
   const verified = !!employer?.verified;
@@ -95,7 +98,18 @@ export function JobCard({ job }: { job: Job }) {
                 Peut-être pourvue
               </Badge>
             )}
-            {ccq && <Badge tone="violet">CCQ</Badge>}
+            {ccq && (
+              <Badge
+                tone="violet"
+                title={
+                  ccqWage
+                    ? `Taux compagnon ICI : ${formatCcqHourly(ccqWage.hourly)}`
+                    : "Métier reconnu CCQ (détection par intitulé)"
+                }
+              >
+                {ccqWage ? `CCQ · ${formatCcqHourly(ccqWage.hourly)}` : "CCQ"}
+              </Badge>
+            )}
             {sponsored && <Badge tone="amber">★ Commandité</Badge>}
             {job.categoryId && <Badge tone="brand">{labelForCategory(job.categoryId)}</Badge>}
             {sectors.slice(0, 2).map((s) => (

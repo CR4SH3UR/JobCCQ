@@ -217,7 +217,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 ### 🧾 Qualité & enrichissement des offres
 
 - [x] 11. Normalisation des salaires (fourchette horaire **et** annuelle pour comparer)
-- [ ] 12. Grille CCQ : taux horaire officiel du métier/région affiché à côté de l'offre
+- [x] 12. Grille CCQ : taux horaire officiel du métier/région affiché à côté de l'offre
 - [x] 13. Détection de doublons inter-sources (fusion + badge « aussi sur X »)
 - [x] 14. Extraction des exigences (carte de compétence, ASP Construction, permis classe 1/3…)
 - [x] 15. Score de complétude d'une offre (salaire ? lieu ? description ?)
