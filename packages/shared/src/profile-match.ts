@@ -60,6 +60,53 @@ export function parseProfile(raw: unknown): JobSeekerProfile {
   };
 }
 
+/** Union de deux profils (ids uniques, ordre : `a` puis ajouts de `b`). */
+export function mergeProfiles(a: JobSeekerProfile, b: JobSeekerProfile): JobSeekerProfile {
+  return parseProfile({
+    trades: [...a.trades, ...b.trades],
+    regions: [...a.regions, ...b.regions],
+    remote: [...a.remote, ...b.remote],
+  });
+}
+
+export interface ProfileSyncSides {
+  local: JobSeekerProfile;
+  /** Epoch ms ; 0 = ancien stockage sans horodatage. */
+  localAt: number;
+  remote: JobSeekerProfile | null;
+  remoteAt: number;
+}
+
+export type ProfileSyncDecision =
+  | { action: "keep-local"; profile: JobSeekerProfile; persistRemote: boolean }
+  | { action: "use-remote"; profile: JobSeekerProfile }
+  | { action: "merge"; profile: JobSeekerProfile };
+
+/**
+ * Décide quoi garder à la connexion : dernière écriture gagne si les deux
+ * côtés ont un horodatage ; sinon union pour ne rien perdre (migration).
+ */
+export function decideProfileSync(s: ProfileSyncSides): ProfileSyncDecision {
+  const localSet = profileIsSet(s.local);
+  const remoteSet = !!(s.remote && profileIsSet(s.remote));
+  if (!localSet && !remoteSet) {
+    return { action: "keep-local", profile: s.local, persistRemote: false };
+  }
+  if (!remoteSet) {
+    return { action: "keep-local", profile: s.local, persistRemote: localSet };
+  }
+  if (!localSet) {
+    return { action: "use-remote", profile: s.remote! };
+  }
+  if (s.localAt > 0 && s.remoteAt > 0) {
+    if (s.localAt >= s.remoteAt) {
+      return { action: "keep-local", profile: s.local, persistRemote: s.localAt > s.remoteAt };
+    }
+    return { action: "use-remote", profile: s.remote! };
+  }
+  return { action: "merge", profile: mergeProfiles(s.local, s.remote!) };
+}
+
 export interface ProfileMatch {
   /** 0–100, axes renseignés du profil uniquement. */
   score: number;

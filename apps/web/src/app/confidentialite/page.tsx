@@ -28,8 +28,9 @@ export default function ConfidentialitePage() {
           magique, sans mot de passe) ou une alerte emploi.
         </li>
         <li>
-          <strong>Favoris et alertes</strong> — les offres que vous enregistrez et les critères de
-          recherche de vos alertes, associés à votre compte.
+          <strong>Favoris, profil et alertes</strong> — les offres que vous enregistrez, votre
+          profil métier (métiers, régions, mobilité) et les critères de vos alertes, associés à
+          votre compte pour suivre d'un appareil à l'autre.
         </li>
         <li>
           <strong>Préférences locales</strong> — thème (clair/sombre) et favoris hors connexion,
@@ -45,7 +46,7 @@ export default function ConfidentialitePage() {
 
       <h2>Finalités</h2>
       <ul>
-        <li>Vous authentifier et synchroniser vos favoris entre vos appareils.</li>
+        <li>Vous authentifier et synchroniser vos favoris, candidatures et profil entre vos appareils.</li>
         <li>Vous envoyer, si vous y consentez, des alertes courriel sur de nouvelles offres.</li>
         <li>Assurer la sécurité et le bon fonctionnement du service.</li>
         <li>Traiter les signalements d'offres (expirée, trompeuse, doublon) pour la modération.</li>
@@ -67,8 +68,8 @@ export default function ConfidentialitePage() {
       <p>Nous faisons appel à des fournisseurs qui traitent des données pour notre compte :</p>
       <ul>
         <li>
-          <strong>Supabase</strong> — authentification et base de données (favoris, alertes,
-          signalements).
+          <strong>Supabase</strong> — authentification et base de données (favoris, profil,
+          alertes, signalements).
         </li>
         <li>
           <strong>Resend</strong> — envoi des courriels d'alerte et de connexion.

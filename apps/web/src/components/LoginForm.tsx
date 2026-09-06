@@ -118,12 +118,12 @@ export function LoginForm({ onNavigate }: { onNavigate?: () => void }) {
     <div>
       <p className="text-sm text-slate-600 dark:text-slate-300">
         {mode === "signup"
-          ? "Crée ton compte pour synchroniser tes favoris, candidatures et alertes sur tous tes appareils."
+          ? "Crée ton compte pour synchroniser tes favoris, candidatures, profil et alertes sur tous tes appareils."
           : mode === "magic"
             ? "On t'envoie un lien de connexion — aucun mot de passe à retenir."
             : mode === "forgot"
               ? "Entre ton courriel : on t'envoie un lien pour choisir un nouveau mot de passe."
-              : "Connecte-toi pour retrouver tes favoris, candidatures et alertes sur tous tes appareils."}
+              : "Connecte-toi pour retrouver tes favoris, candidatures, profil et alertes sur tous tes appareils."}
       </p>
 
       {(mode === "signin" || mode === "signup") && (
