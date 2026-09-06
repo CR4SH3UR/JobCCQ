@@ -7,7 +7,13 @@
  */
 import { useSyncExternalStore } from "react";
 import { supabase } from "./supabase";
-import { summarizeApplyClicks, type ApplyClickEvent, type ApplyClickStats } from "./apply-clicks-stats";
+import {
+  lastApplyClicksByJob,
+  recentApplyClicksByJob,
+  summarizeApplyClicks,
+  type ApplyClickEvent,
+  type ApplyClickStats,
+} from "./apply-clicks-stats";
 
 export type { ApplyClickEvent, ApplyClickStats };
 
@@ -18,8 +24,11 @@ const DEDUPE_MS = 2_000;
 let cache: ApplyClickEvent[] | null = null;
 const listeners = new Set<() => void>();
 const EMPTY_STATS: ApplyClickStats = { total: 0, bySource: [], byJob: [] };
+const EMPTY_EVENTS: ApplyClickEvent[] = [];
 let lastRecord: { jobId: string; at: number } | null = null;
 let statsSnap: ApplyClickStats | null = null;
+let lastByJobSnap: Map<string, number> | null = null;
+let recentByJobSnap: ApplyClickEvent[] | null = null;
 
 function read(): ApplyClickEvent[] {
   if (cache !== null) return cache;
@@ -35,6 +44,8 @@ function read(): ApplyClickEvent[] {
 function persist(list: ApplyClickEvent[]): void {
   cache = list.slice(-MAX);
   statsSnap = summarizeApplyClicks(cache);
+  lastByJobSnap = lastApplyClicksByJob(cache);
+  recentByJobSnap = recentApplyClicksByJob(cache);
   try {
     localStorage.setItem(KEY, JSON.stringify(cache));
   } catch {
@@ -88,6 +99,16 @@ export function localApplyClickStats(): ApplyClickStats {
   return statsSnap;
 }
 
+export function localLastApplyClickAt(jobId: string): number | null {
+  if (!lastByJobSnap) lastByJobSnap = lastApplyClicksByJob(read());
+  return lastByJobSnap.get(jobId) ?? null;
+}
+
+export function localRecentApplyClicks(): ApplyClickEvent[] {
+  if (!recentByJobSnap) recentByJobSnap = recentApplyClicksByJob(read());
+  return recentByJobSnap;
+}
+
 function eventsFromRows(
   data: { job_id: unknown; source_id: unknown; title: unknown; at: unknown }[],
 ): ApplyClickEvent[] {
@@ -126,6 +147,8 @@ export function subscribeApplyClicks(fn: () => void): () => void {
     if (e.key !== KEY) return;
     cache = null;
     statsSnap = null;
+    lastByJobSnap = null;
+    recentByJobSnap = null;
     fn();
   };
   if (typeof window !== "undefined") window.addEventListener("storage", onStorage);
@@ -137,4 +160,16 @@ export function subscribeApplyClicks(fn: () => void): () => void {
 
 export function useLocalApplyClickStats(): ApplyClickStats {
   return useSyncExternalStore(subscribeApplyClicks, localApplyClickStats, () => EMPTY_STATS);
+}
+
+export function useLastApplyClickAt(jobId: string): number | null {
+  return useSyncExternalStore(
+    subscribeApplyClicks,
+    () => localLastApplyClickAt(jobId),
+    () => null,
+  );
+}
+
+export function useRecentApplyClicks(): ApplyClickEvent[] {
+  return useSyncExternalStore(subscribeApplyClicks, localRecentApplyClicks, () => EMPTY_EVENTS);
 }

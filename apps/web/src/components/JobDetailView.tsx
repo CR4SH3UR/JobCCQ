@@ -39,6 +39,8 @@ import { useLivePoll } from "@/lib/live";
 import { jobPostingLd, ldJson } from "@/lib/jsonld";
 import { COMPARE_MAX, toggleCompare, useCompareIds, useIsCompared } from "@/lib/compare";
 import { useProfile } from "@/lib/profile";
+import { useLastApplyClickAt } from "@/lib/apply-clicks";
+import { optimizedLogoUrl } from "@/lib/logo-url";
 
 const REMOTE_TONE = { teletravail: "green", hybride: "violet", presentiel: "slate" } as const;
 
@@ -48,6 +50,7 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
   const [loading, setLoading] = useState(!initialJob);
   const [error, setError] = useState(false);
   const [showEn, setShowEn] = useState(false);
+  const lastApplyClickAt = useLastApplyClickAt(id);
 
   const load = useCallback(async () => {
     try {
@@ -216,6 +219,11 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
               <FavoriteButton id={job.id} />
               <CompareDetailButton id={job.id} />
             </div>
+            {lastApplyClickAt && (
+              <p className="mt-2 text-xs text-slate-500">
+                Tu as déjà ouvert le site de l'employeur {timeAgo(new Date(lastApplyClickAt).toISOString())}.
+              </p>
+            )}
             {job.alsoOn && job.alsoOn.length > 0 && (
               <ul className="mt-3 space-y-1 text-sm">
                 {job.alsoOn.map((a) => (
@@ -476,12 +484,17 @@ function MatchNote({ job }: { job: Job }) {
 }
 
 function Avatar({ name, logo }: { name: string; logo?: string }) {
-  if (logo) {
+  const src = optimizedLogoUrl(logo, 112);
+  if (src) {
     // eslint-disable-next-line @next/next/no-img-element
     return (
       <img
-        src={logo}
+        src={src}
         alt={name}
+        width={56}
+        height={56}
+        loading="lazy"
+        decoding="async"
         className="h-14 w-14 shrink-0 rounded-lg object-contain ring-1 ring-slate-200"
       />
     );

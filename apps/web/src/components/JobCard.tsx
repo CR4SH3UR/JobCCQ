@@ -25,6 +25,8 @@ import { isSponsoredEmployer } from "@/lib/sponsors";
 import { toggleFavorite, useIsFavorite } from "@/lib/favorites";
 import { toggleApplied, useHasApplied } from "@/lib/applications";
 import { COMPARE_MAX, toggleCompare, useCompareIds, useIsCompared } from "@/lib/compare";
+import { useLastApplyClickAt } from "@/lib/apply-clicks";
+import { optimizedLogoUrl } from "@/lib/logo-url";
 import { ApplyLink } from "./ApplyLink";
 
 const REMOTE_TONE = { teletravail: "green", hybride: "violet", presentiel: "slate" } as const;
@@ -36,6 +38,7 @@ export function JobCard({ job }: { job: Job }) {
   const sectors = sectorsForJob(job);
   const sponsored = isSponsoredEmployer(job.sourceId);
   const applied = useHasApplied(job.id);
+  const lastApplyClickAt = useLastApplyClickAt(job.id);
   const ccq = ccqTradeLabel(job.title);
   const ccqWage = ccqWageForJob(job.title);
   const employer = getEmployer(job.sourceId);
@@ -94,6 +97,7 @@ export function JobCard({ job }: { job: Job }) {
 
           <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
             {applied && <Badge tone="green">✓ Postulé</Badge>}
+            {lastApplyClickAt && <Badge tone="violet">Postuler ouvert {timeAgo(new Date(lastApplyClickAt).toISOString())}</Badge>}
             <MatchBadge job={job} />
             <AlsoOnBadge alts={job.alsoOn} />
             {job.linkStatus === "gone" && (
@@ -271,12 +275,17 @@ function AppliedCheck({ id }: { id: string }) {
 }
 
 function Avatar({ name, logo }: { name: string; logo?: string }) {
-  if (logo) {
+  const src = optimizedLogoUrl(logo, 88);
+  if (src) {
     // eslint-disable-next-line @next/next/no-img-element
     return (
       <img
-        src={logo}
+        src={src}
         alt={name}
+        width={44}
+        height={44}
+        loading="lazy"
+        decoding="async"
         className="h-11 w-11 shrink-0 rounded-lg object-contain ring-1 ring-slate-200"
       />
     );

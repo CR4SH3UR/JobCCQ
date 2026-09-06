@@ -12,6 +12,7 @@ import { initials, timeAgo } from "@/lib/format";
 import { getJobsBySource, invalidateJobsCache, searchCompanies, buildQuery } from "@/lib/data";
 import { useLivePoll } from "@/lib/live";
 import { organizationLd, ldJson } from "@/lib/jsonld";
+import { optimizedLogoUrl } from "@/lib/logo-url";
 
 export function EmployerView({ slug }: { slug: string }) {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -57,6 +58,7 @@ export function EmployerView({ slug }: { slug: string }) {
   // couvertes, dernière publication, métiers CCQ présents. Ces hooks doivent
   // rester AVANT tout `return` conditionnel (ordre des hooks stable).
   const logoUrl = jobs.find((j) => j.companyLogoUrl)?.companyLogoUrl;
+  const optimizedLogo = optimizedLogoUrl(logoUrl, 128);
   const careersUrl = employer?.careersUrl;
   const regionLabels = useMemo(() => {
     const ids = new Set<string>();
@@ -131,11 +133,15 @@ export function EmployerView({ slug }: { slug: string }) {
             <span className="text-slate-400"> › {name}</span>
           </nav>
           <div className="flex items-start gap-4">
-            {logoUrl ? (
+            {optimizedLogo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={logoUrl}
+                src={optimizedLogo}
                 alt={name}
+                width={64}
+                height={64}
+                loading="lazy"
+                decoding="async"
                 className="h-16 w-16 shrink-0 rounded-xl object-contain ring-1 ring-slate-100"
               />
             ) : (

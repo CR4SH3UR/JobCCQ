@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import {
   labelForCategory,
   labelForEmployment,
@@ -39,10 +40,11 @@ import { Pagination } from "./Pagination";
 import { Badge } from "./Badge";
 import { SponsorBanner } from "./SponsorBanner";
 import { isSponsoredEmployer } from "@/lib/sponsors";
-import { cn } from "@/lib/format";
+import { cn, timeAgo } from "@/lib/format";
 import { useAuth } from "@/lib/auth";
 import { createAlert, filterQuery } from "@/lib/alerts";
 import { siteUrl } from "@/lib/site";
+import { useRecentApplyClicks } from "@/lib/apply-clicks";
 
 const PAGE_SIZE = 20;
 
@@ -128,6 +130,7 @@ export function EmploisExplorer() {
   const [error, setError] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const { user, enabled: authEnabled } = useAuth();
+  const recentApplyClicks = useRecentApplyClicks();
   const [alertMsg, setAlertMsg] = useState<string | null>(null);
 
   // Applique un état de filtres complet à l'UI (amorçage URL, recherche
@@ -399,6 +402,8 @@ export function EmploisExplorer() {
   };
 
   const facets = result?.facets;
+  const resumeClick = recentApplyClicks[0];
+  const resumeAgo = resumeClick ? timeAgo(new Date(resumeClick.at).toISOString()) : null;
 
   // Offres « en vedette » (commanditées) remontées en tête de la page courante.
   const items = useMemo(() => {
@@ -756,6 +761,20 @@ export function EmploisExplorer() {
         {/* Colonne résultats */}
         <section>
           <SponsorBanner className="mb-4" />
+          {resumeClick && (
+            <div className="card mb-4 flex flex-col gap-2 border-violet-200 bg-violet-50 p-3 text-sm text-violet-900 sm:flex-row sm:items-center sm:justify-between dark:border-violet-500/40 dark:bg-violet-500/15 dark:text-violet-100">
+              <span>
+                Reprendre : <strong>{resumeClick.title}</strong>
+                {resumeAgo ? ` · ouvert ${resumeAgo}` : ""}
+              </span>
+              <Link
+                href={`/emplois/${resumeClick.jobId}/`}
+                className="shrink-0 rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-violet-700 ring-1 ring-violet-200 hover:bg-violet-100 dark:bg-violet-950/40 dark:text-violet-100"
+              >
+                Retourner à l'offre
+              </Link>
+            </div>
+          )}
           <div className="mb-3 flex items-center justify-between">
             <p className="text-sm text-slate-600">
               {loading && !result ? (

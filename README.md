@@ -276,7 +276,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [ ] 102. Rappels d'échéance en invitation calendrier (`.ics` / Google Calendar)
 - [ ] 104. Date limite d'offre extraite + tri « ferme bientôt »
 - [ ] 105. Modèles de courriel de relance générés selon le statut de candidature
-- [ ] 106. Reprise « là où j'en étais » (mémo local des clics « Postuler »)
+- [x] 106. Reprise « là où j'en étais » (mémo local des clics « Postuler »)
 
 ### 🕷️ Scraping, sources & pipeline
 
@@ -320,7 +320,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [ ] 109. Audit a11y automatisé en CI (axe-core) + budget d'accessibilité
 - [ ] 110. Lecture audio d'une offre (synthèse vocale) sur mobile
 - [ ] 111. Réécriture « langage clair » d'une description dense (LLM)
-- [ ] 118. Optimisation des logos employeurs (proxy + redimensionnement + WebP + cache)
+- [x] 118. Optimisation des logos employeurs (proxy + redimensionnement + WebP + cache)
 - [ ] 119. Index DB & requêtes profilées (EXPLAIN) pour les filtres fréquents (Turso/SQLite)
 - [ ] 120. `jobs.json` par région + delta incrémental (ne recharger que ce qui change)
 - [ ] 121. Surveillance des coûts (Turso / workers / Pages) + alerte de dépassement

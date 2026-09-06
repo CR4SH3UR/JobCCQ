@@ -12,6 +12,7 @@ import {
 import { searchCompanies, buildQuery, invalidateJobsCache } from "@/lib/data";
 import { Badge } from "./Badge";
 import { initials, timeAgo } from "@/lib/format";
+import { optimizedLogoUrl } from "@/lib/logo-url";
 
 function useDebounce<T>(value: T, delay = 350): T {
   const [v, setV] = useState(value);
@@ -142,14 +143,19 @@ export function CompaniesExplorer() {
 
 function CompanyCard({ company: c }: { company: HiringCompany }) {
   const latest = timeAgo(c.latestPostedAt);
+  const logo = optimizedLogoUrl(c.companyLogoUrl, 88);
   return (
     <article className="card flex flex-col p-4">
       <div className="flex items-center gap-3">
-        {c.companyLogoUrl ? (
+        {logo ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={c.companyLogoUrl}
+            src={logo}
             alt={c.company}
+            width={44}
+            height={44}
+            loading="lazy"
+            decoding="async"
             className="h-11 w-11 rounded-lg object-contain ring-1 ring-slate-200"
           />
         ) : (

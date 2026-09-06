@@ -32,3 +32,21 @@ export function summarizeApplyClicks(events: ApplyClickEvent[]): ApplyClickStats
     byJob: [...jobs.values()].sort(byCount),
   };
 }
+
+export function lastApplyClicksByJob(events: ApplyClickEvent[]): Map<string, number> {
+  const last = new Map<string, number>();
+  for (const e of events) {
+    const prev = last.get(e.jobId) ?? 0;
+    if (e.at > prev) last.set(e.jobId, e.at);
+  }
+  return last;
+}
+
+export function recentApplyClicksByJob(events: ApplyClickEvent[]): ApplyClickEvent[] {
+  const byJob = new Map<string, ApplyClickEvent>();
+  for (const e of events) {
+    const prev = byJob.get(e.jobId);
+    if (!prev || e.at > prev.at) byJob.set(e.jobId, e);
+  }
+  return [...byJob.values()].sort((a, b) => b.at - a.at);
+}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ContactEmailButton } from "@/components/ContactEmailButton";
 import { SPONSORS, SPONSOR_CONTACT_EMAIL, type Sponsor } from "@/lib/sponsors";
 import { cn, initials } from "@/lib/format";
+import { optimizedLogoUrl } from "@/lib/logo-url";
 
 /**
  * Bannière de commandite — niveaux **or** (bannière vedette, rotative) et
@@ -171,12 +172,17 @@ function SilverMini({ s }: { s: Sponsor }) {
 
 function Logo({ s, size, gold }: { s: Sponsor; size: "sm" | "md" | "lg"; gold: boolean }) {
   const dim = size === "lg" ? "h-16 w-16" : size === "md" ? "h-12 w-12" : "h-11 w-11";
-  if (s.logoUrl) {
+  const src = optimizedLogoUrl(s.logoUrl, size === "lg" ? 128 : size === "md" ? 96 : 88);
+  if (src) {
     // eslint-disable-next-line @next/next/no-img-element
     return (
       <img
-        src={s.logoUrl}
+        src={src}
         alt={s.name}
+        width={size === "lg" ? 64 : size === "md" ? 48 : 44}
+        height={size === "lg" ? 64 : size === "md" ? 48 : 44}
+        loading="lazy"
+        decoding="async"
         className={cn(dim, "shrink-0 rounded-xl bg-white object-contain p-1 ring-1 ring-slate-200")}
       />
     );
