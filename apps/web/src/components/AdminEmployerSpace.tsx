@@ -9,6 +9,7 @@ import {
   labelForEmployerJobStatus,
 } from "@jobccq/shared";
 import {
+  deleteClaim,
   fetchAllClaims,
   lookupUserEmails,
   revokeClaim,
@@ -95,53 +96,76 @@ export function AdminEmployerSpace() {
                   </span>
                   {c.note ? <span className="block text-slate-400">{c.note}</span> : null}
                 </span>
-                {c.status === "pending" && (
-                  <span className="flex gap-2">
+                <span className="flex flex-wrap gap-2">
+                  {c.status === "pending" && (
+                    <>
+                      <button
+                        type="button"
+                        disabled={busyKey === key}
+                        className="rounded-lg bg-green-600 px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                        onClick={() =>
+                          act(key, () => setClaimStatus(c.userId, c.employerId, "approved"), "Réclamation approuvée.")
+                        }
+                      >
+                        Approuver
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busyKey === key}
+                        className="rounded-lg bg-slate-200 px-2 py-1 text-xs font-semibold disabled:opacity-50"
+                        onClick={() =>
+                          act(key, () => setClaimStatus(c.userId, c.employerId, "rejected"), "Réclamation refusée.")
+                        }
+                      >
+                        Refuser
+                      </button>
+                    </>
+                  )}
+                  {canRevokeClaim(c.status) && (
                     <button
                       type="button"
                       disabled={busyKey === key}
-                      className="rounded-lg bg-green-600 px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
-                      onClick={() =>
-                        act(key, () => setClaimStatus(c.userId, c.employerId, "approved"), "Réclamation approuvée.")
-                      }
+                      className="rounded-lg border border-red-200 bg-red-50 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50"
+                      onClick={() => {
+                        if (
+                          !confirm(
+                            `Révoquer la fiche ${getEmployer(c.employerId)?.name ?? c.employerId} pour ${who} ?`,
+                          )
+                        ) {
+                          return;
+                        }
+                        void act(
+                          key,
+                          () => revokeClaim(c.userId, c.employerId),
+                          "Réclamation révoquée — le compte n'a plus accès à cette fiche.",
+                        );
+                      }}
                     >
-                      Approuver
+                      Révoquer
                     </button>
-                    <button
-                      type="button"
-                      disabled={busyKey === key}
-                      className="rounded-lg bg-slate-200 px-2 py-1 text-xs font-semibold disabled:opacity-50"
-                      onClick={() =>
-                        act(key, () => setClaimStatus(c.userId, c.employerId, "rejected"), "Réclamation refusée.")
-                      }
-                    >
-                      Refuser
-                    </button>
-                  </span>
-                )}
-                {canRevokeClaim(c.status) && (
+                  )}
                   <button
                     type="button"
                     disabled={busyKey === key}
-                    className="rounded-lg border border-red-200 bg-red-50 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50"
+                    className="rounded-lg bg-slate-800 px-2 py-1 text-xs font-semibold text-white hover:bg-slate-900 disabled:opacity-50"
                     onClick={() => {
                       if (
                         !confirm(
-                          `Révoquer la fiche ${getEmployer(c.employerId)?.name ?? c.employerId} pour ${who} ?`,
+                          `Supprimer la demande de ${who} pour ${getEmployer(c.employerId)?.name ?? c.employerId} ?`,
                         )
                       ) {
                         return;
                       }
                       void act(
                         key,
-                        () => revokeClaim(c.userId, c.employerId),
-                        "Réclamation révoquée — le compte n'a plus accès à cette fiche.",
+                        () => deleteClaim(c.userId, c.employerId),
+                        "Demande supprimée.",
                       );
                     }}
                   >
-                    Révoquer
+                    Supprimer
                   </button>
-                )}
+                </span>
               </li>
             );
           })}
