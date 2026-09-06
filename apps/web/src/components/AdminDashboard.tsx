@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { FAILING_ALERT_DAYS, failingScrapers, type FailingSource } from "@jobccq/shared";
-import { API_URL, adminFetch, getStats } from "@/lib/data";
+import { API_URL, STATIC, adminFetch, getStats } from "@/lib/data";
 import { ensureTursoAdminColumns, tursoCreds, tursoRows } from "@/lib/admin-turso";
 import { ApplyClicksPanel } from "./ApplyClicksPanel";
 
@@ -151,15 +151,17 @@ export function AdminDashboard() {
     setLoading(true);
     setError(undefined);
     try {
-      try {
-        const r = await adminFetch(`${API_URL}/admin/dashboard`);
-        if (r.ok) {
-          const d = (await r.json()) as DashData;
-          setData({ ...d, source: "api", failingSources: d.failingSources ?? [] });
-          return;
+      if (!STATIC) {
+        try {
+          const r = await adminFetch(`${API_URL}/admin/dashboard`);
+          if (r.ok) {
+            const d = (await r.json()) as DashData;
+            setData({ ...d, source: "api", failingSources: d.failingSources ?? [] });
+            return;
+          }
+        } catch {
+          /* repli Turso / snapshot */
         }
-      } catch {
-        /* repli Turso / snapshot */
       }
       const fromTurso = await loadFromTurso();
       if (fromTurso) {

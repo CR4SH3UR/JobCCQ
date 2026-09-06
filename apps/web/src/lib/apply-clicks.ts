@@ -17,8 +17,9 @@ const DEDUPE_MS = 2_000;
 
 let cache: ApplyClickEvent[] | null = null;
 const listeners = new Set<() => void>();
-const EMPTY: ApplyClickEvent[] = [];
+const EMPTY_STATS: ApplyClickStats = { total: 0, bySource: [], byJob: [] };
 let lastRecord: { jobId: string; at: number } | null = null;
+let statsSnap: ApplyClickStats | null = null;
 
 function read(): ApplyClickEvent[] {
   if (cache !== null) return cache;
@@ -33,6 +34,7 @@ function read(): ApplyClickEvent[] {
 
 function persist(list: ApplyClickEvent[]): void {
   cache = list.slice(-MAX);
+  statsSnap = summarizeApplyClicks(cache);
   try {
     localStorage.setItem(KEY, JSON.stringify(cache));
   } catch {
@@ -81,7 +83,9 @@ export function recordApplyClick(job: { id: string; sourceId: string; title: str
 }
 
 export function localApplyClickStats(): ApplyClickStats {
-  return summarizeApplyClicks(read());
+  if (statsSnap) return statsSnap;
+  statsSnap = summarizeApplyClicks(read());
+  return statsSnap;
 }
 
 function eventsFromRows(
@@ -121,6 +125,7 @@ export function subscribeApplyClicks(fn: () => void): () => void {
   const onStorage = (e: StorageEvent) => {
     if (e.key !== KEY) return;
     cache = null;
+    statsSnap = null;
     fn();
   };
   if (typeof window !== "undefined") window.addEventListener("storage", onStorage);
@@ -131,7 +136,5 @@ export function subscribeApplyClicks(fn: () => void): () => void {
 }
 
 export function useLocalApplyClickStats(): ApplyClickStats {
-  return useSyncExternalStore(subscribeApplyClicks, localApplyClickStats, () =>
-    summarizeApplyClicks(EMPTY),
-  );
+  return useSyncExternalStore(subscribeApplyClicks, localApplyClickStats, () => EMPTY_STATS);
 }

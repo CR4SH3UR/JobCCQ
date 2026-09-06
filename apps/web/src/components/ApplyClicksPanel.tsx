@@ -21,7 +21,7 @@ export function ApplyClicksPanel() {
         setSource("supabase");
       }
     });
-  }, [local.total]);
+  }, []);
 
   const stats = remote && remote.total > 0 ? remote : local;
 

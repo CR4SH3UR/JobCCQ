@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, hasCustomScraper, type DiscoveredMethod, type Job } from "@jobccq/shared";
-import { API_URL, getStats, searchAdminJobs, buildQuery, adminFetch, invalidateJobOverrides } from "@/lib/data";
+import { API_URL, STATIC, getStats, searchAdminJobs, buildQuery, adminFetch, invalidateJobOverrides } from "@/lib/data";
 import { previewEmployer, fetchEmployerHtml } from "@/lib/admin-preview";
 import { useAuth } from "@/lib/auth";
 import { encryptJson, decryptJson, saveVault, loadVault, clearVault, type AdminSecrets } from "@/lib/vault";
@@ -659,7 +659,10 @@ export function AdminExplorer() {
     let alive = true;
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), 2500);
-    adminFetch(`${API_URL}/admin/employers`, { signal: ctrl.signal })
+    const api = STATIC
+      ? Promise.reject()
+      : adminFetch(`${API_URL}/admin/employers`, { signal: ctrl.signal });
+    api
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d: { employers: Employer[] }) => {
         if (!alive) return;

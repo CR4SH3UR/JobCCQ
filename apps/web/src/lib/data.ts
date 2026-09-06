@@ -27,7 +27,7 @@ import { fetchWithOfflineFallback, setOfflineMeta } from "./offline-snapshot";
 import { matchSnapshotJson, putSnapshotResponse } from "./snapshot-cache";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-const STATIC = process.env.NEXT_PUBLIC_STATIC_DATA === "1";
+export const STATIC = process.env.NEXT_PUBLIC_STATIC_DATA === "1";
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 /**
