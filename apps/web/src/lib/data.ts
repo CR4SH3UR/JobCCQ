@@ -187,10 +187,19 @@ export function invalidateJobsCache(): void {
  * partagé : seules les offres patchées sont copiées.
  */
 async function loadJobs(opts?: { includeOffConstruction?: boolean }): Promise<Job[]> {
-  const [jobs, overrides] = await Promise.all([loadSnapshot(), loadOverrides()]);
-  if (!overrides.size) return jobs;
-  const { overlayJobs, publicJobs } = await import("./job-overrides");
-  return opts?.includeOffConstruction ? overlayJobs(jobs, overrides) : publicJobs(jobs, overrides);
+  const [jobs, overrides, posted] = await Promise.all([
+    loadSnapshot(),
+    loadOverrides(),
+    import("./employer-jobs").then((m) => m.fetchApprovedEmployerJobs()).catch(() => [] as Job[]),
+  ]);
+  let merged = jobs;
+  if (overrides.size) {
+    const { overlayJobs, publicJobs } = await import("./job-overrides");
+    merged = opts?.includeOffConstruction ? overlayJobs(jobs, overrides) : publicJobs(jobs, overrides);
+  }
+  if (!posted.length) return merged;
+  const seen = new Set(merged.map((j) => j.id));
+  return [...merged, ...posted.filter((j) => !seen.has(j.id))];
 }
 
 /**

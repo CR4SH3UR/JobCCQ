@@ -36,3 +36,4 @@ export * from "./job-history.js";
 export * from "./translate-job.js";
 export * from "./jobs-shards.js";
 export * from "./db-indexes.js";
+export * from "./employer-space.js";

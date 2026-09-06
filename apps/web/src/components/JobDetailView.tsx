@@ -42,6 +42,7 @@ import { COMPARE_MAX, toggleCompare, useCompareIds, useIsCompared } from "@/lib/
 import { useProfile } from "@/lib/profile";
 import { useLastApplyClickAt } from "@/lib/apply-clicks";
 import { logoForJob } from "@/lib/logo-url";
+import { recordJobView } from "@/lib/job-views";
 import { CompanyAvatar } from "./CompanyAvatar";
 
 const REMOTE_TONE = { teletravail: "green", hybride: "violet", presentiel: "slate" } as const;
@@ -78,6 +79,10 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
   }, [load]);
 
   useLivePoll(load);
+
+  useEffect(() => {
+    if (job) recordJobView({ id: job.id, sourceId: job.sourceId, title: job.title });
+  }, [job]);
 
   if (loading) {
     return (
