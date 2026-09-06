@@ -66,3 +66,60 @@ export function expandTerm(normalizedWord: string): string[] {
   if (!set) return [normalizedWord];
   return set.has(normalizedWord) ? [...set] : [normalizedWord, ...set];
 }
+
+/**
+ * **Ontologie des métiers de la construction** : familles de métiers *reliés*
+ * (pas strictement équivalents comme les synonymes ci-dessus). Sert la recherche
+ * sémantique — une requête retrouve les métiers de la même famille de travail
+ * (ex. « poseur de gypse » ↔ « finisseur intérieur », « charpentier » ↔
+ * « coffreur »). Volontairement **serrée** : on ne relie que des métiers dont le
+ * recoupement est réellement utile en recherche, pour ne pas élargir à tort
+ * (« charpentier » ne doit pas ramener « électricien »).
+ */
+export const TRADE_ONTOLOGY_GROUPS: readonly (readonly string[])[] = [
+  // Systèmes intérieurs (gypse, joints, acoustique)
+  ["platrier", "tireur de joints", "poseur de gypse", "gypseur", "finisseur interieur", "systemes interieurs"],
+  // Charpente & coffrage (bois / structure)
+  ["charpentier", "menuisier", "coffreur", "charpente"],
+  // Béton & armature
+  ["cimentier", "finisseur de beton", "betonnier", "ferrailleur"],
+  // Terrassement & excavation (machinerie lourde de génie civil)
+  ["operateur d'equipement lourd", "operateur de machinerie", "conducteur d'equipement lourd", "excavation", "terrassement"],
+  // Toiture & enveloppe du bâtiment
+  ["couvreur", "toiture", "ferblantier", "revetement exterieur"],
+  // Électricité
+  ["electricien", "cableur", "domotique"],
+  // Mécanique du bâtiment (plomberie / CVAC / réfrigération)
+  ["plombier", "tuyauteur", "frigoriste", "chauffagiste", "ventilation", "cvac"],
+];
+
+/** Index ontologie : mot normalisé → ensemble des termes reliés (même logique que SYNONYM_INDEX). */
+const ONTOLOGY_INDEX: Map<string, Set<string>> = (() => {
+  const index = new Map<string, Set<string>>();
+  for (const group of TRADE_ONTOLOGY_GROUPS) {
+    const terms = group.map(normalizeText);
+    const all = new Set(terms);
+    for (const term of terms) {
+      for (const word of term.split(/\s+/)) {
+        if (word.length < 3) continue;
+        let set = index.get(word);
+        if (!set) index.set(word, (set = new Set()));
+        for (const t of all) set.add(t);
+      }
+    }
+  }
+  return index;
+})();
+
+/**
+ * Expansion **sémantique** d'un mot (déjà normalisé) : union des synonymes
+ * stricts (`expandTerm`) et des métiers reliés de l'ontologie, en incluant
+ * toujours le mot lui-même. C'est ce que la recherche utilise pour retrouver un
+ * métier proche même quand l'intitulé emploie un autre terme du même domaine.
+ */
+export function expandSemantic(normalizedWord: string): string[] {
+  const out = new Set(expandTerm(normalizedWord));
+  const related = ONTOLOGY_INDEX.get(normalizedWord);
+  if (related) for (const t of related) out.add(t);
+  return [...out];
+}

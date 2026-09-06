@@ -318,7 +318,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 
 ### 🤖 IA & recommandation
 
-- [ ] 76. Recherche sémantique par embeddings (« poseur de gypse » ↔ « finisseur intérieur ») — index vectoriel précalculé au build
+- [x] 76. Recherche sémantique (ontologie des métiers de la construction — « poseur de gypse » ↔ « finisseur intérieur ») + mots-outils ignorés dans les requêtes-phrases
 - [ ] 77. Recommandations « offres pour toi » à partir des favoris/candidatures (filtrage collaboratif simple)
 - [ ] 78. Appariement CV → offres : téléverser un CV, extraire métiers/compétences, classer les offres
 - [ ] 79. Assistant conversationnel « trouve-moi un emploi » (langage naturel → filtres) via l'API Claude
