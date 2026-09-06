@@ -70,7 +70,10 @@ async function main() {
     console.log(`Aucun employeur git manquant (${existingIds.size} déjà en base).`);
     return;
   }
-  await prisma.employer.createMany({ data: missing.map(toEmployerRow) });
+  await prisma.employer.createMany({
+    data: missing.map(toEmployerRow),
+    skipDuplicates: true,
+  });
   console.log(
     `✅ ${missing.length} employeur(s) ajouté(s) depuis git : ${missing.map((e) => e.id).join(", ")}`,
   );
