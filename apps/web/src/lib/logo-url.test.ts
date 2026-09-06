@@ -1,6 +1,51 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { optimizedLogoUrl } from "./logo-url.js";
+import {
+  faviconForHost,
+  hostFromUrl,
+  isGenericLogoHost,
+  optimizedLogoUrl,
+  resolveCompanyLogoUrl,
+} from "./logo-url.js";
+
+describe("hostFromUrl + favicon", () => {
+  it("normalise le hôte sans www", () => {
+    assert.equal(hostFromUrl("https://www.HamelConstruction.com/carrieres"), "hamelconstruction.com");
+    assert.equal(hostFromUrl("pas une url"), null);
+  });
+
+  it("ignore les ATS et donne un favicon DuckDuckGo sinon", () => {
+    assert.equal(isGenericLogoHost("boards.greenhouse.io"), true);
+    assert.equal(faviconForHost("jobillico.com"), undefined);
+    assert.equal(
+      faviconForHost("hamelconstruction.com"),
+      "https://icons.duckduckgo.com/ip3/hamelconstruction.com.ico",
+    );
+  });
+
+  it("préfère le logo d'offre au favicon", () => {
+    assert.equal(
+      resolveCompanyLogoUrl({
+        logoUrl: "https://cdn.example.com/logo.png",
+        homepage: "https://hamelconstruction.com",
+      }),
+      "https://cdn.example.com/logo.png",
+    );
+    assert.equal(
+      resolveCompanyLogoUrl({ homepage: "https://www.hamelconstruction.com/" }),
+      "https://icons.duckduckgo.com/ip3/hamelconstruction.com.ico",
+    );
+    assert.equal(resolveCompanyLogoUrl({ homepage: "https://jobillico.com/foo" }), undefined);
+    assert.equal(
+      resolveCompanyLogoUrl({
+        homepage: "https://boards.greenhouse.io/acme",
+        careersUrl: "https://www.hamelconstruction.com/carrieres",
+      }),
+      "https://icons.duckduckgo.com/ip3/hamelconstruction.com.ico",
+    );
+    assert.equal(faviconForHost("acme.myworkdayjobs.com"), undefined);
+  });
+});
 
 describe("optimizedLogoUrl", () => {
   it("passe les logos externes par images.weserv.nl en WebP redimensionné et caché", () => {

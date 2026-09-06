@@ -16,7 +16,8 @@ import {
 import { searchCompanies, searchJobs, getStats, buildQuery, type Stats } from "@/lib/data";
 import { useLivePoll } from "@/lib/live";
 import { useSponsorConfig } from "@/lib/sponsors-live";
-import { initials } from "@/lib/format";
+import { logoForHiringCompany, resolveCompanyLogoUrl } from "@/lib/logo-url";
+import { CompanyAvatar } from "./CompanyAvatar";
 import { JobCard } from "./JobCard";
 import { SponsorBanner } from "./SponsorBanner";
 import { OnboardingCard } from "./OnboardingCard";
@@ -233,9 +234,14 @@ export function HomeView() {
                     En vedette
                   </span>
                   <div className="flex items-center gap-3 pr-16">
-                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-brand-50 text-sm font-bold text-brand-700 ring-1 ring-brand-100">
-                      {initials(name)}
-                    </span>
+                    <CompanyAvatar
+                      name={name}
+                      logo={resolveCompanyLogoUrl({
+                        homepage: f.employer?.homepage,
+                        careersUrl: f.employer?.careersUrl,
+                      })}
+                      size={48}
+                    />
                     <div className="min-w-0">
                       <p className="truncate font-semibold text-slate-900 group-hover:text-brand-700">
                         {name}
@@ -343,9 +349,7 @@ export function HomeView() {
                 }
                 className="card flex items-center gap-3 p-4 transition-shadow hover:shadow-md"
               >
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-brand-50 text-sm font-bold text-brand-700 ring-1 ring-brand-100">
-                  {initials(c.company)}
-                </span>
+                <CompanyAvatar name={c.company} logo={logoForHiringCompany(c)} size={44} />
                 <div className="min-w-0">
                   <p className="truncate font-semibold">{c.company}</p>
                   <p className="text-sm text-brand-700">

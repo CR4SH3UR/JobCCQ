@@ -11,9 +11,9 @@ import {
 } from "@jobccq/shared";
 import { buildQuery, searchCompanies, searchJobs } from "@/lib/data";
 import { fetchMunicipalities } from "@/lib/municipalities";
-import { initials } from "@/lib/format";
 import { Badge } from "./Badge";
-import { optimizedLogoUrl } from "@/lib/logo-url";
+import { logoForHiringCompany } from "@/lib/logo-url";
+import { CompanyAvatar } from "./CompanyAvatar";
 
 const LS_NEAR = "jobccq:near-me";
 
@@ -188,28 +188,12 @@ export function NearMeView() {
 
       <ul className="mt-4 space-y-2">
         {companies.map((c, i) => {
-          const logo = optimizedLogoUrl(c.companyLogoUrl, 80);
           return (
             <li key={c.company} className="card flex items-center gap-3 p-3 sm:p-4">
               <span className="w-8 shrink-0 text-right text-sm font-semibold text-slate-400">
                 {i + 1}.
               </span>
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-brand-50 text-xs font-bold text-brand-700 ring-1 ring-brand-100">
-                {logo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={logo}
-                    alt=""
-                    width={40}
-                    height={40}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-10 w-10 rounded-lg object-contain"
-                  />
-                ) : (
-                  initials(c.company)
-                )}
-              </span>
+              <CompanyAvatar name={c.company} logo={logoForHiringCompany(c)} size={40} />
               <Link
                 href={c.sources[0] ? `/entreprises/${c.sources[0]}/` : `/emplois?q=${encodeURIComponent(c.company)}`}
                 className="min-w-0 flex-1"

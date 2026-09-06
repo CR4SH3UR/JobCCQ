@@ -320,7 +320,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [ ] 109. Audit a11y automatisé en CI (axe-core) + budget d'accessibilité
 - [ ] 110. Lecture audio d'une offre (synthèse vocale) sur mobile
 - [ ] 111. Réécriture « langage clair » d'une description dense (LLM)
-- [x] 118. Optimisation des logos employeurs (proxy + redimensionnement + WebP + cache)
+- [x] 118. Logos employeurs : favicon du site (repli) + proxy Weserv (WebP, cache)
 - [ ] 119. Index DB & requêtes profilées (EXPLAIN) pour les filtres fréquents (Turso/SQLite)
 - [ ] 120. `jobs.json` par région + delta incrémental (ne recharger que ce qui change)
 - [ ] 121. Surveillance des coûts (Turso / workers / Pages) + alerte de dépassement
