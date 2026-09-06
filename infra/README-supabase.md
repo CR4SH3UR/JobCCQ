@@ -544,7 +544,8 @@ Le workflow `notify.yml` envoie alors le résumé de scrape (comme `WEBHOOK_SCRA
 
 Idées 87–89 : un compte réclame une fiche, corrige logo/description, publie une
 offre (modérée), et voit vues + clics « Postuler ». Pages `/employeur` et
-`/admin` → **Espace employeur**.
+`/admin` → **Espace employeur**. L'admin voit **de qui** vient la réclamation
+(courriel) et peut **révoquer** une fiche déjà approuvée.
 
 Remplace le courriel admin (mêmes que `NEXT_PUBLIC_ADMIN_EMAILS`).
 
@@ -553,11 +554,18 @@ create table if not exists public.employer_claims (
   user_id      uuid        not null references auth.users (id) on delete cascade,
   employer_id  text        not null,
   status       text        not null default 'pending'
-               check (status in ('pending', 'approved', 'rejected')),
+               check (status in ('pending', 'approved', 'rejected', 'revoked')),
   note         text,
+  email        text,
   created_at   timestamptz not null default now(),
   primary key (user_id, employer_id)
 );
+
+-- Si la table existait déjà sans courriel / statut révoqué :
+alter table public.employer_claims add column if not exists email text;
+alter table public.employer_claims drop constraint if exists employer_claims_status_check;
+alter table public.employer_claims add constraint employer_claims_status_check
+  check (status in ('pending', 'approved', 'rejected', 'revoked'));
 
 alter table public.employer_claims enable row level security;
 

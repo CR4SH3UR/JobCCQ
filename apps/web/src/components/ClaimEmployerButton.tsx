@@ -46,7 +46,7 @@ export function ClaimEmployerButton({ employerId, name }: { employerId: string; 
           setBusy(true);
           setMsg("");
           try {
-            const c = await submitClaim(employerId, user.id);
+            const c = await submitClaim(employerId, user.id, "", user.email ?? "");
             setMine(c);
             setMsg(`Demande envoyée pour ${name}. Un admin validera.`);
           } catch (e) {
