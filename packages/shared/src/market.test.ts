@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { aggregateMarketHistory, type HiringHistory } from "./hiring-history.js";
-import { tensionPer1000, unknownWorkforceIds } from "./ccq-workforce.js";
+import { CCQ_WORKFORCE_SOURCE, tensionPer1000, unknownWorkforceIds, workforceFor } from "./ccq-workforce.js";
 
 describe("aggregateMarketHistory", () => {
   it("somme les offres par jour, tous employeurs confondus", () => {
@@ -43,6 +43,15 @@ describe("aggregateMarketHistory", () => {
 describe("ccq-workforce", () => {
   it("aucune clé d'effectif ne référence un métier inconnu", () => {
     assert.deepEqual(unknownWorkforceIds(), []);
+  });
+
+  it("expose les effectifs CCQ 2025 utilisés par le baromètre", () => {
+    assert.equal(CCQ_WORKFORCE_SOURCE.year, 2025);
+    assert.equal(workforceFor("electricien"), 25149);
+    assert.equal(workforceFor("charpentier-menuisier"), 56432);
+    assert.equal(workforceFor("operateur-equipement-lourd"), 14740);
+    assert.equal(workforceFor("plombier"), 11353);
+    assert.equal(workforceFor("contremaitre"), null);
   });
 
   it("tensionPer1000 : offres pour 1000 travailleurs, null si effectif absent", () => {

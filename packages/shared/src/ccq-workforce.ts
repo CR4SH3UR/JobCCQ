@@ -1,23 +1,57 @@
 /**
- * Effectifs de **main-d'œuvre active par métier CCQ** — TABLE ÉDITABLE.
+ * Effectifs de **main-d'œuvre active par métier CCQ**.
  *
  * Sert le baromètre de tension (offres ouvertes rapportées à la taille de la
- * main-d'œuvre du métier). À remplir avec les **chiffres publics de la CCQ**
- * (rapports annuels / statistiques de l'industrie — https://www.ccq.org).
+ * main-d'œuvre du métier). Source officielle :
+ * CCQ, Tableau C 21, "Nombre de salariés selon le métier et l'occupation,
+ * 2016-2025", juin 2026.
  *
- * Convention : laisser un métier **absent** (ou `null`) tant que le chiffre
- * n'est pas connu — le baromètre affiche alors « à renseigner » plutôt que
- * d'inventer une valeur. La clé DOIT être un id de `CCQ_TRADES` (garde-fou :
- * `unknownWorkforceIds()`, testé). Exemple :
+ * Import reproductible :
+ *   npm run import:ccq-workforce -w @jobccq/shared -- "<url-ou-fichier-pdf>"
  *
- *   electricien: 21000,
- *   charpentier-menuisier: 45000,
+ * Convention : laisser `null` tant qu'aucune ligne CCQ équivalente n'est
+ * présente dans la source. La clé DOIT être un id de `CCQ_TRADES` (garde-fou :
+ * `unknownWorkforceIds()`, testé).
  */
 import { CCQ_TRADES } from "./ccq.js";
 
+export const CCQ_WORKFORCE_SOURCE = {
+  title: "CCQ Tableau C 21 - Nombre de salariés selon le métier et l'occupation, 2016-2025",
+  year: 2025,
+  published: "juin 2026",
+  url: "https://www.ccq.org/-/media/Project/Ccq/Ccq-Website/PDF/Recherche/StatistiquesHistoriques/2025/C21.pdf?rev=2b528bf7a0aa41a2b4c98076964c7dfe",
+} as const;
+
 export const CCQ_WORKFORCE: Readonly<Record<string, number | null>> = {
   "briqueteur-macon": 5228,
-  // À compléter avec les autres effectifs officiels CCQ, un métier par ligne.
+  calorifugeur: 1445,
+  carreleur: 2821,
+  "charpentier-menuisier": 56432,
+  chaudronnier: 726,
+  "cimentier-applicateur": 3850,
+  couvreur: 6291,
+  contremaitre: null,
+  electricien: 25149,
+  ferblantier: 5765,
+  ferrailleur: 1823,
+  frigoriste: 5388,
+  grutier: 2073,
+  "manoeuvre-specialise": null,
+  manoeuvre: 25059,
+  "mecanicien-ascenseur": 1341,
+  "mecanicien-protection-incendie": 1810,
+  "mecanicien-chantier": 1249,
+  "monteur-acier": 3601,
+  "monteur-vitrier": 2743,
+  "operateur-equipement-lourd": 14740,
+  peintre: 6862,
+  platrier: 4116,
+  plombier: 11353,
+  "poseur-revetements-souples": 1336,
+  "poseur-systemes-interieurs": 3021,
+  "serrurier-batiment": null,
+  tuyauteur: 11353,
+  soudeur: 1043,
 };
 
 /** Effectif d'un métier, ou `null` si non renseigné. */

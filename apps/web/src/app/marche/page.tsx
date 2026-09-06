@@ -10,6 +10,7 @@ import {
 } from "@/lib/static-data";
 import { MarketTrendChart } from "@/components/MarketTrendChart";
 import { siteUrl } from "@/lib/site";
+import { CCQ_WORKFORCE_SOURCE } from "@jobccq/shared";
 
 export const metadata: Metadata = {
   title: "Marché de la construction au Québec — JobCCQc",
@@ -167,8 +168,7 @@ export default function MarketPage() {
             </table>
           </div>
           <p className="mt-2 text-xs text-slate-400">
-            Effectifs de main-d'œuvre à compléter dans <code>ccq-workforce.ts</code> à partir des
-            statistiques publiques de la CCQ.
+            Effectifs de main-d'œuvre : {CCQ_WORKFORCE_SOURCE.title}, {CCQ_WORKFORCE_SOURCE.published}.
           </p>
         </section>
       </div>

@@ -11,6 +11,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "import:ccq-workforce": "python scripts/import-ccq-workforce.py",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -14,6 +14,7 @@
     "start:mobile": "npm run start --prefix apps/mobile",
     "seed": "npm run seed -w @jobccq/api",
     "scrape": "npm run scrape -w @jobccq/api",
+    "import:ccq-workforce": "npm run import:ccq-workforce -w @jobccq/shared",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "build": "npm run build -w @jobccq/shared && npm run build -w @jobccq/web"
   },
