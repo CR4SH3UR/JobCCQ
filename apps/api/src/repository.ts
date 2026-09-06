@@ -4,7 +4,9 @@ import {
   toHiringCompanies,
   attachDuplicateAlts,
   isLinkStatus,
+  collapseHiringPoints,
   type HiringCompany,
+  type HiringHistory,
   type Job,
   type JobQuery,
   type JobSearchResult,
@@ -303,6 +305,28 @@ export async function syncSourceJobs(
     removed = del.count;
   }
   return { ...res, removed, removedJobs };
+}
+
+/** Historique des scrapes réussis (offres trouvées) par employeur. */
+export async function getHiringHistory(): Promise<HiringHistory> {
+  const rows = await prisma.scrapeRun.findMany({
+    where: { status: "success" },
+    select: { sourceId: true, found: true, finishedAt: true, startedAt: true },
+    orderBy: { id: "asc" },
+  });
+  const by = new Map<string, { at: string; found: number }[]>();
+  for (const r of rows) {
+    const at = (r.finishedAt ?? r.startedAt).toISOString();
+    const list = by.get(r.sourceId) ?? [];
+    list.push({ at, found: r.found });
+    by.set(r.sourceId, list);
+  }
+  const out: HiringHistory = {};
+  for (const [id, pts] of by) {
+    const collapsed = collapseHiringPoints(pts);
+    if (collapsed.length) out[id] = collapsed;
+  }
+  return out;
 }
 
 /** Statistiques globales pour la page d'accueil / le tableau de bord. */

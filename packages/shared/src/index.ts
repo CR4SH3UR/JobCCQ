@@ -23,4 +23,5 @@ export * from "./preview-html.js";
 export * from "./profile-match.js";
 export * from "./postal.js";
 export * from "./duplicates.js";
+export * from "./hiring-history.js";
 export * from "./link-status.js";

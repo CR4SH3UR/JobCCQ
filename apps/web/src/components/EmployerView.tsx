@@ -7,6 +7,7 @@ import { Badge } from "./Badge";
 import { JobCard } from "./JobCard";
 import { FollowEmployerButton } from "./FollowEmployerButton";
 import { EmbedSnippet } from "./EmbedSnippet";
+import { EmployerHiringHistory } from "./EmployerHiringHistory";
 import { initials, timeAgo } from "@/lib/format";
 import { getJobsBySource, invalidateJobsCache, searchCompanies, buildQuery } from "@/lib/data";
 import { useLivePoll } from "@/lib/live";
@@ -205,6 +206,7 @@ export function EmployerView({ slug }: { slug: string }) {
               <div className="mt-4">
                 <FollowEmployerButton slug={slug} name={name} />
               </div>
+              <EmployerHiringHistory sourceId={slug} />
             </div>
           </div>
         </div>

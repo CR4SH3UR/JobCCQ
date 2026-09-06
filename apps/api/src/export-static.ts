@@ -7,7 +7,7 @@
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { effectiveRegionId, jobsToRss, type Job } from "@jobccq/shared";
+import { effectiveRegionId, jobsToRss, type HiringHistory, type Job } from "@jobccq/shared";
 import { inferCategory } from "./normalize.js";
 import { SEED_JOBS } from "./seed-data.js";
 import { seedToJob } from "./seed-transform.js";
@@ -15,6 +15,7 @@ import { seedToJob } from "./seed-transform.js";
 // Instantané **client** (chargé dans le navigateur pour la recherche/les
 // filtres) : descriptions tronquées à un extrait, pour garder la charge légère.
 const OUT = resolve(process.cwd(), "../web/public/data/jobs.json");
+const OUT_HISTORY = resolve(process.cwd(), "../web/public/data/hiring-history.json");
 const RSS = resolve(process.cwd(), "../web/public/emplois.rss");
 // Instantané **complet** (descriptions entières) : lu au build pour pré-générer
 // les pages de détail (SEO + lecture) ; non publié (hors `public/`).
@@ -27,11 +28,13 @@ const CLIENT_DESC_MAX = 240;
 async function main() {
   const fromDb = process.argv.includes("--from-db");
   let jobs: Job[];
+  let history: HiringHistory = {};
 
   if (fromDb) {
-    const { getAllJobs } = await import("./repository.js");
+    const { getAllJobs, getHiringHistory } = await import("./repository.js");
     const { prisma } = await import("./db.js");
     jobs = await getAllJobs();
+    history = await getHiringHistory().catch(() => ({}));
     await prisma.$disconnect();
     if (jobs.length === 0) {
       console.warn("⚠ Base vide — repli sur les données de démo.");
@@ -87,6 +90,7 @@ async function main() {
   });
   await mkdir(dirname(OUT), { recursive: true });
   await writeFile(OUT, JSON.stringify(clientJobs));
+  await writeFile(OUT_HISTORY, JSON.stringify(history));
 
   const site = (process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "https://jobccqc.ca").replace(
     /\/$/,
@@ -99,6 +103,7 @@ async function main() {
 
   console.log(`✅ ${jobs.length} offres exportées.`);
   console.log(`   • Client (extraits) → ${OUT}`);
+  console.log(`   • Historique recrutement → ${OUT_HISTORY} (${Object.keys(history).length} employeurs)`);
   console.log(`   • Complet (fiches)  → ${OUT_FULL}`);
   console.log(`   • Flux RSS          → ${RSS}`);
   console.log(
