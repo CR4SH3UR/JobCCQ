@@ -49,9 +49,10 @@ export function splitJobsByRegion<T extends { regionId?: string }>(jobs: T[]): R
 export function applyShardUpdate<T extends { regionId?: string }>(
   cached: T[],
   updates: Record<string, T[]>,
+  drop: readonly string[] = [],
 ): T[] {
-  const changed = new Set(Object.keys(updates));
-  const kept = cached.filter((j) => !changed.has(shardKey(j.regionId)));
+  const stale = new Set([...Object.keys(updates), ...drop]);
+  const kept = cached.filter((j) => !stale.has(shardKey(j.regionId)));
   return [...kept, ...Object.values(updates).flat()];
 }
 
@@ -87,7 +88,7 @@ export const SHARD_FETCH_MAX = 8;
 
 export type SnapshotFetchPlan =
   | { kind: "reuse" }
-  | { kind: "shards"; keys: string[] }
+  | { kind: "shards"; keys: string[]; drop: string[] }
   | { kind: "full" };
 
 /** Compare le manifeste vivant au cache : rien / quelques shards / tout. */
@@ -95,9 +96,9 @@ export function planSnapshotFetch(cached: JobsManifest | null, live: JobsManifes
   if (!cached) return { kind: "full" };
   if (cached.hash === live.hash) return { kind: "reuse" };
   const keys = Object.keys(live.shards).filter((k) => cached.shards[k]?.hash !== live.shards[k]?.hash);
-  const removed = Object.keys(cached.shards).filter((k) => !(k in live.shards));
-  const changed = [...new Set([...keys, ...removed])];
+  const drop = Object.keys(cached.shards).filter((k) => !(k in live.shards));
+  const changed = [...new Set([...keys, ...drop])];
   if (changed.length === 0) return { kind: "reuse" };
   if (changed.length > SHARD_FETCH_MAX) return { kind: "full" };
-  return { kind: "shards", keys: keys.filter((k) => k in live.shards) };
+  return { kind: "shards", keys, drop };
 }
