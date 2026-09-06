@@ -8,11 +8,12 @@ import { JobCard } from "./JobCard";
 import { FollowEmployerButton } from "./FollowEmployerButton";
 import { EmbedSnippet } from "./EmbedSnippet";
 import { EmployerHiringHistory } from "./EmployerHiringHistory";
-import { initials, timeAgo } from "@/lib/format";
+import { timeAgo } from "@/lib/format";
 import { getJobsBySource, invalidateJobsCache, searchCompanies, buildQuery } from "@/lib/data";
 import { useLivePoll } from "@/lib/live";
 import { organizationLd, ldJson } from "@/lib/jsonld";
-import { optimizedLogoUrl } from "@/lib/logo-url";
+import { resolveCompanyLogoUrl } from "@/lib/logo-url";
+import { CompanyAvatar } from "./CompanyAvatar";
 
 export function EmployerView({ slug }: { slug: string }) {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -57,8 +58,11 @@ export function EmployerView({ slug }: { slug: string }) {
   // Données enrichies dérivées des offres : logo réel, régions réellement
   // couvertes, dernière publication, métiers CCQ présents. Ces hooks doivent
   // rester AVANT tout `return` conditionnel (ordre des hooks stable).
-  const logoUrl = jobs.find((j) => j.companyLogoUrl)?.companyLogoUrl;
-  const optimizedLogo = optimizedLogoUrl(logoUrl, 128);
+  const logoUrl = resolveCompanyLogoUrl({
+    logoUrl: jobs.find((j) => j.companyLogoUrl)?.companyLogoUrl,
+    homepage: employer?.homepage,
+    careersUrl: employer?.careersUrl,
+  });
   const careersUrl = employer?.careersUrl;
   const regionLabels = useMemo(() => {
     const ids = new Set<string>();
@@ -133,22 +137,7 @@ export function EmployerView({ slug }: { slug: string }) {
             <span className="text-slate-400"> › {name}</span>
           </nav>
           <div className="flex items-start gap-4">
-            {optimizedLogo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={optimizedLogo}
-                alt={name}
-                width={64}
-                height={64}
-                loading="lazy"
-                decoding="async"
-                className="h-16 w-16 shrink-0 rounded-xl object-contain ring-1 ring-slate-100"
-              />
-            ) : (
-              <span className="grid h-16 w-16 shrink-0 place-items-center rounded-xl bg-brand-50 text-lg font-bold text-brand-700 ring-1 ring-brand-100">
-                {initials(name)}
-              </span>
-            )}
+            <CompanyAvatar name={name} logo={logoUrl} size={64} className="rounded-xl" />
             <div className="min-w-0 flex-1">
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">
                 {name}

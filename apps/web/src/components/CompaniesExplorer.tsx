@@ -11,8 +11,9 @@ import {
 } from "@jobccq/shared";
 import { searchCompanies, buildQuery, invalidateJobsCache } from "@/lib/data";
 import { Badge } from "./Badge";
-import { initials, timeAgo } from "@/lib/format";
-import { optimizedLogoUrl } from "@/lib/logo-url";
+import { timeAgo } from "@/lib/format";
+import { logoForHiringCompany } from "@/lib/logo-url";
+import { CompanyAvatar } from "./CompanyAvatar";
 
 function useDebounce<T>(value: T, delay = 350): T {
   const [v, setV] = useState(value);
@@ -143,26 +144,10 @@ export function CompaniesExplorer() {
 
 function CompanyCard({ company: c }: { company: HiringCompany }) {
   const latest = timeAgo(c.latestPostedAt);
-  const logo = optimizedLogoUrl(c.companyLogoUrl, 88);
   return (
     <article className="card flex flex-col p-4">
       <div className="flex items-center gap-3">
-        {logo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={logo}
-            alt={c.company}
-            width={44}
-            height={44}
-            loading="lazy"
-            decoding="async"
-            className="h-11 w-11 rounded-lg object-contain ring-1 ring-slate-200"
-          />
-        ) : (
-          <span className="grid h-11 w-11 place-items-center rounded-lg bg-brand-50 text-sm font-bold text-brand-700 ring-1 ring-brand-100">
-            {initials(c.company)}
-          </span>
-        )}
+        <CompanyAvatar name={c.company} logo={logoForHiringCompany(c)} size={44} />
         <div className="min-w-0">
           <h3 className="truncate font-semibold">{c.company}</h3>
           <p className="text-sm text-brand-700">

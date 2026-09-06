@@ -20,13 +20,14 @@ import {
 import { Badge } from "./Badge";
 import { MatchBadge } from "./MatchBadge";
 import { AlsoOnBadge } from "./AlsoOnBadge";
-import { cn, formatSalary, initials, timeAgo } from "@/lib/format";
+import { cn, formatSalary, timeAgo } from "@/lib/format";
 import { employerIsSponsored, jobIsPinned, useSponsorConfig } from "@/lib/sponsors-live";
 import { toggleFavorite, useIsFavorite } from "@/lib/favorites";
 import { toggleApplied, useHasApplied } from "@/lib/applications";
 import { COMPARE_MAX, toggleCompare, useCompareIds, useIsCompared } from "@/lib/compare";
 import { useLastApplyClickAt } from "@/lib/apply-clicks";
-import { optimizedLogoUrl } from "@/lib/logo-url";
+import { logoForJob } from "@/lib/logo-url";
+import { CompanyAvatar } from "./CompanyAvatar";
 import { ApplyLink } from "./ApplyLink";
 
 const REMOTE_TONE = { teletravail: "green", hybride: "violet", presentiel: "slate" } as const;
@@ -63,7 +64,7 @@ export function JobCard({ job }: { job: Job }) {
       )}
     >
       <div className="flex gap-3">
-        <Avatar name={job.company} logo={job.companyLogoUrl} />
+        <CompanyAvatar name={job.company} logo={logoForJob(job)} size={44} />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <h3 className="font-semibold leading-snug">
@@ -281,25 +282,3 @@ function AppliedCheck({ id }: { id: string }) {
   );
 }
 
-function Avatar({ name, logo }: { name: string; logo?: string }) {
-  const src = optimizedLogoUrl(logo, 88);
-  if (src) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return (
-      <img
-        src={src}
-        alt={name}
-        width={44}
-        height={44}
-        loading="lazy"
-        decoding="async"
-        className="h-11 w-11 shrink-0 rounded-lg object-contain ring-1 ring-slate-200"
-      />
-    );
-  }
-  return (
-    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-brand-50 text-sm font-bold text-brand-700 ring-1 ring-brand-100">
-      {initials(name)}
-    </span>
-  );
-}

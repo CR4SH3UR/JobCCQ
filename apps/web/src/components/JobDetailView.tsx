@@ -33,7 +33,7 @@ import { FavoriteButton } from "./FavoriteButton";
 import { AppliedButton } from "./AppliedButton";
 import { ApplyLink } from "./ApplyLink";
 import { ReportJobButton } from "./ReportJobButton";
-import { formatSalary, initials, timeAgo } from "@/lib/format";
+import { formatSalary, timeAgo } from "@/lib/format";
 import { getJobById, getSimilarJobs } from "@/lib/data";
 import { mergeLiveJob } from "@/lib/merge-job";
 import { useLivePoll } from "@/lib/live";
@@ -41,7 +41,8 @@ import { jobPostingLd, ldJson } from "@/lib/jsonld";
 import { COMPARE_MAX, toggleCompare, useCompareIds, useIsCompared } from "@/lib/compare";
 import { useProfile } from "@/lib/profile";
 import { useLastApplyClickAt } from "@/lib/apply-clicks";
-import { optimizedLogoUrl } from "@/lib/logo-url";
+import { logoForJob } from "@/lib/logo-url";
+import { CompanyAvatar } from "./CompanyAvatar";
 
 const REMOTE_TONE = { teletravail: "green", hybride: "violet", presentiel: "slate" } as const;
 
@@ -136,7 +137,7 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
         <div className="min-w-0">
           <div className="card p-6">
             <div className="flex gap-4">
-              <Avatar name={job.company} logo={job.companyLogoUrl} />
+              <CompanyAvatar name={job.company} logo={logoForJob(job)} size={56} />
               <div className="min-w-0">
                 <h1 className="text-2xl font-bold tracking-tight text-slate-900">
                   {showEn && gloss.changed ? gloss.text : job.title}
@@ -485,25 +486,3 @@ function MatchNote({ job }: { job: Job }) {
   );
 }
 
-function Avatar({ name, logo }: { name: string; logo?: string }) {
-  const src = optimizedLogoUrl(logo, 112);
-  if (src) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return (
-      <img
-        src={src}
-        alt={name}
-        width={56}
-        height={56}
-        loading="lazy"
-        decoding="async"
-        className="h-14 w-14 shrink-0 rounded-lg object-contain ring-1 ring-slate-200"
-      />
-    );
-  }
-  return (
-    <span className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-brand-50 text-base font-bold text-brand-700 ring-1 ring-brand-100">
-      {initials(name)}
-    </span>
-  );
-}
