@@ -4,16 +4,26 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { profileIsSet } from "@jobccq/shared";
 import { ProfileForm } from "./ProfileForm";
+import { useAuth } from "@/lib/auth";
 import { clearProfile, useProfile } from "@/lib/profile";
+import { supabaseEnabled } from "@/lib/supabase";
 import { filtersToQueryString, profileToFilters } from "@/lib/search-url";
 
 export function ProfilView() {
   const router = useRouter();
   const profile = useProfile();
+  const { user } = useAuth();
   const set = profileIsSet(profile);
 
   return (
     <div>
+      {supabaseEnabled && (
+        <p className="mb-3 text-sm text-slate-600">
+          {user
+            ? "Synchronisé avec tes autres appareils via ton compte."
+            : "Connecte-toi ci-dessus pour retrouver ce profil sur tous tes appareils."}
+        </p>
+      )}
       <div className="card p-5">
         <ProfileForm
           submitLabel="Enregistrer le profil"

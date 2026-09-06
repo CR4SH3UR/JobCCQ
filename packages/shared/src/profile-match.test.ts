@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { Job } from "./types.js";
 import {
+  decideProfileSync,
+  EMPTY_PROFILE,
   matchJobToProfile,
+  mergeProfiles,
   parseProfile,
   profileIsSet,
   rankJobsByProfile,
@@ -45,6 +48,76 @@ describe("parseProfile", () => {
   it("profileIsSet est faux si tout est vide", () => {
     assert.equal(profileIsSet(parseProfile({})), false);
     assert.equal(profileIsSet(electricienMtl), true);
+  });
+});
+
+describe("mergeProfiles + decideProfileSync", () => {
+  it("fusionne sans doublon", () => {
+    const m = mergeProfiles(
+      { trades: ["electricien"], regions: ["montreal"], remote: [] },
+      { trades: ["electricien", "plombier"], regions: ["laval"], remote: ["presentiel"] },
+    );
+    assert.deepEqual(m.trades, ["electricien", "plombier"]);
+    assert.deepEqual(m.regions, ["montreal", "laval"]);
+    assert.deepEqual(m.remote, ["presentiel"]);
+  });
+
+  it("pousse le local s'il n'y a rien en remote", () => {
+    const d = decideProfileSync({
+      local: electricienMtl,
+      localAt: 0,
+      remote: null,
+      remoteAt: 0,
+    });
+    assert.equal(d.action, "keep-local");
+    if (d.action === "keep-local") assert.equal(d.persistRemote, true);
+  });
+
+  it("prend le remote si ce navigateur n'a rien", () => {
+    const d = decideProfileSync({
+      local: EMPTY_PROFILE,
+      localAt: 0,
+      remote: electricienMtl,
+      remoteAt: 10,
+    });
+    assert.equal(d.action, "use-remote");
+  });
+
+  it("la dernière écriture gagne", () => {
+    const older = { trades: ["plombier"], regions: [], remote: [] as JobSeekerProfile["remote"] };
+    const newer = electricienMtl;
+    const localWins = decideProfileSync({
+      local: newer,
+      localAt: 20,
+      remote: older,
+      remoteAt: 10,
+    });
+    assert.equal(localWins.action, "keep-local");
+    if (localWins.action === "keep-local") {
+      assert.equal(localWins.persistRemote, true);
+      assert.deepEqual(localWins.profile.trades, ["electricien"]);
+    }
+    const remoteWins = decideProfileSync({
+      local: older,
+      localAt: 10,
+      remote: newer,
+      remoteAt: 20,
+    });
+    assert.equal(remoteWins.action, "use-remote");
+  });
+
+  it("sans horodatage, fusionne pour ne rien perdre", () => {
+    const d = decideProfileSync({
+      local: { trades: ["electricien"], regions: [], remote: [] },
+      localAt: 0,
+      remote: { trades: [], regions: ["montreal"], remote: [] },
+      remoteAt: 0,
+    });
+    assert.equal(d.action, "merge");
+    if (d.action === "merge") {
+      assert.deepEqual(d.profile.trades, ["electricien"]);
+      assert.deepEqual(d.profile.regions, ["montreal"]);
+    }
   });
 });
 

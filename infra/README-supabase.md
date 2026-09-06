@@ -66,6 +66,31 @@ alter table public.applications add column if not exists remind_at date;
 > Tant que cette table n'existe pas, la fonctionnalité marche quand même en
 > **local** (localStorage) — la synchro entre appareils s'active dès la table créée.
 
+### Table du profil métier (« Mon profil »)
+
+Même principe : métiers CCQ, régions et mobilité suivent le compte. Page
+**« Mon profil »**. Colle et exécute aussi :
+
+```sql
+create table if not exists public.seeker_profiles (
+  user_id    uuid        primary key references auth.users (id) on delete cascade,
+  trades     jsonb       not null default '[]'::jsonb,
+  regions    jsonb       not null default '[]'::jsonb,
+  remote     jsonb       not null default '[]'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.seeker_profiles enable row level security;
+
+create policy "read own seeker profile"   on public.seeker_profiles for select using (auth.uid() = user_id);
+create policy "insert own seeker profile" on public.seeker_profiles for insert with check (auth.uid() = user_id);
+create policy "update own seeker profile" on public.seeker_profiles for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "delete own seeker profile" on public.seeker_profiles for delete using (auth.uid() = user_id);
+```
+
+> Sans table : le profil reste dans ce navigateur. Dès la table créée + un
+> compte connecté, l'enregistrement se propage aux autres appareils.
+
 ## 3. Activer le lien magique + les URLs de retour
 
 1. **Authentication → Providers → Email** : activé (c'est le cas par défaut). Le lien
