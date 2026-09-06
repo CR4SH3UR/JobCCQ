@@ -25,6 +25,7 @@ import {
 } from "@jobccq/shared";
 import { fetchWithOfflineFallback, setOfflineMeta } from "./offline-snapshot";
 import { matchSnapshotJson, putSnapshotResponse } from "./snapshot-cache";
+import { loadJobsIncremental } from "./jobs-snapshot";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 export const STATIC = process.env.NEXT_PUBLIC_STATIC_DATA === "1";
@@ -89,22 +90,32 @@ function loadSnapshot(): Promise<Job[]> {
     // continuait de voir l'ancien jeu de données (ex. les 72 offres de démo).
     // Hors ligne : on sert la dernière copie Cache Storage (idée 74).
     const url = `${BASE_PATH}/data/jobs.json`;
-    snapshotCache = fetchWithOfflineFallback<Job[]>({
-      live: async () => {
-        const r = await fetch(url, { cache: "no-cache" });
-        if (!r.ok) throw new Error(`Instantané introuvable (HTTP ${r.status})`);
-        void putSnapshotResponse(url, r.clone());
-        return r.json() as Promise<Job[]>;
-      },
-      readCache: () => matchSnapshotJson<Job[]>(url),
-      writeCache: async () => {
-        /* le clone HTTP est déjà posé dans `live` */
-      },
-    })
-      .then((loaded) => {
-        setOfflineMeta({ fromCache: loaded.fromCache, savedAt: loaded.savedAt });
-        return loaded.data;
-      })
+    snapshotCache = (async () => {
+      // Idée 120 : manifeste + shards — ne retélécharge que les régions changées.
+      try {
+        const incremental = await loadJobsIncremental(BASE_PATH);
+        if (incremental) {
+          setOfflineMeta({ fromCache: false });
+          return incremental;
+        }
+      } catch {
+        /* manifeste / shards absents → jobs.json */
+      }
+      const loaded = await fetchWithOfflineFallback<Job[]>({
+        live: async () => {
+          const r = await fetch(url, { cache: "no-cache" });
+          if (!r.ok) throw new Error(`Instantané introuvable (HTTP ${r.status})`);
+          void putSnapshotResponse(url, r.clone());
+          return r.json() as Promise<Job[]>;
+        },
+        readCache: () => matchSnapshotJson<Job[]>(url),
+        writeCache: async () => {
+          /* le clone HTTP est déjà posé dans `live` */
+        },
+      });
+      setOfflineMeta({ fromCache: loaded.fromCache, savedAt: loaded.savedAt });
+      return loaded.data;
+    })()
       // On masque les offres des sources désactivées manuellement.
       .then((jobs) =>
         DISABLED_SOURCE_IDS.size ? jobs.filter((j) => !DISABLED_SOURCE_IDS.has(j.sourceId)) : jobs,

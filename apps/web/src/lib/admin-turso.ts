@@ -1,3 +1,5 @@
+import { EMPLOYER_INDEX_SQL, JOB_INDEX_SQL } from "@jobccq/shared";
+
 /** Accès Turso depuis le navigateur (même coffre que la console employeurs). */
 
 export const LS_TURSO_URL = "admin:tursourl";
@@ -45,6 +47,9 @@ export async function ensureTursoAdminColumns(url: string, token: string): Promi
   await tursoExec(url, token, "ALTER TABLE Job ADD COLUMN linkStatus TEXT").catch(() => {});
   await tursoExec(url, token, "ALTER TABLE Job ADD COLUMN historyJson TEXT").catch(() => {});
   await tursoExec(url, token, "ALTER TABLE ScrapeRun ADD COLUMN rollbackJson TEXT").catch(() => {});
+  for (const sql of [...JOB_INDEX_SQL, ...EMPLOYER_INDEX_SQL]) {
+    await tursoExec(url, token, sql).catch(() => {});
+  }
 }
 
 export function tursoCreds(): { url: string; token: string } | null {

@@ -1,0 +1,46 @@
+name: Surveillance des coûts
+
+# Idée 121 : taille de l'instantané + usage Turso / Workers si les secrets
+# sont là. Alerte ntfy et job rouge en cas de dépassement (le scrape continue).
+
+on:
+  workflow_run:
+    workflows: ["Scraper les offres"]
+    types: [completed]
+  schedule:
+    - cron: "0 12 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: cost-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    env:
+      NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      NTFY_SERVER: ${{ secrets.NTFY_SERVER }}
+      NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
+      TURSO_API_TOKEN: ${{ secrets.TURSO_API_TOKEN }}
+      TURSO_ORG: ${{ vars.TURSO_ORG }}
+      TURSO_DB: ${{ vars.TURSO_DB }}
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_ACCOUNT_ID: ${{ vars.CF_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Découper l'instantané (tailles shards)
+        run: npm run split:jobs -w @jobccq/api
+
+      - name: Vérifier les budgets
+        run: npm run cost:watch -w @jobccq/api

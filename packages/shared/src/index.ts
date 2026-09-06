@@ -34,3 +34,5 @@ export * from "./careers-via.js";
 export * from "./link-status.js";
 export * from "./job-history.js";
 export * from "./translate-job.js";
+export * from "./jobs-shards.js";
+export * from "./db-indexes.js";
