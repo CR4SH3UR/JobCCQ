@@ -68,6 +68,7 @@ import { carriereBernierScraper } from "./carrierebernier.js";
 import { champlainMetalScraper } from "./champlainmetal.js";
 import { chauffageMcScraper } from "./chauffagemc.js";
 import { chnPaysagisteScraper } from "./chn-paysagiste.js";
+import { cimaScraper } from "./cima.js";
 import { convairScraper } from "./convair.js";
 import { gcbfincScraper } from "./gcbfinc.js";
 import { canInspecScraper } from "./caninspec.js";
@@ -150,6 +151,7 @@ const BESPOKE = {
   "champlainmetal-com": champlainMetalScraper,
   "chauffagemc-com": chauffageMcScraper,
   "chn-paysagiste-com": chnPaysagisteScraper,
+  "cima-ca": cimaScraper,
   "can-inspec-ca": canInspecScraper,
   "con-v-air-com": convairScraper,
   "gcbfinc-com": gcbfincScraper,
