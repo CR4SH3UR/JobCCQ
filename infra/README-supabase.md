@@ -545,7 +545,8 @@ Le workflow `notify.yml` envoie alors le résumé de scrape (comme `WEBHOOK_SCRA
 Idées 87–89 : un compte réclame une fiche, corrige logo/description, publie une
 offre (modérée), et voit vues + clics « Postuler ». Pages `/employeur` et
 `/admin` → **Espace employeur**. L'admin voit **de qui** vient la réclamation
-(courriel) et peut **révoquer** une fiche déjà approuvée.
+(courriel), peut **révoquer** une fiche déjà approuvée, ou **supprimer**
+la demande.
 
 Remplace le courriel admin (mêmes que `NEXT_PUBLIC_ADMIN_EMAILS`).
 
@@ -578,6 +579,9 @@ create policy "admins read employer_claims" on public.employer_claims
   using ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']));
 create policy "admins update employer_claims" on public.employer_claims
   for update to authenticated
+  using ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']));
+create policy "admins delete employer_claims" on public.employer_claims
+  for delete to authenticated
   using ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']));
 
 create table if not exists public.employer_overrides (

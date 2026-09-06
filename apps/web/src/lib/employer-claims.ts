@@ -208,6 +208,22 @@ export async function setClaimStatus(
   if (error) throw new Error(error.message);
 }
 
+export function dropClaim(list: EmployerClaim[], userId: string, employerId: string): EmployerClaim[] {
+  return list.filter((c) => !(c.userId === userId && c.employerId === employerId));
+}
+
+/** Efface la demande (admin). Le compte peut en renvoyer une ensuite. */
+export async function deleteClaim(userId: string, employerId: string): Promise<void> {
+  persist(dropClaim(readLocal(), userId, employerId));
+  if (!supabase) return;
+  const { error } = await supabase
+    .from("employer_claims")
+    .delete()
+    .eq("user_id", userId)
+    .eq("employer_id", employerId);
+  if (error) throw new Error(error.message);
+}
+
 /** Retire l'accès d'une fiche approuvée. */
 export async function revokeClaim(userId: string, employerId: string): Promise<void> {
   try {

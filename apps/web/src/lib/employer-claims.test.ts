@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { withLookupEmails, type EmployerClaim } from "./employer-claims.js";
+import { dropClaim, withLookupEmails, type EmployerClaim } from "./employer-claims.js";
 
 const claim = (over: Partial<EmployerClaim> = {}): EmployerClaim => ({
   userId: "u1",
@@ -22,5 +22,11 @@ describe("employer-claims", () => {
   it("garde le courriel déjà stocké si l'annuaire n'a pas l'id", () => {
     const [got] = withLookupEmails([claim({ email: "deja@hamel.ca" })], new Map());
     assert.equal(got.email, "deja@hamel.ca");
+  });
+
+  it("retire une demande de la file", () => {
+    const kept = claim({ userId: "u2", employerId: "pomerleau" });
+    const next = dropClaim([claim(), kept], "u1", "hamel-construction");
+    assert.deepEqual(next, [kept]);
   });
 });
