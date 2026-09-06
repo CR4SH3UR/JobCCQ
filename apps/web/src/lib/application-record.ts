@@ -82,11 +82,4 @@ export function labelForApplicationStatus(id: string): string {
   return APPLICATION_STATUSES.find((s) => s.id === id)?.label ?? id;
 }
 
-/** Rappel échu (date locale YYYY-MM-DD ≤ aujourd'hui). */
-export function isReminderDue(remindAt?: string, now = new Date()): boolean {
-  const d = (remindAt ?? "").slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
-  const p = (n: number) => String(n).padStart(2, "0");
-  const today = `${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}`;
-  return d <= today;
-}
+export { isReminderDue, reminderNeedsNotify } from "@jobccq/shared";

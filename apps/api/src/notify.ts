@@ -1,7 +1,8 @@
 /**
- * Notifications par courriel des **alertes emploi** (Resend).
+ * Notifications : **alertes emploi** + **rappels de candidature** (Resend,
+ * Expo, ntfy, webhooks).
  *
- * Exécuté en CI après chaque scraping (voir .github/workflows/notify.yml) :
+ * Exécuté en CI après chaque scraping et tous les jours (notify.yml) :
  *  1. lit les alertes des utilisateurs dans Supabase (clé service_role → hors RLS) ;
  *  2. cherche dans Turso les offres **nouvelles** (créées depuis le dernier envoi)
  *     qui correspondent aux critères de chaque alerte (logique de filtrage
@@ -13,13 +14,22 @@
  * workflow ne casse pas tant que Supabase/Resend ne sont pas branchés.
  */
 import { createClient } from "@supabase/supabase-js";
-import { applyQuery, type Job, type JobQuery } from "@jobccq/shared";
+import { applyQuery, reminderNeedsNotify, type Job, type JobQuery } from "@jobccq/shared";
 import { prisma } from "./db.js";
 import { rowToJob } from "./repository.js";
 import { formatJobsWebhook, postWebhook } from "./webhooks.js";
 import { formatExpoPush, sendExpoPush } from "./expo-push.js";
 import { postNtfy } from "./ntfy.js";
 import { formatScrapeNtfy, parseScrapeDiff } from "./scrape-ntfy.js";
+import {
+  collectAlertChannels,
+  formatReminderEmailHtml,
+  formatReminderEmailSubject,
+  formatReminderNtfy,
+  formatReminderPush,
+  labelForReminderStatus,
+  type DueApplicationReminder,
+} from "./notify-reminders.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -95,22 +105,152 @@ function emailHtml(label: string, jobs: Job[]): string {
     </p></div>`;
 }
 
-async function sendEmail(to: string, label: string, jobs: Job[]): Promise<boolean> {
+async function sendHtmlEmail(to: string, subject: string, html: string): Promise<boolean> {
+  if (!RESEND_API_KEY) return false;
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: NOTIFY_FROM,
-      to,
-      subject: `JobCCQ — ${jobs.length} nouvelle${jobs.length > 1 ? "s" : ""} offre${jobs.length > 1 ? "s" : ""} · ${label}`,
-      html: emailHtml(label, jobs),
-    }),
+    body: JSON.stringify({ from: NOTIFY_FROM, to, subject, html }),
   });
   if (!res.ok) {
     console.error("Resend erreur:", res.status, await res.text().catch(() => ""));
     return false;
   }
   return true;
+}
+
+async function sendEmail(to: string, label: string, jobs: Job[]): Promise<boolean> {
+  return sendHtmlEmail(
+    to,
+    `JobCCQ — ${jobs.length} nouvelle${jobs.length > 1 ? "s" : ""} offre${jobs.length > 1 ? "s" : ""} · ${label}`,
+    emailHtml(label, jobs),
+  );
+}
+
+type ApplicationRow = {
+  user_id: string;
+  job_id: string;
+  status: string | null;
+  note: string | null;
+  remind_at: string | null;
+  remind_notified_at: string | null;
+};
+
+/** Client service_role : pas de schéma généré, chaînage `from().select()…`. */
+type NotifySupabase = {
+  from: (table: string) => {
+    select: (cols: string) => {
+      not: (col: string, op: string, val: null) => PromiseLike<{ data: ApplicationRow[] | null; error: { message: string } | null }>;
+      eq: (col: string, val: string) => {
+        eq: (col: string, val: boolean) => PromiseLike<{ data: Array<{ token?: string }> | null }>;
+      } & PromiseLike<{ data: Array<{ query?: { ntfyTopic?: string; webhookUrl?: string } }> | null }>;
+    };
+    update: (row: Record<string, unknown>) => {
+      eq: (col: string, val: string) => {
+        eq: (col: string, val: string) => PromiseLike<{ error: { message: string } | null }>;
+      };
+    };
+  };
+  auth: {
+    admin: {
+      getUserById: (id: string) => PromiseLike<{ data: { user?: { email?: string } | null } }>;
+    };
+  };
+};
+
+/** Rappels « Relancer le » de Mes candidatures — courriel, ntfy, webhook, push. */
+async function notifyApplicationReminders(supa: NotifySupabase): Promise<number> {
+  const { data, error } = await supa
+    .from("applications")
+    .select("user_id, job_id, status, note, remind_at, remind_notified_at")
+    .not("remind_at", "is", null);
+  if (error) {
+    console.log("Rappels candidatures ignorés :", error.message);
+    return 0;
+  }
+  const now = new Date();
+  const due = ((data ?? []) as ApplicationRow[]).filter((r) =>
+    reminderNeedsNotify(r.remind_at, r.remind_notified_at, now),
+  );
+  if (due.length === 0) {
+    console.log("Aucun rappel de candidature échu.");
+    return 0;
+  }
+
+  const jobIds = [...new Set(due.map((r) => r.job_id))];
+  const jobs = (await prisma.job.findMany({
+    where: { id: { in: jobIds } },
+    select: { id: true, title: true, company: true, url: true },
+  })) as Array<{ id: string; title: string; company: string }>;
+  const jobById = new Map(jobs.map((j) => [j.id, j]));
+
+  const byUser = new Map<string, ApplicationRow[]>();
+  for (const row of due) {
+    const list = byUser.get(row.user_id) ?? [];
+    list.push(row);
+    byUser.set(row.user_id, list);
+  }
+
+  const candidaturesUrl = `${SITE_URL}/candidatures`;
+  let sent = 0;
+  for (const [uid, rows] of byUser) {
+    const items: DueApplicationReminder[] = rows.map((r) => {
+      const j = jobById.get(r.job_id);
+      return {
+        jobId: r.job_id,
+        title: j?.title ?? r.job_id,
+        company: j?.company ?? "",
+        status: labelForReminderStatus(r.status),
+        note: r.note ?? "",
+        remindAt: (r.remind_at ?? "").slice(0, 10),
+        url: `${SITE_URL}/emplois/${r.job_id}/`,
+      };
+    });
+
+    const { data: userRes } = await supa.auth.admin.getUserById(uid);
+    const email = userRes?.user?.email;
+    const { data: alertData } = await supa.from("job_alerts").select("query").eq("user_id", uid);
+    const channels = collectAlertChannels((alertData ?? []).map((a) => a.query));
+    const { data: tokenData } = await supa
+      .from("push_tokens")
+      .select("token")
+      .eq("user_id", uid)
+      .eq("enabled", true);
+
+    const ntfyMsg = formatReminderNtfy(items);
+    const pushMsg = formatReminderPush(items);
+    let ok = false;
+    if (email && (await sendHtmlEmail(email, formatReminderEmailSubject(items), formatReminderEmailHtml(items, candidaturesUrl)))) {
+      ok = true;
+    }
+    for (const topic of channels.ntfy) {
+      if (await postNtfy(topic, ntfyMsg.title, ntfyMsg.body, candidaturesUrl)) ok = true;
+    }
+    for (const hook of channels.webhooks) {
+      if (await postWebhook(hook, ntfyMsg.body, ntfyMsg.title)) ok = true;
+    }
+    const tokens = (tokenData ?? []).map((t) => String(t.token ?? "")).filter(Boolean);
+    if (tokens.length && (await sendExpoPush(tokens, { title: pushMsg.title, body: pushMsg.body, data: { jobId: pushMsg.jobId } })) > 0) {
+      ok = true;
+    }
+
+    if (!ok) {
+      console.log(`Rappel candidature non envoyé (aucun canal) · ${uid.slice(0, 8)}… · ${items.length}`);
+      continue;
+    }
+    const stamp = now.toISOString();
+    for (const r of rows) {
+      const { error: upErr } = await supa
+        .from("applications")
+        .update({ remind_notified_at: stamp })
+        .eq("user_id", uid)
+        .eq("job_id", r.job_id);
+      if (upErr) console.error("remind_notified_at :", upErr.message);
+    }
+    sent += 1;
+    console.log(`⏰  ${email ?? uid.slice(0, 8)} — ${items.length} rappel(s) de candidature`);
+  }
+  return sent;
 }
 
 async function main() {
@@ -124,11 +264,13 @@ async function main() {
     console.log("Resend absent : pas de courriels (webhooks d'alerte toujours envoyés).");
   }
   const supa = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
+  const reminderSent = await notifyApplicationReminders(supa as NotifySupabase);
 
   const { data: alerts, error } = await supa.from("job_alerts").select("id,user_id,label,query,last_notified_at");
   if (error) {
     console.error("Lecture des alertes échouée:", error.message);
     process.exitCode = 1;
+    await prisma.$disconnect();
     return;
   }
   const { data: tokenData, error: tokenErr } = await supa
@@ -142,7 +284,7 @@ async function main() {
   const alertRows = (alerts ?? []) as AlertRow[];
   const tokenRows = (tokenErr ? [] : (tokenData ?? [])) as PushTokenRow[];
   if (alertRows.length === 0 && tokenRows.length === 0) {
-    console.log("Aucune alerte ni jeton push.");
+    console.log(`Aucune alerte ni jeton push.${reminderSent ? ` ${reminderSent} rappel(s) candidature.` : ""}`);
     await notifyAdminHooks();
     await prisma.$disconnect();
     return;
@@ -210,7 +352,7 @@ async function main() {
       console.log(`📱  jeton …${row.token.slice(-8)} — ${matched.length} offre(s)`);
     }
   }
-  console.log(`Terminé : ${sent} courriel(s) · ${pushed} push.`);
+  console.log(`Terminé : ${sent} courriel(s) · ${pushed} push · ${reminderSent} rappel(s) candidature.`);
   await notifyAdminHooks();
   await prisma.$disconnect();
 }

@@ -78,10 +78,12 @@ function rowPayload(rec: ApplicationRecord): Record<string, unknown> {
   };
 }
 
-function persistRemote(rec: ApplicationRecord): void {
+function persistRemote(rec: ApplicationRecord, prev?: ApplicationRecord): void {
   if (!userId || !supabase) return;
   const client = supabase;
   const full = rowPayload(rec);
+  // Nouvelle date de rappel → le cron pourra renvoyer (même jour ou plus tard).
+  if (prev && prev.remindAt !== rec.remindAt) full.remind_notified_at = null;
   client
     .from("applications")
     .upsert(full, { onConflict: "user_id,job_id" })
@@ -116,10 +118,12 @@ export function toggleApplied(id: string): void {
 }
 
 export function patchApplication(id: string, patch: Partial<ApplicationRecord>): void {
-  const next = upsertApplication(read(), id, patch);
+  const cur = read();
+  const prev = cur.get(id);
+  const next = upsertApplication(cur, id, patch);
   write(next);
   const rec = next.get(id);
-  if (rec) persistRemote(rec);
+  if (rec) persistRemote(rec, prev);
 }
 
 async function onLogin(uid: string): Promise<void> {

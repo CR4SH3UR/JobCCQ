@@ -18,8 +18,10 @@ import {
   useApplicationRecords,
   useApplications,
 } from "@/lib/applications";
+import { useAuth } from "@/lib/auth";
 import { downloadCsv, downloadIcs } from "@/lib/format";
 import { siteUrl } from "@/lib/site";
+import { supabaseEnabled } from "@/lib/supabase";
 
 /**
  * Page « Mes candidatures » : pipeline (à postuler → accepté), notes et rappels.
@@ -27,6 +29,7 @@ import { siteUrl } from "@/lib/site";
 export function CandidaturesView() {
   const applied = useApplications();
   const records = useApplicationRecords();
+  const { user } = useAuth();
   const [allJobs, setAllJobs] = useState<Job[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -127,7 +130,14 @@ export function CandidaturesView() {
             <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-100">
               {due.length} rappel{due.length > 1 ? "s" : ""} à faire :{" "}
               {due.map((j) => j.title).join(" · ")}
+              {supabaseEnabled && user ? " · une notif part aussi par tes canaux habituels." : ""}
             </div>
+          )}
+          {supabaseEnabled && !user && (
+            <p className="mb-3 text-sm text-slate-600">
+              Connecte-toi pour recevoir un courriel (et push / ntfy si tu les as déjà réglés) le jour
+              du rappel.
+            </p>
           )}
           <div className="mb-3 flex items-center justify-between gap-2">
             <p className="text-sm text-slate-600">
@@ -247,6 +257,11 @@ function ApplicationTrack({ job }: { job: Job }) {
           </div>
         )}
       </div>
+      {supabaseEnabled && (
+        <p className="mt-1.5 text-[11px] text-slate-500">
+          Notif le jour J : courriel du compte, push Expo, ntfy/webhook de tes alertes emploi.
+        </p>
+      )}
       <label className="mt-2 flex flex-col gap-0.5">
         <span className="text-[11px] uppercase tracking-wide text-slate-500">Note</span>
         <textarea
