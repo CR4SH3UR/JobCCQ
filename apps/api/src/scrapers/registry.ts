@@ -63,7 +63,9 @@ import { bourcierVentilationScraper } from "./bourcierventilation.js";
 import { boutyScraper } from "./bouty.js";
 import { bruantoconstructionScraper } from "./bruantoconstruction.js";
 import { brunelleElectriqueScraper } from "./brunelleelectrique.js";
+import { carrierScraper } from "./carrier.js";
 import { carriereBernierScraper } from "./carrierebernier.js";
+import { champlainMetalScraper } from "./champlainmetal.js";
 import { convairScraper } from "./convair.js";
 import { gcbfincScraper } from "./gcbfinc.js";
 import { canInspecScraper } from "./caninspec.js";
@@ -141,7 +143,9 @@ const BESPOKE = {
   "bouty-com": boutyScraper,
   "bruantoconstruction-com": bruantoconstructionScraper,
   "brunelleelectrique-com": brunelleElectriqueScraper,
+  "carrier-com": carrierScraper,
   "carrierebernier-com": carriereBernierScraper,
+  "champlainmetal-com": champlainMetalScraper,
   "can-inspec-ca": canInspecScraper,
   "con-v-air-com": convairScraper,
   "gcbfinc-com": gcbfincScraper,
