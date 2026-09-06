@@ -327,9 +327,9 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 
 ### 📊 Marché du travail & données ouvertes
 
-- [ ] 82. Tableau de bord public « marché de la construction QC » (offres par région/métier dans le temps)
+- [x] 82. Tableau de bord public « marché de la construction QC » (`/marche` : évolution des offres, répartition région/métier)
 - [ ] 83. Guide salarial par métier/région (médianes observées + grille CCQ) — page SEO à forte valeur
-- [ ] 84. Baromètre de pénurie par métier (ratio offres / population active), publié mensuellement
+- [x] 84. Baromètre de tension par métier sur `/marche` (offres + ratio offres/1000 travailleurs via table effectifs CCQ éditable)
 - [ ] 85. API publique documentée (OpenAPI) + export data ouverte (CSV/JSON)
 - [ ] 86. Rapport hebdo automatisé (« X nouvelles offres, top employeurs ») publié en page/artefact
 

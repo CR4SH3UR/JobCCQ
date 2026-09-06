@@ -7,6 +7,7 @@ export * from "./types.js";
 export * from "./filters.js";
 export * from "./ccq.js";
 export * from "./ccq-wages.js";
+export * from "./ccq-workforce.js";
 export * from "./municipalities.js";
 export * from "./custom-scrapers.js";
 export * from "./text.js";
