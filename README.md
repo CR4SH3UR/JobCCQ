@@ -162,8 +162,9 @@ manuel, le workflow `.github/workflows/deploy-pages.yml` :
 1. si Turso est configuré, synchronise/exporte les employeurs et génère
    l'instantané depuis la base ;
 2. sinon, utilise l'instantané versionné ou le génère s'il est absent ;
-3. construit le site en mode export (`BUILD_STATIC=1`) ;
-4. déploie sur `https://<utilisateur>.github.io/jobccq/`.
+3. découpe `jobs.json` par région (manifeste + shards, idée 120) ;
+4. construit le site en mode export (`BUILD_STATIC=1`) ;
+5. déploie sur `https://<utilisateur>.github.io/jobccq/`.
 
 Pour régénérer l'instantané localement à partir de la vraie base (après un
 scraping) : `npm run -w @jobccq/api export:static -- --from-db`.
@@ -180,6 +181,9 @@ scraping) : `npm run -w @jobccq/api export:static -- --from-db`.
 | `npm run scrape` | Lance le scraping |
 | `npm run typecheck` | Vérifie le typage de tous les paquets |
 | `npm run build` | Build du package partagé + du site |
+| `npm run profile:queries -w @jobccq/api` | EXPLAIN des filtres fréquents (idée 119) |
+| `npm run split:jobs -w @jobccq/api` | Manifeste + shards région (idée 120) |
+| `npm run cost:watch -w @jobccq/api` | Budgets instantané / Turso / Workers (idée 121) |
 
 ---
 
@@ -321,9 +325,9 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [ ] 110. Lecture audio d'une offre (synthèse vocale) sur mobile
 - [ ] 111. Réécriture « langage clair » d'une description dense (LLM)
 - [x] 118. Logos employeurs : favicon du site (repli) + proxy Weserv (WebP, cache)
-- [ ] 119. Index DB & requêtes profilées (EXPLAIN) pour les filtres fréquents (Turso/SQLite)
-- [ ] 120. `jobs.json` par région + delta incrémental (ne recharger que ce qui change)
-- [ ] 121. Surveillance des coûts (Turso / workers / Pages) + alerte de dépassement
+- [x] 119. Index DB & requêtes profilées (EXPLAIN) pour les filtres fréquents (Turso/SQLite)
+- [x] 120. `jobs.json` par région + delta incrémental (ne recharger que ce qui change)
+- [x] 121. Surveillance des coûts (Turso / workers / Pages) + alerte de dépassement
 
 ### 🤖 IA & recommandation
 

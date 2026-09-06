@@ -28,6 +28,11 @@ apps/api/prisma/*.db
 # non versionné (l'instantané client tronqué sert de repli hors Turso).
 apps/web/data/jobs.full.json
 
+# Shards région + manifeste (idée 120) : générés à l'export / au déploiement,
+# pour ne pas doubler jobs.json dans git.
+apps/web/public/data/jobs.manifest.json
+apps/web/public/data/jobs/r/
+
 # Env
 .env
 .env.local

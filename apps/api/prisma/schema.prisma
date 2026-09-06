@@ -77,6 +77,12 @@ model Job {
   @@index([categoryId])
   @@index([sourceId])
   @@index([postedAt])
+  @@index([sourceId, url])
+  @@index([regionId, postedAt])
+  @@index([categoryId, postedAt])
+  @@index([sourceId, scrapedAt])
+  @@index([linkStatus])
+  @@index([company, postedAt])
 }
 
 /// Journal d'une exécution de scraping (pour le suivi et le monitoring).

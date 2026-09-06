@@ -21,6 +21,9 @@
     "turso:migrate": "tsx src/turso-migrate.ts",
     "export:employers": "tsx src/export-employers.ts",
     "export:static": "tsx src/export-static.ts",
+    "split:jobs": "tsx src/split-jobs.ts",
+    "profile:queries": "tsx src/profile-queries-run.ts",
+    "cost:watch": "tsx src/cost-watch.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

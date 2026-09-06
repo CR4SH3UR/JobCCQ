@@ -68,6 +68,11 @@ jobs:
       - name: Générer l'instantané des offres (jobs.json) si absent
         run: test -f apps/web/public/data/jobs.json || npm run export:static -w @jobccq/api
 
+      # Shards par région + manifeste (idée 120) : le client ne retélécharge
+      # que les régions changées. Pas de BD requise — découpe jobs.json.
+      - name: Découper l'instantané par région
+        run: npm run split:jobs -w @jobccq/api
+
       - name: Construire le site (export statique)
         env:
           BUILD_STATIC: "1"

@@ -11,6 +11,7 @@ import { effectiveRegionId, jobsToRss, type HiringHistory, type Job } from "@job
 import { inferCategory } from "./normalize.js";
 import { SEED_JOBS } from "./seed-data.js";
 import { seedToJob } from "./seed-transform.js";
+import { writeJobShards } from "./write-job-shards.js";
 
 // Instantané **client** (chargé dans le navigateur pour la recherche/les
 // filtres) : descriptions tronquées à un extrait, pour garder la charge légère.
@@ -90,6 +91,7 @@ async function main() {
   });
   await mkdir(dirname(OUT), { recursive: true });
   await writeFile(OUT, JSON.stringify(clientJobs));
+  const manifest = await writeJobShards(dirname(OUT), clientJobs);
   await writeFile(OUT_HISTORY, JSON.stringify(history));
 
   const site = (process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "https://jobccqc.ca").replace(
@@ -103,6 +105,7 @@ async function main() {
 
   console.log(`✅ ${jobs.length} offres exportées.`);
   console.log(`   • Client (extraits) → ${OUT}`);
+  console.log(`   • Shards région     → ${Object.keys(manifest.shards).length} fichiers (hash ${manifest.hash})`);
   console.log(`   • Historique recrutement → ${OUT_HISTORY} (${Object.keys(history).length} employeurs)`);
   console.log(`   • Complet (fiches)  → ${OUT_FULL}`);
   console.log(`   • Flux RSS          → ${RSS}`);
