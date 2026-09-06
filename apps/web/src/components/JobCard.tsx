@@ -15,6 +15,7 @@ import {
   sourceName,
   rbqLicenceUrl,
   jobCompleteness,
+  jobDetailHref,
   type Job,
 } from "@jobccq/shared";
 import { Badge } from "./Badge";
@@ -68,7 +69,7 @@ export function JobCard({ job }: { job: Job }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <h3 className="font-semibold leading-snug">
-              <Link href={`/emplois/${job.id}/`} className="text-slate-900 hover:text-brand-700">
+              <Link href={jobDetailHref(job.id)} className="text-slate-900 hover:text-brand-700">
                 {job.title}
               </Link>
             </h3>
@@ -176,7 +177,7 @@ export function JobCard({ job }: { job: Job }) {
                 Postuler
               </ApplyLink>
               <Link
-                href={`/emplois/${job.id}/`}
+                href={jobDetailHref(job.id)}
                 className={cn(
                   "rounded-lg px-3 py-1 text-xs font-semibold",
                   "bg-slate-100 text-slate-700 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-slate-800 dark:text-slate-200",

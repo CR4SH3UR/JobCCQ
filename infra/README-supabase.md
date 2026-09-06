@@ -540,3 +540,128 @@ Sur `/alertes`, champ **ntfy** : nom de topic (`jobccq-mes-alertes`) ou URL
 
 Le workflow `notify.yml` envoie alors le résumé de scrape (comme `WEBHOOK_SCRAPE_URL`).
 
+# Espace employeur (réclamation, offres, stats)
+
+Idées 87–89 : un compte réclame une fiche, corrige logo/description, publie une
+offre (modérée), et voit vues + clics « Postuler ». Pages `/employeur` et
+`/admin` → **Espace employeur**.
+
+Remplace le courriel admin (mêmes que `NEXT_PUBLIC_ADMIN_EMAILS`).
+
+```sql
+create table if not exists public.employer_claims (
+  user_id      uuid        not null references auth.users (id) on delete cascade,
+  employer_id  text        not null,
+  status       text        not null default 'pending'
+               check (status in ('pending', 'approved', 'rejected')),
+  note         text,
+  created_at   timestamptz not null default now(),
+  primary key (user_id, employer_id)
+);
+
+alter table public.employer_claims enable row level security;
+
+create policy "read own employer_claims" on public.employer_claims
+  for select to authenticated using (auth.uid() = user_id);
+create policy "insert own employer_claims" on public.employer_claims
+  for insert to authenticated with check (auth.uid() = user_id and coalesce(status, 'pending') = 'pending');
+create policy "admins read employer_claims" on public.employer_claims
+  for select to authenticated
+  using ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']));
+create policy "admins update employer_claims" on public.employer_claims
+  for update to authenticated
+  using ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']));
+
+create table if not exists public.employer_overrides (
+  employer_id  text        primary key,
+  patch        jsonb       not null default '{}'::jsonb,
+  updated_at   timestamptz not null default now()
+);
+
+alter table public.employer_overrides enable row level security;
+
+create policy "read employer_overrides" on public.employer_overrides
+  for select using (true);
+create policy "claimed write employer_overrides" on public.employer_overrides
+  for all to authenticated
+  using (
+    exists (
+      select 1 from public.employer_claims c
+      where c.user_id = auth.uid() and c.employer_id = employer_overrides.employer_id and c.status = 'approved'
+    )
+    or (auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com'])
+  )
+  with check (
+    exists (
+      select 1 from public.employer_claims c
+      where c.user_id = auth.uid() and c.employer_id = employer_overrides.employer_id and c.status = 'approved'
+    )
+    or (auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com'])
+  );
+
+create table if not exists public.employer_jobs (
+  id           text        primary key,
+  employer_id  text        not null,
+  user_id      uuid        not null references auth.users (id) on delete cascade,
+  status       text        not null default 'pending'
+               check (status in ('pending', 'approved', 'rejected')),
+  job          jsonb       not null,
+  created_at   timestamptz not null default now()
+);
+
+create index if not exists employer_jobs_status_idx on public.employer_jobs (status, created_at desc);
+
+alter table public.employer_jobs enable row level security;
+
+create policy "read approved employer_jobs" on public.employer_jobs
+  for select using (status = 'approved');
+create policy "read own employer_jobs" on public.employer_jobs
+  for select to authenticated using (auth.uid() = user_id);
+create policy "insert own employer_jobs" on public.employer_jobs
+  for insert to authenticated
+  with check (
+    auth.uid() = user_id
+    and coalesce(status, 'pending') = 'pending'
+    and exists (
+      select 1 from public.employer_claims c
+      where c.user_id = auth.uid() and c.employer_id = employer_jobs.employer_id and c.status = 'approved'
+    )
+  );
+create policy "admins all employer_jobs" on public.employer_jobs
+  for all to authenticated
+  using ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']))
+  with check ((auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com']));
+
+create table if not exists public.job_views (
+  id         uuid        primary key default gen_random_uuid(),
+  job_id     text        not null,
+  source_id  text        not null,
+  title      text,
+  at         timestamptz not null default now()
+);
+
+create index if not exists job_views_source_idx on public.job_views (source_id);
+alter table public.job_views enable row level security;
+
+create policy "insert job_views" on public.job_views
+  for insert to anon, authenticated with check (true);
+create policy "read job_views" on public.job_views
+  for select to authenticated
+  using (
+    exists (
+      select 1 from public.employer_claims c
+      where c.user_id = auth.uid() and c.status = 'approved' and c.employer_id = job_views.source_id
+    )
+    or (auth.jwt() ->> 'email') = any (array['ton-courriel@admin.com'])
+  );
+
+create policy "employers read own apply_clicks" on public.apply_clicks
+  for select to authenticated
+  using (
+    exists (
+      select 1 from public.employer_claims c
+      where c.user_id = auth.uid() and c.status = 'approved' and c.employer_id = apply_clicks.source_id
+    )
+  );
+```
+

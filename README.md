@@ -348,9 +348,9 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 
 ### 🏗️ Côté employeur (comptes)
 
-- [ ] 87. Comptes employeurs : réclamer sa fiche, corriger les infos, ajouter logo/description
-- [ ] 88. Publication directe d'une offre par un employeur (modérée), en plus du scraping
-- [ ] 89. Tableau de bord employeur (vues + clics « postuler » sur ses offres)
+- [x] 87. Comptes employeurs : réclamer sa fiche, corriger les infos, ajouter logo/description
+- [x] 88. Publication directe d'une offre par un employeur (modérée), en plus du scraping
+- [x] 89. Tableau de bord employeur (vues + clics « postuler » sur ses offres)
 - [ ] 90. Badge « répond vite » / délai de réponse moyen (si candidatures suivies)
 - [ ] 91. Vérification d'identité employeur (RBQ + domaine courriel) → badge de confiance renforcé
 

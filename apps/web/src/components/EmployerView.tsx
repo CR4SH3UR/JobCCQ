@@ -13,7 +13,9 @@ import { getJobsBySource, invalidateJobsCache, searchCompanies, buildQuery } fro
 import { useLivePoll } from "@/lib/live";
 import { organizationLd, ldJson } from "@/lib/jsonld";
 import { resolveCompanyLogoUrl } from "@/lib/logo-url";
+import { fetchEmployerOverrides } from "@/lib/employer-overrides";
 import { CompanyAvatar } from "./CompanyAvatar";
+import { ClaimEmployerButton } from "./ClaimEmployerButton";
 
 export function EmployerView({ slug }: { slug: string }) {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -21,6 +23,8 @@ export function EmployerView({ slug }: { slug: string }) {
   const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [similar, setSimilar] = useState<HiringCompany[]>([]);
+  const [overrideDesc, setOverrideDesc] = useState("");
+  const [overrideLogo, setOverrideLogo] = useState("");
 
   const employer = getEmployer(slug);
   const name = employer?.name ?? jobs[0]?.company ?? slug;
@@ -43,6 +47,14 @@ export function EmployerView({ slug }: { slug: string }) {
 
   useLivePoll(load);
 
+  useEffect(() => {
+    void fetchEmployerOverrides().then((m) => {
+      const p = m.get(slug);
+      setOverrideDesc(p?.description ?? "");
+      setOverrideLogo(p?.logoUrl ?? "");
+    });
+  }, [slug]);
+
   // Rafraîchissement forcé : vide les caches (instantané, overlay, ville/région)
   // puis recharge les offres de cet employeur.
   const forceRefresh = useCallback(async () => {
@@ -59,7 +71,7 @@ export function EmployerView({ slug }: { slug: string }) {
   // couvertes, dernière publication, métiers CCQ présents. Ces hooks doivent
   // rester AVANT tout `return` conditionnel (ordre des hooks stable).
   const logoUrl = resolveCompanyLogoUrl({
-    logoUrl: jobs.find((j) => j.companyLogoUrl)?.companyLogoUrl,
+    logoUrl: overrideLogo || jobs.find((j) => j.companyLogoUrl)?.companyLogoUrl,
     homepage: employer?.homepage,
     careersUrl: employer?.careersUrl,
   });
@@ -151,6 +163,7 @@ export function EmployerView({ slug }: { slug: string }) {
                 {jobs.length} poste{jobs.length > 1 ? "s" : ""} ouvert{jobs.length > 1 ? "s" : ""}
                 {lastPosted && timeAgo(lastPosted) ? ` · dernière offre ${timeAgo(lastPosted)}` : ""}
               </p>
+              {overrideDesc && <p className="mt-3 max-w-2xl text-sm text-slate-600">{overrideDesc}</p>}
               <div className="mt-3 flex flex-wrap items-center gap-1.5">
                 {regionLabels.map((r) => (
                   <Badge key={r} tone="brand">
@@ -198,8 +211,9 @@ export function EmployerView({ slug }: { slug: string }) {
                   </a>
                 )}
               </div>
-              <div className="mt-4">
+              <div className="mt-4 flex flex-wrap items-center gap-3">
                 <FollowEmployerButton slug={slug} name={name} />
+                <ClaimEmployerButton employerId={slug} name={name} />
               </div>
               <EmployerHiringHistory sourceId={slug} />
             </div>

@@ -25,6 +25,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: siteUrl("/sources/"), changeFrequency: "monthly", priority: 0.3 },
     { url: siteUrl("/alertes/"), changeFrequency: "monthly", priority: 0.3 },
     { url: siteUrl("/commandite/"), changeFrequency: "monthly", priority: 0.4 },
+    { url: siteUrl("/employeur/"), changeFrequency: "monthly", priority: 0.4 },
     { url: siteUrl("/a-propos/"), changeFrequency: "monthly", priority: 0.3 },
     { url: siteUrl("/confidentialite/"), changeFrequency: "yearly", priority: 0.2 },
     { url: siteUrl("/conditions/"), changeFrequency: "yearly", priority: 0.2 },
