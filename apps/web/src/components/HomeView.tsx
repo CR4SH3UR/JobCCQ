@@ -52,7 +52,7 @@ export function HomeView() {
       searchCompanies(buildQuery({})),
       searchJobs(buildQuery({ sort: "recent", pageSize: 6 })),
       hasSignals
-        ? searchJobs(buildQuery({ sort: "recent", pageSize: 400 }))
+        ? searchJobs(buildQuery({ sort: "recent", pageSize: 100_000 }))
         : personalized
           ? searchJobs(
               buildQuery({
