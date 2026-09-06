@@ -84,14 +84,17 @@ jobs:
         if: env.TURSO_DATABASE_URL == ''
         run: npm run import:snapshot -w @jobccq/api
 
-      # Config employeurs = Turso (source de vérité). On régénère discovered.json
-      # depuis la base AVANT de scraper : sinon un employeur dont on vient de
-      # corriger l'URL / la méthode dans la console d'admin serait re-scrapé avec
-      # son ANCIENNE config, car le registre lit le fichier committé et non Turso.
+      # Config employeurs = Turso (source de vérité). D'abord on INSERT les
+      # fiches git absentes (ex. CCQ nouvellement committée), sans écraser les
+      # éditions admin. Puis on régénère discovered.json depuis la base : sinon
+      # un employeur dont on vient de corriger l'URL dans la console serait
+      # re-scrapé avec son ANCIENNE config (le registre lit le fichier, pas Turso).
       # (Fichier éphémère en CI, non committé — comme au déploiement.)
       - name: Rafraîchir la config employeurs depuis Turso (si configuré)
         if: env.TURSO_DATABASE_URL != ''
-        run: npm run export:employers -w @jobccq/api
+        run: |
+          npm run sync:employers -w @jobccq/api
+          npm run export:employers -w @jobccq/api
 
       # Scraping en mode « sync » (retire les postes comblés, jamais sur échec).
       # sourceId vide (planifié ou champ vide) = tous les sites.

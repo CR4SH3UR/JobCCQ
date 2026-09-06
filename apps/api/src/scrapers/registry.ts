@@ -158,7 +158,9 @@ export const SCRAPERS: Record<string, Scraper> = Object.fromEntries(
 );
 
 export function getScraper(id: string): Scraper | undefined {
-  return SCRAPERS[id];
+  // Repli bespoke : un scrape ciblé (console admin / Actions) doit marcher
+  // même si Turso n'a pas encore la fiche (export:employers l'aurait omise).
+  return SCRAPERS[id] ?? bespokeScraper(id);
 }
 
 /**

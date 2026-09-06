@@ -16,6 +16,7 @@
     "notify": "tsx src/notify.ts",
     "import:snapshot": "tsx src/import-snapshot.ts",
     "import:employers": "tsx src/import-employers.ts",
+    "sync:employers": "tsx src/sync-employers.ts",
     "enrich:rbq": "tsx src/enrich-rbq.ts",
     "turso:migrate": "tsx src/turso-migrate.ts",
     "export:employers": "tsx src/export-employers.ts",

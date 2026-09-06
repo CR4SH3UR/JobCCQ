@@ -41,11 +41,9 @@ export interface JobSource {
 }
 
 export const JOB_SOURCES = [
-  // Les employeurs curés (Pomerleau, EBC, Béluga, Atwill-Morin…) ont été migrés
-  // vers discovered.json : ils sont désormais visibles et éditables dans la
-  // console d'admin comme tous les autres, tout en gardant leur scraper dédié
-  // (voir BESPOKE dans apps/api/src/scrapers/registry.ts). La CCQ reste ici :
-  // ce n'est pas un employeur discovered, c'est une source (portail carrières).
+  // Les employeurs curés (Pomerleau, EBC, Béluga, Atwill-Morin, CCQ…) vivent
+  // dans discovered.json (éditables en admin, scraper dédié via BESPOKE).
+  // JOB_SOURCES reste le catalogue « source » pour la page /sources.
   {
     id: "ccq-construction",
     name: "CCQ — Carrefour construction",

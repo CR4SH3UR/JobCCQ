@@ -59,6 +59,7 @@ jobs:
         if: env.TURSO_DATABASE_URL != ''
         run: |
           npm run prisma:generate -w @jobccq/api
+          npm run sync:employers -w @jobccq/api
           npm run export:employers -w @jobccq/api
           npm run export:static -w @jobccq/api -- --from-db
 
