@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
+  calendarOpenHref,
   icsCalendar,
   reminderCalendarEvent,
   type Job,
@@ -191,10 +192,8 @@ function ApplicationTrack({ job }: { job: Job }) {
   useEffect(() => {
     setNote(rec?.note ?? "");
   }, [rec?.note]);
-  if (!rec) return null;
-  const due = isReminderDue(rec.remindAt);
   const fiche = `${siteUrl("/").replace(/\/$/, "")}/emplois/${job.id}/`;
-  const cal = rec.remindAt
+  const cal = rec?.remindAt
     ? reminderCalendarEvent({
         jobId: job.id,
         title: job.title,
@@ -205,6 +204,14 @@ function ApplicationTrack({ job }: { job: Job }) {
         url: fiche,
       })
     : null;
+  const icsHref = cal ? icsDataUri(icsCalendar([cal])) : "";
+  const [calHref, setCalHref] = useState(icsHref);
+  useEffect(() => {
+    if (!cal) return;
+    setCalHref(calendarOpenHref(cal, navigator.userAgent, icsHref));
+  }, [cal, icsHref]);
+  if (!rec) return null;
+  const due = isReminderDue(rec.remindAt);
   return (
     <div className="mt-1 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-800">
       <div className="flex flex-wrap items-end gap-2">
@@ -236,7 +243,7 @@ function ApplicationTrack({ job }: { job: Job }) {
         {cal && (
           <div className="flex flex-wrap items-center gap-2 pb-0.5">
             <a
-              href={icsDataUri(icsCalendar([cal]))}
+              href={calHref}
               title="Ouvre le rappel dans ton appli calendrier"
               className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  calendarOpenHref,
   escapeIcsText,
   foldIcsLine,
   googleCalendarUrl,
@@ -76,5 +77,32 @@ describe("googleCalendarUrl", () => {
     const href = googleCalendarUrl(ev!);
     assert.ok(href?.startsWith("https://calendar.google.com/calendar/render?"));
     assert.match(href!, /dates=20260908%2F20260909/);
+  });
+});
+
+describe("calendarOpenHref", () => {
+  const ev = reminderCalendarEvent({
+    jobId: "z",
+    title: "Plombier",
+    remindAt: "2026-09-08",
+  })!;
+  const icsHref = "data:text/calendar;charset=utf-8,BEGIN";
+
+  it("Android ouvre Google Agenda au lieu du .ics", () => {
+    const href = calendarOpenHref(
+      ev,
+      "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/128.0.0.0 Mobile Safari/537.36",
+      icsHref,
+    );
+    assert.ok(href.startsWith("https://calendar.google.com/calendar/render?"));
+  });
+
+  it("iPhone garde le .ics", () => {
+    const href = calendarOpenHref(
+      ev,
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15",
+      icsHref,
+    );
+    assert.equal(href, icsHref);
   });
 });
