@@ -196,7 +196,7 @@ Pour régénérer l'instantané à partir de la vraie base (après un scraping) 
 
 MIT — voir [LICENSE](./LICENSE). Les offres agrégées appartiennent à leurs éditeurs respectifs.
 
-## Idées d'évolution (75)
+## Idées d'évolution (125)
 
 Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le produit actuel** (taxonomie QC, répertoire de sources, comptes Supabase, favoris/candidatures/alertes, panel admin, enrichissement RBQ, mode Turso live + export statique). Coche une case quand la fonctionnalité est livrée.
 
@@ -253,6 +253,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 32. Réglages de fréquence & silence par alerte (instantané / quotidien / hebdo / pause)
 - [x] 59. Alerte admin (courriel/Slack) si une grosse source tombe à 0 offre
 - [x] 60. Webhook « scrape terminé » (même canal que les webhooks de recherche)
+- [ ] 103. Notifications SMS optionnelles pour les alertes critiques
 
 ### 👤 Compte & candidatures
 
@@ -263,6 +264,10 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 37. Onboarding rapide (métier, région, mobilité → filtres pré-remplis)
 - [x] 61. Marquer « déjà postulé » depuis la fiche (compte existant)
 - [x] 62. Score d'adéquation offre ↔ profil (métiers / régions du compte)
+- [ ] 102. Rappels d'échéance en invitation calendrier (`.ics` / Google Calendar)
+- [ ] 104. Date limite d'offre extraite + tri « ferme bientôt »
+- [ ] 105. Modèles de courriel de relance générés selon le statut de candidature
+- [ ] 106. Reprise « là où j'en étais » (mémo local des clics « Postuler »)
 
 ### 🕷️ Scraping, sources & pipeline
 
@@ -301,3 +306,69 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 49. JSON-LD `JobPosting` sur chaque fiche (Google for Jobs) + sitemap dynamique
 - [x] 50. i18n EN de l'interface (bascule FR/EN)
 - [x] 75. Widget « nos offres » à coller sur le site d'un employeur du répertoire
+- [ ] 107. Langue supplémentaire ES (travailleurs immigrants) + architecture i18n extensible
+- [ ] 108. Mode lecture facile / dyslexie (police, espacement, contraste renforcé)
+- [ ] 109. Audit a11y automatisé en CI (axe-core) + budget d'accessibilité
+- [ ] 110. Lecture audio d'une offre (synthèse vocale) sur mobile
+- [ ] 111. Réécriture « langage clair » d'une description dense (LLM)
+- [ ] 118. Optimisation des logos employeurs (proxy + redimensionnement + WebP + cache)
+- [ ] 119. Index DB & requêtes profilées (EXPLAIN) pour les filtres fréquents (Turso/SQLite)
+- [ ] 120. `jobs.json` par région + delta incrémental (ne recharger que ce qui change)
+- [ ] 121. Surveillance des coûts (Turso / workers / Pages) + alerte de dépassement
+
+### 🤖 IA & recommandation
+
+- [ ] 76. Recherche sémantique par embeddings (« poseur de gypse » ↔ « finisseur intérieur ») — index vectoriel précalculé au build
+- [ ] 77. Recommandations « offres pour toi » à partir des favoris/candidatures (filtrage collaboratif simple)
+- [ ] 78. Appariement CV → offres : téléverser un CV, extraire métiers/compétences, classer les offres
+- [ ] 79. Assistant conversationnel « trouve-moi un emploi » (langage naturel → filtres) via l'API Claude
+- [ ] 80. Génération d'une lettre de présentation adaptée à l'offre (brouillon éditable)
+- [ ] 81. Auto-catégorisation LLM des offres ambiguës quand la taxonomie par règles échoue (revue admin)
+
+### 📊 Marché du travail & données ouvertes
+
+- [ ] 82. Tableau de bord public « marché de la construction QC » (offres par région/métier dans le temps)
+- [ ] 83. Guide salarial par métier/région (médianes observées + grille CCQ) — page SEO à forte valeur
+- [ ] 84. Baromètre de pénurie par métier (ratio offres / population active), publié mensuellement
+- [ ] 85. API publique documentée (OpenAPI) + export data ouverte (CSV/JSON)
+- [ ] 86. Rapport hebdo automatisé (« X nouvelles offres, top employeurs ») publié en page/artefact
+
+### 🏗️ Côté employeur (comptes)
+
+- [ ] 87. Comptes employeurs : réclamer sa fiche, corriger les infos, ajouter logo/description
+- [ ] 88. Publication directe d'une offre par un employeur (modérée), en plus du scraping
+- [ ] 89. Tableau de bord employeur (vues + clics « postuler » sur ses offres)
+- [ ] 90. Badge « répond vite » / délai de réponse moyen (si candidatures suivies)
+- [ ] 91. Vérification d'identité employeur (RBQ + domaine courriel) → badge de confiance renforcé
+
+### 🛡️ Confiance, intégrité & conformité
+
+- [ ] 92. Détection d'offres frauduleuses (salaire aberrant, courriel gratuit, « paiement à l'avance »)
+- [ ] 93. Signalement d'une offre par les utilisateurs (expirée / trompeuse / doublon) + file de modération
+- [ ] 94. Détection d'employeurs fantômes (aucune licence RBQ + aucune présence web)
+- [ ] 95. Journal de conformité scraping (respect `robots.txt`, throttling, ToS) consultable par source
+- [ ] 96. Politique de rétention & anonymisation (Loi 25 QC) + purge automatique
+
+### 💬 Communauté & contenu
+
+- [ ] 97. Avis/évaluations d'employeurs modérés (Glassdoor allégé)
+- [ ] 98. Q&R par métier (« comment devenir grutier au QC ? ») — contenu SEO evergreen
+- [ ] 99. Guides carrière par métier (parcours, carte de compétence, apprentissage CCQ)
+- [ ] 100. Pages « ville » (offres + employeurs + salaire médian par ville)
+- [ ] 101. Témoignages / parcours de travailleurs (contenu éditorial)
+
+### 🔭 Observabilité, fiabilité & DX
+
+- [ ] 112. Suivi d'erreurs Sentry (API + web + mobile)
+- [ ] 113. Métriques scrapers historisées (taux de succès, durée, volume) + graphes — au-delà de l'alerte « en échec »
+- [ ] 114. Tests E2E Playwright du site (recherche, filtres, fiche, favoris)
+- [ ] 115. Tests de contrat d'API (schémas Zod partagés ↔ réponses) en CI
+- [ ] 116. Alerte de dérive de qualité (chute du score de complétude moyen ou du volume global)
+- [ ] 117. Lighthouse CI + suivi de la taille du bundle et de `jobs.json`
+
+### 🔒 Sécurité
+
+- [ ] 122. Rate limiting sur l'API publique + anti-abus du proxy de scraping
+- [ ] 123. 2FA / clés d'accès pour la console admin + expiration de session
+- [ ] 124. Audit de dépendances (npm audit / Dependabot) + scan de secrets en CI
+- [ ] 125. En-têtes de sécurité (CSP, HSTS) + revue des permissions Turso (public en lecture seule)
