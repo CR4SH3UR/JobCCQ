@@ -102,7 +102,9 @@ export function AdminModules() {
       {active === "sources" ? <AdminExplorer /> : null}
       {active === "jobs" ? <AdminJobs /> : null}
       {active === "reports" ? <AdminReports /> : null}
-      {active === "sponsors" ? <AdminSponsors /> : null}
+      <div hidden={active !== "sponsors"}>
+        <AdminSponsors />
+      </div>
       {active === "regions" ? <AdminRegions /> : null}
     </div>
   );

@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DISCOVERED_EMPLOYERS } from "@jobccq/shared";
 import {
   SPONSOR_CONFIG,
-  parsePinnedList,
+  mergeSponsorPublish,
   parseSponsorTier,
+  readConfig,
   type PinnedJob,
   type Sponsor,
   type SponsorConfig,
 } from "@/lib/sponsors";
+import { setLiveSponsorConfig, sponsorsRawUrl } from "@/lib/sponsors-live";
 
 /**
  * Éditeur des commandites (console d'administration).
@@ -43,6 +45,10 @@ function b64utf8(s: string): string {
   return btoa(unescape(encodeURIComponent(s)));
 }
 
+function utf8fromB64(b64: string): string {
+  return decodeURIComponent(escape(atob(b64.replace(/\s/g, ""))));
+}
+
 function readToken(): string {
   try {
     return localStorage.getItem(LS_TOKEN) ?? "";
@@ -56,30 +62,52 @@ export function AdminSponsors() {
   const [featInput, setFeatInput] = useState("");
   const [pinId, setPinId] = useState("");
   const [pinUntil, setPinUntil] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  const dirtyRef = useRef(false);
   const [status, setStatus] = useState<{ k: "idle" | "run" | "ok" | "err"; msg?: string }>({ k: "idle" });
 
-  // Charge la version la plus récente committée (évite de repartir d'un bundle périmé).
+  const edit = (fn: (c: SponsorConfig) => SponsorConfig) => {
+    dirtyRef.current = true;
+    setDirty(true);
+    setCfg(fn);
+  };
+
+  // Charge GitHub `main` une fois. N'écrase pas une saisie déjà commencée.
   useEffect(() => {
-    const { owner, repo } = ghRepo();
+    let alive = true;
     (async () => {
       try {
-        const r = await fetch(
-          `https://raw.githubusercontent.com/${owner}/${repo}/main/${PATH}?t=${Date.now()}`,
-          { cache: "no-store" },
-        );
-        if (r.ok) {
-          const d = (await r.json()) as SponsorConfig;
-          setCfg({
-            contactEmail: d.contactEmail ?? "",
-            sponsors: d.sponsors ?? [],
-            featured: d.featured ?? [],
-            pinned: parsePinnedList(d.pinned),
-          });
+        const token = readToken();
+        const { owner, repo } = ghRepo();
+        let parsed: SponsorConfig | null = null;
+        if (token) {
+          const r = await fetch(
+            `https://api.github.com/repos/${owner}/${repo}/contents/${PATH}?ref=main`,
+            { headers: GH_HEADERS(token), cache: "no-store" },
+          );
+          if (r.ok) {
+            const d = (await r.json()) as { content?: string };
+            if (d.content) parsed = readConfig(JSON.parse(utf8fromB64(d.content)));
+          }
         }
+        if (!parsed) {
+          const r = await fetch(sponsorsRawUrl(), { cache: "no-store" });
+          if (r.ok) parsed = readConfig(await r.json());
+        }
+        if (!alive || !parsed) return;
+        setCfg((c) => (dirtyRef.current ? c : parsed));
+        if (!dirtyRef.current) setLiveSponsorConfig(parsed);
+        setLoaded(true);
       } catch {
         /* garde le bundle */
       }
     })();
+    return () => {
+      alive = false;
+    };
+    // `dirty` lu au retour du fetch, pas en dépendance (on ne relance pas).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const empName = useMemo(() => {
@@ -88,28 +116,34 @@ export function AdminSponsors() {
     return m;
   }, []);
 
-  const setSponsors = (sponsors: Sponsor[]) => setCfg((c) => ({ ...c, sponsors }));
+  const setSponsors = (sponsors: Sponsor[]) => edit((c) => ({ ...c, sponsors }));
   const updateSponsor = (i: number, patch: Partial<Sponsor>) =>
-    setSponsors(cfg.sponsors.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
+    edit((c) => ({
+      ...c,
+      sponsors: c.sponsors.map((s, idx) => (idx === i ? { ...s, ...patch } : s)),
+    }));
   const addSponsor = () =>
-    setSponsors([
-      ...cfg.sponsors,
-      { id: `sponsor-${cfg.sponsors.length + 1}`, name: "", tagline: "", url: "", tier: "argent" },
-    ]);
-  const removeSponsor = (i: number) => setSponsors(cfg.sponsors.filter((_, idx) => idx !== i));
+    edit((c) => ({
+      ...c,
+      sponsors: [
+        ...c.sponsors,
+        { id: `sponsor-${c.sponsors.length + 1}`, name: "", tagline: "", url: "", tier: "argent" },
+      ],
+    }));
+  const removeSponsor = (i: number) => edit((c) => ({ ...c, sponsors: c.sponsors.filter((_, idx) => idx !== i) }));
 
   const addPinned = () => {
     const jobId = pinId.trim();
     if (!jobId || cfg.pinned.some((p) => p.jobId === jobId)) return;
     const until = pinUntil.trim().slice(0, 10);
     const next: PinnedJob = until ? { jobId, until } : { jobId };
-    setCfg((c) => ({ ...c, pinned: [...c.pinned, next] }));
+    edit((c) => ({ ...c, pinned: [...c.pinned, next] }));
     setPinId("");
   };
   const removePinned = (jobId: string) =>
-    setCfg((c) => ({ ...c, pinned: c.pinned.filter((p) => p.jobId !== jobId) }));
+    edit((c) => ({ ...c, pinned: c.pinned.filter((p) => p.jobId !== jobId) }));
   const patchPinned = (jobId: string, until: string) =>
-    setCfg((c) => ({
+    edit((c) => ({
       ...c,
       pinned: c.pinned.map((p) =>
         p.jobId === jobId ? { jobId, ...(until.trim() ? { until: until.trim().slice(0, 10) } : {}) } : p,
@@ -118,12 +152,12 @@ export function AdminSponsors() {
 
   const addFeatured = (raw: string) => {
     const id = raw.trim();
-    if (!id || cfg.featured.includes(id)) return;
-    setCfg((c) => ({ ...c, featured: [...c.featured, id] }));
+    if (!id) return;
+    edit((c) => (c.featured.includes(id) ? c : { ...c, featured: [...c.featured, id] }));
     setFeatInput("");
   };
   const removeFeatured = (id: string) =>
-    setCfg((c) => ({ ...c, featured: c.featured.filter((x) => x !== id) }));
+    edit((c) => ({ ...c, featured: c.featured.filter((x) => x !== id) }));
 
   const publish = async () => {
     const token = readToken();
@@ -135,7 +169,7 @@ export function AdminSponsors() {
     const base = `https://api.github.com/repos/${owner}/${repo}/contents/${PATH}`;
     setStatus({ k: "run" });
     try {
-      const clean: SponsorConfig = {
+      const local: SponsorConfig = {
         contactEmail: cfg.contactEmail.trim(),
         sponsors: cfg.sponsors
           .filter((s) => s.name.trim() && s.url.trim())
@@ -157,16 +191,28 @@ export function AdminSponsors() {
           .filter((p): p is PinnedJob => !!p),
       };
       const cur = await fetch(`${base}?ref=main`, { headers: GH_HEADERS(token) });
-      const sha = cur.ok ? (await cur.json()).sha : undefined;
+      const remoteFile = cur.ok ? ((await cur.json()) as { sha?: string; content?: string }) : {};
+      const remote = remoteFile.content
+        ? readConfig(JSON.parse(utf8fromB64(remoteFile.content)))
+        : SPONSOR_CONFIG;
+      const clean = mergeSponsorPublish(remote, local, loaded);
       const body = {
         message: "Admin : mise à jour des sponsors",
         content: b64utf8(JSON.stringify(clean, null, 2) + "\n"),
         branch: "main",
-        ...(sha ? { sha } : {}),
+        ...(remoteFile.sha ? { sha: remoteFile.sha } : {}),
       };
       const r = await fetch(base, { method: "PUT", headers: GH_HEADERS(token), body: JSON.stringify(body) });
       if (r.ok) {
-        setStatus({ k: "ok", msg: "✅ Publié — le site va se redéployer (quelques minutes)." });
+        setCfg(clean);
+        dirtyRef.current = false;
+        setDirty(false);
+        setLoaded(true);
+        setLiveSponsorConfig(clean);
+        setStatus({
+          k: "ok",
+          msg: "✅ Publié — accueil et liste voient la vedette tout de suite ; le build suit.",
+        });
       } else {
         const d = await r.json().catch(() => ({}));
         setStatus({ k: "err", msg: (d as { message?: string }).message ?? `HTTP ${r.status}` });
@@ -190,7 +236,7 @@ export function AdminSponsors() {
             <input
               type="email"
               value={cfg.contactEmail}
-              onChange={(e) => setCfg((c) => ({ ...c, contactEmail: e.target.value }))}
+              onChange={(e) => edit((c) => ({ ...c, contactEmail: e.target.value }))}
               placeholder="ventes@exemple.com"
               className="w-full max-w-md rounded border border-slate-300 px-2 py-1"
             />
@@ -365,7 +411,11 @@ export function AdminSponsors() {
             {status.msg && (
               <span className={status.k === "err" ? "text-red-600" : "text-green-700"}>{status.msg}</span>
             )}
-            <span className="text-xs text-slate-400">Publie sur GitHub → redéploiement automatique du site.</span>
+            <span className="text-xs text-slate-400">
+              {dirty ? "Modifications non publiées. " : ""}
+              {loaded ? "Config GitHub chargée. " : "Chargement GitHub… "}
+              Publier écrit tout le fichier (sponsors + vedettes + épingles) sans en effacer un autre.
+            </span>
           </div>
         </div>
       </details>

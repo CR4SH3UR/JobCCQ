@@ -15,7 +15,7 @@ import {
 } from "@jobccq/shared";
 import { searchCompanies, searchJobs, getStats, buildQuery, type Stats } from "@/lib/data";
 import { useLivePoll } from "@/lib/live";
-import { SPONSORED_EMPLOYERS } from "@/lib/sponsors";
+import { useSponsorConfig } from "@/lib/sponsors-live";
 import { initials } from "@/lib/format";
 import { JobCard } from "./JobCard";
 import { SponsorBanner } from "./SponsorBanner";
@@ -42,6 +42,7 @@ export function HomeView() {
   const profile = useProfile();
   const favorites = useFavorites();
   const applications = useApplications();
+  const sponsorCfg = useSponsorConfig();
 
   const load = useCallback(() => {
     const signals = { favoriteIds: [...favorites], appliedIds: [...applications] };
@@ -108,9 +109,11 @@ export function HomeView() {
 
   // Employeurs en vedette (commandités) : mis en avant tout en haut.
   const bySource = new Map((stats?.bySource ?? []).map((s) => [s.id, s.count]));
-  const featured = [...SPONSORED_EMPLOYERS]
-    .map((id) => ({ id, employer: getEmployer(id), count: bySource.get(id) ?? 0 }))
-    .filter((f) => f.employer || f.count > 0);
+  const featured = sponsorCfg.featured.map((id) => ({
+    id,
+    employer: getEmployer(id),
+    count: bySource.get(id) ?? 0,
+  }));
 
   return (
     <div>

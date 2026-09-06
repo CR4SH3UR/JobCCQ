@@ -4,9 +4,12 @@ import {
   PINNED_MAX,
   activePinnedJobIds,
   isPinnedActive,
+  mergeSponsorPublish,
+  parseFeaturedList,
   parsePinnedList,
   parseSponsorTier,
   pinJobsFirst,
+  readSponsorSnapshot,
 } from "./sponsors-parse.js";
 
 describe("parsePinnedList", () => {
@@ -75,5 +78,41 @@ describe("parseSponsorTier", () => {
     assert.equal(parseSponsorTier("bronze"), "bronze");
     assert.equal(parseSponsorTier("argent"), "argent");
     assert.equal(parseSponsorTier("platine"), "argent");
+  });
+});
+
+describe("mergeSponsorPublish", () => {
+  const remote = readSponsorSnapshot({
+    contactEmail: "a@x.ca",
+    sponsors: [{ id: "s1", name: "EBC", tagline: "", url: "https://ebc.com" }],
+    featured: ["hamel-construction"],
+    pinned: [{ jobId: "job-1" }],
+  });
+  const empty = readSponsorSnapshot({ contactEmail: "", sponsors: [], featured: [], pinned: [] });
+
+  it("si le formulaire n'est pas chargé : ne vide pas les listes distantes", () => {
+    const local = readSponsorSnapshot({
+      contactEmail: "b@x.ca",
+      sponsors: [],
+      featured: ["pomerleau"],
+      pinned: [],
+    });
+    const merged = mergeSponsorPublish(remote, local, false);
+    assert.equal(merged.contactEmail, "b@x.ca");
+    assert.equal(merged.featured[0], "pomerleau");
+    assert.equal((merged.sponsors[0] as { name?: string }).name, "EBC");
+    assert.equal(merged.pinned[0]?.jobId, "job-1");
+  });
+
+  it("si chargé : le formulaire gagne, même vide", () => {
+    const merged = mergeSponsorPublish(remote, empty, true);
+    assert.deepEqual(merged.featured, []);
+    assert.deepEqual(merged.sponsors, []);
+  });
+});
+
+describe("parseFeaturedList", () => {
+  it("déduplique", () => {
+    assert.deepEqual(parseFeaturedList([" a ", "a", "", "b"]), ["a", "b"]);
   });
 });
