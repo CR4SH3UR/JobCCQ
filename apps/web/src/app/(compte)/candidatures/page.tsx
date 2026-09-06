@@ -11,7 +11,8 @@ export default function CandidaturesPage() {
     <section>
       <h1 className="text-2xl font-bold tracking-tight">Mes candidatures</h1>
       <p className="mt-1 text-slate-600">
-        Suivi des offres : statut, notes et rappel pour relancer.
+        Suivi des offres : statut, notes et rappel pour relancer. Connecté, on t'écrit
+        (courriel, push Expo, ntfy / webhook de tes alertes) le jour de l'échéance.
       </p>
       <div className="mt-5">
         <CandidaturesView />

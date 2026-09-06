@@ -1,8 +1,8 @@
 name: Notifier les alertes emploi
 
-# Envoie les courriels d'alerte et les push Expo (offres correspondant aux
-# recherches sauvegardées / jetons) APRÈS chaque scraping réussi. Déclenchable
-# aussi à la main.
+# Envoie les courriels d'alerte, les push Expo (offres correspondant aux
+# recherches sauvegardées / jetons) et les rappels de candidature échus.
+# Après chaque scraping réussi, tous les jours à 13:00 UTC, ou à la main.
 #
 # Ne fait rien tant que Supabase + Resend ne sont pas configurés (le script sort
 # proprement). Voir infra/README-supabase.md.
@@ -11,6 +11,9 @@ on:
   workflow_run:
     workflows: ["Scraper les offres"]
     types: [completed]
+  schedule:
+    # 9 h Québec (UTC−4) en été ; un passage par jour suffit pour les échéances.
+    - cron: "0 13 * * *"
   workflow_dispatch:
 
 # Un seul envoi à la fois (évite les doublons si deux scrapes se terminent).
@@ -22,7 +25,7 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     # Sur déclenchement par le scraping, on n'envoie que s'il a réussi.
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     env:
       DATABASE_URL: file:./prisma/dev.db
       TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
