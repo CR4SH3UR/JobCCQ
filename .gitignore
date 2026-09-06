@@ -32,6 +32,7 @@ apps/web/data/jobs.full.json
 # pour ne pas doubler jobs.json dans git.
 apps/web/public/data/jobs.manifest.json
 apps/web/public/data/jobs/r/
+apps/web/public/data/weekly-report.json
 
 # Env
 .env

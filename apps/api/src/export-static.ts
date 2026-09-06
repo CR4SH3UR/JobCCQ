@@ -7,7 +7,7 @@
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { effectiveRegionId, jobsToRss, type HiringHistory, type Job } from "@jobccq/shared";
+import { buildWeeklyReport, effectiveRegionId, jobsToRss, type HiringHistory, type Job } from "@jobccq/shared";
 import { inferCategory } from "./normalize.js";
 import { SEED_JOBS } from "./seed-data.js";
 import { seedToJob } from "./seed-transform.js";
@@ -17,6 +17,7 @@ import { writeJobShards } from "./write-job-shards.js";
 // filtres) : descriptions tronquées à un extrait, pour garder la charge légère.
 const OUT = resolve(process.cwd(), "../web/public/data/jobs.json");
 const OUT_HISTORY = resolve(process.cwd(), "../web/public/data/hiring-history.json");
+const OUT_WEEKLY = resolve(process.cwd(), "../web/public/data/weekly-report.json");
 const RSS = resolve(process.cwd(), "../web/public/emplois.rss");
 // Instantané **complet** (descriptions entières) : lu au build pour pré-générer
 // les pages de détail (SEO + lecture) ; non publié (hors `public/`).
@@ -93,6 +94,7 @@ async function main() {
   await writeFile(OUT, JSON.stringify(clientJobs));
   const manifest = await writeJobShards(dirname(OUT), clientJobs);
   await writeFile(OUT_HISTORY, JSON.stringify(history));
+  await writeFile(OUT_WEEKLY, JSON.stringify(buildWeeklyReport(jobs)));
 
   const site = (process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "https://jobccqc.ca").replace(
     /\/$/,
@@ -107,6 +109,7 @@ async function main() {
   console.log(`   • Client (extraits) → ${OUT}`);
   console.log(`   • Shards région     → ${Object.keys(manifest.shards).length} fichiers (hash ${manifest.hash})`);
   console.log(`   • Historique recrutement → ${OUT_HISTORY} (${Object.keys(history).length} employeurs)`);
+  console.log(`   • Rapport hebdo     → ${OUT_WEEKLY}`);
   console.log(`   • Complet (fiches)  → ${OUT_FULL}`);
   console.log(`   • Flux RSS          → ${RSS}`);
   console.log(

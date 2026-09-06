@@ -3,6 +3,7 @@ import {
   allJobs,
   employerIdsWithJobs,
   regionsWithCounts,
+  salaryGuide,
   tradesWithCounts,
 } from "@/lib/static-data";
 import { siteUrl } from "@/lib/site";
@@ -15,6 +16,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: siteUrl("/"), changeFrequency: "daily", priority: 1 },
     { url: siteUrl("/emplois/"), changeFrequency: "daily", priority: 0.9 },
     { url: siteUrl("/marche/"), changeFrequency: "daily", priority: 0.7 },
+    { url: siteUrl("/salaire/"), changeFrequency: "weekly", priority: 0.7 },
+    { url: siteUrl("/rapport/"), changeFrequency: "daily", priority: 0.6 },
     { url: siteUrl("/emplois/carte/"), changeFrequency: "daily", priority: 0.7 },
     { url: siteUrl("/emplois/region/"), changeFrequency: "weekly", priority: 0.6 },
     { url: siteUrl("/emplois/metier/"), changeFrequency: "weekly", priority: 0.6 },
@@ -65,6 +68,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: "weekly",
     priority: 0.55,
   }));
+  const salaires: MetadataRoute.Sitemap = salaryGuide().map((t) => ({
+    url: siteUrl(`/salaire/${t.tradeId}/`),
+    changeFrequency: "weekly",
+    priority: 0.55,
+  }));
 
-  return [...pages, ...regions, ...hiringRegions, ...trades, ...hiringTrades, ...jobs, ...employers];
+  return [...pages, ...regions, ...hiringRegions, ...trades, ...hiringTrades, ...salaires, ...jobs, ...employers];
 }

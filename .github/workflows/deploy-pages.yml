@@ -90,6 +90,8 @@ jobs:
           # Liste blanche des administrateurs (courriels séparés par des virgules).
           # Restreint /admin aux comptes indiqués ; vide → console verrouillée.
           NEXT_PUBLIC_ADMIN_EMAILS: ${{ vars.NEXT_PUBLIC_ADMIN_EMAILS }}
+          # Sentry navigateur (idée 112). Vide = désactivé.
+          NEXT_PUBLIC_SENTRY_DSN: ${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
         run: npm run build -w @jobccq/web
 
       - name: Publier sur la branche gh-pages

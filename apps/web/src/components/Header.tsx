@@ -22,6 +22,7 @@ export function Header() {
     { href: "/emplois", label: L.jobs },
     { href: "/entreprises", label: L.hiring },
     { href: "/marche", label: L.market },
+    { href: "/salaire", label: L.salary },
     { href: "/sources", label: L.sources },
   ];
   const compteActive = COMPTE.some((h) => pathname.startsWith(h));
