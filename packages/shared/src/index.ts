@@ -15,6 +15,7 @@ export * from "./synonyms.js";
 export * from "./suggest.js";
 export * from "./rss.js";
 export * from "./csv.js";
+export * from "./ics.js";
 export * from "./completeness.js";
 export * from "./salary.js";
 export * from "./extract.js";

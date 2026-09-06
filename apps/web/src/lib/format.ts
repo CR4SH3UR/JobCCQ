@@ -23,14 +23,22 @@ export function cn(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(" ");
 }
 
-/** Télécharge un CSV UTF-8 (BOM pour Excel). */
-export function downloadCsv(filename: string, csv: string): void {
-  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+function downloadBlob(filename: string, blob: Blob): void {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = filename;
   a.click();
   URL.revokeObjectURL(a.href);
+}
+
+/** Télécharge un CSV UTF-8 (BOM pour Excel). */
+export function downloadCsv(filename: string, csv: string): void {
+  downloadBlob(filename, new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }));
+}
+
+/** Télécharge une invitation calendrier (.ics). */
+export function downloadIcs(filename: string, ics: string): void {
+  downloadBlob(filename, new Blob([ics], { type: "text/calendar;charset=utf-8" }));
 }
 
 /** Initiales d'une entreprise (pour l'avatar de repli). */
