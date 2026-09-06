@@ -2,7 +2,8 @@
  * Carte d'offre d'emploi (écran Emplois).
  * Toucher la carte ouvre l'offre originale (job.url) dans le navigateur.
  */
-import { Image, Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
 import { Badge, type BadgeTone } from "./Badge";
 import { colors, fontSize, radius, spacing } from "@/theme";
 import { formatSalary, initials, timeAgo } from "@/format";
@@ -24,15 +25,14 @@ const REMOTE_TONE: Record<NonNullable<Job["remote"]>, BadgeTone> = {
 const AVATAR_SIZE = 44;
 
 export function JobCard({ job }: { job: Job }) {
+  const router = useRouter();
   const salary = formatSalary(job);
   const region = labelForRegion(job.regionId);
   const posted = timeAgo(job.postedAt ?? job.scrapedAt);
   const locationLabel = job.city ?? region;
 
   const openJob = () => {
-    Linking.openURL(job.url).catch(() => {
-      // Échec silencieux (URL invalide ou aucune app disponible) : on ne bloque pas l'utilisateur.
-    });
+    router.push(`/emploi/${job.id}`);
   };
 
   return (

@@ -28,3 +28,4 @@ export * from "./hiring-history.js";
 export * from "./merge-employers.js";
 export * from "./link-status.js";
 export * from "./job-history.js";
+export * from "./translate-job.js";

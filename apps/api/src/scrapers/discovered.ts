@@ -15,6 +15,7 @@ const atsHandle = (platform: AtsPlatform, url: string, fallback: string): string
     lever: /jobs\.lever\.co\/([a-z0-9_-]+)/i,
     recruitee: /\/\/([a-z0-9-]+)\.recruitee\.com/i,
     smartrecruiters: /smartrecruiters\.com\/([a-z0-9-]+)/i,
+    teamtailor: /\/\/([a-z0-9-]+)\.teamtailor\.com/i,
   };
   return url.match(pat[platform])?.[1] ?? fallback;
 };
@@ -58,7 +59,8 @@ export function buildDiscoveredScraper(d: DiscoveredEmployer): Scraper {
     d.method === "greenhouse" ||
     d.method === "lever" ||
     d.method === "recruitee" ||
-    d.method === "smartrecruiters"
+    d.method === "smartrecruiters" ||
+    d.method === "teamtailor"
   ) {
     const platform = d.method as AtsPlatform;
     const handle = atsHandle(platform, d.careersUrl, d.id);

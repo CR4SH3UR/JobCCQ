@@ -30,6 +30,9 @@ export function filterQuery(q: JobQuery): Partial<JobQuery> {
   if (q.shifts?.length) out.shifts = q.shifts;
   if (q.near) out.near = q.near;
   if (q.radiusKm != null) out.radiusKm = q.radiusKm;
+  if (q.alertFrequency) out.alertFrequency = q.alertFrequency;
+  if (q.alertPaused) out.alertPaused = true;
+  if (q.webhookUrl) out.webhookUrl = q.webhookUrl;
   return out as Partial<JobQuery>;
 }
 
@@ -59,6 +62,12 @@ export async function createAlert(label: string, query: Partial<JobQuery>): Prom
   const { data: u } = await supabase.auth.getUser();
   if (!u.user) return { error: "Connecte-toi d'abord." };
   const { error } = await supabase.from("job_alerts").insert({ user_id: u.user.id, label, query });
+  return error ? { error: error.message } : {};
+}
+
+export async function updateAlert(id: string, patch: { label?: string; query?: Partial<JobQuery> }): Promise<{ error?: string }> {
+  if (!supabase) return { error: "Comptes non configurés." };
+  const { error } = await supabase.from("job_alerts").update(patch).eq("id", id);
   return error ? { error: error.message } : {};
 }
 

@@ -52,6 +52,18 @@ export default function RootLayout() {
             tabBarIcon: ({ color }) => <TabIcon symbol="🔗" color={color} />,
           }}
         />
+        <Tabs.Screen
+          name="favoris"
+          options={{
+            title: "Favoris",
+            tabBarLabel: "Favoris",
+            tabBarIcon: ({ color }) => <TabIcon symbol="♥" color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="emploi/[id]"
+          options={{ href: null, title: "Offre" }}
+        />
       </Tabs>
     </SafeAreaProvider>
   );

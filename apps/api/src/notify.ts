@@ -16,6 +16,7 @@ import { createClient } from "@supabase/supabase-js";
 import { applyQuery, type Job, type JobQuery } from "@jobccq/shared";
 import { prisma } from "./db.js";
 import { rowToJob } from "./repository.js";
+import { formatJobsWebhook, postWebhook } from "./webhooks.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -23,6 +24,13 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const NOTIFY_FROM = process.env.NOTIFY_FROM || "JobCCQ <onboarding@resend.dev>";
 const SITE_URL = (process.env.NOTIFY_SITE_URL || "https://cr4sh3ur.github.io/JobCCQ").replace(/\/+$/, "");
 const MAX_PER_EMAIL = 30;
+const HOUR = 3_600_000;
+
+function shouldSkipByFrequency(freq: string | undefined, lastAt: number, now: number): boolean {
+  if (freq === "daily") return now - lastAt < 20 * HOUR;
+  if (freq === "weekly") return now - lastAt < 6 * 24 * HOUR;
+  return false;
+}
 
 type AlertRow = {
   id: string;
@@ -78,9 +86,14 @@ async function sendEmail(to: string, label: string, jobs: Job[]): Promise<boolea
 }
 
 async function main() {
-  if (!SUPABASE_URL || !SERVICE_KEY || !RESEND_API_KEY) {
-    console.log("Notifications désactivées (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / RESEND_API_KEY manquants).");
+  if (!SUPABASE_URL || !SERVICE_KEY) {
+    console.log("Notifications désactivées (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY manquants).");
+    await notifyAdminHooks();
+    await prisma.$disconnect();
     return;
+  }
+  if (!RESEND_API_KEY) {
+    console.log("Resend absent : pas de courriels (webhooks d'alerte toujours envoyés).");
   }
   const supa = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
 
@@ -92,6 +105,8 @@ async function main() {
   }
   if (!alerts || alerts.length === 0) {
     console.log("Aucune alerte enregistrée.");
+    await notifyAdminHooks();
+    await prisma.$disconnect();
     return;
   }
 
@@ -108,7 +123,9 @@ async function main() {
 
   let sent = 0;
   for (const alert of alerts as AlertRow[]) {
+    if (alert.query.alertPaused) continue;
     const cutoff = new Date(alert.last_notified_at).getTime();
+    if (shouldSkipByFrequency(alert.query.alertFrequency, cutoff, Date.now())) continue;
     const candidates = newJobs.filter((j) => (createdAtById.get(j.id) ?? 0) > cutoff);
     if (candidates.length === 0) continue;
 
@@ -128,14 +145,56 @@ async function main() {
     if (!email) continue;
 
     const label = alert.label?.trim() || "Nouvelles offres";
-    if (await sendEmail(email, label, matched)) {
+    const hook = alert.query.webhookUrl?.trim();
+    let ok = false;
+    if (hook) {
+      ok = await postWebhook(hook, formatJobsWebhook(label, matched), "JobCCQ");
+    }
+    if (RESEND_API_KEY && (await sendEmail(email, label, matched))) ok = true;
+    if (ok) {
       await supa.from("job_alerts").update({ last_notified_at: new Date().toISOString() }).eq("id", alert.id);
       sent += 1;
       console.log(`✉️  ${email} — ${matched.length} offre(s) · « ${label} »`);
     }
   }
   console.log(`Terminé : ${sent} courriel(s) envoyé(s).`);
+  await notifyAdminHooks();
   await prisma.$disconnect();
+}
+
+/** Fin de scrape + sources tombées à 0 (WEBHOOK_SCRAPE_URL). */
+async function notifyAdminHooks(): Promise<void> {
+  const url = process.env.WEBHOOK_SCRAPE_URL?.trim();
+  if (!url) return;
+  const since = new Date(Date.now() - 8 * HOUR);
+  const runs = await prisma.scrapeRun.findMany({
+    where: { finishedAt: { gte: since } },
+    orderBy: { id: "desc" },
+    take: 400,
+  });
+  const latest = new Map<string, (typeof runs)[number]>();
+  for (const r of runs) {
+    if (!latest.has(r.sourceId)) latest.set(r.sourceId, r);
+  }
+  const ok = [...latest.values()].filter((r) => r.status === "success").length;
+  const err = [...latest.values()].filter((r) => r.status === "error").length;
+  const dropped: string[] = [];
+  const bySource = new Map<string, typeof runs>();
+  for (const r of runs) {
+    const list = bySource.get(r.sourceId) ?? [];
+    list.push(r);
+    bySource.set(r.sourceId, list);
+  }
+  for (const [id, list] of bySource) {
+    const [cur, prev] = list;
+    if (cur && prev && cur.found === 0 && prev.found >= 8) dropped.push(`${id} (${prev.found} → 0)`);
+  }
+  const text = [
+    `${latest.size} source(s) · ${ok} succès · ${err} erreur(s)`,
+    dropped.length ? `⚠ tombées à 0 : ${dropped.join(", ")}` : "Aucune grosse source à 0.",
+  ].join("\n");
+  const sent = await postWebhook(url, text, "JobCCQ — scrape");
+  console.log(sent ? "Webhook scrape envoyé." : "Webhook scrape échoué.");
 }
 
 main().catch((err) => {

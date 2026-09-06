@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 };
 
 // Applique le thème avant le premier rendu (évite le flash clair→sombre).
-const THEME_SCRIPT = `!function(){try{var e=localStorage.getItem("theme");e||(e=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),document.documentElement.dataset.theme=e}catch(t){}}()`;
+const THEME_SCRIPT = `!function(){try{var e=localStorage.getItem("theme");e||(e=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),document.documentElement.dataset.theme=e;var l=localStorage.getItem("jobccq:lang");if(l==="en")document.documentElement.lang="en-CA"}catch(t){}}()`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

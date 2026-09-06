@@ -89,7 +89,7 @@ export async function getSources(): Promise<{ sources: SourceWithMeta[] }> {
   return apiGet<{ sources: SourceWithMeta[] }>("/api/sources");
 }
 
-/** GET /api/stats — statistiques globales. */
-export async function getStats(): Promise<Stats> {
-  return apiGet<Stats>("/api/stats");
+/** GET /api/jobs/:id — détail d'une offre. */
+export async function getJobById(id: string): Promise<{ job: import("./shared").Job }> {
+  return apiGet<{ job: import("./shared").Job }>(`/api/jobs/${encodeURIComponent(id)}`);
 }

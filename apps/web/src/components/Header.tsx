@@ -5,14 +5,9 @@ import { usePathname } from "next/navigation";
 import { adminAllowlistConfigured, isAdminEmail, useAuth } from "@/lib/auth";
 import { cn } from "@/lib/format";
 import { ThemeToggle } from "./ThemeToggle";
+import { LangToggle } from "./LangToggle";
 import { AuthButton } from "./AuthButton";
-
-const LINKS = [
-  { href: "/", label: "Accueil" },
-  { href: "/emplois", label: "Emplois" },
-  { href: "/entreprises", label: "Qui recrute" },
-  { href: "/sources", label: "Sources" },
-];
+import { UI, useUiLang } from "@/lib/i18n";
 
 /** Routes de l'espace utilisateur (menu latéral commun). */
 const COMPTE = ["/candidatures", "/favoris", "/alertes", "/profil"];
@@ -20,6 +15,14 @@ const COMPTE = ["/candidatures", "/favoris", "/alertes", "/profil"];
 export function Header() {
   const pathname = usePathname();
   const { user, enabled } = useAuth();
+  const lang = useUiLang();
+  const L = UI[lang];
+  const LINKS = [
+    { href: "/", label: L.home },
+    { href: "/emplois", label: L.jobs },
+    { href: "/entreprises", label: L.hiring },
+    { href: "/sources", label: L.sources },
+  ];
   const compteActive = COMPTE.some((h) => pathname.startsWith(h));
   const adminActive = pathname.startsWith("/admin");
   const showAdmin = enabled && adminAllowlistConfigured && isAdminEmail(user?.email);
@@ -101,7 +104,7 @@ export function Header() {
             )}
           >
             <span aria-hidden>👤</span>
-            <span className="hidden sm:inline">Mon espace</span>
+            <span className="hidden sm:inline">{L.account}</span>
           </Link>
           {showAdmin && (
             <Link
@@ -117,6 +120,7 @@ export function Header() {
               Admin
             </Link>
           )}
+          <LangToggle />
           <ThemeToggle />
           <AuthButton />
         </nav>

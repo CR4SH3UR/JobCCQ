@@ -22,6 +22,7 @@ import {
   formatCcqHourly,
   CCQ_SALARY_URL,
   formatHistoryEvent,
+  glossTitleToEn,
   type Job,
 } from "@jobccq/shared";
 import { Badge } from "./Badge";
@@ -46,6 +47,7 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
   const [similar, setSimilar] = useState<Job[]>([]);
   const [loading, setLoading] = useState(!initialJob);
   const [error, setError] = useState(false);
+  const [showEn, setShowEn] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -101,6 +103,7 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
   const requirements = extractRequirements(job.title, job.description);
   const benefits = extractBenefits(job.title, job.description);
   const summary = summarizeDescription(job.description);
+  const gloss = glossTitleToEn(job.title);
   const place =
     job.city && region && !region.toLowerCase().includes(job.city.toLowerCase())
       ? `${job.city} · ${region}`
@@ -131,7 +134,18 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
             <div className="flex gap-4">
               <Avatar name={job.company} logo={job.companyLogoUrl} />
               <div className="min-w-0">
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900">{job.title}</h1>
+                <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+                  {showEn && gloss.changed ? gloss.text : job.title}
+                </h1>
+                {gloss.changed && (
+                  <button
+                    type="button"
+                    onClick={() => setShowEn((v) => !v)}
+                    className="mt-1 text-xs font-medium text-brand-700 hover:underline"
+                  >
+                    {showEn ? "Afficher l'original" : "Traduction automatique (EN)"}
+                  </button>
+                )}
                 <p className="mt-1 text-slate-600">
                   <Link
                     href={`/entreprises/${job.sourceId}/`}

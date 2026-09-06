@@ -153,6 +153,10 @@ export const JobQuerySchema = z.object({
   near: z.string().trim().optional(),
   /** Rayon en km autour de `near` (ignoré sans origine résoluble). */
   radiusKm: z.coerce.number().int().positive().max(500).optional(),
+  /** Préférences d'alerte (stockées avec la recherche, ignorées par le filtrage). */
+  alertFrequency: z.enum(["instant", "daily", "weekly"]).optional(),
+  alertPaused: z.coerce.boolean().optional(),
+  webhookUrl: z.string().trim().optional(),
   sort: z.enum(SORT_OPTIONS).default("recent"),
   page: z.coerce.number().int().positive().default(1),
   pageSize: z.coerce.number().int().positive().max(100).default(20),

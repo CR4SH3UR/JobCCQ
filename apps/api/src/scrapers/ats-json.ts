@@ -12,8 +12,9 @@ import { cleanText, mapEmploymentType } from "./util.js";
  *  · Lever          : api.lever.co/v0/postings/<handle>?mode=json
  *  · Recruitee      : <handle>.recruitee.com/api/offers/
  *  · SmartRecruiters: api.smartrecruiters.com/v1/companies/<handle>/postings
+ *  · Teamtailor     : <handle>.teamtailor.com/jobs.json
  */
-export type AtsPlatform = "greenhouse" | "lever" | "recruitee" | "smartrecruiters";
+export type AtsPlatform = "greenhouse" | "lever" | "recruitee" | "smartrecruiters" | "teamtailor";
 
 export interface AtsJsonConfig {
   id: string;
@@ -33,6 +34,8 @@ const endpoint = (platform: AtsPlatform, handle: string): string => {
       return `https://${handle}.recruitee.com/api/offers/`;
     case "smartrecruiters":
       return `https://api.smartrecruiters.com/v1/companies/${handle}/postings`;
+    case "teamtailor":
+      return `https://${handle}.teamtailor.com/jobs.json`;
   }
 };
 
@@ -99,6 +102,21 @@ export function parseAtsJson(
       const city = [j?.location?.city, j?.location?.region].filter(Boolean).join(", ");
       const url = j?.id ? `https://jobs.smartrecruiters.com/${handle}/${j.id}` : undefined;
       push(j?.name, url, city, j?.typeOfEmployment?.label);
+    }
+  } else if (platform === "teamtailor") {
+    const arr = Array.isArray(data)
+      ? data
+      : ((data as { jobs?: unknown[] })?.jobs ?? (data as { data?: unknown[] })?.data ?? []);
+    for (const j of arr as Array<{
+      title?: string;
+      name?: string;
+      url?: string;
+      apply_url?: string;
+      links?: { careersite_job_url?: string };
+      location?: { city?: string } | string;
+    }>) {
+      const loc = typeof j?.location === "string" ? j.location : j?.location?.city;
+      push(j?.title || j?.name, j?.url || j?.apply_url || j?.links?.careersite_job_url, loc);
     }
   }
 

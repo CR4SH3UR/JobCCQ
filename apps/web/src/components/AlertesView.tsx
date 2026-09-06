@@ -11,7 +11,7 @@ import {
   type JobQuery,
 } from "@jobccq/shared";
 import { useAuth } from "@/lib/auth";
-import { useAlerts, deleteAlert, type JobAlert } from "@/lib/alerts";
+import { useAlerts, deleteAlert, updateAlert, type JobAlert } from "@/lib/alerts";
 
 /** Résumé lisible des critères d'une alerte. */
 function describe(query: Partial<JobQuery>): string {
@@ -25,8 +25,15 @@ function describe(query: Partial<JobQuery>): string {
   query.languages?.forEach((id) => parts.push(String(id).toUpperCase()));
   query.sources?.forEach((id) => parts.push(sourceName(id)));
   if (query.salaryMin != null) parts.push(`≥ ${query.salaryMin} $/an`);
+  if (query.near) parts.push(`≤ ${query.radiusKm ?? 50} km de ${query.near}`);
   return parts.join(" · ") || "Toutes les nouvelles offres";
 }
+
+const FREQ: { id: "instant" | "daily" | "weekly"; label: string }[] = [
+  { id: "instant", label: "Après chaque scrape" },
+  { id: "daily", label: "Quotidien" },
+  { id: "weekly", label: "Hebdomadaire" },
+];
 
 export function AlertesView() {
   const { user, loading: authLoading, enabled } = useAuth();
@@ -36,6 +43,13 @@ export function AlertesView() {
   const remove = async (id: string) => {
     setBusy(id);
     await deleteAlert(id);
+    await refresh();
+    setBusy(null);
+  };
+
+  const patchQuery = async (a: JobAlert, patch: Partial<JobQuery>) => {
+    setBusy(a.id);
+    await updateAlert(a.id, { query: { ...a.query, ...patch } });
     await refresh();
     setBusy(null);
   };
@@ -84,22 +98,69 @@ export function AlertesView() {
       ) : (
         <div className="space-y-2">
           <p className="mb-1 text-sm text-slate-600">
-            {alerts.length} alerte{alerts.length > 1 ? "s" : ""} · un courriel part quand de nouvelles offres
-            correspondent.
+            {alerts.length} alerte{alerts.length > 1 ? "s" : ""} · courriel et/ou webhook Discord/Slack.
           </p>
           {alerts.map((a: JobAlert) => (
-            <article key={a.id} className="card flex items-center justify-between gap-3 p-3">
-              <div className="min-w-0">
-                <h3 className="truncate font-semibold text-slate-900">{a.label || "Alerte"}</h3>
-                <p className="truncate text-sm text-slate-500">{describe(a.query)}</p>
+            <article key={a.id} className="card space-y-2 p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="truncate font-semibold text-slate-900">
+                    {a.label || "Alerte"}
+                    {a.query.alertPaused ? (
+                      <span className="ml-2 text-xs font-medium text-amber-700">en pause</span>
+                    ) : null}
+                  </h3>
+                  <p className="truncate text-sm text-slate-500">{describe(a.query)}</p>
+                </div>
+                <button
+                  onClick={() => remove(a.id)}
+                  disabled={busy === a.id}
+                  className="shrink-0 rounded-lg border border-red-300 px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
+                >
+                  {busy === a.id ? "…" : "Supprimer"}
+                </button>
               </div>
-              <button
-                onClick={() => remove(a.id)}
-                disabled={busy === a.id}
-                className="shrink-0 rounded-lg border border-red-300 px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
-              >
-                {busy === a.id ? "…" : "Supprimer"}
-              </button>
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <label className="flex items-center gap-1 text-slate-600">
+                  Fréquence
+                  <select
+                    value={a.query.alertFrequency ?? "instant"}
+                    disabled={busy === a.id}
+                    onChange={(e) =>
+                      void patchQuery(a, { alertFrequency: e.target.value as JobQuery["alertFrequency"] })
+                    }
+                    className="rounded border border-slate-200 px-1.5 py-1"
+                  >
+                    {FREQ.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button
+                  type="button"
+                  disabled={busy === a.id}
+                  onClick={() => void patchQuery(a, { alertPaused: !a.query.alertPaused })}
+                  className="rounded border border-slate-200 px-2 py-1 font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  {a.query.alertPaused ? "Reprendre" : "Mettre en pause"}
+                </button>
+                <label className="flex min-w-[12rem] flex-1 items-center gap-1 text-slate-600">
+                  Webhook
+                  <input
+                    type="url"
+                    defaultValue={a.query.webhookUrl ?? ""}
+                    placeholder="https://discord.com/api/webhooks/…"
+                    disabled={busy === a.id}
+                    onBlur={(e) => {
+                      const v = e.target.value.trim();
+                      if (v !== (a.query.webhookUrl ?? "")) void patchQuery(a, { webhookUrl: v || undefined });
+                    }}
+                    className="min-w-0 flex-1 rounded border border-slate-200 px-1.5 py-1"
+                  />
+                </label>
+              </div>
             </article>
           ))}
         </div>

@@ -16,7 +16,7 @@ async function main() {
   const [, , maybeSource, query, location] = process.argv;
   // SCRAPE_IDS="id1,id2,…" cible une liste précise (utile pour la découverte).
   const envIds = process.env.SCRAPE_IDS?.split(",").map((s) => s.trim()).filter(Boolean);
-  const ids = envIds?.length ? envIds : maybeSource ? [maybeSource] : listScraperIds();
+  let ids = envIds?.length ? envIds : maybeSource ? [maybeSource] : listScraperIds();
   const params = {
     query: query || undefined,
     location: location || undefined,
@@ -33,6 +33,36 @@ async function main() {
   const forceIds = forceAll
     ? new Set(ids)
     : new Set(forceRaw.split(",").map((s) => s.trim()).filter(Boolean));
+
+  // Backoff : un scrape **complet** (pas un retry ciblé) saute les sources
+  // dont le dernier run est en erreur depuis moins de SCRAPE_BACKOFF_HOURS (48 h).
+  const targeted = !!(envIds?.length || maybeSource);
+  const backoffH = Number(process.env.SCRAPE_BACKOFF_HOURS ?? 48);
+  if (!targeted && backoffH > 0) {
+    const recent = await prisma.scrapeRun.findMany({
+      orderBy: { id: "desc" },
+      take: 3000,
+      select: { sourceId: true, status: true, finishedAt: true },
+    });
+    const last = new Map<string, { status: string; at: Date | null }>();
+    for (const r of recent) {
+      if (!last.has(r.sourceId)) last.set(r.sourceId, { status: r.status, at: r.finishedAt });
+    }
+    const skipped: string[] = [];
+    ids = ids.filter((id) => {
+      const row = last.get(id);
+      if (!row || row.status !== "error" || !row.at) return true;
+      const ageH = (Date.now() - row.at.getTime()) / 3_600_000;
+      if (ageH < backoffH) {
+        skipped.push(id);
+        return false;
+      }
+      return true;
+    });
+    if (skipped.length) {
+      console.log(`⏭ Backoff ${backoffH} h : ${skipped.length} source(s) en erreur récemment ignorée(s).`);
+    }
+  }
 
   console.log(`▶ Scraping des sources : ${ids.join(", ")}`);
   console.log(`   Paramètres : ${JSON.stringify(params)}`);

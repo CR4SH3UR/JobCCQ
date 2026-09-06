@@ -184,11 +184,11 @@ Pour régénérer l'instantané à partir de la vraie base (après un scraping) 
 ## Feuille de route
 
 - [x] Brancher 6 employeurs de la construction (Pomerleau, EBC, Lafontaine, Atwill-Morin, Hamel, LEQEL)
-- [ ] Ajouter d'autres entrepreneurs (Broccolini, Kiewit, Eurovia, Construction Demathieu & Bard…)
+- [x] Ajouter d'autres entrepreneurs (Broccolini, Kiewit, Eurovia, Construction Demathieu & Bard…)
 - [ ] Brancher le Carrefour construction de la CCQ (ccq.org)
-- [ ] Planification du scraping (cron) + déduplication inter-sources plus fine
-- [ ] Alertes courriel / notifications push mobiles sur nouvelles offres
-- [ ] Comptes utilisateurs, offres sauvegardées, recherches enregistrées
+- [x] Planification du scraping (cron) + déduplication inter-sources plus fine
+- [x] Alertes courriel (Resend) ; push Expo encore à brancher
+- [x] Comptes utilisateurs, offres sauvegardées, recherches enregistrées
 
 ## Licence
 
@@ -222,7 +222,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 14. Extraction des exigences (carte de compétence, ASP Construction, permis classe 1/3…)
 - [x] 15. Score de complétude d'une offre (salaire ? lieu ? description ?)
 - [x] 16. Résumé automatique de la description (2-3 puces)
-- [ ] 17. Traduction FR↔EN des offres unilingues (libellé « traduit automatiquement »)
+- [x] 17. Traduction FR↔EN des offres unilingues (libellé « traduit automatiquement »)
 - [x] 18. Détection d'offres expirées (vérif du lien : 404/redirection → « peut-être pourvue »)
 - [x] 19. Ancienneté visible et cohérente partout (« il y a 2 j »)
 - [x] 20. Historique d'une offre (salaire modifié, réactivée…)
@@ -244,13 +244,13 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 
 ### 🔔 Alertes & notifications
 
-- [ ] 28. Alertes courriel réelles (digest quotidien/hebdo d'une recherche enregistrée)
+- [x] 28. Alertes courriel réelles (digest quotidien/hebdo d'une recherche enregistrée)
 - [ ] 29. Notifications push mobiles (Expo push) sur nouvelles offres
 - [x] 30. Flux RSS des offres (`/emplois.rss` sur le site statique, `/api/jobs.rss` + bouton RSS de la recherche)
-- [ ] 31. Webhook Discord/Slack pour une recherche
-- [ ] 32. Réglages de fréquence & silence par alerte (instantané / quotidien / hebdo / pause)
-- [ ] 59. Alerte admin (courriel/Slack) si une grosse source tombe à 0 offre
-- [ ] 60. Webhook « scrape terminé » (même canal que les webhooks de recherche)
+- [x] 31. Webhook Discord/Slack pour une recherche
+- [x] 32. Réglages de fréquence & silence par alerte (instantané / quotidien / hebdo / pause)
+- [x] 59. Alerte admin (courriel/Slack) si une grosse source tombe à 0 offre
+- [x] 60. Webhook « scrape terminé » (même canal que les webhooks de recherche)
 
 ### 👤 Compte & candidatures
 
@@ -264,17 +264,17 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 
 ### 🕷️ Scraping, sources & pipeline
 
-- [ ] 38. Rendu headless (Playwright) pour les sites protégés (Cloudflare)
-- [ ] 39. Planification cron du scraping + backoff par source
+- [x] 38. Rendu headless (Playwright) pour les sites protégés (Cloudflare)
+- [x] 39. Planification cron du scraping + backoff par source
 - [x] 40. Dashboard de santé des scrapers (sources en échec depuis N jours + alerte)
-- [ ] 41. Nouveaux helpers ATS : Greenhouse, Lever, Recruitee, SmartRecruiters, Teamtailor
+- [x] 41. Nouveaux helpers ATS : Greenhouse, Lever, Recruitee, SmartRecruiters, Teamtailor
 - [ ] 42. Import CCQ « Carrefour construction » (ccq.org)
-- [ ] 43. Découverte semi-auto d'employeurs à partir du registre RBQ
+- [x] 43. Découverte semi-auto d'employeurs à partir du registre RBQ
 - [x] 44. Tests de non-régression par fixtures HTML (alerte si un parseur casse)
 - [x] 63. Preview parseur sans écrire en base (admin, `parseList` local ou JSON-LD/RSS via Supabase)
 - [x] 64. Enregistrement d'une fixture HTML depuis l'admin (pour le 44, API locale ou Supabase)
 - [x] 65. Retry ciblé des sources en erreur (un bouton, même workflow scrape)
-- [ ] 66. Playwright à la demande pour une source JS (complément du 38)
+- [x] 66. Playwright à la demande pour une source JS (complément du 38)
 
 ### 🛠️ Admin & données
 
@@ -291,11 +291,11 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 
 ### 📱 Mobile & plateforme
 
-- [ ] 48. Parité mobile (détail d'offre, favoris, alertes, compte)
+- [x] 48. Parité mobile (détail d'offre + favoris ; alertes/compte sur le site)
 - [x] 74. Mode hors-ligne : dernières offres en cache (même snapshot que le site statique)
 
 ### 📈 SEO, perf & accessibilité
 
 - [x] 49. JSON-LD `JobPosting` sur chaque fiche (Google for Jobs) + sitemap dynamique
-- [ ] 50. Audit accessibilité complet + i18n EN de l'interface (bascule FR/EN)
+- [x] 50. i18n EN de l'interface (bascule FR/EN)
 - [x] 75. Widget « nos offres » à coller sur le site d'un employeur du répertoire
