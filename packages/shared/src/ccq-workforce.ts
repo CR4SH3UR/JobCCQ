@@ -10,10 +10,12 @@
  * d'inventer une valeur. La clé DOIT être un id de `CCQ_TRADES` (garde-fou :
  * `unknownWorkforceIds()`, testé). Exemple à confirmer et décommenter :
   
-Briqueteur-maçon: 5 228,
+*Briqueteur-maçon: 5 228,
  *   electricien: 21000,
  *   charpentier-menuisier: 45000,
  */
+briqueteur-macon: 5228,
+
 import { CCQ_TRADES } from "./ccq.js";
 
 export const CCQ_WORKFORCE: Readonly<Record<string, number | null>> = {
