@@ -49,3 +49,9 @@ Thumbs.db
 .cache/
 .turbo/
 coverage/
+
+# Playwright (tests E2E)
+test-results/
+playwright-report/
+blob-report/
+.playwright/

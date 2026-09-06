@@ -361,7 +361,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 
 - [ ] 112. Suivi d'erreurs Sentry (API + web + mobile)
 - [ ] 113. Métriques scrapers historisées (taux de succès, durée, volume) + graphes — au-delà de l'alerte « en échec »
-- [ ] 114. Tests E2E Playwright du site (recherche, filtres, fiche, favoris)
+- [x] 114. Tests E2E Playwright du site (recherche, filtres, fiche, favoris, marché) — `npm run -w @jobccq/web test:e2e`
 - [ ] 115. Tests de contrat d'API (schémas Zod partagés ↔ réponses) en CI
 - [ ] 116. Alerte de dérive de qualité (chute du score de complétude moyen ou du volume global)
 - [ ] 117. Lighthouse CI + suivi de la taille du bundle et de `jobs.json`
