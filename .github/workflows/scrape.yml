@@ -58,6 +58,8 @@ env:
   # Base Turso optionnelle. Vides → fichier SQLite local (voir infra/README-turso.md).
   TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
   TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+  # Sentry API (idée 112). Vide si le secret n'existe pas.
+  SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
 jobs:
   scrape:

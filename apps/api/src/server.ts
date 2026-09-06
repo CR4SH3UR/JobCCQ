@@ -21,6 +21,7 @@ import { jobsToRss } from "@jobccq/shared";
 import { listScraperIds } from "./scrapers/registry.js";
 import { runScraper } from "./orchestrator.js";
 import { registerAdminRoutes, adminGuard } from "./admin.js";
+import { reportToSentry } from "@jobccq/shared";
 
 /** Normalise un paramètre de requête en tableau (répété ou séparé par des virgules). */
 function asArray(v: unknown): string[] | undefined {
@@ -59,6 +60,12 @@ function parseJobQuery(raw: Record<string, unknown>): JobQuery {
 export function buildServer(): FastifyInstance {
   const app = Fastify({ logger: true });
   app.register(cors, { origin: true });
+  app.setErrorHandler((err, req, reply) => {
+    void reportToSentry(process.env.SENTRY_DSN, err, { app: "api" });
+    req.log.error(err);
+    const status = err.statusCode && err.statusCode >= 400 ? err.statusCode : 500;
+    reply.code(status).send({ error: status >= 500 ? "Erreur interne" : err.message });
+  });
 
   app.get("/health", async () => ({ ok: true, service: "jobccq-api" }));
 

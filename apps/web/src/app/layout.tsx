@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AppShell } from "@/components/AppShell";
+import { SentryBoot } from "@/components/SentryBoot";
 import { siteUrl } from "@/lib/site";
 
 // Analytics léger et respectueux de la vie privée (Plausible), activé seulement
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {PLAUSIBLE_DOMAIN && <script defer data-domain={PLAUSIBLE_DOMAIN} src={PLAUSIBLE_SRC} />}
       </head>
       <body className="min-h-screen flex flex-col">
+        <SentryBoot />
         <AppShell>{children}</AppShell>
       </body>
     </html>

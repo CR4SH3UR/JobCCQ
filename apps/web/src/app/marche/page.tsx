@@ -75,7 +75,14 @@ export default function MarketPage() {
           <h1 className="text-2xl font-bold tracking-tight">Marché de la construction au Québec</h1>
           <p className="mt-1 text-slate-600">
             Vue d'ensemble des offres agrégées : évolution dans le temps, répartition par région et
-            par métier, et tension par métier.
+            par métier, et tension par métier.{" "}
+            <Link href="/salaire/" className="font-medium text-brand-700 hover:underline">
+              Guide salarial
+            </Link>
+            {" · "}
+            <Link href="/rapport/" className="font-medium text-brand-700 hover:underline">
+              Rapport 7 jours
+            </Link>
           </p>
         </div>
       </div>

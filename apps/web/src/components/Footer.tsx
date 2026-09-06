@@ -21,6 +21,12 @@ export function Footer() {
         </p>
 
         <nav className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-slate-500">
+          <Link href="/salaire" className="hover:text-brand-600 hover:underline">
+            Guide salarial
+          </Link>
+          <Link href="/rapport" className="hover:text-brand-600 hover:underline">
+            Rapport hebdo
+          </Link>
           <Link href="/employeur" className="hover:text-brand-600 hover:underline">
             Espace employeur
           </Link>

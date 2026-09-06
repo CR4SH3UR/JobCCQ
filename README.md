@@ -341,10 +341,10 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 ### 📊 Marché du travail & données ouvertes
 
 - [x] 82. Tableau de bord public « marché de la construction QC » (`/marche` : évolution des offres, répartition région/métier)
-- [ ] 83. Guide salarial par métier/région (médianes observées + grille CCQ) — page SEO à forte valeur
+- [x] 83. Guide salarial par métier/région (médianes observées + grille CCQ) — page SEO à forte valeur
 - [x] 84. Baromètre de tension par métier sur `/marche` (offres + ratio offres/1000 travailleurs via table effectifs CCQ éditable)
 - [ ] 85. API publique documentée (OpenAPI) + export data ouverte (CSV/JSON)
-- [ ] 86. Rapport hebdo automatisé (« X nouvelles offres, top employeurs ») publié en page/artefact
+- [x] 86. Rapport hebdo automatisé (« X nouvelles offres, top employeurs ») publié en page/artefact
 
 ### 🏗️ Côté employeur (comptes)
 
@@ -372,7 +372,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 
 ### 🔭 Observabilité, fiabilité & DX
 
-- [ ] 112. Suivi d'erreurs Sentry (API + web + mobile)
+- [x] 112. Suivi d'erreurs Sentry (API + web + mobile)
 - [ ] 113. Métriques scrapers historisées (taux de succès, durée, volume) + graphes — au-delà de l'alerte « en échec »
 - [ ] 114. Tests E2E Playwright du site (recherche, filtres, fiche, favoris)
 - [ ] 115. Tests de contrat d'API (schémas Zod partagés ↔ réponses) en CI

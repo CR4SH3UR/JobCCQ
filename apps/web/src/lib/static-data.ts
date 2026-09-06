@@ -15,6 +15,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   aggregateMarketHistory,
+  buildSalaryGuide,
+  buildWeeklyReport,
   CCQ_TRADES,
   ccqTradeOf,
   DISABLED_SOURCE_IDS,
@@ -22,6 +24,7 @@ import {
   labelForRegion,
   QUEBEC_REGIONS,
   rankHiringCompanies,
+  salaryGuideByTrade,
   tensionPer1000,
   workforceFor,
   type DiscoveredEmployer,
@@ -29,6 +32,8 @@ import {
   type HiringHistory,
   type HiringPoint,
   type Job,
+  type SalaryGuideRow,
+  type WeeklyReport,
 } from "@jobccq/shared";
 
 let cache: Job[] | null = null;
@@ -220,4 +225,18 @@ export function tradeTension(): TradeTension[] {
     if (b.tension != null) return 1;
     return b.count - a.count;
   });
+}
+
+/** Guide salarial métier × région (idée 83). */
+export function salaryGuide(): SalaryGuideRow[] {
+  return buildSalaryGuide(allJobs());
+}
+
+export function salaryGuideTrade(tradeId: string): SalaryGuideRow | undefined {
+  return salaryGuideByTrade(salaryGuide(), tradeId);
+}
+
+/** Rapport des 7 derniers jours (idée 86), calculé à chaque build. */
+export function weeklyReport(): WeeklyReport {
+  return buildWeeklyReport(allJobs());
 }
