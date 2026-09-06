@@ -18,6 +18,7 @@ export type AuditAction =
   | "scrape-all"
   | "purge"
   | "delete"
+  | "merge"
   | "publish"
   | "redeploy";
 

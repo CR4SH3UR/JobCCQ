@@ -6,12 +6,12 @@ import { promisify } from "node:util";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { createClient, type User } from "@supabase/supabase-js";
 import type { DiscoveredEmployer } from "@jobccq/shared";
-import { failingScrapers } from "@jobccq/shared";
+import { failingScrapers, mergeEmployerFields } from "@jobccq/shared";
 import { buildDiscoveredScraper } from "./scrapers/discovered.js";
 import { bespokeScraper } from "./scrapers/registry.js";
 import { runScraperInstance } from "./orchestrator.js";
 import { prisma } from "./db.js";
-import { rowToJob } from "./repository.js";
+import { rowToJob, reassignJobsToEmployer } from "./repository.js";
 import { fetchHtml, createHttpContext } from "./scrapers/http.js";
 import { toPreviewSample, fixtureFilename } from "./preview.js";
 
@@ -647,6 +647,61 @@ export function registerAdminRoutes(app: FastifyInstance): void {
   );
 
   // Ajout d'un employeur depuis la console. Turso : INSERT en base ; sinon,
+  // Fusion de deux fiches : offres + historique scrape → keep, drop supprimé.
+  app.post<{ Body: { keepId?: string; dropId?: string } }>(
+    "/admin/employers/merge",
+    { preHandler: adminGuard },
+    async (req, reply) => {
+      const keepId = String(req.body?.keepId ?? "").trim();
+      const dropId = String(req.body?.dropId ?? "").trim();
+      if (!keepId || !dropId || keepId === dropId) {
+        reply.code(400);
+        return { error: "keepId et dropId distincts sont requis." };
+      }
+      const list = await readAll();
+      const keep = list.find((e) => e.id === keepId);
+      const drop = list.find((e) => e.id === dropId);
+      if (!keep || !drop) {
+        reply.code(404);
+        return { error: "Employeur introuvable." };
+      }
+      const merged = mergeEmployerFields(keep, drop);
+      const jobStats = await reassignJobsToEmployer(keepId, dropId, keep.name);
+      const nextKeep: Employer = {
+        ...keep,
+        homepage: merged.homepage,
+        careersUrl: merged.careersUrl,
+        ...(merged.region ? { region: merged.region } : { region: keep.region }),
+        ...(merged.rbq ? { rbq: merged.rbq } : {}),
+        ...(merged.scope ? { scope: merged.scope } : {}),
+        sectors: [...(merged.sectors ?? [])],
+        verified: merged.verified,
+        enabled: merged.enabled,
+        ...(merged.notes ? { notes: merged.notes } : {}),
+      };
+      if (USE_TURSO) {
+        await prisma.employer.update({
+          where: { id: keepId },
+          data: {
+            homepage: nextKeep.homepage,
+            careersUrl: nextKeep.careersUrl,
+            region: nextKeep.region ?? null,
+            rbq: nextKeep.rbq ?? null,
+            scope: nextKeep.scope ?? null,
+            sectors: JSON.stringify(nextKeep.sectors ?? []),
+            verified: !!nextKeep.verified,
+            enabled: nextKeep.enabled !== false,
+            notes: nextKeep.notes ?? null,
+          },
+        });
+        await prisma.employer.delete({ where: { id: dropId } }).catch(() => null);
+      } else {
+        await writeAll(list.filter((e) => e.id !== dropId).map((e) => (e.id === keepId ? nextKeep : e)));
+      }
+      return { keep: nextKeep, dropped: dropId, ...jobStats };
+    },
+  );
+
   // ajout au fichier discovered.json (à committer via « Publier »).
   app.post<{ Body: Record<string, unknown> }>("/admin/employers", { preHandler: adminGuard }, async (req, reply) => {
     const b = req.body ?? {};

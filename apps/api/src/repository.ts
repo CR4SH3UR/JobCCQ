@@ -329,6 +329,28 @@ export async function getHiringHistory(): Promise<HiringHistory> {
   return out;
 }
 
+/**
+ * Réassigne les offres (et l'historique de scrape) de `dropId` vers `keepId`.
+ * Les URLs déjà présentes chez keep sont supprimées chez drop (contrainte unique).
+ */
+export async function reassignJobsToEmployer(
+  keepId: string,
+  dropId: string,
+  keepCompany: string,
+): Promise<{ jobsMoved: number; jobsDropped: number }> {
+  const keepUrls = await prisma.job.findMany({ where: { sourceId: keepId }, select: { url: true } });
+  const urls = keepUrls.map((j) => j.url);
+  const dropped = urls.length
+    ? await prisma.job.deleteMany({ where: { sourceId: dropId, url: { in: urls } } })
+    : { count: 0 };
+  const moved = await prisma.job.updateMany({
+    where: { sourceId: dropId },
+    data: { sourceId: keepId, company: keepCompany },
+  });
+  await prisma.scrapeRun.updateMany({ where: { sourceId: dropId }, data: { sourceId: keepId } });
+  return { jobsMoved: moved.count, jobsDropped: dropped.count };
+}
+
 /** Statistiques globales pour la page d'accueil / le tableau de bord. */
 export async function getStats() {
   const [total, bySource, byRegion, byCategory, distinctCompanies, lastRuns] = await Promise.all([

@@ -240,7 +240,7 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 - [x] 26. Employeurs similaires sur une fiche (même région/secteur)
 - [x] 27. Historique de recrutement d'un employeur (mini-graphe dans le temps)
 - [x] 57. Page « qui recrute près de chez moi » (code postal → même index villes/régions)
-- [ ] 58. Fusion manuelle de deux fiches employeur (doublons discovered)
+- [x] 58. Fusion manuelle de deux fiches employeur (doublons discovered)
 
 ### 🔔 Alertes & notifications
 

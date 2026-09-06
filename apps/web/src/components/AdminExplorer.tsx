@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, hasCustomScraper, type DiscoveredMethod, type Job } from "@jobccq/shared";
+import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, hasCustomScraper, mergeEmployerFields, pickKeepEmployerId, type DiscoveredMethod, type Job } from "@jobccq/shared";
 import { API_URL, STATIC, getStats, searchAdminJobs, buildQuery, adminFetch, invalidateJobOverrides } from "@/lib/data";
 import { previewEmployer, fetchEmployerHtml } from "@/lib/admin-preview";
 import { useAuth } from "@/lib/auth";
@@ -83,6 +83,7 @@ const AUDIT_LABEL: Record<string, string> = {
   "scrape-all": "Scrape complet",
   purge: "Purge d'offres",
   delete: "Suppression",
+  merge: "Fusion",
   publish: "Publication",
   redeploy: "Redéploiement",
 };
@@ -1553,6 +1554,146 @@ export function AdminExplorer() {
     setSelected(new Set());
     setBulkMsg(`${ids.length} employeur(s) supprimé(s).`);
   };
+  const bulkMerge = async () => {
+    const ids = [...selected];
+    if (ids.length !== 2) {
+      setBulkMsg("Sélectionnez exactement deux employeurs pour les fusionner.");
+      return;
+    }
+    const [idA, idB] = ids;
+    const empA = employers.find((e) => e.id === idA);
+    const empB = employers.find((e) => e.id === idB);
+    if (!empA || !empB) return;
+
+    let keepId: string;
+    if (hasCustomScraper(empA.id) && hasCustomScraper(empB.id)) {
+      const typed = window.prompt(
+        `Les deux ont un scraper sur mesure. Id à CONSERVER (l'autre est absorbé) :\n• ${empA.id} — ${empA.name}\n• ${empB.id} — ${empB.name}`,
+        empA.id,
+      );
+      if (!typed || (typed !== empA.id && typed !== empB.id)) {
+        setBulkMsg("Fusion annulée.");
+        return;
+      }
+      keepId = typed;
+    } else {
+      keepId = pickKeepEmployerId(empA, empB, {
+        a: counts[empA.id] ?? 0,
+        b: counts[empB.id] ?? 0,
+      });
+    }
+    const keep = keepId === empA.id ? empA : empB;
+    const drop = keepId === empA.id ? empB : empA;
+    const merged = mergeEmployerFields(keep, drop);
+    const nextKeep: Employer = {
+      ...keep,
+      homepage: merged.homepage,
+      careersUrl: merged.careersUrl,
+      region: merged.region || undefined,
+      rbq: merged.rbq || undefined,
+      scope: merged.scope || undefined,
+      sectors: merged.sectors ?? [],
+      verified: merged.verified,
+      enabled: merged.enabled,
+      notes: merged.notes || undefined,
+    };
+    const localOnly = mode === "static";
+    const ok = window.confirm(
+      `Fusionner « ${drop.name} » (${drop.id}) dans « ${keep.name} » (${keep.id}) ?\n\n` +
+        `Les offres passent sous ${keep.id}. La fiche ${drop.id} est supprimée.` +
+        (localOnly ? "\n\nMode local : fusion dans ce navigateur seulement (les offres en base ne bougent pas)." : ""),
+    );
+    if (!ok) return;
+
+    try {
+      if (mode === "api") {
+        const res = await adminFetch(`${API_URL}/admin/employers/merge`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keepId: keep.id, dropId: drop.id }),
+        });
+        const d = (await res.json().catch(() => ({}))) as { error?: string; jobsMoved?: number; jobsDropped?: number; keep?: Employer };
+        if (!res.ok) throw new Error(d.error ?? `HTTP ${res.status}`);
+        setEmployers((list) =>
+          list.filter((e) => e.id !== drop.id).map((e) => (e.id === keep.id ? { ...e, ...(d.keep ?? nextKeep) } : e)),
+        );
+        setBulkMsg(
+          `Fusionné ${drop.id} → ${keep.id}` +
+            (d.jobsMoved != null ? ` (${d.jobsMoved} offre(s) déplacée(s), ${d.jobsDropped ?? 0} doublon(s) d'URL écarté(s)).` : "."),
+        );
+      } else if (mode === "turso") {
+        const keepUrlRows = await tursoRows(tursoUrl, tursoToken, "SELECT url FROM Job WHERE sourceId=?", [keep.id]);
+        const urls = keepUrlRows.map((r) => String(r.url ?? "")).filter(Boolean);
+        const chunkSize = 80;
+        let jobsDropped = 0;
+        for (let i = 0; i < urls.length; i += chunkSize) {
+          const chunk = urls.slice(i, i + chunkSize);
+          const ph = chunk.map(() => "?").join(",");
+          jobsDropped += await tursoExec(
+            tursoUrl,
+            tursoToken,
+            `DELETE FROM Job WHERE sourceId=? AND url IN (${ph})`,
+            [drop.id, ...chunk],
+          );
+        }
+        const jobsMoved = await tursoExec(
+          tursoUrl,
+          tursoToken,
+          "UPDATE Job SET sourceId=?, company=? WHERE sourceId=?",
+          [keep.id, keep.name, drop.id],
+        );
+        await tursoExec(tursoUrl, tursoToken, "UPDATE ScrapeRun SET sourceId=? WHERE sourceId=?", [keep.id, drop.id]);
+        const empAffected = await tursoExec(
+          tursoUrl,
+          tursoToken,
+          `UPDATE Employer SET homepage=?, careersUrl=?, region=?, rbq=?, scope=?, sectors=?, verified=?, enabled=?, notes=?, updatedAt=? WHERE id=?`,
+          [
+            nextKeep.homepage,
+            nextKeep.careersUrl,
+            nextKeep.region ?? null,
+            nextKeep.rbq ?? null,
+            nextKeep.scope ?? null,
+            JSON.stringify(nextKeep.sectors ?? []),
+            nextKeep.verified ? 1 : 0,
+            nextKeep.enabled === false ? 0 : 1,
+            nextKeep.notes ?? "",
+            new Date().toISOString(),
+            keep.id,
+          ],
+        );
+        if (empAffected === 0) throw new Error("Fiche conservée introuvable (0 ligne modifiée).");
+        await tursoExec(tursoUrl, tursoToken, "DELETE FROM Employer WHERE id=?", [drop.id]);
+        setEmployers((list) => list.filter((e) => e.id !== drop.id).map((e) => (e.id === keep.id ? nextKeep : e)));
+        setBulkMsg(
+          `Fusionné ${drop.id} → ${keep.id} (${jobsMoved} offre(s) déplacée(s), ${jobsDropped} doublon(s) d'URL écarté(s)).`,
+        );
+      } else {
+        editsRef.current[keep.id] = { ...editsRef.current[keep.id], ...nextKeep };
+        delete editsRef.current[drop.id];
+        saveLS(LS_EDITS, editsRef.current);
+        setEmployers((list) => list.filter((e) => e.id !== drop.id).map((e) => (e.id === keep.id ? nextKeep : e)));
+        setBulkMsg(`Fusion locale ${drop.id} → ${keep.id} (ce navigateur seulement).`);
+      }
+      setSelected(new Set());
+      setOffersData((s) => {
+        const n = { ...s };
+        delete n[drop.id];
+        return n;
+      });
+      logAudit("merge", {
+        targetId: keep.id,
+        targetName: keep.name,
+        detail: `absorbé ${drop.id} (${drop.name})`,
+      });
+      if (mode === "api" || mode === "turso") {
+        notifyJobsChanged();
+        await refreshCounts();
+        await refreshLastRuns();
+      }
+    } catch (err) {
+      setBulkMsg(`Fusion impossible : ${(err as Error).message}`);
+    }
+  };
   const bulkSetMethod = async (ids: string[], method: DiscoveredMethod) => {
     for (const id of ids) await patchEmployer(id, { method });
     setBulkMsg(`Méthode « ${method} » appliquée à ${ids.length} employeur(s).`);
@@ -2472,6 +2613,15 @@ export function AdminExplorer() {
               {(mode === "turso" || mode === "api") && (
                 <button onClick={() => bulkPurge(selectedList)} className="rounded-lg border border-red-300 bg-white px-2.5 py-1 font-semibold text-red-600 hover:bg-red-50">
                   🗑 Vider les offres
+                </button>
+              )}
+              {(mode === "turso" || mode === "api" || mode === "static") && selected.size === 2 && (
+                <button
+                  onClick={() => bulkMerge()}
+                  title="Absorber une fiche dans l'autre (offres + historique). On garde le scraper sur mesure, sinon le vérifié, sinon celui qui a le plus d'offres."
+                  className="rounded-lg border border-amber-300 bg-white px-2.5 py-1 font-semibold text-amber-800 hover:bg-amber-50"
+                >
+                  ⚭ Fusionner…
                 </button>
               )}
               {(mode === "turso" || mode === "api" || mode === "static") && (
