@@ -19,6 +19,7 @@ import { rowToJob } from "./repository.js";
 import { formatJobsWebhook, postWebhook } from "./webhooks.js";
 import { formatExpoPush, sendExpoPush } from "./expo-push.js";
 import { postNtfy } from "./ntfy.js";
+import { formatScrapeNtfy, parseScrapeDiff } from "./scrape-ntfy.js";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -219,39 +220,63 @@ async function notifyAdminHooks(): Promise<void> {
   const hook = process.env.WEBHOOK_SCRAPE_URL?.trim();
   const ntfy = process.env.NTFY_TOPIC?.trim();
   if (!hook && !ntfy) return;
-  const since = new Date(Date.now() - 8 * HOUR);
+  const startedRaw = process.env.SCRAPE_STARTED_AT?.trim();
+  const startedMs = startedRaw ? Date.parse(startedRaw) : NaN;
+  const since = Number.isNaN(startedMs)
+    ? new Date(Date.now() - 8 * HOUR)
+    : new Date(startedMs - 2 * 60_000);
   const runs = await prisma.scrapeRun.findMany({
     where: { finishedAt: { gte: since } },
     orderBy: { id: "desc" },
-    take: 400,
+    take: 2500,
   });
   const latest = new Map<string, (typeof runs)[number]>();
   for (const r of runs) {
     if (!latest.has(r.sourceId)) latest.set(r.sourceId, r);
   }
-  const ok = [...latest.values()].filter((r) => r.status === "success").length;
-  const err = [...latest.values()].filter((r) => r.status === "error").length;
+  const list = [...latest.values()];
   const dropped: string[] = [];
   const bySource = new Map<string, typeof runs>();
   for (const r of runs) {
-    const list = bySource.get(r.sourceId) ?? [];
-    list.push(r);
-    bySource.set(r.sourceId, list);
+    const group = bySource.get(r.sourceId) ?? [];
+    group.push(r);
+    bySource.set(r.sourceId, group);
   }
-  for (const [id, list] of bySource) {
-    const [cur, prev] = list;
+  for (const [id, group] of bySource) {
+    const [cur, prev] = group;
     if (cur && prev && cur.found === 0 && prev.found >= 8) dropped.push(`${id} (${prev.found} → 0)`);
   }
-  const text = [
-    `${latest.size} source(s) · ${ok} succès · ${err} erreur(s)`,
-    dropped.length ? `⚠ tombées à 0 : ${dropped.join(", ")}` : "Aucune grosse source à 0.",
-  ].join("\n");
+  const employers = list.length
+    ? await prisma.employer.findMany({
+        where: { id: { in: list.map((r) => r.sourceId) } },
+        select: { id: true, name: true },
+      })
+    : [];
+  const nameById = Object.fromEntries(employers.map((e) => [e.id, e.name]));
+  let text = formatScrapeNtfy(
+    list.map((r) => ({
+      sourceId: r.sourceId,
+      name: nameById[r.sourceId],
+      status: r.status,
+      found: r.found,
+      inserted: r.inserted,
+      updated: r.updated,
+      error: r.error,
+      diff: parseScrapeDiff(r.diffJson),
+    })),
+  );
+  if (dropped.length) {
+    text += `\n\n⚠ tombées à 0 : ${dropped.slice(0, 8).join(", ")}`;
+    if (dropped.length > 8) text += ` … +${dropped.length - 8}`;
+  }
+  const one = list.length === 1 ? (nameById[list[0]!.sourceId] ?? list[0]!.sourceId) : null;
+  const title = one ? `JobCCQ — scrape ${one}` : `JobCCQ — scrape (${list.length} sources)`;
   if (hook) {
-    const sent = await postWebhook(hook, text, "JobCCQ — scrape");
+    const sent = await postWebhook(hook, text, title);
     console.log(sent ? "Webhook scrape envoyé." : "Webhook scrape échoué.");
   }
   if (ntfy) {
-    const sent = await postNtfy(ntfy, "JobCCQ — scrape", text, `${SITE_URL}/emplois`);
+    const sent = await postNtfy(ntfy, title, text, `${SITE_URL}/emplois`);
     console.log(sent ? "ntfy scrape envoyé." : "ntfy scrape échoué.");
   }
 }

@@ -38,6 +38,8 @@ jobs:
       NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
       NTFY_SERVER: ${{ secrets.NTFY_SERVER }}
       NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
+      # Borne le résumé ntfy aux runs de CE scrape (vide si lancement manuel).
+      SCRAPE_STARTED_AT: ${{ github.event.workflow_run.run_started_at }}
     steps:
       - uses: actions/checkout@v4
 
