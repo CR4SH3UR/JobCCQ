@@ -148,16 +148,25 @@ Filtres de `/api/jobs` : `q`, `company`, `regions`, `cities`, `categories`, `emp
 
 ## Déploiement sur GitHub Pages
 
-Le site peut être publié en **100 % statique** : la logique de filtrage tourne dans le navigateur à partir d'un instantané `jobs.json`, sans back-end.
+Le site peut être publié en **100 % statique** : la logique de filtrage tourne
+dans le navigateur à partir d'un instantané `jobs.json`, sans back-end. Si les
+secrets `TURSO_DATABASE_URL` et `TURSO_AUTH_TOKEN` sont configurés dans GitHub
+Actions, cet instantané est régénéré depuis Turso au moment du déploiement ; sinon
+le build utilise les fichiers versionnés.
 
-Configuration unique : dans le dépôt, **Settings → Pages → Source : « GitHub Actions »**.
+Configuration unique : dans le dépôt, **Settings → Pages → Source :
+« Deploy from a branch »**, branche **`gh-pages`**, dossier **`/ (root)`**.
 
-Ensuite, à chaque push sur `main` (ou via déclenchement manuel), le workflow `.github/workflows/deploy-pages.yml` :
-1. génère l'instantané et le flux RSS (`npm run export:static -w @jobccq/api`) ;
-2. construit le site en mode export (`BUILD_STATIC=1`) ;
-3. déploie sur `https://<utilisateur>.github.io/jobccq/`.
+Ensuite, à chaque push sur `main`, après un scrape réussi, ou via déclenchement
+manuel, le workflow `.github/workflows/deploy-pages.yml` :
+1. si Turso est configuré, synchronise/exporte les employeurs et génère
+   l'instantané depuis la base ;
+2. sinon, utilise l'instantané versionné ou le génère s'il est absent ;
+3. construit le site en mode export (`BUILD_STATIC=1`) ;
+4. déploie sur `https://<utilisateur>.github.io/jobccq/`.
 
-Pour régénérer l'instantané à partir de la vraie base (après un scraping) : `npm run -w @jobccq/api export:static -- --from-db`.
+Pour régénérer l'instantané localement à partir de la vraie base (après un
+scraping) : `npm run -w @jobccq/api export:static -- --from-db`.
 
 ---
 
