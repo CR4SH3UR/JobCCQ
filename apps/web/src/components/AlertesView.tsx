@@ -39,9 +39,11 @@ export function AlertesView() {
   const { user, loading: authLoading, enabled } = useAuth();
   const { alerts, loading, refresh } = useAlerts();
   const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const remove = async (id: string) => {
     setBusy(id);
+    setError(null);
     await deleteAlert(id);
     await refresh();
     setBusy(null);
@@ -49,7 +51,12 @@ export function AlertesView() {
 
   const patchQuery = async (a: JobAlert, patch: Partial<JobQuery>) => {
     setBusy(a.id);
-    await updateAlert(a.id, { query: { ...a.query, ...patch } });
+    setError(null);
+    const next: Partial<JobQuery> = { ...a.query, ...patch };
+    if ("ntfyTopic" in patch && !patch.ntfyTopic) delete next.ntfyTopic;
+    if ("webhookUrl" in patch && !patch.webhookUrl) delete next.webhookUrl;
+    const { error: err } = await updateAlert(a.id, { query: next });
+    if (err) setError(err);
     await refresh();
     setBusy(null);
   };
@@ -100,6 +107,7 @@ export function AlertesView() {
           <p className="mb-1 text-sm text-slate-600">
             {alerts.length} alerte{alerts.length > 1 ? "s" : ""} · courriel, webhook et/ou ntfy.
           </p>
+          {error ? <p className="mb-2 text-sm text-red-600">{error}</p> : null}
           {alerts.map((a: JobAlert) => (
             <article key={a.id} className="card space-y-2 p-3">
               <div className="flex items-center justify-between gap-3">
@@ -149,6 +157,7 @@ export function AlertesView() {
                 <label className="flex min-w-[12rem] flex-1 items-center gap-1 text-slate-600">
                   Webhook
                   <input
+                    key={`${a.id}-hook-${a.query.webhookUrl ?? ""}`}
                     type="url"
                     defaultValue={a.query.webhookUrl ?? ""}
                     placeholder="https://discord.com/api/webhooks/…"
@@ -163,6 +172,7 @@ export function AlertesView() {
                 <label className="flex min-w-[10rem] flex-1 items-center gap-1 text-slate-600">
                   ntfy
                   <input
+                    key={`${a.id}-ntfy-${a.query.ntfyTopic ?? ""}`}
                     type="text"
                     defaultValue={a.query.ntfyTopic ?? ""}
                     placeholder="topic ou https://ntfy.sh/…"

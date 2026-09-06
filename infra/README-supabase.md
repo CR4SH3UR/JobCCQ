@@ -332,6 +332,7 @@ alter table public.job_alerts enable row level security;
 
 create policy "read own alerts"   on public.job_alerts for select using (auth.uid() = user_id);
 create policy "insert own alerts" on public.job_alerts for insert with check (auth.uid() = user_id);
+create policy "update own alerts" on public.job_alerts for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "delete own alerts" on public.job_alerts for delete using (auth.uid() = user_id);
 ```
 
