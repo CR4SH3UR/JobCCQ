@@ -70,6 +70,7 @@ export const CUSTOM_SCRAPER_IDS = [
   "carrierebernier-com",
   "champlainmetal-com",
   "chauffagemc-com",
+  "chn-paysagiste-com",
   "can-inspec-ca",
   "con-v-air-com",
   "gcbfinc-com",
