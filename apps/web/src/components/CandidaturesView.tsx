@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  googleCalendarUrl,
   icsCalendar,
   reminderCalendarEvent,
   type Job,
@@ -19,7 +18,7 @@ import {
   useApplications,
 } from "@/lib/applications";
 import { useAuth } from "@/lib/auth";
-import { downloadCsv, downloadIcs } from "@/lib/format";
+import { downloadCsv, downloadIcs, icsDataUri } from "@/lib/format";
 import { siteUrl } from "@/lib/site";
 import { supabaseEnabled } from "@/lib/supabase";
 
@@ -206,7 +205,6 @@ function ApplicationTrack({ job }: { job: Job }) {
         url: fiche,
       })
     : null;
-  const gcal = cal ? googleCalendarUrl(cal) : null;
   return (
     <div className="mt-1 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-800">
       <div className="flex flex-wrap items-end gap-2">
@@ -237,23 +235,13 @@ function ApplicationTrack({ job }: { job: Job }) {
         </label>
         {cal && (
           <div className="flex flex-wrap items-center gap-2 pb-0.5">
-            <button
-              type="button"
-              onClick={() => downloadIcs(`jobccq-rappel-${job.id}.ics`, icsCalendar([cal]))}
+            <a
+              href={icsDataUri(icsCalendar([cal]))}
+              title="Ouvre le rappel dans ton appli calendrier"
               className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
               Ajouter au calendrier
-            </button>
-            {gcal && (
-              <a
-                href={gcal}
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs font-medium text-brand-700 hover:underline"
-              >
-                Google Agenda
-              </a>
-            )}
+            </a>
           </div>
         )}
       </div>
