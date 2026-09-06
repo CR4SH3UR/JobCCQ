@@ -71,6 +71,7 @@ import { chnPaysagisteScraper } from "./chn-paysagiste.js";
 import { cimaScraper } from "./cima.js";
 import { claudePoirierExcavationScraper } from "./claudepoirierexcavation.js";
 import { crBessetteScraper } from "./crbessette.js";
+import { cmiCoteNordScraper } from "./cmicotenord.js";
 import { convairScraper } from "./convair.js";
 import { gcbfincScraper } from "./gcbfinc.js";
 import { canInspecScraper } from "./caninspec.js";
@@ -156,6 +157,7 @@ const BESPOKE = {
   "cima-ca": cimaScraper,
   "claudepoirierexcavation-com": claudePoirierExcavationScraper,
   "crbessette-com": crBessetteScraper,
+  "cmicotenord-ca": cmiCoteNordScraper,
   "can-inspec-ca": canInspecScraper,
   "con-v-air-com": convairScraper,
   "gcbfinc-com": gcbfincScraper,
