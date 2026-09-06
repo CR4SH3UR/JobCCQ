@@ -147,7 +147,7 @@ export function AdminEmployerSpace() {
                   <button
                     type="button"
                     disabled={busyKey === key}
-                    className="rounded-lg bg-slate-800 px-2 py-1 text-xs font-semibold text-white hover:bg-slate-900 disabled:opacity-50"
+                    className="rounded-lg bg-red-600 px-2 py-1 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
                     onClick={() => {
                       if (
                         !confirm(

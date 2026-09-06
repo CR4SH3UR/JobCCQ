@@ -72,7 +72,7 @@ export function ReportJobButton({ job }: { job: Job }) {
         onClick={() => !done && setOpen(true)}
         disabled={done}
         aria-pressed={done}
-        className="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:border-brand-300 hover:text-brand-700 disabled:cursor-default disabled:opacity-60"
+        className="inline-flex items-center rounded-lg border border-red-300 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 hover:border-red-400 hover:bg-red-100 disabled:cursor-default disabled:opacity-60"
       >
         {done ? "Signalée" : "Signaler"}
       </button>
@@ -153,7 +153,7 @@ export function ReportJobButton({ job }: { job: Job }) {
                 type="button"
                 disabled={busy}
                 onClick={() => void submit()}
-                className="rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
+                className="rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
               >
                 {busy ? "Envoi…" : "Envoyer le signalement"}
               </button>
