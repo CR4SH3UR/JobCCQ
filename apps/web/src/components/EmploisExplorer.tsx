@@ -61,6 +61,7 @@ const SORT_LABELS: Record<SortOption, string> = {
   salary_asc: "Salaire (bas → élevé)",
   company: "Entreprise (A → Z)",
   distance: "Distance",
+  closing: "Ferme bientôt",
 };
 
 const POSTED_OPTIONS = [

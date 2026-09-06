@@ -12,6 +12,9 @@ import {
   ccqTradeLabel,
   ccqWageForJob,
   formatCcqHourly,
+  extractClosesAt,
+  formatClosesAt,
+  flagWeirdTitle,
   sourceName,
   rbqLicenceUrl,
   jobCompleteness,
@@ -45,6 +48,8 @@ export function JobCard({ job }: { job: Job }) {
   const lastApplyClickAt = useLastApplyClickAt(job.id);
   const ccq = ccqTradeLabel(job.title);
   const ccqWage = ccqWageForJob(job.title);
+  const closesAt = job.closesAt ?? extractClosesAt(job.title, job.description);
+  const weirdTitle = flagWeirdTitle(job.title);
   const employer = getEmployer(job.sourceId);
   const rbq = employer?.rbq;
   const verified = !!employer?.verified;
@@ -107,6 +112,16 @@ export function JobCard({ job }: { job: Job }) {
             {job.linkStatus === "gone" && (
               <Badge tone="amber" title="Le lien original répond 404 ou redirige">
                 Peut-être pourvue
+              </Badge>
+            )}
+            {closesAt && (
+              <Badge tone="amber" title={`Date limite extraite : ${closesAt}`}>
+                Ferme le {formatClosesAt(closesAt)}
+              </Badge>
+            )}
+            {weirdTitle && (
+              <Badge tone="amber" title={weirdTitle.label}>
+                Titre douteux
               </Badge>
             )}
             {ccq && (

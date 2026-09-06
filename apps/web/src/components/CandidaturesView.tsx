@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   calendarOpenHref,
+  followUpEmailDraft,
+  followUpMailto,
   icsCalendar,
   reminderCalendarEvent,
   type Job,
@@ -240,8 +242,8 @@ function ApplicationTrack({ job }: { job: Job }) {
             }`}
           />
         </label>
-        {cal && (
-          <div className="flex flex-wrap items-center gap-2 pb-0.5">
+        <div className="flex flex-wrap items-center gap-2 pb-0.5">
+          {cal && (
             <a
               href={calHref}
               title="Ouvre le rappel dans ton appli calendrier"
@@ -249,8 +251,23 @@ function ApplicationTrack({ job }: { job: Job }) {
             >
               Ajouter au calendrier
             </a>
-          </div>
-        )}
+          )}
+          <a
+            href={followUpMailto(
+              followUpEmailDraft({
+                status: rec.status,
+                title: job.title,
+                company: job.company,
+                url: fiche,
+                note: rec.note,
+              }),
+            )}
+            title="Ouvre un brouillon de relance dans ton appli courriel"
+            className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Courriel de relance
+          </a>
+        </div>
       </div>
       {supabaseEnabled && (
         <p className="mt-1.5 text-[11px] text-slate-500">

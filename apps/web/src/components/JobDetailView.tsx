@@ -14,6 +14,9 @@ import {
   rbqLicenceUrl,
   jobCompleteness,
   extractContacts,
+  extractClosesAt,
+  formatClosesAt,
+  flagWeirdTitle,
   extractRequirements,
   extractBenefits,
   summarizeDescription,
@@ -114,6 +117,8 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
   const benefits = extractBenefits(job.title, job.description);
   const summary = summarizeDescription(job.description);
   const gloss = glossTitleToEn(job.title);
+  const closesAt = job.closesAt ?? extractClosesAt(job.title, job.description);
+  const weirdTitle = flagWeirdTitle(job.title);
   const place =
     job.city && region && !region.toLowerCase().includes(job.city.toLowerCase())
       ? `${job.city} · ${region}`
@@ -175,6 +180,16 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
             </div>
 
             <div className="mt-4 flex flex-wrap items-center gap-1.5">
+              {closesAt && (
+                <Badge tone="amber" title={`Date limite extraite : ${closesAt}`}>
+                  Ferme le {formatClosesAt(closesAt)}
+                </Badge>
+              )}
+              {weirdTitle && (
+                <Badge tone="amber" title={weirdTitle.label}>
+                  Titre douteux
+                </Badge>
+              )}
               {job.categoryId && <Badge tone="brand">{labelForCategory(job.categoryId)}</Badge>}
               {sectors.slice(0, 3).map((s) => (
                 <Badge key={s} tone="amber">

@@ -188,4 +188,19 @@ describe("filtres — salaire renseigné et date", () => {
     });
     assert.deepEqual(r.items.map((j) => j.title), ["Manœuvre"]);
   });
+
+  it("tri closing — ferme bientôt, sans date en dernier", () => {
+    const soon = job("Grutier", { description: "Date limite : 15 septembre 2026." });
+    const late = job("Peintre", { description: "Date limite : 30 décembre 2026." });
+    const none = job("Manœuvre", { description: "Aucune échéance mentionnée." });
+    const r = applyQuery([late, soon, none], {
+      sort: "closing",
+      page: 1,
+      pageSize: 50,
+    });
+    assert.deepEqual(r.items.map((j) => j.title), ["Grutier", "Peintre", "Manœuvre"]);
+    assert.equal(r.items[0]?.closesAt, "2026-09-15");
+    assert.equal(r.items[1]?.closesAt, "2026-12-30");
+    assert.equal(r.items[2]?.closesAt, undefined);
+  });
 });

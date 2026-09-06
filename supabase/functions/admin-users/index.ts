@@ -8,6 +8,7 @@ type AdminUserRow = {
   lastSignInAt: string | null;
   confirmedAt: string | null;
   providers: string[];
+  bannedUntil?: string | null;
 };
 
 const corsHeaders = {
@@ -53,6 +54,7 @@ function userToRow(user: User): AdminUserRow {
     lastSignInAt: user.last_sign_in_at ?? null,
     confirmedAt: user.email_confirmed_at ?? user.confirmed_at ?? null,
     providers: [...providers].sort(),
+    bannedUntil: (user as User & { banned_until?: string | null }).banned_until ?? null,
   };
 }
 
@@ -75,7 +77,27 @@ Deno.serve(async (req: Request) => {
   if (!adminEmails().includes(email)) return json({ error: "Compte non autorisé." }, 403);
 
   if (req.method === "POST") {
-    const body = (await req.json().catch(() => ({}))) as { email?: unknown };
+    const body = (await req.json().catch(() => ({}))) as {
+      email?: unknown;
+      userId?: unknown;
+      ban?: unknown;
+    };
+    const userId = String(body.userId ?? "").trim();
+    if (userId) {
+      const { data: existing, error: lookupError } = await admin.auth.admin.getUserById(userId);
+      if (lookupError || !existing.user) return json({ error: lookupError?.message ?? "Compte introuvable." }, 404);
+      const targetEmail = existing.user.email?.trim().toLowerCase() ?? "";
+      if (targetEmail && adminEmails().includes(targetEmail)) {
+        return json({ error: "On ne bannit pas un administrateur." }, 400);
+      }
+      const ban = body.ban !== false;
+      const { error } = await admin.auth.admin.updateUserById(userId, {
+        ban_duration: ban ? "876000h" : "none",
+      });
+      if (error) return json({ error: error.message }, 502);
+      return json({ banned: ban, userId, email: targetEmail });
+    }
+
     const inviteEmail = normalizeEmail(body.email);
     if (!isValidEmail(inviteEmail)) return json({ error: "Courriel invalide." }, 400);
 

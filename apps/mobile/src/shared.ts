@@ -373,6 +373,7 @@ export interface Job {
 
   /** Date de publication (ISO), si connue. */
   postedAt?: string;
+  closesAt?: string;
   /** Date de collecte par le scraper (ISO). */
   scrapedAt: string;
 }
@@ -385,6 +386,7 @@ export const SORT_OPTIONS = [
   "company",
   "relevance",
   "distance",
+  "closing",
 ] as const;
 export type SortOption = (typeof SORT_OPTIONS)[number];
 
