@@ -1216,24 +1216,28 @@ export function AdminExplorer() {
   // Ajoute une source re-scrapée à la file suivie et (re)lance la boucle unique.
   // Fenêtre large : un scrape Jobillico (proxy + fiches détaillées) + la file
   // d'attente du workflow GitHub peut dépasser 3 min avant d'apparaître en base.
-  const queuePoll = (sourceId: string) => {
-    pendingRef.current.set(sourceId, { deadline: Date.now() + 360_000 });
+  const queuePoll = (sourceId: string, windowMs = 360_000) => {
+    pendingRef.current.set(sourceId, { deadline: Date.now() + windowMs });
     void runPollLoop();
+  };
+
+  const dispatchScrape = (inputs: Record<string, string>) => {
+    const { owner, repo } = ghRepo();
+    return fetch(
+      `https://api.github.com/repos/${owner}/${repo}/actions/workflows/scrape.yml/dispatches`,
+      { method: "POST", headers: GH_HEADERS(ghToken), body: JSON.stringify({ ref: "main", inputs }) },
+    );
   };
 
   // --- Mode statique : agir sur GitHub via le jeton personnel du navigateur ---
   // `opts.force` outrepasse le garde-fou anti-purge (remplace les offres même si
   // le site en renvoie moins/zéro) — pour un employeur mal configuré.
   const ghScrape = async (sourceId: string, opts?: { force?: boolean; maxPages?: number }) => {
-    const { owner, repo } = ghRepo();
     setScrapes((s) => ({ ...s, [sourceId]: { status: "run" } }));
     try {
       const inputs: Record<string, string> = { sourceId, maxPages: String(opts?.maxPages ?? 2) };
       if (opts?.force) inputs.force = sourceId;
-      const r = await fetch(
-        `https://api.github.com/repos/${owner}/${repo}/actions/workflows/scrape.yml/dispatches`,
-        { method: "POST", headers: GH_HEADERS(ghToken), body: JSON.stringify({ ref: "main", inputs }) },
-      );
+      const r = await dispatchScrape(inputs);
       if (r.status === 204) {
         setScrapes((s) => ({ ...s, [sourceId]: { status: "ok", error: "launched" } }));
         logAudit(opts?.force ? "scrape-force" : "scrape", {
@@ -1249,6 +1253,45 @@ export function AdminExplorer() {
       }
     } catch (e) {
       setScrapes((s) => ({ ...s, [sourceId]: { status: "err", error: (e as Error).message } }));
+    }
+  };
+
+  /** Un seul workflow GitHub pour N employeurs (`sourceId=a,b,c`), pas N runs. */
+  const ghScrapeMany = async (ids: string[]) => {
+    const unique = [...new Set(ids)].filter(Boolean);
+    if (unique.length === 0) return;
+    if (unique.length === 1 && unique[0]) {
+      await ghScrape(unique[0]);
+      return;
+    }
+    const mark = (status: "run" | "ok" | "err", error?: string) => {
+      setScrapes((s) => {
+        const n = { ...s };
+        for (const id of unique) n[id] = { status, ...(error ? { error } : {}) };
+        return n;
+      });
+    };
+    mark("run");
+    try {
+      const r = await dispatchScrape({ sourceId: unique.join(","), maxPages: "2" });
+      if (r.status === 204) {
+        mark("ok", "launched");
+        setBulkMsg(`1 workflow lancé pour ${unique.length} employeurs.`);
+        logAudit("scrape", { detail: `lot : ${unique.length} employeur(s) (1 workflow)` });
+        if (mode === "turso") {
+          const windowMs = Math.min(10_800_000, Math.max(360_000, unique.length * 120_000));
+          for (const id of unique) queuePoll(id, windowMs);
+        }
+      } else {
+        const d = await r.json().catch(() => ({}));
+        const err = d.message ?? `HTTP ${r.status}`;
+        mark("err", err);
+        setBulkMsg(`Échec du lancement : ${err}`);
+      }
+    } catch (e) {
+      const err = (e as Error).message;
+      mark("err", err);
+      setBulkMsg(err);
     }
   };
 
@@ -1277,13 +1320,9 @@ export function AdminExplorer() {
       )
     )
       return;
-    const { owner, repo } = ghRepo();
     setScrapeAll({ status: "run" });
     try {
-      const r = await fetch(
-        `https://api.github.com/repos/${owner}/${repo}/actions/workflows/scrape.yml/dispatches`,
-        { method: "POST", headers: GH_HEADERS(ghToken), body: JSON.stringify({ ref: "main", inputs: { sourceId: "", maxPages: "2" } }) },
-      );
+      const r = await dispatchScrape({ sourceId: "", maxPages: "2" });
       if (r.status === 204) logAudit("scrape-all", { detail: "scrape complet lancé (toutes les sources)" });
       setScrapeAll(
         r.status === 204
@@ -1457,8 +1496,14 @@ export function AdminExplorer() {
     });
   const scrapeOne = mode === "api" ? rescrape : ghScrape;
   const bulkRescrape = async (ids: string[]) => {
-    setBulkMsg(`Re-scraping de ${ids.length} employeur(s) lancé…`);
-    for (const id of ids) await scrapeOne(id);
+    if (!ids.length) return;
+    if (mode === "api") {
+      setBulkMsg(`Re-scraping de ${ids.length} employeur(s) lancé…`);
+      for (const id of ids) await rescrape(id);
+      return;
+    }
+    setBulkMsg(`Lancement d'un workflow pour ${ids.length} employeur(s)…`);
+    await ghScrapeMany(ids);
   };
   const bulkSetEnabled = async (ids: string[], enabled: boolean) => {
     for (const id of ids) await patchEmployer(id, { enabled });
@@ -2368,7 +2413,11 @@ export function AdminExplorer() {
             <div className="card mb-2 flex flex-wrap items-center gap-2 border-brand-200 bg-brand-50 p-2 text-xs">
               <span className="font-semibold text-brand-800">{selected.size} sélectionné(s)</span>
               {scrapeEnabled && (
-                <button onClick={() => bulkRescrape(selectedList)} className="rounded-lg border border-brand-300 bg-white px-2.5 py-1 font-semibold text-brand-700 hover:bg-brand-100">
+                <button
+                  onClick={() => bulkRescrape(selectedList)}
+                  title="Un seul workflow GitHub pour toute la sélection"
+                  className="rounded-lg border border-brand-300 bg-white px-2.5 py-1 font-semibold text-brand-700 hover:bg-brand-100"
+                >
                   🔄 Re-scraper
                 </button>
               )}

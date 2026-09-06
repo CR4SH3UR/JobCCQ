@@ -1,8 +1,8 @@
 name: Scraper les offres
 
 # Deux déclenchements :
-#  - manuel (onglet Actions → « Scraper les offres » → « Run workflow ») : un
-#    employeur précis (champ « sourceId ») ou tous (champ vide) ;
+#  - manuel (onglet Actions ou console admin) : un employeur, une liste
+#    `id1,id2,id3` (un seul run), ou tous (champ vide) ;
 #  - planifié (2×/semaine, lundi + jeudi) : re-scrape tous les sites pour
 #    garder l'instantané frais (évite les offres périmées / manquantes).
 #
@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
     inputs:
       sourceId:
-        description: "id de l'employeur à scraper (vide = tous les sites). Ex. patrickmorin-com"
+        description: "id(s) à scraper, séparés par des virgules (vide = tous). Ex. patrickmorin-com ou a,b,c"
         required: false
         default: ""
       maxPages:
