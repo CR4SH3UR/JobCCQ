@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { SPONSORS, type Sponsor } from "@/lib/sponsors";
+import { type Sponsor } from "@/lib/sponsors";
+import { useSponsorConfig } from "@/lib/sponsors-live";
 import { cn, initials } from "@/lib/format";
 import { optimizedLogoUrl } from "@/lib/logo-url";
 
@@ -14,9 +15,10 @@ import { optimizedLogoUrl } from "@/lib/logo-url";
 const ROTATE_MS = 6000;
 
 export function SponsorBanner({ className = "" }: { className?: string }) {
-  const gold = SPONSORS.filter((s) => s.tier === "or");
-  const silver = SPONSORS.filter((s) => (s.tier ?? "argent") === "argent");
-  const bronze = SPONSORS.filter((s) => s.tier === "bronze");
+  const { sponsors } = useSponsorConfig();
+  const gold = sponsors.filter((s) => s.tier === "or");
+  const silver = sponsors.filter((s) => (s.tier ?? "argent") === "argent");
+  const bronze = sponsors.filter((s) => s.tier === "bronze");
 
   // La bannière vedette (rotative) prend le niveau le plus élevé présent.
   const hero = gold.length ? gold : silver;

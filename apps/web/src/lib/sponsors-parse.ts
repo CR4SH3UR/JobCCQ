@@ -91,3 +91,61 @@ export function pinJobsFirst<T extends { id: string }>(
 export function parseSponsorTier(raw: unknown): SponsorTier {
   return raw === "or" || raw === "bronze" ? raw : "argent";
 }
+
+/** Ids d'employeurs en vedette (sans doublon). */
+export function parseFeaturedList(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const item of raw) {
+    const id = typeof item === "string" ? item.trim() : "";
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    out.push(id);
+  }
+  return out;
+}
+
+/** Snapshot JSON normalisé (publication / fetch). */
+export interface SponsorSnapshot {
+  contactEmail: string;
+  sponsors: readonly Record<string, unknown>[];
+  featured: readonly string[];
+  pinned: readonly PinnedJob[];
+}
+
+export function readSponsorSnapshot(raw: unknown): SponsorSnapshot {
+  const rec = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const sponsors = Array.isArray(rec.sponsors)
+    ? rec.sponsors.filter((s): s is Record<string, unknown> => !!s && typeof s === "object")
+    : [];
+  return {
+    contactEmail: typeof rec.contactEmail === "string" ? rec.contactEmail : "",
+    sponsors,
+    featured: parseFeaturedList(rec.featured),
+    pinned: parsePinnedList(rec.pinned),
+  };
+}
+
+/**
+ * Publication : le formulaire chargé est la source de vérité.
+ * S'il n'a pas encore été hydraté depuis GitHub, on ne vide pas les listes
+ * distantes (sinon « publier les sponsors » efface les vedettes, et l'inverse).
+ */
+export function mergeSponsorPublish<
+  T extends {
+    contactEmail: string;
+    sponsors: readonly unknown[];
+    featured: readonly string[];
+    pinned: readonly PinnedJob[];
+  },
+>(remote: T, local: T, loaded: boolean): T {
+  if (loaded) return local;
+  return {
+    ...local,
+    contactEmail: local.contactEmail.trim() || remote.contactEmail,
+    sponsors: local.sponsors.length ? local.sponsors : remote.sponsors,
+    featured: local.featured.length ? local.featured : remote.featured,
+    pinned: local.pinned.length ? local.pinned : remote.pinned,
+  };
+}

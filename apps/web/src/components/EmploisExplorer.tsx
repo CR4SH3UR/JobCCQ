@@ -40,7 +40,8 @@ import { FacetGroup } from "./FacetGroup";
 import { Pagination } from "./Pagination";
 import { Badge } from "./Badge";
 import { SponsorBanner } from "./SponsorBanner";
-import { PINNED_JOB_IDS, isSponsoredEmployer, pinJobsFirst } from "@/lib/sponsors";
+import { pinJobsFirst } from "@/lib/sponsors";
+import { employerIsSponsored, pinnedIdList, useSponsorConfig } from "@/lib/sponsors-live";
 import { cn, timeAgo } from "@/lib/format";
 import { useAuth } from "@/lib/auth";
 import { createAlert, filterQuery } from "@/lib/alerts";
@@ -134,6 +135,8 @@ export function EmploisExplorer() {
   const recentApplyClicks = useRecentApplyClicks();
   const [alertMsg, setAlertMsg] = useState<string | null>(null);
   const [pinnedJobs, setPinnedJobs] = useState<Job[]>([]);
+  const sponsorCfg = useSponsorConfig();
+  const pinnedIds = pinnedIdList(sponsorCfg);
 
   // Applique un état de filtres complet à l'UI (amorçage URL, recherche
   // enregistrée). `page` par défaut à 1 sauf indication contraire.
@@ -295,18 +298,18 @@ export function EmploisExplorer() {
   }, [query]);
 
   useEffect(() => {
-    if (!PINNED_JOB_IDS.length) {
+    if (!pinnedIds.length) {
       setPinnedJobs([]);
       return;
     }
     let alive = true;
-    Promise.all(PINNED_JOB_IDS.map((id) => getJobById(id))).then((jobs) => {
+    Promise.all(pinnedIds.map((id) => getJobById(id))).then((jobs) => {
       if (alive) setPinnedJobs(jobs.filter((j): j is Job => !!j));
     });
     return () => {
       alive = false;
     };
-  }, []);
+  }, [pinnedIds.join("|")]);
 
   // Rafraîchissement silencieux (polling + notification admin cross-onglet).
   const refresh = useCallback(() => {
@@ -425,11 +428,13 @@ export function EmploisExplorer() {
   const items = useMemo(() => {
     if (!result) return [];
     const ranked = [...result.items].sort(
-      (a, b) => Number(isSponsoredEmployer(b.sourceId)) - Number(isSponsoredEmployer(a.sourceId)),
+      (a, b) =>
+        Number(employerIsSponsored(b.sourceId, sponsorCfg)) -
+        Number(employerIsSponsored(a.sourceId, sponsorCfg)),
     );
     if (page !== 1 || !pinnedJobs.length) return ranked;
-    return pinJobsFirst([...pinnedJobs, ...ranked], PINNED_JOB_IDS);
-  }, [result, page, pinnedJobs]);
+    return pinJobsFirst([...pinnedJobs, ...ranked], pinnedIds);
+  }, [result, page, pinnedJobs, pinnedIds, sponsorCfg]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">

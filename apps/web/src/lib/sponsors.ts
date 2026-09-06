@@ -15,7 +15,8 @@ import config from "@/data/sponsors.json";
 import {
   PINNED_MAX,
   activePinnedJobIds,
-  parsePinnedList,
+  parseSponsorTier,
+  readSponsorSnapshot,
   type PinnedJob,
   type SponsorTier,
 } from "./sponsors-parse.js";
@@ -24,10 +25,14 @@ export {
   PINNED_MAX,
   activePinnedJobIds,
   isPinnedActive,
+  mergeSponsorPublish,
+  parseFeaturedList,
   parsePinnedList,
   parseSponsorTier,
   pinJobsFirst,
+  readSponsorSnapshot,
   type PinnedJob,
+  type SponsorSnapshot,
   type SponsorTier,
 } from "./sponsors-parse.js";
 
@@ -94,19 +99,24 @@ export const SPONSOR_PACKS = [
 
 export type SponsorPackId = (typeof SPONSOR_PACKS)[number]["id"];
 
-function readConfig(raw: unknown): SponsorConfig {
-  const rec = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
-  const sponsors = Array.isArray(rec.sponsors)
-    ? rec.sponsors.filter((s): s is Sponsor => !!s && typeof s === "object")
-    : [];
-  const featured = Array.isArray(rec.featured)
-    ? rec.featured.filter((id): id is string => typeof id === "string" && !!id.trim())
-    : [];
+function asSponsor(s: Record<string, unknown>): Sponsor {
   return {
-    contactEmail: typeof rec.contactEmail === "string" ? rec.contactEmail : "",
-    sponsors,
-    featured,
-    pinned: parsePinnedList(rec.pinned),
+    id: typeof s.id === "string" ? s.id : "",
+    name: typeof s.name === "string" ? s.name : "",
+    tagline: typeof s.tagline === "string" ? s.tagline : "",
+    url: typeof s.url === "string" ? s.url : "",
+    ...(typeof s.logoUrl === "string" && s.logoUrl ? { logoUrl: s.logoUrl } : {}),
+    tier: parseSponsorTier(s.tier),
+  };
+}
+
+export function readConfig(raw: unknown): SponsorConfig {
+  const snap = readSponsorSnapshot(raw);
+  return {
+    contactEmail: snap.contactEmail,
+    sponsors: snap.sponsors.map(asSponsor).filter((s) => s.id || s.name || s.url),
+    featured: snap.featured,
+    pinned: snap.pinned,
   };
 }
 
@@ -127,9 +137,9 @@ export const PINNED_JOB_IDS: readonly string[] = activePinnedJobIds(SPONSOR_CONF
 
 const PINNED_SET: ReadonlySet<string> = new Set(PINNED_JOB_IDS);
 
-/** Cet employeur est-il mis en avant ? */
+/** Cet employeur est-il mis en avant ? (bundle ; préférer `useSponsorConfig` côté UI). */
 export const isSponsoredEmployer = (sourceId?: string | null): boolean =>
   !!sourceId && SPONSORED_EMPLOYERS.has(sourceId);
 
-/** Cette offre est-elle épinglée (pack Bronze) ? */
+/** Cette offre est-elle épinglée (pack Bronze) ? Bundle uniquement. */
 export const isPinnedJob = (jobId?: string | null): boolean => !!jobId && PINNED_SET.has(jobId);
