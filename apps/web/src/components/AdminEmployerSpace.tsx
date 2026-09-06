@@ -96,13 +96,13 @@ export function AdminEmployerSpace() {
                   </span>
                   {c.note ? <span className="block text-slate-400">{c.note}</span> : null}
                 </span>
-                <span className="flex flex-wrap gap-2">
+                <span className="flex flex-wrap items-center gap-1.5">
                   {c.status === "pending" && (
                     <>
                       <button
                         type="button"
                         disabled={busyKey === key}
-                        className="rounded-lg bg-green-600 px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                        className="rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
                         onClick={() =>
                           act(key, () => setClaimStatus(c.userId, c.employerId, "approved"), "Réclamation approuvée.")
                         }
@@ -112,7 +112,7 @@ export function AdminEmployerSpace() {
                       <button
                         type="button"
                         disabled={busyKey === key}
-                        className="rounded-lg bg-slate-200 px-2 py-1 text-xs font-semibold disabled:opacity-50"
+                        className="rounded-lg bg-orange-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm hover:bg-orange-600 disabled:opacity-50"
                         onClick={() =>
                           act(key, () => setClaimStatus(c.userId, c.employerId, "rejected"), "Réclamation refusée.")
                         }
@@ -125,7 +125,7 @@ export function AdminEmployerSpace() {
                     <button
                       type="button"
                       disabled={busyKey === key}
-                      className="rounded-lg border border-red-200 bg-red-50 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50"
+                      className="rounded-lg bg-amber-500 px-2.5 py-1 text-xs font-bold text-amber-950 shadow-sm hover:bg-amber-400 disabled:opacity-50"
                       onClick={() => {
                         if (
                           !confirm(
@@ -147,7 +147,7 @@ export function AdminEmployerSpace() {
                   <button
                     type="button"
                     disabled={busyKey === key}
-                    className="rounded-lg bg-red-600 px-2 py-1 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+                    className="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm hover:bg-red-700 disabled:opacity-50"
                     onClick={() => {
                       if (
                         !confirm(
@@ -184,10 +184,10 @@ export function AdminEmployerSpace() {
                 <Badge>{labelForEmployerJobStatus(r.status)}</Badge>
               </span>
               {r.status === "pending" && (
-                <span className="flex gap-2">
+                <span className="flex flex-wrap gap-1.5">
                   <button
                     type="button"
-                    className="rounded-lg bg-green-600 px-2 py-1 text-xs font-semibold text-white"
+                    className="rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm hover:bg-emerald-700"
                     onClick={async () => {
                       await setEmployerJobStatus(r.id, "approved");
                       invalidateJobsCache();
@@ -199,7 +199,7 @@ export function AdminEmployerSpace() {
                   </button>
                   <button
                     type="button"
-                    className="rounded-lg bg-slate-200 px-2 py-1 text-xs font-semibold"
+                    className="rounded-lg bg-orange-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm hover:bg-orange-600"
                     onClick={async () => {
                       await setEmployerJobStatus(r.id, "rejected");
                       setMsg("Offre refusée.");

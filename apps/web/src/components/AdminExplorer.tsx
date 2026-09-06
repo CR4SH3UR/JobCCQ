@@ -212,6 +212,30 @@ function strOpt(v: unknown): string | undefined {
   return s || undefined;
 }
 
+/** Tons pleins et distincts pour les actions admin (plus lisibles qu'une rangée de contours gris). */
+const ACTION_TONE = {
+  brand: "bg-brand-600 text-white hover:bg-brand-800",
+  indigo: "bg-indigo-600 text-white hover:bg-indigo-700",
+  teal: "bg-teal-600 text-white hover:bg-teal-700",
+  sky: "bg-sky-600 text-white hover:bg-sky-700",
+  violet: "bg-violet-600 text-white hover:bg-violet-700",
+  amber: "bg-amber-500 text-amber-950 hover:bg-amber-400",
+  orange: "bg-orange-500 text-white hover:bg-orange-600",
+  emerald: "bg-emerald-600 text-white hover:bg-emerald-700",
+  rose: "bg-rose-600 text-white hover:bg-rose-700",
+  red: "bg-red-600 text-white hover:bg-red-700",
+  slate: "bg-slate-700 text-white hover:bg-slate-800",
+  ghost: "border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800",
+} as const;
+
+function actionClass(tone: keyof typeof ACTION_TONE, extra = ""): string {
+  return `inline-flex items-center justify-center rounded-lg px-2.5 py-1.5 text-xs font-bold shadow-sm disabled:cursor-not-allowed disabled:opacity-35 ${ACTION_TONE[tone]}${extra ? ` ${extra}` : ""}`;
+}
+
+function ActionSep() {
+  return <span className="hidden h-6 w-px shrink-0 bg-slate-200 sm:block dark:bg-slate-600" aria-hidden />;
+}
+
 /** Parse un CSV d'employeurs (export admin ou fichier similaire). */
 function parseEmployerCsv(text: string): Employer[] {
   const src = text.replace(/^\uFEFF/, "");
@@ -2478,66 +2502,75 @@ export function AdminExplorer() {
               </select>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  type="button"
+                  onClick={reloadData}
+                  disabled={reloading}
+                  title="Récupérer la dernière version des données"
+                  className={actionClass("slate")}
+                >
+                  {reloading ? "Rechargement…" : "🔄 Recharger"}
+                </button>
+                <button type="button" onClick={exportCsv} className={actionClass("sky")}>
+                  ⬇ CSV
+                </button>
+                <label className={`cursor-pointer ${actionClass("teal")}`}>
+                  ⬆ Import CSV
+                  <input
+                    type="file"
+                    accept=".csv,text/csv"
+                    className="hidden"
+                    onChange={(ev) => {
+                      const f = ev.target.files?.[0];
+                      ev.target.value = "";
+                      if (f) void importCsvFile(f);
+                    }}
+                  />
+                </label>
+                {mode === "static" && (
+                  <button type="button" onClick={exportJson} className={actionClass("violet")}>
+                    ⬇ JSON
+                  </button>
+                )}
+              </div>
+              <ActionSep />
               <button
-                onClick={reloadData}
-                disabled={reloading}
-                title="Récupérer la dernière version des données"
-                className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:bg-slate-100 disabled:opacity-50"
-              >
-                {reloading ? "Rechargement…" : "🔄 Recharger"}
-              </button>
-              <button onClick={exportCsv} className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:bg-slate-100">
-                ⬇ CSV
-              </button>
-              <label className="cursor-pointer rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:bg-slate-100">
-                ⬆ Import CSV
-                <input
-                  type="file"
-                  accept=".csv,text/csv"
-                  className="hidden"
-                  onChange={(ev) => {
-                    const f = ev.target.files?.[0];
-                    ev.target.value = "";
-                    if (f) void importCsvFile(f);
-                  }}
-                />
-              </label>
-              <button
+                type="button"
                 onClick={() => setAddOpen((v) => !v)}
-                className="rounded-lg border border-brand-300 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50"
+                className={actionClass("brand")}
               >
                 ➕ Ajouter un employeur
               </button>
-              {scrapeEnabled && errorCount > 0 && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const ids = employers.filter((e) => lastRuns[e.id]?.status === "error").map((e) => e.id);
-                    void bulkRescrape(ids);
-                  }}
-                  title="Relancer uniquement les sources dont le dernier scrape a échoué"
-                  className="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50"
-                >
-                  🔁 Retry erreurs ({errorCount})
-                </button>
-              )}
-              {ghToken && (
-                <button
-                  onClick={ghScrapeAll}
-                  disabled={scrapeAll.status === "run"}
-                  title="Lancer un scrape complet de toutes les sources (workflow GitHub, ~1 h)"
-                  className="rounded-lg border border-brand-300 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50 disabled:opacity-50"
-                >
-                  {scrapeAll.status === "run" ? "Lancement…" : "🚀 Scrape complet"}
-                </button>
-              )}
+              {(scrapeEnabled && errorCount > 0) || ghToken ? <ActionSep /> : null}
+              <div className="flex flex-wrap gap-1.5">
+                {scrapeEnabled && errorCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const ids = employers.filter((e) => lastRuns[e.id]?.status === "error").map((e) => e.id);
+                      void bulkRescrape(ids);
+                    }}
+                    title="Relancer uniquement les sources dont le dernier scrape a échoué"
+                    className={actionClass("orange")}
+                  >
+                    🔁 Retry erreurs ({errorCount})
+                  </button>
+                )}
+                {ghToken && (
+                  <button
+                    type="button"
+                    onClick={ghScrapeAll}
+                    disabled={scrapeAll.status === "run"}
+                    title="Lancer un scrape complet de toutes les sources (workflow GitHub, ~1 h)"
+                    className={actionClass("indigo")}
+                  >
+                    {scrapeAll.status === "run" ? "Lancement…" : "🚀 Scrape complet"}
+                  </button>
+                )}
+              </div>
               {scrapeAll.status !== "idle" && scrapeAll.status !== "run" && (
                 <span className={`text-xs ${scrapeAll.status === "ok" ? "text-green-700" : "text-red-600"}`}>{scrapeAll.message}</span>
-              )}
-              {mode === "static" && (
-                <button onClick={exportJson} className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium hover:bg-slate-100">
-                  ⬇ JSON
-                </button>
               )}
               {bulkMsg && <span className="text-xs text-slate-500">{bulkMsg}</span>}
             </div>
@@ -2560,8 +2593,8 @@ export function AdminExplorer() {
                 </select>
               </div>
               <div className="mt-2 flex gap-2">
-                <button onClick={addEmployer} className="rounded-lg bg-brand-600 px-3 py-1 text-xs font-semibold text-white">Ajouter</button>
-                <button onClick={() => setAddOpen(false)} className="rounded-lg border border-slate-300 px-3 py-1 text-xs hover:bg-slate-100">Annuler</button>
+                <button type="button" onClick={addEmployer} className={actionClass("brand")}>Ajouter</button>
+                <button type="button" onClick={() => setAddOpen(false)} className={actionClass("ghost")}>Annuler</button>
               </div>
             </div>
           )}
@@ -2620,80 +2653,93 @@ export function AdminExplorer() {
               <span className="font-semibold text-brand-800">{selected.size} sélectionné(s)</span>
               {scrapeEnabled && (
                 <button
+                  type="button"
                   onClick={() => bulkRescrape(selectedList)}
                   title="Un seul workflow GitHub pour toute la sélection"
-                  className="rounded-lg border border-brand-300 bg-white px-2.5 py-1 font-semibold text-brand-700 hover:bg-brand-100"
+                  className={actionClass("indigo")}
                 >
                   🔄 Re-scraper
                 </button>
               )}
-              <button onClick={() => bulkSetEnabled(selectedList, true)} className="rounded-lg border border-green-300 bg-white px-2.5 py-1 font-semibold text-green-700 hover:bg-green-50">
-                ✅ Activer
-              </button>
-              <button onClick={() => bulkSetEnabled(selectedList, false)} className="rounded-lg border border-red-300 bg-white px-2.5 py-1 font-semibold text-red-600 hover:bg-red-50">
-                🚫 Désactiver
-              </button>
-              <button onClick={() => bulkSetVerified(selectedList, true)} className="rounded-lg border border-green-300 bg-white px-2.5 py-1 font-semibold text-green-700 hover:bg-green-50">
-                ✔ Vérifier
-              </button>
-              <button onClick={() => bulkSetVerified(selectedList, false)} className="rounded-lg border border-slate-300 bg-white px-2.5 py-1 font-semibold text-slate-600 hover:bg-slate-100">
-                ✖ Dévérifier
-              </button>
-              <select
-                value=""
-                onChange={(ev) => {
-                  if (ev.target.value) bulkSetMethod(selectedList, ev.target.value as DiscoveredMethod);
-                }}
-                title="Appliquer une méthode de scraping à la sélection"
-                className="rounded-lg border border-slate-300 bg-white px-2 py-1 font-semibold text-slate-700"
-              >
-                <option value="">Méthode…</option>
-                {METHODS.map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
-              <button
-                onClick={() => bulkCopyUrls(selectedList)}
-                title="Copier les URLs carrières des employeurs sélectionnés"
-                className="rounded-lg border border-slate-300 bg-white px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-100"
-              >
-                📋 Copier URLs
-              </button>
-              <button
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(selectedList.join("\n"));
-                    setBulkMsg(`${selectedList.length} id(s) copié(s).`);
-                  } catch {
-                    setBulkMsg("Échec de la copie.");
-                  }
-                }}
-                className="rounded-lg border border-slate-300 bg-white px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-100"
-              >
-                📋 Copier ids
-              </button>
-              {(mode === "turso" || mode === "api") && (
-                <button onClick={() => bulkPurge(selectedList)} className="rounded-lg border border-red-300 bg-white px-2.5 py-1 font-semibold text-red-600 hover:bg-red-50">
-                  🗑 Vider les offres
+              <ActionSep />
+              <div className="flex flex-wrap gap-1.5">
+                <button type="button" onClick={() => bulkSetEnabled(selectedList, true)} className={actionClass("emerald")}>
+                  ✅ Activer
                 </button>
-              )}
-              {(mode === "turso" || mode === "api" || mode === "static") && selected.size === 2 && (
-                <button
-                  onClick={() => bulkMerge()}
-                  title="Absorber une fiche dans l'autre (offres + historique). On garde le scraper sur mesure, sinon le vérifié, sinon celui qui a le plus d'offres."
-                  className="rounded-lg border border-amber-300 bg-white px-2.5 py-1 font-semibold text-amber-800 hover:bg-amber-50"
+                <button type="button" onClick={() => bulkSetEnabled(selectedList, false)} className={actionClass("orange")}>
+                  🚫 Désactiver
+                </button>
+                <button type="button" onClick={() => bulkSetVerified(selectedList, true)} className={actionClass("teal")}>
+                  ✔ Vérifier
+                </button>
+                <button type="button" onClick={() => bulkSetVerified(selectedList, false)} className={actionClass("slate")}>
+                  ✖ Dévérifier
+                </button>
+              </div>
+              <ActionSep />
+              <div className="flex flex-wrap gap-1.5">
+                <select
+                  value=""
+                  onChange={(ev) => {
+                    if (ev.target.value) bulkSetMethod(selectedList, ev.target.value as DiscoveredMethod);
+                  }}
+                  title="Appliquer une méthode de scraping à la sélection"
+                  className="rounded-lg border border-slate-300 bg-white px-2 py-1 font-semibold text-slate-700"
                 >
-                  ⚭ Fusionner…
+                  <option value="">Méthode…</option>
+                  {METHODS.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => bulkCopyUrls(selectedList)}
+                  title="Copier les URLs carrières des employeurs sélectionnés"
+                  className={actionClass("sky")}
+                >
+                  📋 Copier URLs
                 </button>
-              )}
-              {(mode === "turso" || mode === "api" || mode === "static") && (
-                <button onClick={() => bulkDelete(selectedList)} className="rounded-lg border border-red-400 bg-white px-2.5 py-1 font-semibold text-red-700 hover:bg-red-50">
-                  ✕ Supprimer
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(selectedList.join("\n"));
+                      setBulkMsg(`${selectedList.length} id(s) copié(s).`);
+                    } catch {
+                      setBulkMsg("Échec de la copie.");
+                    }
+                  }}
+                  className={actionClass("violet")}
+                >
+                  📋 Copier ids
                 </button>
-              )}
-              <button onClick={() => setSelected(new Set())} className="rounded-lg border border-slate-300 bg-white px-2.5 py-1 hover:bg-slate-100">
-                Désélectionner
-              </button>
+              </div>
+              <ActionSep />
+              <div className="flex flex-wrap gap-1.5">
+                {(mode === "turso" || mode === "api") && (
+                  <button type="button" onClick={() => bulkPurge(selectedList)} className={actionClass("rose")}>
+                    🗑 Vider les offres
+                  </button>
+                )}
+                {(mode === "turso" || mode === "api" || mode === "static") && selected.size === 2 && (
+                  <button
+                    type="button"
+                    onClick={() => bulkMerge()}
+                    title="Absorber une fiche dans l'autre (offres + historique). On garde le scraper sur mesure, sinon le vérifié, sinon celui qui a le plus d'offres."
+                    className={actionClass("amber")}
+                  >
+                    ⚭ Fusionner…
+                  </button>
+                )}
+                {(mode === "turso" || mode === "api" || mode === "static") && (
+                  <button type="button" onClick={() => bulkDelete(selectedList)} className={actionClass("red")}>
+                    ✕ Supprimer
+                  </button>
+                )}
+                <button type="button" onClick={() => setSelected(new Set())} className={actionClass("ghost")}>
+                  Désélectionner
+                </button>
+              </div>
             </div>
           )}
 
@@ -2740,11 +2786,11 @@ export function AdminExplorer() {
 
           {totalPages > 1 && (
             <div className="mt-4 flex items-center justify-center gap-2 text-sm">
-              <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="rounded-lg border border-slate-200 px-3 py-1 disabled:opacity-40">
+              <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className={actionClass("slate")}>
                 ← Précédent
               </button>
               <span className="text-slate-500">Page {page} / {totalPages}</span>
-              <button disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} className="rounded-lg border border-slate-200 px-3 py-1 disabled:opacity-40">
+              <button type="button" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} className={actionClass("slate")}>
                 Suivant →
               </button>
             </div>
@@ -2968,9 +3014,6 @@ function Row({
           spellCheck={false}
           className="min-w-[16rem] flex-1 rounded-lg border border-slate-200 px-2 py-1 font-mono text-xs outline-none focus:border-brand-400"
         />
-        <a href={url} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" title="Ouvrir">
-          Ouvrir ↗
-        </a>
         <input
           value={url2}
           onChange={(ev) => {
@@ -2993,170 +3036,188 @@ function Row({
             {METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
           </select>
         )}
-        {url2.trim() !== "" && (
-          <a href={url2} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-slate-200 px-2 py-1 text-xs hover:bg-slate-100" title="Ouvrir le 2e lien">
-            2e ↗
+      </div>
+
+      <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="flex flex-wrap gap-1.5">
+          <a href={url} target="_blank" rel="noopener noreferrer" className={actionClass("sky")} title="Ouvrir">
+            Ouvrir ↗
           </a>
-        )}
-        {count > 0 && (
+          {url2.trim() !== "" && (
+            <a href={url2} target="_blank" rel="noopener noreferrer" className={actionClass("teal")} title="Ouvrir le 2e lien">
+              2e ↗
+            </a>
+          )}
+          {count > 0 && (
+            <button
+              type="button"
+              onClick={() => onToggleOffers(e.id)}
+              title="Afficher les offres actuellement en base pour cet employeur"
+              className={actionClass("violet")}
+            >
+              {offersOpen ? "▴ Offres" : "▾ Offres"}
+            </button>
+          )}
           <button
-            onClick={() => onToggleOffers(e.id)}
-            title="Afficher les offres actuellement en base pour cet employeur"
-            className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-medium hover:bg-slate-100"
+            type="button"
+            onClick={() => setAdvOpen((v) => !v)}
+            title="Édition avancée (région, site web, portée)"
+            className={actionClass("slate")}
           >
-            {offersOpen ? "▴ Offres" : "▾ Offres"}
+            {advOpen ? "▴ Détails" : "⚙ Détails"}
           </button>
-        )}
-        <button
-          onClick={() => setAdvOpen((v) => !v)}
-          title="Édition avancée (région, site web, portée)"
-          className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-medium hover:bg-slate-100"
-        >
-          {advOpen ? "▴ Détails" : "⚙ Détails"}
-        </button>
-        <button
-          disabled={!dirty}
-          onClick={() =>
-            onPatch(e.id, {
-              careersUrl: url.trim(),
-              name: name.trim(),
-              careersUrl2: url2.trim() || null,
-              method2: url2.trim() ? method2 : null,
-            })
-          }
-          className="rounded-lg bg-brand-600 px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-30"
-        >
-          Enregistrer
-        </button>
-        {save && <SaveBadge save={save} />}
-        {scrapeEnabled && !disabled && (
+        </div>
+        <ActionSep />
+        <div className="flex flex-wrap items-center gap-1.5">
           <button
+            type="button"
+            disabled={!dirty}
+            onClick={() =>
+              onPatch(e.id, {
+                careersUrl: url.trim(),
+                name: name.trim(),
+                careersUrl2: url2.trim() || null,
+                method2: url2.trim() ? method2 : null,
+              })
+            }
+            className={actionClass("brand")}
+          >
+            Enregistrer
+          </button>
+          {save && <SaveBadge save={save} />}
+          {scrapeEnabled && !disabled && (
+            <button
+              type="button"
+              onClick={async () => {
+                if (dirty) {
+                  await onPatch(e.id, {
+                    careersUrl: url.trim(),
+                    name: name.trim(),
+                    careersUrl2: url2.trim() || null,
+                    method2: url2.trim() ? method2 : null,
+                  });
+                }
+                onScrape(e.id);
+              }}
+              className={actionClass("indigo")}
+            >
+              {scrape?.status === "run" ? "Scraping…" : "Re-scraper"}
+            </button>
+          )}
+          <button
+            type="button"
+            title="Tester si la page carrières répond"
             onClick={async () => {
-              if (dirty) {
-                await onPatch(e.id, {
-                  careersUrl: url.trim(),
-                  name: name.trim(),
-                  careersUrl2: url2.trim() || null,
-                  method2: url2.trim() ? method2 : null,
+              setProbeMsg("test…");
+              try {
+                const r = await adminFetch(`${API_URL}/admin/probe`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ url: url.trim() || e.careersUrl }),
                 });
+                const d = await r.json();
+                setProbeMsg(d.ok ? `OK ${d.bytes} o · ${d.ms} ms${d.title ? ` · ${d.title}` : ""}` : (d.error ?? "échec"));
+              } catch {
+                window.open(url.trim() || e.careersUrl, "_blank");
+                setProbeMsg("API injoignable — page ouverte");
               }
-              onScrape(e.id);
             }}
-            className="rounded-lg border border-brand-300 px-2.5 py-1 text-xs font-semibold text-brand-700 hover:bg-brand-50"
+            className={actionClass("sky")}
           >
-            {scrape?.status === "run" ? "Scraping…" : "Re-scraper"}
+            Tester URL
           </button>
-        )}
-        <button
-          type="button"
-          title="Tester si la page carrières répond"
-          onClick={async () => {
-            setProbeMsg("test…");
-            try {
-              const r = await adminFetch(`${API_URL}/admin/probe`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url: url.trim() || e.careersUrl }),
-              });
-              const d = await r.json();
-              setProbeMsg(d.ok ? `OK ${d.bytes} o · ${d.ms} ms${d.title ? ` · ${d.title}` : ""}` : (d.error ?? "échec"));
-            } catch {
-              window.open(url.trim() || e.careersUrl, "_blank");
-              setProbeMsg("API injoignable — page ouverte");
-            }
-          }}
-          className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-        >
-          Tester URL
-        </button>
-        <button
-          type="button"
-          title="Exécuter le parseur sans écrire en base"
-          onClick={async () => {
-            setPreviewMsg("aperçu…");
-            setPreviewSample([]);
-            try {
-              const d = await previewEmployer(e.id, url.trim() || e.careersUrl);
-              const via =
-                d.via === "api"
-                  ? d.usedParseList
-                    ? "parseList"
-                    : "scrape"
-                  : "JSON-LD/RSS";
-              setPreviewMsg(
-                `Aperçu (${via}) : ${d.count} poste(s) — non enregistré`,
-              );
-              setPreviewSample(d.sample);
-              if (d.via === "supabase" && d.count === 0) {
+          <button
+            type="button"
+            title="Exécuter le parseur sans écrire en base"
+            onClick={async () => {
+              setPreviewMsg("aperçu…");
+              setPreviewSample([]);
+              try {
+                const d = await previewEmployer(e.id, url.trim() || e.careersUrl);
+                const via =
+                  d.via === "api"
+                    ? d.usedParseList
+                      ? "parseList"
+                      : "scrape"
+                    : "JSON-LD/RSS";
                 setPreviewMsg(
-                  "Page récupérée, 0 offre en JSON-LD/RSS. Le parseur sur mesure n'est dispo qu'avec l'API locale (`npm run dev:api`).",
+                  `Aperçu (${via}) : ${d.count} poste(s) — non enregistré`,
                 );
+                setPreviewSample(d.sample);
+                if (d.via === "supabase" && d.count === 0) {
+                  setPreviewMsg(
+                    "Page récupérée, 0 offre en JSON-LD/RSS. Le parseur sur mesure n'est dispo qu'avec l'API locale (`npm run dev:api`).",
+                  );
+                }
+              } catch (err) {
+                setPreviewMsg((err as Error).message);
               }
-            } catch (err) {
-              setPreviewMsg((err as Error).message);
-            }
-          }}
-          className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-        >
-          Aperçu parseur
-        </button>
-        <button
-          type="button"
-          title="Télécharger le HTML de la page carrières (fixture de test)"
-          onClick={async () => {
-            try {
-              const { html, filename } = await fetchEmployerHtml(e.id, url.trim() || e.careersUrl);
-              const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-              const a = document.createElement("a");
-              a.href = URL.createObjectURL(blob);
-              a.download = filename;
-              a.click();
-              URL.revokeObjectURL(a.href);
-            } catch (err) {
-              setPreviewMsg((err as Error).message);
-            }
-          }}
-          className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-        >
-          HTML fixture
-        </button>
-        <button
-          onClick={() => onPatch(e.id, { enabled: disabled })}
-          className={`rounded-lg border px-2.5 py-1 text-xs font-semibold ${
-            disabled
-              ? "border-green-300 text-green-700 hover:bg-green-50"
-              : "border-red-300 text-red-600 hover:bg-red-50"
-          }`}
-        >
-          {disabled ? "Activer" : "Désactiver"}
-        </button>
-        {purgeEnabled && (
-          <button
-            onClick={() => onRollback(e.id)}
-            title="Remettre les offres retirées par le dernier scrape"
-            className="rounded-lg border border-amber-300 px-2.5 py-1 text-xs font-semibold text-amber-800 hover:bg-amber-50"
+            }}
+            className={actionClass("teal")}
           >
-            ↩ Rollback
+            Aperçu parseur
           </button>
-        )}
-        {purgeEnabled && count > 0 && (
           <button
-            onClick={() => onPurge(e.id)}
-            title="Supprimer toutes les offres de cet employeur (remise à zéro)"
-            className="rounded-lg border border-red-300 px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+            type="button"
+            title="Télécharger le HTML de la page carrières (fixture de test)"
+            onClick={async () => {
+              try {
+                const { html, filename } = await fetchEmployerHtml(e.id, url.trim() || e.careersUrl);
+                const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(a.href);
+              } catch (err) {
+                setPreviewMsg((err as Error).message);
+              }
+            }}
+            className={actionClass("violet")}
           >
-            🗑 Vider les offres
+            HTML fixture
           </button>
-        )}
-        {deleteEnabled && (
+        </div>
+        <ActionSep />
+        <div className="flex flex-wrap gap-1.5 sm:ml-auto">
           <button
-            onClick={() => onDelete(e.id)}
-            title="Supprimer définitivement cet employeur (fiche + offres)"
-            className="ml-auto rounded-lg border border-red-400 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-50"
+            type="button"
+            onClick={() => onPatch(e.id, { enabled: disabled })}
+            className={actionClass(disabled ? "emerald" : "orange")}
           >
-            Supprimer
+            {disabled ? "Activer" : "Désactiver"}
           </button>
-        )}
+          {purgeEnabled && (
+            <button
+              type="button"
+              onClick={() => onRollback(e.id)}
+              title="Remettre les offres retirées par le dernier scrape"
+              className={actionClass("amber")}
+            >
+              ↩ Rollback
+            </button>
+          )}
+          {purgeEnabled && count > 0 && (
+            <button
+              type="button"
+              onClick={() => onPurge(e.id)}
+              title="Supprimer toutes les offres de cet employeur (remise à zéro)"
+              className={actionClass("rose")}
+            >
+              🗑 Vider les offres
+            </button>
+          )}
+          {deleteEnabled && (
+            <button
+              type="button"
+              onClick={() => onDelete(e.id)}
+              title="Supprimer définitivement cet employeur (fiche + offres)"
+              className={actionClass("red")}
+            >
+              Supprimer
+            </button>
+          )}
+        </div>
       </div>
 
       {offersOpen && (
