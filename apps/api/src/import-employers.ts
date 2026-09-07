@@ -19,6 +19,7 @@ import { readFile } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { prisma } from "./db.js";
+import { listRetiredEmployerIds } from "./employer-tombstones.js";
 
 interface EmpIn {
   id: string;
@@ -82,12 +83,18 @@ async function main() {
   const existing = new Map(
     (await prisma.employer.findMany({ select: { id: true, careersUrl: true } })).map((r) => [r.id, r.careersUrl]),
   );
+  const retired = await listRetiredEmployerIds().catch(() => new Set<string>());
 
   let created = 0;
   let urlUpdated = 0;
   let unchanged = 0;
+  let skippedRetired = 0;
 
   for (const e of upsert) {
+    if (retired.has(e.id)) {
+      skippedRetired++;
+      continue;
+    }
     const cur = existing.get(e.id);
     if (cur !== undefined) {
       // id déjà présent → on ne corrige que le lien, sans écraser le reste.
@@ -135,6 +142,10 @@ async function main() {
   // — fonctionne que l'employeur soit absent (création), désactivé ou déjà actif.
   let reactivated = 0;
   for (const e of reactivate) {
+    if (retired.has(e.id)) {
+      skippedRetired++;
+      continue;
+    }
     await prisma.employer.upsert({
       where: { id: e.id },
       create: {
@@ -168,7 +179,8 @@ async function main() {
   console.log(
     `Employeurs — créés: ${created}, careersUrl mis à jour: ${urlUpdated}, ` +
       `correctifs fixUrl: ${fixed}, réactivés: ${reactivated}, désactivés: ${disabled}, ` +
-      `inchangés: ${unchanged}, fixUrl introuvables: ${fixSkipped}`,
+      `inchangés: ${unchanged}, fixUrl introuvables: ${fixSkipped}` +
+      (skippedRetired ? `, ancrés ignorés: ${skippedRetired}` : ""),
   );
   const total = await prisma.employer.count();
   console.log(`Total employeurs en base : ${total}`);

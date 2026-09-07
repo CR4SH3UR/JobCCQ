@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { employersToInsert, type SyncableEmployer } from "./sync-employers.js";
+import { employersToInsert, type SyncableEmployer } from "./sync-employers-pure.js";
 
 const e = (id: string, extra: Partial<SyncableEmployer> = {}): SyncableEmployer => ({
   id,
@@ -39,6 +39,14 @@ describe("employersToInsert", () => {
     assert.deepEqual(
       employersToInsert(git, new Set()).map((x) => x.id),
       ["dup", "autre"],
+    );
+  });
+
+  it("n'ajoute pas un id volontairement retiré (fusion / suppression)", () => {
+    const git = [e("keep"), e("doublon-fusionne"), e("supprime")];
+    assert.deepEqual(
+      employersToInsert(git, new Set(["keep"]), new Set(["doublon-fusionne", "supprime"])).map((x) => x.id),
+      [],
     );
   });
 });

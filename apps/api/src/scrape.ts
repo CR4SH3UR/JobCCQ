@@ -11,6 +11,7 @@
 import { listScraperIds } from "./scrapers/registry.js";
 import { runScrapers } from "./orchestrator.js";
 import { prisma } from "./db.js";
+import { listRetiredEmployerIds } from "./employer-tombstones.js";
 
 async function main() {
   const [, , maybeSource, query, location] = process.argv;
@@ -62,6 +63,19 @@ async function main() {
     if (skipped.length) {
       console.log(`⏭ Backoff ${backoffH} h : ${skipped.length} source(s) en erreur récemment ignorée(s).`);
     }
+  }
+
+  const retired = await listRetiredEmployerIds().catch(() => new Set<string>());
+  if (retired.size) {
+    const before = ids.length;
+    ids = ids.filter((id) => !retired.has(id));
+    if (ids.length < before) {
+      console.log(`⏭ ${before - ids.length} source(s) retirée(s)/fusionnée(s) ignorée(s).`);
+    }
+  }
+  if (!ids.length) {
+    console.log("Aucune source à scraper (liste vide ou uniquement des fiches ancrées).");
+    return;
   }
 
   console.log(`▶ Scraping des sources : ${ids.join(", ")}`);

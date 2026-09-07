@@ -41,6 +41,16 @@ model Employer {
   @@index([verified])
 }
 
+/// Employeur volontairement retiré (supprimé ou fusionné). Empêche sync/import
+/// de recréer la fiche depuis `discovered.json`.
+model EmployerTombstone {
+  id         String   @id
+  /// deleted | merged
+  reason     String
+  mergedInto String?
+  createdAt  DateTime @default(now())
+}
+
 /// Une offre d'emploi normalisée, provenant de n'importe quelle source.
 model Job {
   id             String    @id

@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 import { createClient } from "@libsql/client";
 import { prisma } from "./db.js";
 import { jobToRow } from "./repository.js";
-import { EMPLOYER_INDEX_SQL, JOB_INDEX_SQL, type Job } from "@jobccq/shared";
+import { EMPLOYER_INDEX_SQL, EMPLOYER_TOMBSTONE_TABLE_SQL, JOB_INDEX_SQL, type Job } from "@jobccq/shared";
 
 /** Insère un tableau par lots (createMany) pour limiter les allers-retours réseau. */
 async function insertChunked<T>(
@@ -80,6 +80,7 @@ async function main() {
   await libsql.execute("ALTER TABLE Job ADD COLUMN linkStatus TEXT").catch(() => {});
   await libsql.execute("ALTER TABLE Job ADD COLUMN historyJson TEXT").catch(() => {});
   await libsql.execute("ALTER TABLE ScrapeRun ADD COLUMN rollbackJson TEXT").catch(() => {});
+  await libsql.execute(EMPLOYER_TOMBSTONE_TABLE_SQL).catch(() => {});
   for (const sql of [...JOB_INDEX_SQL, ...EMPLOYER_INDEX_SQL]) {
     await libsql.execute(sql).catch(() => {});
   }

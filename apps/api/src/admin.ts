@@ -11,6 +11,7 @@ import { scraperForEmployer, primaryScraperFor } from "./scrapers/registry.js";
 import { runScraperInstance } from "./orchestrator.js";
 import { prisma } from "./db.js";
 import { rowToJob, reassignJobsToEmployer, restoreJobs } from "./repository.js";
+import { clearEmployerTombstone, recordEmployerTombstone } from "./employer-tombstones.js";
 import { fetchHtml, createHttpContext } from "./scrapers/http.js";
 import { toPreviewSample, fixtureFilename } from "./preview.js";
 
@@ -722,7 +723,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
 
   // Ajout d'un employeur depuis la console. Turso : INSERT en base ; sinon,
   // Fusion de deux fiches : offres + historique scrape → keep, drop supprimé.
-  app.post<{ Body: { keepId?: string; dropId?: string } }>(
+  app.post<{ Body: { keepId?: string; dropId?: string; keep?: Partial<Employer> } }>(
     "/admin/employers/merge",
     { preHandler: adminGuard },
     async (req, reply) => {
@@ -739,28 +740,39 @@ export function registerAdminRoutes(app: FastifyInstance): void {
         reply.code(404);
         return { error: "Employeur introuvable." };
       }
+      const patch = req.body?.keep ?? {};
       const merged = mergeEmployerFields(keep, drop);
-      const jobStats = await reassignJobsToEmployer(keepId, dropId, keep.name);
       const nextKeep: Employer = {
         ...keep,
-        homepage: merged.homepage,
-        careersUrl: merged.careersUrl,
-        ...(merged.careersUrl2 ? { careersUrl2: merged.careersUrl2 } : {}),
-        ...(merged.method2 ? { method2: merged.method2 as Employer["method2"] } : {}),
-        ...(merged.region ? { region: merged.region } : { region: keep.region }),
-        ...(merged.rbq ? { rbq: merged.rbq } : {}),
-        ...(merged.scope ? { scope: merged.scope } : {}),
-        sectors: [...(merged.sectors ?? [])],
-        verified: merged.verified,
-        enabled: merged.enabled,
-        ...(merged.notes ? { notes: merged.notes } : {}),
+        name: String(patch.name ?? merged.name ?? keep.name),
+        homepage: String(patch.homepage ?? merged.homepage),
+        careersUrl: String(patch.careersUrl ?? merged.careersUrl),
+        method: String(patch.method ?? merged.method ?? keep.method) as Employer["method"],
+        ...( (patch.careersUrl2 ?? merged.careersUrl2)
+          ? { careersUrl2: String(patch.careersUrl2 ?? merged.careersUrl2) }
+          : {}),
+        ...( (patch.method2 ?? merged.method2)
+          ? { method2: String(patch.method2 ?? merged.method2) as Employer["method2"] }
+          : {}),
+        ...( (patch.region ?? merged.region)
+          ? { region: String(patch.region ?? merged.region) }
+          : { region: keep.region }),
+        ...( (patch.rbq ?? merged.rbq) ? { rbq: String(patch.rbq ?? merged.rbq) } : {}),
+        ...( (patch.scope ?? merged.scope) ? { scope: String(patch.scope ?? merged.scope) } : {}),
+        sectors: Array.isArray(patch.sectors) ? [...patch.sectors] : [...(merged.sectors ?? [])],
+        verified: typeof patch.verified === "boolean" ? patch.verified : merged.verified,
+        enabled: typeof patch.enabled === "boolean" ? patch.enabled : merged.enabled,
+        ...((patch.notes ?? merged.notes) ? { notes: String(patch.notes ?? merged.notes) } : {}),
       };
+      const jobStats = await reassignJobsToEmployer(keepId, dropId, nextKeep.name);
       if (USE_TURSO) {
         await prisma.employer.update({
           where: { id: keepId },
           data: {
+            name: nextKeep.name,
             homepage: nextKeep.homepage,
             careersUrl: nextKeep.careersUrl,
+            method: nextKeep.method,
             careersUrl2: nextKeep.careersUrl2 ?? null,
             method2: nextKeep.method2 ?? null,
             region: nextKeep.region ?? null,
@@ -772,6 +784,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
             notes: nextKeep.notes ?? null,
           },
         });
+        await recordEmployerTombstone(dropId, "merged", keepId);
         await prisma.employer.delete({ where: { id: dropId } }).catch(() => null);
       } else {
         await writeAll(list.filter((e) => e.id !== dropId).map((e) => (e.id === keepId ? nextKeep : e)));
@@ -808,6 +821,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
         reply.code(409);
         return { error: "Création impossible (id déjà utilisé ?)." };
       }
+      await clearEmployerTombstone(id).catch(() => null);
       return { employer: rowToEmployer(created) };
     }
     const list = await readAll();
@@ -826,6 +840,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
     const id = req.params.id;
     const del = await prisma.job.deleteMany({ where: { sourceId: id } });
     if (USE_TURSO) {
+      await recordEmployerTombstone(id, "deleted");
       await prisma.employer.delete({ where: { id } }).catch(() => null);
     } else {
       const list = await readAll();
