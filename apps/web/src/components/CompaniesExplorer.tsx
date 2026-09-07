@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   JOB_CATEGORIES,
   QUEBEC_REGIONS,
+  isHiringCompanyDisabled,
   labelForCategory,
   labelForRegion,
   type HiringCompany,
@@ -32,8 +33,24 @@ export function CompaniesExplorer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [hideDisabled, setHideDisabled] = useState(true);
 
   const dcompany = useDebounce(company);
+
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem("entreprises:hide-disabled");
+      if (v === "0") setHideDisabled(false);
+      if (v === "1") setHideDisabled(true);
+    } catch {
+      /* stockage indisponible */
+    }
+  }, []);
+
+  const visibleCompanies = useMemo(
+    () => (hideDisabled ? companies.filter((c) => !isHiringCompanyDisabled(c)) : companies),
+    [companies, hideDisabled],
+  );
 
   const query = useMemo(
     () =>
@@ -103,6 +120,22 @@ export function CompaniesExplorer() {
             </option>
           ))}
         </select>
+        <label className="flex shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={hideDisabled}
+            onChange={(e) => {
+              const on = e.target.checked;
+              setHideDisabled(on);
+              try {
+                localStorage.setItem("entreprises:hide-disabled", on ? "1" : "0");
+              } catch {
+                /* stockage indisponible */
+              }
+            }}
+          />
+          Cacher les désactivées
+        </label>
         <button
           type="button"
           onClick={forceRefresh}
@@ -121,8 +154,16 @@ export function CompaniesExplorer() {
           "Chargement…"
         ) : (
           <>
-            <span className="font-semibold text-slate-900">{companies.length}</span> entreprise
-            {companies.length > 1 ? "s" : ""} qui recrutent
+            <span className="font-semibold text-slate-900">{visibleCompanies.length}</span> entreprise
+            {visibleCompanies.length > 1 ? "s" : ""} qui recrutent
+            {hideDisabled && companies.length !== visibleCompanies.length ? (
+              <span className="text-slate-400">
+                {" "}
+                · {companies.length - visibleCompanies.length} désactivée
+                {companies.length - visibleCompanies.length > 1 ? "s" : ""} masquée
+                {companies.length - visibleCompanies.length > 1 ? "s" : ""}
+              </span>
+            ) : null}
           </>
         )}
       </p>
@@ -134,7 +175,7 @@ export function CompaniesExplorer() {
       )}
 
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {companies.map((c) => (
+        {visibleCompanies.map((c) => (
           <CompanyCard key={c.company} company={c} />
         ))}
       </div>
