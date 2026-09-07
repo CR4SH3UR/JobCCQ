@@ -17,9 +17,12 @@ préférer d'abord un **helper** existant.
    ```bash
    curl -sSL -A "Mozilla/5.0" "<careersUrl>" -o /tmp/page.html
    ```
-2. **Le site expose-t-il du JSON-LD `JobPosting` ?** → scraper générique
+2. **Chercher la fiche Jobillico de CET employeur** (étape obligatoire, voir
+   plus bas). Si elle existe → `careersUrl2` + `method2: "jobillico"`, **et**
+   écrire quand même le scraper du site officiel.
+3. **Le site expose-t-il du JSON-LD `JobPosting` ?** → scraper générique
    `jsonld`, souvent aucun code à écrire (juste la bonne `method`).
-3. **Le portail est-il sur une plateforme connue ?** Réutiliser un helper
+4. **Le portail est-il sur une plateforme connue ?** Réutiliser un helper
    (fournir juste l'URL), au lieu d'un parseur maison :
 
    | Plateforme | Helper (`apps/api/src/scrapers/…`) |
@@ -34,7 +37,8 @@ préférer d'abord un **helper** existant.
    | Page carrières Wix / liens HTML | `makeCareersScraper` / `refineCareers` |
    | ATS JSON générique | `makeAtsJsonScraper` |
 
-   Exemple minimal (Jobillico) :
+   Exemple **seulement si `careersUrl` est déjà Jobillico** (pas de site
+   propre, ou le site ne liste rien). Sinon : scraper du site + `careersUrl2`.
    ```ts
    import { makeJobillicoEmployerScraper } from "./jobillico-employer.js";
    export const monEmployeurScraper = makeJobillicoEmployerScraper({
@@ -43,7 +47,64 @@ préférer d'abord un **helper** existant.
      listUrl: "https://www.jobillico.com/voir-entreprise/…",
    });
    ```
-4. **Sinon**, écrire un parseur HTML sur mesure avec Cheerio (étapes ci-dessous).
+5. **Sinon**, écrire un parseur HTML sur mesure avec Cheerio (étapes ci-dessous).
+
+## Chercher Jobillico (obligatoire)
+
+Même si on écrit un scraper perso du site, on cherche une **fiche employeur
+Jobillico de CETTE entreprise** (pas un homonyme). Si elle existe, on la met
+en **2e URL** : le registre scrape les deux via `withExtraCareersScraper`
+(pas besoin d'un second module Jobillico).
+
+### Comment chercher
+
+1. Liens Jobillico sur le site (page carrières, pied de page, « Postuler »).
+2. Recherche web : `site:jobillico.com "Nom exact"` + ville.
+3. URLs directes (un 404 Jobillico = pas cette fiche) :
+   - `https://www.jobillico.com/voir-entreprise/<slug>`
+   - `https://www.jobillico.com/fr/employeurs/<slug>/voir-liste-emplois`
+   Slugs à essayer : nom slugifié, nom + `inc`, acronyme, domaine sans TLD.
+4. `https://www.jobillico.com/recherche-entreprise?q=…` est rendu en JS : le
+   HTML renvoie **les mêmes employeurs** quelle que soit la requête. Ne pas
+   s'en servir comme preuve qu'une fiche existe.
+
+### Valider que c'est la bonne entreprise
+
+Nom **et** ville/région concordants. Idéalement le même site officiel.
+Ne pas pointer vers un homonyme (ex. Coffrage Santco ≠ Coffrage Rive-Nord,
+Garage Morin ≠ Construction Alain Morin).
+
+### Si la fiche est confirmée
+
+Dans `discovered.json` :
+
+```json
+{
+  "careersUrl": "https://mon-employeur.com/carrieres/",
+  "method": "html",
+  "careersUrl2": "https://www.jobillico.com/fr/employeurs/<slug>/voir-liste-emplois",
+  "method2": "jobillico"
+}
+```
+
+- `careersUrl` reste le **site officiel**.
+- `careersUrl2` + `method2: "jobillico"` suffisent : `extra-careers` fusionne
+  les offres sous le même `sourceId` (tag `via:jobillico`).
+- **Écrire quand même** le scraper perso (ou générique) du site officiel.
+
+### Si aucune fiche
+
+Ne pas inventer de `careersUrl2`. Continuer le scraper du site.
+
+### Cas limites
+
+- Site officiel = formulaire / page vide, offres **seulement** sur Jobillico
+  → garder `careersUrl` = site, `careersUrl2` = Jobillico, **pas** de bespoke
+  (ex. Claveau et Fils). Si le HTML officiel a vraiment des postes : bespoke
+  **et** `careersUrl2`.
+- `careersUrl` est déjà une URL Jobillico → helper
+  `makeJobillicoEmployerScraper` / `method: "jobillico"`. Pas de `careersUrl2`
+  Jobillico en double.
 
 ## Recette complète (scraper bespoke)
 
@@ -60,11 +121,16 @@ Ajouter/adapter l'entrée de l'employeur (si absente) :
   "homepage": "https://mon-employeur.com",
   "careersUrl": "https://mon-employeur.com/carrieres/",
   "method": "html",
+  "careersUrl2": "https://www.jobillico.com/fr/employeurs/mon-employeur/voir-liste-emplois",
+  "method2": "jobillico",
   "region": "Montréal",
   "scope": "Employeur — construction",
   "sectors": ["Commercial et institutionnel"]
 }
 ```
+
+`careersUrl2` / `method2` seulement si une fiche Jobillico **de cet employeur**
+a été trouvée (voir plus haut). Ne pas les laisser vides « au cas où ».
 
 ### 2. `packages/shared/src/custom-scrapers.ts`
 
@@ -197,3 +263,8 @@ En général la structure du site a changé. Marche à suivre :
 - Ne pas désactiver ou vider un test pour « faire passer ».
 - Ne pas oublier l'un des 5 fichiers (un bespoke non enregistré dans `BESPOKE`
   retombe silencieusement sur le scraper générique).
+- Ne pas remplacer `careersUrl` par Jobillico quand le site a sa propre liste :
+  Jobillico va en `careersUrl2`.
+- Ne pas écrire un wrapper Jobillico en plus de `careersUrl2` (le 2e lien est
+  déjà scrapé).
+- Ne pas inventer un `careersUrl2` vers un homonyme ou une page 404.
