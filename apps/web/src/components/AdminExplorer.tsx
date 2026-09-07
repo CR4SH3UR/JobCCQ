@@ -2991,6 +2991,63 @@ function SaveBadge({ save }: { save: SaveState }) {
   );
 }
 
+/** Pastille du dernier scrape : le ❌ est cliquable pour afficher l'erreur. */
+function LastRunBadge({ lastRun }: { lastRun?: LastRun }) {
+  const [open, setOpen] = useState(false);
+  const isError = lastRun?.status === "error";
+  const title = !lastRun
+    ? "Jamais scrapé (ou base sans historique)"
+    : isError
+      ? lastRun.error
+        ? `Dernier scrape en erreur : ${lastRun.error}`
+        : "Dernier scrape en erreur — cliquer pour afficher le détail"
+      : `Dernier scrape ${relTime(lastRun.at)} — ${lastRun.found} trouvée(s)`;
+  const tone = !lastRun
+    ? "text-slate-300"
+    : isError
+      ? "text-red-600"
+      : lastRun.status === "running"
+        ? "text-amber-600"
+        : "text-slate-400";
+  const label = !lastRun
+    ? "◦ jamais"
+    : isError
+      ? `❌ ${relTime(lastRun.at)}`
+      : lastRun.status === "running"
+        ? "⏳ en cours"
+        : `✅ ${relTime(lastRun.at)}`;
+
+  return (
+    <>
+      {isError ? (
+        <button
+          type="button"
+          title={title}
+          aria-expanded={open}
+          aria-label="Afficher l'erreur du dernier scrape"
+          onClick={() => setOpen((v) => !v)}
+          className={`ml-auto shrink-0 rounded px-0.5 text-[11px] hover:bg-red-50 hover:underline dark:hover:bg-red-950/40 ${tone}`}
+        >
+          {label}
+        </button>
+      ) : (
+        <span title={title} className={`ml-auto shrink-0 text-[11px] ${tone}`}>
+          {label}
+        </span>
+      )}
+      {open && isError && (
+        <p
+          role="status"
+          className="basis-full rounded-md border border-red-200 bg-red-50 px-2 py-1.5 text-xs break-words text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
+        >
+          <span className="font-semibold">Dernier scrape en erreur</span>
+          {lastRun?.error ? ` : ${lastRun.error}` : " (aucun message)."}
+        </p>
+      )}
+    </>
+  );
+}
+
 function Row({
   e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, forceEnabled, save, sectorOptions, mode, tursoUrl, tursoToken, onToggleSelect, onPatch, onScrape, onScrapeForce, onPurge, onRollback, onDelete, onRenameId, onToggleOffers, onMutateOffer, onShowDuplicates,
 }: {
@@ -3184,32 +3241,7 @@ function Row({
             ⚠ doublon
           </button>
         )}
-        <span
-          title={
-            lastRun
-              ? lastRun.error
-                ? `Dernier scrape en erreur : ${lastRun.error}`
-                : `Dernier scrape ${relTime(lastRun.at)} — ${lastRun.found} trouvée(s)`
-              : "Jamais scrapé (ou base sans historique)"
-          }
-          className={`ml-auto shrink-0 text-[11px] ${
-            !lastRun
-              ? "text-slate-300"
-              : lastRun.status === "error"
-                ? "text-red-600"
-                : lastRun.status === "running"
-                  ? "text-amber-600"
-                  : "text-slate-400"
-          }`}
-        >
-          {!lastRun
-            ? "◦ jamais"
-            : lastRun.status === "error"
-              ? `❌ ${relTime(lastRun.at)}`
-              : lastRun.status === "running"
-                ? "⏳ en cours"
-                : `✅ ${relTime(lastRun.at)}`}
-        </span>
+        <LastRunBadge lastRun={lastRun} />
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
