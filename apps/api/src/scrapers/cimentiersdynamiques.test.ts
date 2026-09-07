@@ -5,32 +5,38 @@ import { parseCimentiersDynamiques } from "./cimentiersdynamiques.js";
 const BASE = "https://cimentiersdynamiques.com/index.php/carriere/";
 
 const FIXTURE = `<html><body>
-  <h3 class="fancy-heading"><span class="main-head">NOS OFFRES D'EMPLOIS</span></h3>
-  <div class="module_subrow">
-    <div class="module_column">
-      <div class="module-image">
-        <h3 class="image-title">JOURNALIERS / JOURNALIÈRES</h3>
+  <div class="module_column col-full">
+    <h3 class="fancy-heading"><span class="main-head">NOS OFFRES D'EMPLOIS</span></h3>
+    <div class="module_subrow">
+      <div class="module_column">
+        <div class="module-image">
+          <h3 class="image-title">JOURNALIERS / JOURNALIÈRES</h3>
+        </div>
+        <div class="module-buttons">
+          <a href="https://cimentiersdynamiques.com/index.php/journaliers/" class="ui builder_button">postulez</a>
+        </div>
       </div>
-      <a href="https://cimentiersdynamiques.com/index.php/journaliers/" class="ui builder_button">postulez</a>
-    </div>
-    <div class="module_column">
-      <div class="module-image">
-        <h3 class="image-title">CHAUFFEURS / CHAUFFEUSES</h3>
-        <div class="image-caption">CAMIONS-BENNES</div>
+      <div class="module_column">
+        <div class="module-image">
+          <h3 class="image-title">CHAUFFEURS / CHAUFFEUSES</h3>
+          <div class="image-caption">CAMIONS-BENNES</div>
+        </div>
+        <div class="module-buttons">
+          <a href="https://cimentiersdynamiques.com/index.php/chauffeurs-chauffeuses-camion/" class="ui builder_button">postulez</a>
+        </div>
       </div>
-      <a href="https://cimentiersdynamiques.com/index.php/chauffeurs-chauffeuses-camion/" class="ui builder_button">postulez</a>
-    </div>
-    <div class="module_column">
-      <div class="module-image">
-        <h3 class="image-title">CHAUFFEURS / CHAUFFEUSES</h3>
-        <div class="image-caption">BÉTONNIÈRES</div>
+      <div class="module_column">
+        <div class="module-image">
+          <h3 class="image-title">CHAUFFEURS / CHAUFFEUSES</h3>
+          <div class="image-caption">BÉTONNIÈRES</div>
+        </div>
+        <div class="module-buttons">
+          <a href="/index.php/chauffeurs-chauffeuses-betonnieres/" class="ui builder_button">postulez</a>
+        </div>
       </div>
-      <a href="/index.php/chauffeurs-chauffeuses-betonnieres/" class="ui builder_button">postulez</a>
-    </div>
-    <div class="module_column">
-      <h3>UNE ÉQUIPE EN BÉTON !</h3>
     </div>
   </div>
+  <h3>UNE ÉQUIPE EN BÉTON !</h3>
 </body></html>`;
 
 describe("parseCimentiersDynamiques", () => {
@@ -45,6 +51,7 @@ describe("parseCimentiersDynamiques", () => {
     assert.equal(journalier.location, "Saint-Jérôme, QC");
     assert.equal(journalier.url, "https://cimentiersdynamiques.com/index.php/journaliers/");
     assert.match(journalier.title, /Journaliers \/ Journalières/);
+    assert.ok(!/camion/i.test(journalier.title));
 
     const bennes = jobs.find((j) => /camion/i.test(j.title));
     assert.ok(bennes);

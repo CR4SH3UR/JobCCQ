@@ -38,18 +38,21 @@ export function parseCimentiersDynamiques(html: string, baseUrl = CAREERS_URL): 
   const jobs: RawJob[] = [];
   const seen = new Set<string>();
 
-  $(".module_column").each((_, el) => {
-    const $col = $(el);
-    const raw = cleanText($col.find("h3.image-title").first().text());
+  // Chaque carte = `.module-image` (titre + légende) + bouton frère.
+  // Ne pas partir de `.module_column` : la colonne pleine largeur englobe
+  // les 3 cartes et volerait la légende du voisin.
+  $(".module-image").each((_, el) => {
+    const $img = $(el);
+    const raw = cleanText($img.find("h3.image-title").first().text());
     if (!raw || raw.length < 4) return;
 
-    const href = ($col.find("a.builder_button").first().attr("href") ?? "").trim();
+    const href = ($img.nextAll().find("a.builder_button").first().attr("href") ?? "").trim();
     if (!href || href.startsWith("#")) return;
     const url = absolute(baseUrl, href).split("#")[0]!;
     if (seen.has(url)) return;
     seen.add(url);
 
-    const caption = cleanText($col.find(".image-caption").first().text());
+    const caption = cleanText($img.find(".image-caption").first().text());
     jobs.push({
       sourceId: ID,
       url,
