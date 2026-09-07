@@ -3075,6 +3075,8 @@
     "homepage": "https://claveauetfils.ca",
     "careersUrl": "https://claveauetfils.ca/carrieres/",
     "method": "html",
+    "careersUrl2": "https://www.jobillico.com/fr/employeurs/claveau-fils-inc/voir-liste-emplois",
+    "method2": "jobillico",
     "region": "Saguenay--Lac-Saint-Jean",
     "rbq": "5730-5393-01",
     "scope": "Employeur — construction (découverte RBQ)",
