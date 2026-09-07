@@ -78,6 +78,7 @@ const LS_TURSO_URL = "admin:tursourl";
 const LS_TURSO_TOKEN = "admin:tursotoken";
 const LS_SEARCH = "admin:search";
 const LS_FILTER = "admin:filter";
+const LS_HIDE_DISABLED = "admin:hide-disabled";
 const LS_SORT = "admin:sort";
 const LS_METHOD = "admin:method";
 const LS_REGION = "admin:region";
@@ -106,7 +107,7 @@ const OFFERS_SQL =
    FROM Job WHERE sourceId=? ORDER BY id DESC LIMIT 60`;
 
 /** Filtres du tableau (persistés dans le navigateur → survivent au rafraîchissement). */
-const FILTER_KEYS = ["all", "unverified", "verified", "customscraper", "generic", "nojobs", "disabled", "duplicates", "errors", "neverrun"] as const;
+const FILTER_KEYS = ["all", "active", "unverified", "verified", "customscraper", "generic", "nojobs", "disabled", "duplicates", "errors", "neverrun"] as const;
 type FilterKey = (typeof FILTER_KEYS)[number];
 /** Tri du tableau. */
 const SORT_KEYS = ["name", "jobsDesc", "jobsAsc", "method", "region", "lastRun"] as const;
@@ -480,6 +481,7 @@ export function AdminExplorer() {
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [hideDisabled, setHideDisabled] = useState(true);
   const [page, setPage] = useState(1);
   const [scrapes, setScrapes] = useState<Record<string, ScrapeState>>({});
   const [publish, setPublish] = useState<{ status: "idle" | "run" | "ok" | "err"; message?: string }>({ status: "idle" });
@@ -549,6 +551,9 @@ export function AdminExplorer() {
       setSearch(localStorage.getItem(LS_SEARCH) ?? "");
       const f = localStorage.getItem(LS_FILTER);
       if (f && (FILTER_KEYS as readonly string[]).includes(f)) setFilter(f as FilterKey);
+      const hide = localStorage.getItem(LS_HIDE_DISABLED);
+      if (hide === "0") setHideDisabled(false);
+      if (hide === "1") setHideDisabled(true);
       const srt = localStorage.getItem(LS_SORT);
       if (srt && (SORT_KEYS as readonly string[]).includes(srt)) setSort(srt as SortKey);
       const mth = localStorage.getItem(LS_METHOD);
@@ -664,6 +669,14 @@ export function AdminExplorer() {
     setFilter(v);
     try {
       localStorage.setItem(LS_FILTER, v);
+    } catch {
+      /* stockage indisponible */
+    }
+  };
+  const changeHideDisabled = (on: boolean) => {
+    setHideDisabled(on);
+    try {
+      localStorage.setItem(LS_HIDE_DISABLED, on ? "1" : "0");
     } catch {
       /* stockage indisponible */
     }
@@ -1922,7 +1935,9 @@ export function AdminExplorer() {
       if (filter === "verified" && !e.verified) return false;
       if (filter === "unverified" && e.verified) return false;
       if (filter === "nojobs" && (counts[e.id] ?? 0) > 0) return false;
+      if (filter === "active" && e.enabled === false) return false;
       if (filter === "disabled" && e.enabled !== false) return false;
+      if (hideDisabled && filter !== "disabled" && filter !== "active" && e.enabled === false) return false;
       if (filter === "duplicates" && !isDup(e)) return false;
       if (filter === "errors" && lastRuns[e.id]?.status !== "error") return false;
       if (filter === "neverrun" && lastRuns[e.id]) return false;
@@ -1936,7 +1951,7 @@ export function AdminExplorer() {
         .includes(q);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [employers, search, filter, methodFilter, regionFilter, counts, dupUrls, lastRuns]);
+  }, [employers, search, filter, hideDisabled, methodFilter, regionFilter, counts, dupUrls, lastRuns]);
 
   const sorted = useMemo(() => {
     const arr = [...filtered];
@@ -2051,7 +2066,7 @@ export function AdminExplorer() {
   const selectedList = [...selected];
   const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
 
-  useEffect(() => setPage(1), [search, filter, methodFilter, regionFilter, sort, pageSize]);
+  useEffect(() => setPage(1), [search, filter, hideDisabled, methodFilter, regionFilter, sort, pageSize]);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -2418,9 +2433,10 @@ export function AdminExplorer() {
           )}
 
           {/* Tableau de bord : indicateurs clés cliquables (filtre associé). */}
-          <div className="mb-4 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-8">
+          <div className="mb-4 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-9">
             {[
               { label: "Employeurs", value: employers.length, f: "all" as FilterKey },
+              { label: "Actives", value: employers.length - disabledCount, f: "active" as FilterKey },
               { label: "Offres", value: totalOffers, f: null },
               { label: "Vérifiés", value: verifiedCount, f: "verified" as FilterKey },
               { label: "Désactivés", value: disabledCount, f: "disabled" as FilterKey },
@@ -2516,6 +2532,7 @@ export function AdminExplorer() {
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-400"
               >
                 <option value="all">Tous ({employers.length})</option>
+                <option value="active">Actives ({employers.length - disabledCount})</option>
                 <option value="unverified">À vérifier ({employers.length - verifiedCount})</option>
                 <option value="verified">Vérifiés ({verifiedCount})</option>
                 <option value="customscraper">Scraper personnalisé ({customScraperCount})</option>
@@ -2560,6 +2577,18 @@ export function AdminExplorer() {
                   <option key={s} value={s}>⇅ {SORT_LABELS[s]}</option>
                 ))}
               </select>
+              <label
+                className="flex shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                title="Masque les fiches désactivées, sauf si le filtre « Désactivées » est choisi."
+              >
+                <input
+                  type="checkbox"
+                  checked={hideDisabled && filter !== "disabled"}
+                  disabled={filter === "disabled"}
+                  onChange={(e) => changeHideDisabled(e.target.checked)}
+                />
+                Cacher les désactivées
+              </label>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex flex-wrap gap-1.5">
