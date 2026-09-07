@@ -21,6 +21,7 @@ import {
 } from "./taxonomy.js";
 import { sourceName } from "./sources.js";
 import { isCcqTrade, ccqTradeOf } from "./ccq.js";
+import { isWeirdTitle } from "./title-flags.js";
 import { normalizeText, fuzzyIncludes } from "./text.js";
 import { expandSemantic } from "./synonyms.js";
 import { detectShift } from "./extract.js";
@@ -115,6 +116,7 @@ export function matchesQuery(job: Job, query: JobQuery): boolean {
     if (Number.isNaN(since) || Number.isNaN(t) || t < since) return false;
   }
   if (query.ccqOnly && !isCcqTrade(job.title)) return false;
+  if (query.weirdOnly && !isWeirdTitle(job.title)) return false;
   if (query.trades?.length) {
     const tradeId = ccqTradeOf(job.title)?.id;
     if (!tradeId || !query.trades.includes(tradeId)) return false;

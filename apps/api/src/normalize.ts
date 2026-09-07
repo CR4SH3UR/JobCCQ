@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { isLandscapingOrSnow } from "@jobccq/shared";
+import { decodeHtmlEntities, isLandscapingOrSnow } from "@jobccq/shared";
 import type { Job, RawJob } from "@jobccq/shared";
 
 /** Retire les accents et met en minuscules (comparaisons tolérantes). */
@@ -27,7 +27,7 @@ function stripHtml(s?: string | null): string {
  * salaire en fin) qui polluent certains gabarits de listing.
  */
 export function cleanTitle(raw: string): string {
-  let t = stripHtml(raw).replace(/[{}<>]/g, " ");
+  let t = decodeHtmlEntities(stripHtml(raw)).replace(/[{}<>]/g, " ");
   t = t.replace(
     /^\s*(voir\s+d[ée]tails?|postuler|appliquez?|voir\s+l['’]offre|en\s+savoir\s+plus)\b[\s:|>«»–-]*/i,
     "",

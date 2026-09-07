@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { API_URL, adminFetch, searchAdminJobs, buildQuery, invalidateJobOverrides } from "@/lib/data";
-import { flagWeirdTitle, type Job } from "@jobccq/shared";
+import { displayJobTitle, flagWeirdTitle, type Job } from "@jobccq/shared";
 import { ensureTursoAdminColumns, tursoCreds, tursoExec, tursoRows } from "@/lib/admin-turso";
 import { AdminOfferEditor, type OfferPatch, type OfferRow, type SaveState } from "./AdminOfferEditor";
 import { logAudit } from "@/lib/admin-audit";
@@ -117,13 +117,13 @@ export function AdminJobs() {
   const [weirdOnly, setWeirdOnly] = useState(false);
   const pageSize = 40;
 
-  const load = useCallback(async (query: string, p: number) => {
+  const load = useCallback(async (query: string, p: number, onlyWeird: boolean) => {
     setLoading(true);
     setError(undefined);
     try {
       try {
         const r = await adminFetch(
-          `${API_URL}/admin/jobs?q=${encodeURIComponent(query)}&page=${p}&pageSize=${pageSize}`,
+          `${API_URL}/admin/jobs?q=${encodeURIComponent(query)}&page=${p}&pageSize=${pageSize}${onlyWeird ? "&weirdOnly=1" : ""}`,
         );
         if (r.ok) {
           const d = (await r.json()) as { total: number; jobs: Job[] };
@@ -143,6 +143,21 @@ export function AdminJobs() {
           ? "WHERE title LIKE ? OR company LIKE ? OR url LIKE ? OR city LIKE ?"
           : "";
         const args = query ? [like, like, like, like] : [];
+        if (onlyWeird) {
+          const raw = await tursoRows(
+            creds.url,
+            creds.token,
+            `SELECT id, sourceId, title, company, url, location, city, regionId, remote, categoryId, employmentType,
+                  salaryMin, salaryMax, salaryPeriod, currency, description, tags, languages, postedAt, companyLogoUrl
+           FROM Job ${where} ORDER BY scrapedAt DESC`,
+            args,
+          );
+          const flagged = raw.filter((row) => flagWeirdTitle(String(row.title ?? "")));
+          setMode("turso");
+          setTotal(flagged.length);
+          setRows(await withFlags(flagged.slice((p - 1) * pageSize, p * pageSize).map(tursoToRow)));
+          return;
+        }
         const countRows = await tursoRows(creds.url, creds.token, `SELECT COUNT(*) AS n FROM Job ${where}`, args);
         const raw = await tursoRows(
           creds.url,
@@ -157,7 +172,9 @@ export function AdminJobs() {
         setRows(await withFlags(raw.map(tursoToRow)));
         return;
       }
-      const res = await searchAdminJobs(buildQuery({ q: query, page: p, pageSize, sort: "recent" }));
+      const res = await searchAdminJobs(
+        buildQuery({ q: query, page: p, pageSize, sort: "recent", weirdOnly: onlyWeird || undefined }),
+      );
       setMode("static");
       setTotal(res.total);
       setRows(await withFlags(res.items.map(jobToRow)));
@@ -177,8 +194,8 @@ export function AdminJobs() {
   }, [qInput]);
 
   useEffect(() => {
-    void load(q, page);
-  }, [load, q, page]);
+    void load(q, page, weirdOnly);
+  }, [load, q, page, weirdOnly]);
 
   const persistPatch = async (id: string, patch: OfferPatch) => {
     setSaves((s) => ({ ...s, [id]: { s: "saving" } }));
@@ -282,8 +299,7 @@ export function AdminJobs() {
   };
 
   const pages = Math.max(1, Math.ceil(total / pageSize));
-  const flaggedRows = rows.filter((o) => flagWeirdTitle(o.title));
-  const visibleRows = weirdOnly ? flaggedRows : rows;
+  const flaggedOnPage = rows.filter((o) => flagWeirdTitle(o.title)).length;
 
   return (
     <div className="space-y-3">
@@ -302,8 +318,16 @@ export function AdminJobs() {
           Export CSV (page)
         </button>
         <label className="flex items-center gap-1.5 text-xs font-semibold text-amber-800">
-          <input type="checkbox" checked={weirdOnly} onChange={(e) => setWeirdOnly(e.target.checked)} />
-          Titres douteux ({flaggedRows.length} sur cette page)
+          <input
+            type="checkbox"
+            checked={weirdOnly}
+            onChange={(e) => {
+              setPage(1);
+              setWeirdOnly(e.target.checked);
+            }}
+          />
+          Titres douteux
+          {weirdOnly ? ` (${total} dans tout le catalogue)` : ` (${flaggedOnPage} sur cette page)`}
         </label>
       </div>
       <p className="text-xs text-slate-500">
@@ -312,13 +336,13 @@ export function AdminJobs() {
       </p>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <ul className="space-y-2">
-        {visibleRows.map((o) => {
+        {rows.map((o) => {
           const flag = flagWeirdTitle(o.title);
           return (
           <li key={o.id} className="rounded-lg border border-slate-200 bg-white p-3 text-sm dark:border-slate-700 dark:bg-slate-900">
             <div className="flex flex-wrap items-start gap-2">
               <button type="button" className="flex-1 text-left" onClick={() => setOpenId(openId === o.id ? null : o.id)}>
-                <span className="font-semibold">{o.title}</span>
+                <span className="font-semibold">{displayJobTitle(o.title)}</span>
                 <span className="ml-2 text-slate-500">{o.company}{o.city ? ` · ${o.city}` : ""}</span>
                 {flag && (
                   <span

@@ -14,6 +14,7 @@ import {
   formatCcqHourly,
   extractClosesAt,
   formatClosesAt,
+  displayJobTitle,
   flagWeirdTitle,
   sourceName,
   rbqLicenceUrl,
@@ -75,7 +76,7 @@ export function JobCard({ job }: { job: Job }) {
           <div className="flex items-start justify-between gap-3">
             <h3 className="font-semibold leading-snug">
               <Link href={jobDetailHref(job.id)} className="text-slate-900 hover:text-brand-700">
-                {job.title}
+                {displayJobTitle(job.title)}
               </Link>
             </h3>
             <div className="flex shrink-0 items-center gap-1.5">

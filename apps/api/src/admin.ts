@@ -6,7 +6,7 @@ import { promisify } from "node:util";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { createClient, type User } from "@supabase/supabase-js";
 import type { DiscoveredEmployer, Job } from "@jobccq/shared";
-import { failingScrapers, mergeEmployerFields } from "@jobccq/shared";
+import { failingScrapers, flagWeirdTitle, mergeEmployerFields } from "@jobccq/shared";
 import { scraperForEmployer, primaryScraperFor } from "./scrapers/registry.js";
 import { runScraperInstance } from "./orchestrator.js";
 import { prisma } from "./db.js";
@@ -328,7 +328,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
   });
 
   // Recherche paginée d'offres (console admin).
-  app.get<{ Querystring: { q?: string; sourceId?: string; page?: string; pageSize?: string } }>(
+  app.get<{ Querystring: { q?: string; sourceId?: string; page?: string; pageSize?: string; weirdOnly?: string } }>(
     "/admin/jobs",
     { preHandler: adminGuard },
     async (req) => {
@@ -336,6 +336,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       const sourceId = String(req.query.sourceId ?? "").trim();
       const page = Math.max(1, Number(req.query.page ?? 1) || 1);
       const pageSize = Math.min(100, Math.max(1, Number(req.query.pageSize ?? 40) || 40));
+      const weirdOnly = req.query.weirdOnly === "1" || req.query.weirdOnly === "true";
       const where = {
         ...(sourceId ? { sourceId } : {}),
         ...(q
@@ -349,6 +350,13 @@ export function registerAdminRoutes(app: FastifyInstance): void {
             }
           : {}),
       };
+      if (weirdOnly) {
+        const all = await prisma.job.findMany({ where, orderBy: { scrapedAt: "desc" } });
+        const flagged = all.filter((row) => flagWeirdTitle(row.title));
+        const total = flagged.length;
+        const rows = flagged.slice((page - 1) * pageSize, page * pageSize);
+        return { total, page, pageSize, jobs: rows.map(rowToJob) };
+      }
       const [total, rows] = await Promise.all([
         prisma.job.count({ where }),
         prisma.job.findMany({

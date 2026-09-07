@@ -16,6 +16,7 @@ import {
   extractContacts,
   extractClosesAt,
   formatClosesAt,
+  displayJobTitle,
   flagWeirdTitle,
   extractRequirements,
   extractBenefits,
@@ -139,7 +140,7 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
             </Link>
           </>
         )}
-        <span className="text-slate-400"> › {job.title}</span>
+        <span className="text-slate-400"> › {displayJobTitle(job.title)}</span>
       </nav>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
@@ -150,7 +151,7 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
               <CompanyAvatar name={job.company} logo={logoForJob(job)} size={56} />
               <div className="min-w-0">
                 <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                  {showEn && gloss.changed ? gloss.text : job.title}
+                  {showEn && gloss.changed ? gloss.text : displayJobTitle(job.title)}
                 </h1>
                 {gloss.changed && (
                   <button
