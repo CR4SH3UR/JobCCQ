@@ -77,6 +77,7 @@ export const CUSTOM_SCRAPER_IDS = [
   "crbessette-com",
   "cmicotenord-ca",
   "can-inspec-ca",
+  "camconstruction-ca",
   "con-v-air-com",
   "gcbfinc-com",
   "bellemare-njoyn",
