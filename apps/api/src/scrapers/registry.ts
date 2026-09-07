@@ -69,6 +69,7 @@ import { champlainMetalScraper } from "./champlainmetal.js";
 import { chauffageMcScraper } from "./chauffagemc.js";
 import { chnPaysagisteScraper } from "./chn-paysagiste.js";
 import { cimaScraper } from "./cima.js";
+import { cimentiersDynamiquesScraper } from "./cimentiersdynamiques.js";
 import { claudePoirierExcavationScraper } from "./claudepoirierexcavation.js";
 import { coffrageRiveNordScraper } from "./coffragerivenord.js";
 import { crBessetteScraper } from "./crbessette.js";
@@ -157,6 +158,7 @@ const BESPOKE = {
   "chauffagemc-com": chauffageMcScraper,
   "chn-paysagiste-com": chnPaysagisteScraper,
   "cima-ca": cimaScraper,
+  "cimentiersdynamiques-com": cimentiersDynamiquesScraper,
   "claudepoirierexcavation-com": claudePoirierExcavationScraper,
   "coffragerivenord-com": coffrageRiveNordScraper,
   "crbessette-com": crBessetteScraper,
