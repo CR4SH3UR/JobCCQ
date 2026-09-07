@@ -1,4 +1,4 @@
-import { EMPLOYER_INDEX_SQL, JOB_INDEX_SQL } from "@jobccq/shared";
+import { EMPLOYER_INDEX_SQL, EMPLOYER_TOMBSTONE_TABLE_SQL, JOB_INDEX_SQL } from "@jobccq/shared";
 
 /** Accès Turso depuis le navigateur (même coffre que la console employeurs). */
 
@@ -47,9 +47,49 @@ export async function ensureTursoAdminColumns(url: string, token: string): Promi
   await tursoExec(url, token, "ALTER TABLE Job ADD COLUMN linkStatus TEXT").catch(() => {});
   await tursoExec(url, token, "ALTER TABLE Job ADD COLUMN historyJson TEXT").catch(() => {});
   await tursoExec(url, token, "ALTER TABLE ScrapeRun ADD COLUMN rollbackJson TEXT").catch(() => {});
+  await tursoExec(url, token, EMPLOYER_TOMBSTONE_TABLE_SQL).catch(() => {});
   for (const sql of [...JOB_INDEX_SQL, ...EMPLOYER_INDEX_SQL]) {
     await tursoExec(url, token, sql).catch(() => {});
   }
+}
+
+export async function fetchEmployerTombstones(
+  url: string,
+  token: string,
+): Promise<{ id: string; reason: string; mergedInto: string | null }[]> {
+  await tursoExec(url, token, EMPLOYER_TOMBSTONE_TABLE_SQL).catch(() => {});
+  const rows = await tursoRows(url, token, "SELECT id, reason, mergedInto FROM EmployerTombstone").catch(() => []);
+  return rows
+    .map((r) => ({
+      id: String(r.id ?? ""),
+      reason: String(r.reason ?? "deleted"),
+      mergedInto: r.mergedInto == null || r.mergedInto === "" ? null : String(r.mergedInto),
+    }))
+    .filter((r) => r.id);
+}
+
+export async function fetchRetiredEmployerIds(url: string, token: string): Promise<string[]> {
+  return (await fetchEmployerTombstones(url, token)).map((r) => r.id);
+}
+
+export async function recordEmployerTombstone(
+  url: string,
+  token: string,
+  id: string,
+  reason: "deleted" | "merged",
+  mergedInto?: string | null,
+): Promise<void> {
+  await tursoExec(url, token, EMPLOYER_TOMBSTONE_TABLE_SQL).catch(() => {});
+  await tursoExec(
+    url,
+    token,
+    "INSERT OR REPLACE INTO EmployerTombstone (id, reason, mergedInto, createdAt) VALUES (?,?,?,?)",
+    [id, reason, mergedInto ?? null, new Date().toISOString()],
+  );
+}
+
+export async function clearEmployerTombstone(url: string, token: string, id: string): Promise<void> {
+  await tursoExec(url, token, "DELETE FROM EmployerTombstone WHERE id=?", [id]).catch(() => {});
 }
 
 export function tursoCreds(): { url: string; token: string } | null {

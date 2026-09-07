@@ -2,6 +2,8 @@
  * Insert dans Turso les employeurs présents dans `discovered.json` (git) mais
  * absents de la table `Employer`. N'écrase JAMAIS une fiche déjà en base
  * (l'admin reste la source de vérité pour les URLs / méthodes éditées).
+ * Ignore (et retire à nouveau) les ids ancrés dans `EmployerTombstone`
+ * (supprimés ou fusionnés dans l'admin).
  *
  * Sans ça, un nouvel employeur committé (ex. CCQ) n'apparaît pas dans la
  * console (lecture Turso) et le scrape CI régénère `discovered.json` depuis la
@@ -14,60 +16,13 @@ import { readFile } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { prisma } from "./db.js";
+import { applyEmployerTombstones, listRetiredEmployerIds } from "./employer-tombstones.js";
+import { employersToInsert, toEmployerRow, type SyncableEmployer } from "./sync-employers-pure.js";
+
+export { employersToInsert, toEmployerRow, type SyncableEmployer } from "./sync-employers-pure.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DISCOVERED = resolve(HERE, "../../../packages/shared/src/discovered.json");
-
-export interface SyncableEmployer {
-  id: string;
-  name: string;
-  homepage: string;
-  careersUrl: string;
-  method: string;
-  careersUrl2?: string;
-  method2?: string;
-  region?: string;
-  rbq?: string;
-  scope?: string;
-  sectors?: string[];
-  verified?: boolean;
-  enabled?: boolean;
-}
-
-/**
- * Fiches git à créer en base : absentes, non désactivées, et dédupliquées par
- * id (un même id ne doit apparaître qu'une fois dans le lot d'insertion —
- * `createMany` n'ayant pas de `skipDuplicates` sur SQLite/libSQL).
- */
-export function employersToInsert(
-  fromGit: readonly SyncableEmployer[],
-  existingIds: ReadonlySet<string>,
-): SyncableEmployer[] {
-  const seen = new Set<string>();
-  return fromGit.filter((e) => {
-    if (existingIds.has(e.id) || e.enabled === false || seen.has(e.id)) return false;
-    seen.add(e.id);
-    return true;
-  });
-}
-
-export function toEmployerRow(e: SyncableEmployer) {
-  return {
-    id: e.id,
-    name: e.name,
-    homepage: e.homepage,
-    careersUrl: e.careersUrl,
-    method: e.method,
-    careersUrl2: e.careersUrl2 ?? null,
-    method2: e.method2 ?? null,
-    region: e.region ?? null,
-    rbq: e.rbq ?? null,
-    scope: e.scope ?? null,
-    sectors: JSON.stringify(e.sectors ?? []),
-    verified: !!e.verified,
-    enabled: e.enabled !== false,
-  };
-}
 
 async function main() {
   if (!process.env.TURSO_DATABASE_URL) {
@@ -75,10 +30,15 @@ async function main() {
     return;
   }
   const fromGit = JSON.parse(await readFile(DISCOVERED, "utf8")) as SyncableEmployer[];
+  const healed = await applyEmployerTombstones();
+  if (healed) {
+    console.log(`↩ ${healed} employeur(s) ancré(s) (supprimé/fusionné) retirés à nouveau de la base.`);
+  }
+  const retiredIds = await listRetiredEmployerIds();
   const existingIds = new Set(
     (await prisma.employer.findMany({ select: { id: true } })).map((r) => r.id),
   );
-  const missing = employersToInsert(fromGit, existingIds);
+  const missing = employersToInsert(fromGit, existingIds, retiredIds);
   if (!missing.length) {
     console.log(`Aucun employeur git manquant (${existingIds.size} déjà en base).`);
     return;

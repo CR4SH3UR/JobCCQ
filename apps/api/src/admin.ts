@@ -11,6 +11,7 @@ import { scraperForEmployer, primaryScraperFor } from "./scrapers/registry.js";
 import { runScraperInstance } from "./orchestrator.js";
 import { prisma } from "./db.js";
 import { rowToJob, reassignJobsToEmployer, restoreJobs } from "./repository.js";
+import { clearEmployerTombstone, recordEmployerTombstone } from "./employer-tombstones.js";
 import { fetchHtml, createHttpContext } from "./scrapers/http.js";
 import { toPreviewSample, fixtureFilename } from "./preview.js";
 
@@ -764,6 +765,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
             notes: nextKeep.notes ?? null,
           },
         });
+        await recordEmployerTombstone(dropId, "merged", keepId);
         await prisma.employer.delete({ where: { id: dropId } }).catch(() => null);
       } else {
         await writeAll(list.filter((e) => e.id !== dropId).map((e) => (e.id === keepId ? nextKeep : e)));
@@ -800,6 +802,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
         reply.code(409);
         return { error: "Création impossible (id déjà utilisé ?)." };
       }
+      await clearEmployerTombstone(id).catch(() => null);
       return { employer: rowToEmployer(created) };
     }
     const list = await readAll();
@@ -818,6 +821,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
     const id = req.params.id;
     const del = await prisma.job.deleteMany({ where: { sourceId: id } });
     if (USE_TURSO) {
+      await recordEmployerTombstone(id, "deleted");
       await prisma.employer.delete({ where: { id } }).catch(() => null);
     } else {
       const list = await readAll();

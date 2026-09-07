@@ -2,6 +2,7 @@ import "./env.js";
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { createClient } from "@libsql/client";
+import { EMPLOYER_TOMBSTONE_TABLE_SQL } from "@jobccq/shared";
 
 /** Client Prisma singleton (évite d'épuiser les connexions en dev/hot-reload). */
 const globalForPrisma = globalThis as unknown as {
@@ -31,6 +32,7 @@ export async function ensureSchemaColumns(): Promise<void> {
         await client.execute("ALTER TABLE Job ADD COLUMN linkStatus TEXT").catch(() => {});
         await client.execute("ALTER TABLE Job ADD COLUMN historyJson TEXT").catch(() => {});
         await client.execute("ALTER TABLE ScrapeRun ADD COLUMN rollbackJson TEXT").catch(() => {});
+        await client.execute(EMPLOYER_TOMBSTONE_TABLE_SQL).catch(() => {});
       } finally {
         client.close();
       }

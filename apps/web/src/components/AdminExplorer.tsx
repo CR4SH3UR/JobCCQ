@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, careersMethodForUrl, careersMethodLabel, hasCustomScraper, mergeEmployerFields, pickKeepEmployerId, type DiscoveredMethod, type Job } from "@jobccq/shared";
+import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, addRetiredIds, careersMethodForUrl, careersMethodLabel, dropRetiredEmployers, hasCustomScraper, mergeEmployerFields, pickKeepEmployerId, removeRetiredId, type DiscoveredMethod, type Job } from "@jobccq/shared";
 import { API_URL, STATIC, getStats, searchAdminJobs, buildQuery, adminFetch, invalidateJobOverrides } from "@/lib/data";
 import { previewEmployer, fetchEmployerHtml } from "@/lib/admin-preview";
 import { useAuth } from "@/lib/auth";
@@ -11,7 +11,13 @@ import { notifyJobsChanged } from "@/lib/live";
 import { upsertJobOverride, fetchJobOverrides, attachOffConstruction } from "@/lib/job-overrides";
 import { supabaseEnabled } from "@/lib/supabase";
 import { logAudit, setAuditActor, useAuditLog, clearAudit } from "@/lib/admin-audit";
-import { ensureTursoAdminColumns } from "@/lib/admin-turso";
+import {
+  clearEmployerTombstone as clearTursoTombstone,
+  ensureTursoAdminColumns,
+  fetchEmployerTombstones,
+  fetchRetiredEmployerIds,
+  recordEmployerTombstone as recordTursoTombstone,
+} from "@/lib/admin-turso";
 import { diffDiscovered, type DiscoveredDiff, type DiffEmployer } from "@/lib/discovered-diff";
 import { Badge } from "./Badge";
 import { AdminOfferEditor, type OfferPatch, type OfferRow, type SaveState } from "./AdminOfferEditor";
@@ -75,6 +81,8 @@ const LS_SORT = "admin:sort";
 const LS_METHOD = "admin:method";
 const LS_REGION = "admin:region";
 const LS_PAGESIZE = "admin:pagesize";
+/** Ids d'employeurs supprimés ou fusionnés (mode local + filet si Turso est lent). */
+const LS_RETIRED = "admin:retired-employers";
 const DISCOVERED_PATH = "packages/shared/src/discovered.json";
 
 /** Libellés lisibles des actions du journal d'audit (#45). */
@@ -506,6 +514,14 @@ export function AdminExplorer() {
   // écriture Turso qui échoue n'est plus avalée silencieusement).
   const [saveState, setSaveState] = useState<Record<string, SaveState>>({});
   const latestRef = useRef<Employer[] | null>(null);
+  const retiredRef = useRef<Set<string>>(new Set(loadLS<string[]>(LS_RETIRED, [])));
+
+  const persistRetired = (next: Set<string>) => {
+    retiredRef.current = next;
+    saveLS(LS_RETIRED, [...next]);
+  };
+  const markRetired = (ids: readonly string[]) => persistRetired(addRetiredIds(retiredRef.current, ids));
+  const unmarkRetired = (id: string) => persistRetired(removeRetiredId(retiredRef.current, id));
   // Journal d'audit (#45) : « qui » = compte connecté ; les actions sont loguées
   // au fil des handlers. #46 : publication en 2 temps (aperçu du diff → confirmer).
   const auditLog = useAuditLog();
@@ -538,6 +554,7 @@ export function AdminExplorer() {
       if (rgn) setRegionFilter(rgn);
       const ps = Number(localStorage.getItem(LS_PAGESIZE));
       if (ps && ps >= 40) setPageSize(ps);
+      persistRetired(new Set(loadLS<string[]>(LS_RETIRED, [])));
     } catch {
       /* stockage indisponible */
     }
@@ -715,7 +732,18 @@ export function AdminExplorer() {
               "SELECT id,name,homepage,careersUrl,method,careersUrl2,method2,region,rbq,scope,sectors,verified,enabled,notes FROM Employer ORDER BY name",
             );
             if (!alive) return;
-            setEmployers(rows.map(rowToEmployer));
+            const stones = await fetchEmployerTombstones(tUrl, tTok).catch(() => []);
+            const retired = new Set([...retiredRef.current, ...stones.map((s) => s.id)]);
+            persistRetired(retired);
+            // Recréees par un sync antérieur : on retire la fiche. Les offres d'une
+            // fusion sont réassignées au prochain sync:employers (pas détruites ici).
+            for (const s of stones) {
+              if (s.reason !== "merged") {
+                await tursoRows(tUrl, tTok, "DELETE FROM Job WHERE sourceId=?", [s.id]).catch(() => {});
+              }
+              await tursoRows(tUrl, tTok, "DELETE FROM Employer WHERE id=?", [s.id]).catch(() => {});
+            }
+            setEmployers(dropRetiredEmployers(rows.map(rowToEmployer), retired));
             setMode("turso");
             return;
           } catch {
@@ -725,7 +753,8 @@ export function AdminExplorer() {
         // Mode statique : données du paquet + éditions/vérifs locales.
         editsRef.current = loadLS<Record<string, Partial<Employer>>>(LS_EDITS, {});
         const verified = new Set(loadLS<string[]>(LS_VERIF, []));
-        const base = (DISCOVERED_EMPLOYERS as unknown as Employer[]).map((e) => ({
+        const retired = retiredRef.current;
+        const base = dropRetiredEmployers(DISCOVERED_EMPLOYERS as unknown as Employer[], retired).map((e) => ({
           ...e,
           ...editsRef.current[e.id],
           verified: e.verified || verified.has(e.id) || !!editsRef.current[e.id]?.verified,
@@ -918,17 +947,21 @@ export function AdminExplorer() {
           tursoToken,
           "SELECT id,name,homepage,careersUrl,method,careersUrl2,method2,region,rbq,scope,sectors,verified,enabled,notes FROM Employer ORDER BY name",
         ).catch(() => null);
-        if (rows) setEmployers(rows.map(rowToEmployer));
+        if (rows) {
+          const extra = await fetchRetiredEmployerIds(tursoUrl, tursoToken).catch(() => [] as string[]);
+          persistRetired(addRetiredIds(retiredRef.current, extra));
+          setEmployers(dropRetiredEmployers(rows.map(rowToEmployer), retiredRef.current));
+        }
       } else if (mode === "api") {
         const d = await adminFetch(`${API_URL}/admin/employers`).then((r) => r.json()).catch(() => null);
-        if (d?.employers) setEmployers(d.employers);
+        if (d?.employers) setEmployers(dropRetiredEmployers(d.employers as Employer[], retiredRef.current));
       } else {
         const latest = latestRef.current ?? (await fetchLatestDiscovered());
         if (latest) {
           editsRef.current = loadLS<Record<string, Partial<Employer>>>(LS_EDITS, {});
           const verified = new Set(loadLS<string[]>(LS_VERIF, []));
           setEmployers(
-            latest.map((e) => ({
+            dropRetiredEmployers(latest, retiredRef.current).map((e) => ({
               ...e,
               ...editsRef.current[e.id],
               verified: e.verified || verified.has(e.id) || !!editsRef.current[e.id]?.verified,
@@ -1447,8 +1480,9 @@ export function AdminExplorer() {
     const mine = cleanList() as Employer[];
     if (!committed || committed.length === 0) return mine;
     const byMine = new Map(mine.map((e) => [e.id, e]));
+    const retired = retiredRef.current;
     const committedIds = new Set(committed.map((e) => e.id));
-    const merged = committed.map((base) => {
+    const merged = committed.filter((base) => !retired.has(base.id)).map((base) => {
       const cur = byMine.get(base.id);
       if (!cur) return base; // employeur absent de l'onglet : inchangé
       const m: Record<string, unknown> = {
@@ -1466,7 +1500,7 @@ export function AdminExplorer() {
       return m as unknown as Employer;
     });
     // Employeurs ajoutés dans l'onglet mais pas encore committés (ajout manuel).
-    for (const e of mine) if (!committedIds.has(e.id)) merged.push(e);
+    for (const e of mine) if (!committedIds.has(e.id) && !retired.has(e.id)) merged.push(e);
     return merged;
   };
 
@@ -1622,6 +1656,7 @@ export function AdminExplorer() {
     if (!window.confirm(`Supprimer DÉFINITIVEMENT ${ids.length} employeur(s) et TOUTES leurs offres ?\n\nAction irréversible.`)) return;
     for (const id of ids) {
       if (mode === "turso") {
+        await recordTursoTombstone(tursoUrl, tursoToken, id, "deleted").catch(() => {});
         await tursoRows(tursoUrl, tursoToken, "DELETE FROM Job WHERE sourceId=?", [id]).catch(() => {});
         await tursoRows(tursoUrl, tursoToken, "DELETE FROM Employer WHERE id=?", [id]).catch(() => {});
       } else if (mode === "api") {
@@ -1631,6 +1666,7 @@ export function AdminExplorer() {
         saveLS(LS_EDITS, editsRef.current);
       }
     }
+    markRetired(ids);
     const gone = new Set(ids);
     setEmployers((list) => list.filter((e) => !gone.has(e.id)));
     setSelected(new Set());
@@ -1748,6 +1784,7 @@ export function AdminExplorer() {
           ],
         );
         if (empAffected === 0) throw new Error("Fiche conservée introuvable (0 ligne modifiée).");
+        await recordTursoTombstone(tursoUrl, tursoToken, drop.id, "merged", keep.id);
         await tursoExec(tursoUrl, tursoToken, "DELETE FROM Employer WHERE id=?", [drop.id]);
         setEmployers((list) => list.filter((e) => e.id !== drop.id).map((e) => (e.id === keep.id ? nextKeep : e)));
         setBulkMsg(
@@ -1760,6 +1797,7 @@ export function AdminExplorer() {
         setEmployers((list) => list.filter((e) => e.id !== drop.id).map((e) => (e.id === keep.id ? nextKeep : e)));
         setBulkMsg(`Fusion locale ${drop.id} → ${keep.id} (ce navigateur seulement).`);
       }
+      markRetired([drop.id]);
       setSelected(new Set());
       setOffersData((s) => {
         const n = { ...s };
@@ -1826,6 +1864,8 @@ export function AdminExplorer() {
     const region = form.region.trim();
     const emp: Employer = { id, name, homepage, careersUrl, method: form.method, sectors: [], enabled: true, ...(region ? { region } : {}) };
     if (mode === "turso") {
+      await clearTursoTombstone(tursoUrl, tursoToken, id);
+      unmarkRetired(id);
       const now = new Date().toISOString();
       const ok = await tursoRows(
         tursoUrl,
@@ -1840,8 +1880,10 @@ export function AdminExplorer() {
         return;
       }
     } else if (mode === "api") {
+      unmarkRetired(id);
       await adminFetch(`${API_URL}/admin/employers`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(emp) }).catch(() => {});
     } else {
+      unmarkRetired(id);
       editsRef.current[id] = emp;
       saveLS(LS_EDITS, editsRef.current);
     }
@@ -1856,6 +1898,7 @@ export function AdminExplorer() {
     const n = counts[id] ?? 0;
     if (!window.confirm(`Supprimer DÉFINITIVEMENT « ${name} »${n ? ` et ses ${n} offre(s)` : ""} ?\n\nAction irréversible.`)) return;
     if (mode === "turso") {
+      await recordTursoTombstone(tursoUrl, tursoToken, id, "deleted").catch(() => {});
       await tursoRows(tursoUrl, tursoToken, "DELETE FROM Job WHERE sourceId=?", [id]).catch(() => {});
       await tursoRows(tursoUrl, tursoToken, "DELETE FROM Employer WHERE id=?", [id]).catch(() => {});
     } else if (mode === "api") {
@@ -1864,6 +1907,7 @@ export function AdminExplorer() {
       delete editsRef.current[id];
       saveLS(LS_EDITS, editsRef.current);
     }
+    markRetired([id]);
     setEmployers((list) => list.filter((e) => e.id !== id));
     setSelected((s) => {
       const next = new Set(s);
@@ -1942,6 +1986,8 @@ export function AdminExplorer() {
         continue;
       }
       if (mode === "turso") {
+        await clearTursoTombstone(tursoUrl, tursoToken, emp.id);
+        unmarkRetired(emp.id);
         const now = new Date().toISOString();
         const ok = await tursoExec(
           tursoUrl,
@@ -1968,6 +2014,7 @@ export function AdminExplorer() {
           continue;
         }
       } else if (mode === "api") {
+        unmarkRetired(emp.id);
         const res = await adminFetch(`${API_URL}/admin/employers`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1978,6 +2025,7 @@ export function AdminExplorer() {
           continue;
         }
       } else {
+        unmarkRetired(emp.id);
         editsRef.current[emp.id] = emp;
         saveLS(LS_EDITS, editsRef.current);
       }
