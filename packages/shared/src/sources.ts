@@ -148,10 +148,23 @@ const EMPLOYER_BY_ID: Record<string, DiscoveredEmployer> = Object.fromEntries(
 export const getEmployer = (id?: string | null): DiscoveredEmployer | undefined =>
   id ? EMPLOYER_BY_ID[id] : undefined;
 
-/** Page publique de recherche d'une licence RBQ. */
+/** Accueil du registre officiel des détenteurs de licence RBQ. */
+export const RBQ_REGISTRE_URL = "https://www.pes.rbq.gouv.qc.ca/RegistreLicences";
+
+/** Normalise un n° RBQ en `XXXX-XXXX-XX` (10 chiffres). Sinon, trim sans espaces. */
+export function formatRbqLicence(rbq: string): string {
+  const digits = rbq.replace(/\D/g, "");
+  if (digits.length === 10) return `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8)}`;
+  return rbq.trim().replace(/\s+/g, "");
+}
+
+/** Fiche publique d'une licence dans le registre RBQ (l'ancienne page HTML 404). */
 export function rbqLicenceUrl(rbq: string): string {
-  const no = rbq.trim().replace(/\s+/g, "");
-  return `https://www.rbq.gouv.qc.ca/entreprises-et-licences/rechercher-une-licence/?licence=${encodeURIComponent(no)}`;
+  const no = formatRbqLicence(rbq);
+  if (/^\d{4}-\d{4}-\d{2}$/.test(no)) {
+    return `${RBQ_REGISTRE_URL}/FicheDetenteur/${encodeURIComponent(no)}`;
+  }
+  return RBQ_REGISTRE_URL;
 }
 
 /**
