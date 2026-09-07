@@ -19,7 +19,7 @@ import {
   labelForRegion,
   labelForRemote,
 } from "./taxonomy.js";
-import { sourceName } from "./sources.js";
+import { DISABLED_SOURCE_IDS, sourceName } from "./sources.js";
 import { isCcqTrade, ccqTradeOf } from "./ccq.js";
 import { isWeirdTitle } from "./title-flags.js";
 import { normalizeText, fuzzyIncludes } from "./text.js";
@@ -294,6 +294,14 @@ export function toHiringCompanies(jobs: Job[]): HiringCompany[] {
       latestPostedAt: e.latestPostedAt,
     }))
     .sort((a, b) => b.openings - a.openings);
+}
+
+/** Entreprise dont toutes les sources sont désactivées dans le répertoire. */
+export function isHiringCompanyDisabled(
+  company: Pick<HiringCompany, "sources">,
+  disabledIds: ReadonlySet<string> = DISABLED_SOURCE_IDS,
+): boolean {
+  return company.sources.length > 0 && company.sources.every((id) => disabledIds.has(id));
 }
 
 /**
