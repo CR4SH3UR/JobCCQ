@@ -46,6 +46,7 @@ describe("search-url — codec des filtres", () => {
     assert.equal(hasActiveFilters({ ...EMPTY_FILTERS, salaryListed: true }), true);
     assert.equal(hasActiveFilters({ ...EMPTY_FILTERS, shifts: ["nuit"] }), true);
     assert.equal(hasActiveFilters({ ...EMPTY_FILTERS, trades: ["electricien"] }), true);
+    assert.equal(hasActiveFilters({ ...EMPTY_FILTERS, weirdOnly: true }), true);
   });
 
   it("encode et décode les métiers CCQ (trades)", () => {

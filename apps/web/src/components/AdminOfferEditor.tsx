@@ -9,6 +9,7 @@ import {
   QUEBEC_REGIONS,
   REMOTE_TYPES,
   SALARY_PERIODS,
+  displayJobTitle,
 } from "@jobccq/shared";
 import { resolveRegionForCity } from "@/lib/municipalities";
 import { siteUrl } from "@/lib/site";
@@ -72,7 +73,7 @@ export function AdminOfferEditor({
   save?: SaveState;
   onSave: (id: string, patch: OfferPatch) => void;
 }) {
-  const [title, setTitle] = useState(offer.title);
+  const [title, setTitle] = useState(displayJobTitle(offer.title));
   const [company, setCompany] = useState(offer.company);
   const [url, setUrl] = useState(offer.url);
   const [location, setLocation] = useState(offer.location ?? "");
@@ -101,7 +102,7 @@ export function AdminOfferEditor({
   const [lastAutoCity, setLastAutoCity] = useState((offer.city ?? "").trim().toLowerCase());
 
   useEffect(() => {
-    setTitle(offer.title);
+    setTitle(displayJobTitle(offer.title));
     setCompany(offer.company);
     setUrl(offer.url);
     setLocation(offer.location ?? "");

@@ -11,6 +11,37 @@ export interface TitleFlag {
 const LETTERS = /[\p{L}]/gu;
 const EMOJI = /\p{Extended_Pictographic}/gu;
 
+/** `&amp;`, `&#39;`, `&#x27;` — reste de scrape mal décodé. */
+const HTML_ENTITY = /&(?:#(?:x[0-9a-f]+|\d+)|[a-z][a-z0-9]+);/i;
+
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+};
+
+/** Décode les entités HTML d'un intitulé (`d&#39;engins` → `d'engins`). */
+export function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&#(\d+);/g, (_, n: string) => {
+      const code = Number(n);
+      return Number.isFinite(code) ? String.fromCharCode(code) : _;
+    })
+    .replace(/&#x([0-9a-f]+);/gi, (_, n: string) => {
+      const code = Number.parseInt(n, 16);
+      return Number.isFinite(code) ? String.fromCharCode(code) : _;
+    })
+    .replace(/&([a-z][a-z0-9]+);/gi, (all, name: string) => NAMED_ENTITIES[name.toLowerCase()] ?? all);
+}
+
+/** Titre prêt à afficher (entités HTML décodées). */
+export function displayJobTitle(title: string): string {
+  return decodeHtmlEntities(title ?? "").replace(/\s+/g, " ").trim();
+}
+
 function lettersOf(title: string): string {
   return (title.match(LETTERS) ?? []).join("");
 }
@@ -19,6 +50,8 @@ function lettersOf(title: string): string {
 export function flagWeirdTitle(title: string): TitleFlag | null {
   const raw = (title ?? "").trim();
   if (!raw) return { id: "vide", label: "Titre vide" };
+
+  if (HTML_ENTITY.test(raw)) return { id: "entites", label: "Entités HTML dans le titre" };
 
   const letters = lettersOf(raw);
   if (letters.length < 4) return { id: "court", label: "Titre trop court" };

@@ -156,6 +156,18 @@ describe("filtres — salaire renseigné et date", () => {
     scrapedAt: new Date().toISOString(),
   });
 
+  it("weirdOnly ne garde que les titres douteux (tout le catalogue)", () => {
+    const ok = job("Électricien de chantier");
+    const weird = job("Mécanicien d&#39;engins de chantier");
+    const r = applyQuery([ok, weird], {
+      weirdOnly: true,
+      sort: "recent",
+      page: 1,
+      pageSize: 50,
+    });
+    assert.deepEqual(r.items.map((j) => j.title), ["Mécanicien d&#39;engins de chantier"]);
+  });
+
   it("salaryListed écarte les offres sans salaire", () => {
     const r = applyQuery([withPay, noPay], {
       salaryListed: true,

@@ -120,6 +120,7 @@ export function EmploisExplorer() {
   const [postedWithinDays, setPostedWithinDays] = useState("");
   const [lastVisit, setLastVisit] = useState<string | null>(null);
   const [ccqOnly, setCcqOnly] = useState(false);
+  const [weirdOnly, setWeirdOnly] = useState(false);
   const [trades, setTrades] = useState<string[]>([]);
   const [shifts, setShifts] = useState<string[]>([]);
   const [near, setNear] = useState("");
@@ -156,6 +157,7 @@ export function EmploisExplorer() {
     setSalaryListed(f.salaryListed);
     setPostedWithinDays(f.postedWithinDays);
     setCcqOnly(f.ccqOnly);
+    setWeirdOnly(f.weirdOnly);
     setTrades(f.trades);
     setShifts(f.shifts);
     setNear(f.near);
@@ -232,6 +234,7 @@ export function EmploisExplorer() {
           postedWithinDays && postedWithinDays !== "visit" ? Number(postedWithinDays) : undefined,
         postedSince: postedWithinDays === "visit" && lastVisit ? lastVisit : undefined,
         ccqOnly: ccqOnly || undefined,
+        weirdOnly: weirdOnly || undefined,
         trades: trades.length ? trades : undefined,
         shifts: shifts.length ? (shifts as JobQuery["shifts"]) : undefined,
         near: dnear || undefined,
@@ -240,7 +243,7 @@ export function EmploisExplorer() {
         page,
         pageSize: PAGE_SIZE,
       }),
-    [dq, dcity, dnear, sel, salaryMin, salaryListed, postedWithinDays, lastVisit, ccqOnly, trades, shifts, radiusKm, sort, page],
+    [dq, dcity, dnear, sel, salaryMin, salaryListed, postedWithinDays, lastVisit, ccqOnly, weirdOnly, trades, shifts, radiusKm, sort, page],
   );
 
   // État des filtres courant (immédiat) — pour enregistrer une recherche et
@@ -259,6 +262,7 @@ export function EmploisExplorer() {
       salaryListed,
       postedWithinDays,
       ccqOnly,
+      weirdOnly,
       trades,
       shifts,
       near,
@@ -266,7 +270,7 @@ export function EmploisExplorer() {
       sort,
       page,
     }),
-    [q, city, sel, salaryMin, salaryListed, postedWithinDays, ccqOnly, trades, shifts, near, radiusKm, sort, page],
+    [q, city, sel, salaryMin, salaryListed, postedWithinDays, ccqOnly, weirdOnly, trades, shifts, near, radiusKm, sort, page],
   );
 
   // URL partageable : on reflète les filtres (débounce sur mot-clé/ville) dans la
@@ -349,6 +353,7 @@ export function EmploisExplorer() {
     setSalaryListed(false);
     setPostedWithinDays("");
     setCcqOnly(false);
+    setWeirdOnly(false);
     setTrades([]);
     setShifts([]);
     setNear("");
@@ -365,6 +370,7 @@ export function EmploisExplorer() {
     (salaryListed ? 1 : 0) +
     (postedWithinDays ? 1 : 0) +
     (ccqOnly ? 1 : 0) +
+    (weirdOnly ? 1 : 0) +
     trades.length +
     shifts.length +
     (near ? 1 : 0) +
@@ -550,6 +556,7 @@ export function EmploisExplorer() {
               </Chip>
             )}
             {ccqOnly && <Chip onClear={() => setCcqOnly(false)}>Métiers CCQ</Chip>}
+            {weirdOnly && <Chip onClear={() => setWeirdOnly(false)}>Titres douteux</Chip>}
             {trades.map((id) => (
               <Chip
                 key={`trade-${id}`}
@@ -655,6 +662,24 @@ export function EmploisExplorer() {
                 Métiers CCQ seulement
                 <span className="mt-0.5 block text-xs font-normal text-slate-400">
                   Métiers reconnus des conventions (électricien, charpentier…)
+                </span>
+              </span>
+            </label>
+
+            <label className="flex cursor-pointer items-center gap-2 border-b border-slate-100 py-3">
+              <input
+                type="checkbox"
+                checked={weirdOnly}
+                onChange={(e) => {
+                  setWeirdOnly(e.target.checked);
+                  setPage(1);
+                }}
+                className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-300"
+              />
+              <span className="text-sm font-medium text-slate-700">
+                Titres douteux
+                <span className="mt-0.5 block text-xs font-normal text-slate-400">
+                  Intitulés louches ou mal encodés (d&amp;#39;…) — tout le catalogue
                 </span>
               </span>
             </label>

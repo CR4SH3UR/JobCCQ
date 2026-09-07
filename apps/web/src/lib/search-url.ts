@@ -23,6 +23,8 @@ export interface SearchFilters {
   salaryListed: boolean;
   postedWithinDays: string;
   ccqOnly: boolean;
+  /** Intitulés signalés comme douteux (toutes les pages du catalogue). */
+  weirdOnly: boolean;
   /** Métiers CCQ (ids). */
   trades: string[];
   shifts: string[];
@@ -47,6 +49,7 @@ export const EMPTY_FILTERS: SearchFilters = {
   salaryListed: false,
   postedWithinDays: "",
   ccqOnly: false,
+  weirdOnly: false,
   trades: [],
   shifts: [],
   near: "",
@@ -73,6 +76,7 @@ export function hasActiveFilters(f: SearchFilters): boolean {
     f.salaryListed ||
     !!f.postedWithinDays ||
     f.ccqOnly ||
+    f.weirdOnly ||
     f.trades.length > 0 ||
     f.shifts.length > 0 ||
     !!f.near ||
@@ -91,6 +95,7 @@ export function filtersToParams(f: SearchFilters): URLSearchParams {
   if (f.salaryListed) p.set("salaryListed", "1");
   if (f.postedWithinDays) p.set("postedWithinDays", f.postedWithinDays);
   if (f.ccqOnly) p.set("ccqOnly", "1");
+  if (f.weirdOnly) p.set("weirdOnly", "1");
   if (f.trades.length) p.set("trades", f.trades.join(","));
   if (f.shifts.length) p.set("shifts", f.shifts.join(","));
   if (f.near) p.set("near", f.near);
@@ -129,6 +134,7 @@ export function parseFilters(params: URLSearchParams): SearchFilters {
     salaryListed: params.get("salaryListed") === "1",
     postedWithinDays: params.get("postedWithinDays") ?? "",
     ccqOnly: params.get("ccqOnly") === "1",
+    weirdOnly: params.get("weirdOnly") === "1",
     trades: splitList(params.get("trades")),
     shifts: splitList(params.get("shifts")).filter((s) => s === "jour" || s === "soir" || s === "nuit"),
     near: params.get("near") ?? "",
