@@ -19,6 +19,7 @@ export type AuditAction =
   | "purge"
   | "delete"
   | "merge"
+  | "rename"
   | "publish"
   | "redeploy";
 

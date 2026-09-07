@@ -92,6 +92,30 @@ export async function clearEmployerTombstone(url: string, token: string, id: str
   await tursoExec(url, token, "DELETE FROM EmployerTombstone WHERE id=?", [id]).catch(() => {});
 }
 
+/** Change l'id d'une fiche Turso et réassigne offres + historique de scrape. */
+export async function renameEmployerId(
+  url: string,
+  token: string,
+  oldId: string,
+  newId: string,
+): Promise<{ jobsMoved: number; runsMoved: number }> {
+  const clash = await tursoRows(url, token, "SELECT id FROM Employer WHERE id=?", [newId]);
+  if (clash.length) throw new Error(`L'id « ${newId} » est déjà utilisé.`);
+  const exists = await tursoRows(url, token, "SELECT id FROM Employer WHERE id=?", [oldId]);
+  if (!exists.length) throw new Error("Employeur introuvable.");
+  const now = new Date().toISOString();
+  const n = await tursoExec(url, token, "UPDATE Employer SET id=?, updatedAt=? WHERE id=?", [newId, now, oldId]);
+  if (n === 0) throw new Error("Employeur introuvable.");
+  const jobsMoved = await tursoExec(url, token, "UPDATE Job SET sourceId=? WHERE sourceId=?", [newId, oldId]);
+  const runsMoved = await tursoExec(url, token, "UPDATE ScrapeRun SET sourceId=? WHERE sourceId=?", [
+    newId,
+    oldId,
+  ]);
+  await recordEmployerTombstone(url, token, oldId, "merged", newId);
+  await clearEmployerTombstone(url, token, newId);
+  return { jobsMoved, runsMoved };
+}
+
 export function tursoCreds(): { url: string; token: string } | null {
   const url = readLS(LS_TURSO_URL);
   const token = readLS(LS_TURSO_TOKEN);

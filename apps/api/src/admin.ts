@@ -6,7 +6,7 @@ import { promisify } from "node:util";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { createClient, type User } from "@supabase/supabase-js";
 import type { DiscoveredEmployer, Job } from "@jobccq/shared";
-import { failingScrapers, flagWeirdTitle, mergeEmployerFields } from "@jobccq/shared";
+import { failingScrapers, flagWeirdTitle, mergeEmployerFields, renameEmployerInList, validateEmployerIdChange } from "@jobccq/shared";
 import { scraperForEmployer, primaryScraperFor } from "./scrapers/registry.js";
 import { runScraperInstance } from "./orchestrator.js";
 import { prisma } from "./db.js";
@@ -571,6 +571,56 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       list[idx] = { ...list[idx], ...patch } as Employer;
       await writeAll(list);
       return { employer: list[idx] };
+    },
+  );
+
+  // Change l'id d'un employeur : fiche + offres + historique scrape. L'ancien
+  // id est ancré (merged → nouvel id) pour que sync:employers ne le recrée pas.
+  app.post<{ Params: { id: string }; Body: { newId?: string } }>(
+    "/admin/employers/:id/rename",
+    { preHandler: adminGuard },
+    async (req, reply) => {
+      const oldId = req.params.id;
+      const list = await readAll();
+      const current = list.find((e) => e.id === oldId);
+      if (!current) {
+        reply.code(404);
+        return { error: "Employeur introuvable" };
+      }
+      const check = validateEmployerIdChange(
+        oldId,
+        String(req.body?.newId ?? ""),
+        list.map((e) => e.id),
+      );
+      if (!check.ok) {
+        reply.code(check.error === "taken" ? 409 : 400);
+        return { error: check.message };
+      }
+      const newId = check.newId;
+      if (USE_TURSO) {
+        const now = new Date().toISOString();
+        const n = await prisma.$executeRaw`UPDATE Employer SET id = ${newId}, updatedAt = ${now} WHERE id = ${oldId}`;
+        if (!n) {
+          reply.code(404);
+          return { error: "Employeur introuvable" };
+        }
+        await recordEmployerTombstone(oldId, "merged", newId);
+        await clearEmployerTombstone(newId).catch(() => null);
+      } else {
+        await writeAll(renameEmployerInList(list, oldId, newId));
+      }
+      const jobs = await prisma.job.updateMany({ where: { sourceId: oldId }, data: { sourceId: newId } });
+      const runs = await prisma.scrapeRun.updateMany({
+        where: { sourceId: oldId },
+        data: { sourceId: newId },
+      });
+      return {
+        employer: { ...current, id: newId },
+        oldId,
+        newId,
+        jobsMoved: jobs.count,
+        runsMoved: runs.count,
+      };
     },
   );
 
