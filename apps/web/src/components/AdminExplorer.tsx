@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, addRetiredIds, applyMergePlan, careersMethodForUrl, careersMethodLabel, dropRetiredEmployers, hasCustomScraper, normalizeEmployerId, remapIdSet, remapKeyedRecord, removeRetiredId, suggestMergePlan, validateEmployerIdChange, type DiscoveredMethod, type Job, type MergePlan } from "@jobccq/shared";
+import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, addRetiredIds, applyMergePlan, careersMethodForUrl, careersMethodLabel, dropRetiredEmployers, hasCustomScraper, normalizeEmployerId, rbqLicenceUrl, remapIdSet, remapKeyedRecord, removeRetiredId, suggestMergePlan, validateEmployerIdChange, type DiscoveredMethod, type Job, type MergePlan } from "@jobccq/shared";
 import { API_URL, STATIC, getStats, searchAdminJobs, buildQuery, adminFetch, invalidateJobOverrides } from "@/lib/data";
 import { previewEmployer, fetchEmployerHtml } from "@/lib/admin-preview";
 import { useAuth } from "@/lib/auth";
@@ -3150,7 +3150,17 @@ function Row({
         <Badge tone={hasCustomScraper(e.id) ? "green" : "slate"}>
           {hasCustomScraper(e.id) ? "Scraper perso" : "Générique"}
         </Badge>
-        {e.rbq && <span className="font-mono text-xs text-slate-400" title="Numéro de licence RBQ">RBQ {e.rbq}</span>}
+        {e.rbq && (
+          <a
+            href={rbqLicenceUrl(e.rbq)}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Consulter cette licence au registre RBQ"
+            className="font-mono text-xs text-slate-400 hover:text-brand-700 hover:underline"
+          >
+            RBQ {e.rbq} ↗
+          </a>
+        )}
         {count > 0 ? (
           <Link
             href={`/emplois?sources=${e.id}`}
@@ -3522,7 +3532,21 @@ function Row({
               <input value={scope} onChange={(ev) => setScope(ev.target.value)} className="rounded border border-slate-300 px-2 py-1" />
             </label>
             <label className="flex flex-col gap-0.5">
-              <span className="text-slate-500">N° RBQ</span>
+              <span className="flex items-center gap-1.5 text-slate-500">
+                N° RBQ
+                {(rbq.trim() || e.rbq) && (
+                  <a
+                    href={rbqLicenceUrl(rbq.trim() || e.rbq || "")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Ouvrir la fiche au registre RBQ"
+                    className="font-medium text-brand-600 hover:underline"
+                    onClick={(ev) => ev.stopPropagation()}
+                  >
+                    ouvrir ↗
+                  </a>
+                )}
+              </span>
               <input
                 value={rbq}
                 onChange={(ev) => setRbq(ev.target.value)}
