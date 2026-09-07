@@ -70,7 +70,6 @@ import { chauffageMcScraper } from "./chauffagemc.js";
 import { chnPaysagisteScraper } from "./chn-paysagiste.js";
 import { cimaScraper } from "./cima.js";
 import { claudePoirierExcavationScraper } from "./claudepoirierexcavation.js";
-import { claveauEtFilsScraper } from "./claveauetfils.js";
 import { crBessetteScraper } from "./crbessette.js";
 import { cmiCoteNordScraper } from "./cmicotenord.js";
 import { convairScraper } from "./convair.js";
@@ -157,7 +156,6 @@ const BESPOKE = {
   "chn-paysagiste-com": chnPaysagisteScraper,
   "cima-ca": cimaScraper,
   "claudepoirierexcavation-com": claudePoirierExcavationScraper,
-  "claveauetfils-ca": claveauEtFilsScraper,
   "crbessette-com": crBessetteScraper,
   "cmicotenord-ca": cmiCoteNordScraper,
   "can-inspec-ca": canInspecScraper,
