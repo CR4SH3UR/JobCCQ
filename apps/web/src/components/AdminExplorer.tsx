@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, addRetiredIds, applyMergePlan, careersMethodForUrl, careersMethodLabel, dropRetiredEmployers, hasCustomScraper, removeRetiredId, suggestMergePlan, type DiscoveredMethod, type Job, type MergePlan } from "@jobccq/shared";
+import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, addRetiredIds, applyMergePlan, careersMethodForUrl, careersMethodLabel, dropRetiredEmployers, hasCustomScraper, normalizeEmployerId, remapIdSet, remapKeyedRecord, removeRetiredId, suggestMergePlan, validateEmployerIdChange, type DiscoveredMethod, type Job, type MergePlan } from "@jobccq/shared";
 import { API_URL, STATIC, getStats, searchAdminJobs, buildQuery, adminFetch, invalidateJobOverrides } from "@/lib/data";
 import { previewEmployer, fetchEmployerHtml } from "@/lib/admin-preview";
 import { useAuth } from "@/lib/auth";
@@ -17,6 +17,7 @@ import {
   fetchEmployerTombstones,
   fetchRetiredEmployerIds,
   recordEmployerTombstone as recordTursoTombstone,
+  renameEmployerId as renameTursoEmployerId,
 } from "@/lib/admin-turso";
 import { diffDiscovered, type DiscoveredDiff, type DiffEmployer } from "@/lib/discovered-diff";
 import { Badge } from "./Badge";
@@ -95,6 +96,7 @@ const AUDIT_LABEL: Record<string, string> = {
   purge: "Purge d'offres",
   delete: "Suppression",
   merge: "Fusion",
+  rename: "Changement d'id",
   publish: "Publication",
   redeploy: "Redéploiement",
 };
@@ -1916,6 +1918,86 @@ export function AdminExplorer() {
     setBulkMsg(`Employeur « ${name} » supprimé.`);
   };
 
+  const applyRenameLocally = (oldId: string, newId: string) => {
+    markRetired([oldId]);
+    unmarkRetired(newId);
+    setEmployers((list) => list.map((e) => (e.id === oldId ? { ...e, id: newId } : e)));
+    setCounts((m) => remapKeyedRecord(m, oldId, newId));
+    setLastRuns((m) => remapKeyedRecord(m, oldId, newId));
+    setScrapes((m) => remapKeyedRecord(m, oldId, newId));
+    setOffersData((m) => remapKeyedRecord(m, oldId, newId));
+    setSaveState((m) => remapKeyedRecord(m, oldId, newId));
+    setSelected((s) => remapIdSet(s, oldId, newId));
+    setOpenOffers((s) => remapIdSet(s, oldId, newId));
+    const verified = new Set(loadLS<string[]>(LS_VERIF, []));
+    if (verified.has(oldId)) {
+      verified.delete(oldId);
+      verified.add(newId);
+      saveLS(LS_VERIF, [...verified]);
+    }
+    if (editsRef.current[oldId] || editsRef.current[newId]) {
+      const prev = editsRef.current[oldId];
+      if (prev) {
+        editsRef.current[newId] = { ...prev, id: newId };
+        delete editsRef.current[oldId];
+        saveLS(LS_EDITS, editsRef.current);
+      }
+    }
+  };
+
+  const renameEmployer = async (oldId: string, proposed: string) => {
+    const check = validateEmployerIdChange(
+      oldId,
+      proposed,
+      employers.map((e) => e.id),
+    );
+    if (!check.ok) throw new Error(check.message);
+    const newId = check.newId;
+    const emp = employers.find((e) => e.id === oldId);
+    const name = emp?.name ?? oldId;
+    const n = counts[oldId] ?? 0;
+    let confirmMsg =
+      `Changer l'id de « ${name} » ?\n\n` +
+      `${oldId}  →  ${newId}\n\n` +
+      `Les offres (${n}) et l'historique de scrape suivent le nouvel id. ` +
+      `L'ancien id est ancré pour ne pas réapparaître au sync. ` +
+      `La page /entreprises/${oldId} ne pointera plus vers cette fiche.`;
+    if (hasCustomScraper(oldId)) {
+      confirmMsg +=
+        `\n\n⚠ Scraper sur mesure : le parseur reste branché sur « ${oldId} » dans le code. ` +
+        `Mets à jour CUSTOM_SCRAPER_IDS et le registre, sinon le scrape ne trouvera plus le parseur.`;
+    }
+    if (!window.confirm(confirmMsg)) return;
+
+    if (mode === "api") {
+      const res = await adminFetch(`${API_URL}/admin/employers/${encodeURIComponent(oldId)}/rename`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newId }),
+      });
+      const d = (await res.json().catch(() => ({}))) as { error?: string; jobsMoved?: number };
+      if (!res.ok) throw new Error(d.error ?? `HTTP ${res.status}`);
+      applyRenameLocally(oldId, newId);
+      setBulkMsg(
+        `Id changé : ${oldId} → ${newId}` +
+          (d.jobsMoved != null ? ` (${d.jobsMoved} offre(s) réassignée(s)).` : "."),
+      );
+    } else if (mode === "turso") {
+      const d = await renameTursoEmployerId(tursoUrl, tursoToken, oldId, newId);
+      applyRenameLocally(oldId, newId);
+      setBulkMsg(`Id changé : ${oldId} → ${newId} (${d.jobsMoved} offre(s) réassignée(s)).`);
+    } else {
+      if (emp) {
+        editsRef.current[newId] = { ...editsRef.current[oldId], ...emp, id: newId };
+        delete editsRef.current[oldId];
+        saveLS(LS_EDITS, editsRef.current);
+      }
+      applyRenameLocally(oldId, newId);
+      setBulkMsg(`Id changé localement : ${oldId} → ${newId} (ce navigateur seulement).`);
+    }
+    logAudit("rename", { targetId: newId, targetName: name, detail: `${oldId} → ${newId}` });
+  };
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return employers.filter((e) => {
@@ -2831,6 +2913,7 @@ export function AdminExplorer() {
                 onPurge={purgeOffers}
                 onRollback={rollbackOffers}
                 onDelete={deleteEmployer}
+                onRenameId={renameEmployer}
                 onToggleOffers={toggleOffers}
                 onMutateOffer={(employerId, offerId, patch) =>
                   setOffersData((d) => {
@@ -2880,7 +2963,7 @@ function SaveBadge({ save }: { save: SaveState }) {
 }
 
 function Row({
-  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, forceEnabled, save, sectorOptions, mode, tursoUrl, tursoToken, onToggleSelect, onPatch, onScrape, onScrapeForce, onPurge, onRollback, onDelete, onToggleOffers, onMutateOffer, onShowDuplicates,
+  e, count, scrape, scrapeEnabled, purgeEnabled, deleteEnabled, selected, duplicate, lastRun, offersOpen, offers, forceEnabled, save, sectorOptions, mode, tursoUrl, tursoToken, onToggleSelect, onPatch, onScrape, onScrapeForce, onPurge, onRollback, onDelete, onRenameId, onToggleOffers, onMutateOffer, onShowDuplicates,
 }: {
   e: Employer;
   count: number;
@@ -2906,6 +2989,7 @@ function Row({
   onPurge: (id: string) => void;
   onRollback: (id: string) => void;
   onDelete: (id: string) => void;
+  onRenameId: (oldId: string, proposed: string) => void | Promise<void>;
   onToggleOffers: (id: string) => void;
   onMutateOffer: (employerId: string, offerId: string, patch: OfferPatch) => void;
   onShowDuplicates: () => void;
@@ -2930,6 +3014,9 @@ function Row({
   // Édition avancée (repliée par défaut) : champs acceptés par le backend mais
   // absents de la ligne principale (région, site web, portée).
   const [advOpen, setAdvOpen] = useState(false);
+  const [editId, setEditId] = useState(e.id);
+  const [renameBusy, setRenameBusy] = useState(false);
+  const [renameMsg, setRenameMsg] = useState("");
   const [region, setRegion] = useState(e.region ?? "");
   const [homepage, setHomepage] = useState(e.homepage ?? "");
   const [scope, setScope] = useState(e.scope ?? "");
@@ -2965,6 +3052,25 @@ function Row({
     const v = newSec.trim();
     if (v && !sectors.includes(v)) setSectors((cur) => [...cur, v]);
     setNewSec("");
+  };
+
+  useEffect(() => {
+    setEditId(e.id);
+    setRenameMsg("");
+  }, [e.id]);
+
+  const slugPreview = normalizeEmployerId(editId);
+  const idDirty = slugPreview !== e.id;
+  const submitRename = async () => {
+    setRenameMsg("");
+    setRenameBusy(true);
+    try {
+      await onRenameId(e.id, editId);
+    } catch (err) {
+      setRenameMsg((err as Error).message);
+    } finally {
+      setRenameBusy(false);
+    }
   };
 
   const disabled = e.enabled === false;
@@ -3327,15 +3433,38 @@ function Row({
         <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-2 text-xs">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <span className="text-slate-500">id :</span>
-            <code className="rounded bg-white px-1.5 py-0.5 font-mono text-slate-700 ring-1 ring-slate-200">{e.id}</code>
+            <input
+              value={editId}
+              onChange={(ev) => {
+                setEditId(ev.target.value);
+                setRenameMsg("");
+              }}
+              spellCheck={false}
+              aria-label="Identifiant de l'entreprise"
+              className="min-w-[12rem] flex-1 rounded border border-slate-300 bg-white px-1.5 py-0.5 font-mono text-slate-700"
+            />
             <button
+              type="button"
               onClick={() => navigator.clipboard?.writeText(e.id).catch(() => {})}
-              title="Copier l'id"
+              title="Copier l'id actuel"
               className="rounded border border-slate-200 px-1.5 py-0.5 hover:bg-slate-100"
             >
               ⧉ copier
             </button>
+            <button
+              type="button"
+              disabled={renameBusy || !idDirty || !editId.trim()}
+              onClick={() => void submitRename()}
+              title="Enregistrer le nouvel id (offres et historique suivent)"
+              className="rounded border border-brand-300 bg-white px-1.5 py-0.5 font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-50"
+            >
+              {renameBusy ? "…" : "Changer l'id"}
+            </button>
+            {idDirty && slugPreview && slugPreview !== editId.trim().toLowerCase() && (
+              <span className="text-slate-400">→ {slugPreview}</span>
+            )}
           </div>
+          {renameMsg && <p className="mb-2 text-red-600">{renameMsg}</p>}
           <div className="grid gap-2 sm:grid-cols-3">
             <label className="flex flex-col gap-0.5">
               <span className="text-slate-500">Région</span>

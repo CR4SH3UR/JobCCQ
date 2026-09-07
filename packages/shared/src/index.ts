@@ -34,6 +34,7 @@ export * from "./duplicates.js";
 export * from "./hiring-history.js";
 export * from "./merge-employers.js";
 export * from "./employer-tombstones.js";
+export * from "./employer-id.js";
 export * from "./careers-via.js";
 export * from "./link-status.js";
 export * from "./job-history.js";
