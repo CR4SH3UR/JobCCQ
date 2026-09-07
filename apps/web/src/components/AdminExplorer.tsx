@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, addRetiredIds, careersMethodForUrl, careersMethodLabel, dropRetiredEmployers, hasCustomScraper, mergeEmployerFields, pickKeepEmployerId, removeRetiredId, type DiscoveredMethod, type Job } from "@jobccq/shared";
+import { DISCOVERED_EMPLOYERS, QUEBEC_REGIONS, addRetiredIds, applyMergePlan, careersMethodForUrl, careersMethodLabel, dropRetiredEmployers, hasCustomScraper, removeRetiredId, suggestMergePlan, type DiscoveredMethod, type Job, type MergePlan } from "@jobccq/shared";
 import { API_URL, STATIC, getStats, searchAdminJobs, buildQuery, adminFetch, invalidateJobOverrides } from "@/lib/data";
 import { previewEmployer, fetchEmployerHtml } from "@/lib/admin-preview";
 import { useAuth } from "@/lib/auth";
@@ -20,6 +20,7 @@ import {
 } from "@/lib/admin-turso";
 import { diffDiscovered, type DiscoveredDiff, type DiffEmployer } from "@/lib/discovered-diff";
 import { Badge } from "./Badge";
+import { AdminMergeDialog } from "./AdminMergeDialog";
 import { AdminOfferEditor, type OfferPatch, type OfferRow, type SaveState } from "./AdminOfferEditor";
 
 /**
@@ -527,6 +528,8 @@ export function AdminExplorer() {
   const auditLog = useAuditLog();
   const [auditOpen, setAuditOpen] = useState(false);
   const [pendingPublish, setPendingPublish] = useState<{ merged: Employer[]; diff: DiscoveredDiff } | null>(null);
+  const [mergeDraft, setMergeDraft] = useState<{ a: Employer; b: Employer; plan: MergePlan } | null>(null);
+  const [mergeBusy, setMergeBusy] = useState(false);
   useEffect(() => {
     setAuditActor(authUser?.email ?? undefined);
   }, [authUser?.email]);
@@ -1672,41 +1675,34 @@ export function AdminExplorer() {
     setSelected(new Set());
     setBulkMsg(`${ids.length} employeur(s) supprimé(s).`);
   };
-  const bulkMerge = async () => {
+  const openMergeDialog = () => {
     const ids = [...selected];
     if (ids.length !== 2) {
       setBulkMsg("Sélectionnez exactement deux employeurs pour les fusionner.");
       return;
     }
-    const [idA, idB] = ids;
-    const empA = employers.find((e) => e.id === idA);
-    const empB = employers.find((e) => e.id === idB);
+    const empA = employers.find((e) => e.id === ids[0]);
+    const empB = employers.find((e) => e.id === ids[1]);
     if (!empA || !empB) return;
+    setMergeDraft({
+      a: empA,
+      b: empB,
+      plan: suggestMergePlan(empA, empB, { a: counts[empA.id] ?? 0, b: counts[empB.id] ?? 0 }),
+    });
+  };
 
-    let keepId: string;
-    if (hasCustomScraper(empA.id) && hasCustomScraper(empB.id)) {
-      const typed = window.prompt(
-        `Les deux ont un scraper sur mesure. Id à CONSERVER (l'autre est absorbé) :\n• ${empA.id} — ${empA.name}\n• ${empB.id} — ${empB.name}`,
-        empA.id,
-      );
-      if (!typed || (typed !== empA.id && typed !== empB.id)) {
-        setBulkMsg("Fusion annulée.");
-        return;
-      }
-      keepId = typed;
-    } else {
-      keepId = pickKeepEmployerId(empA, empB, {
-        a: counts[empA.id] ?? 0,
-        b: counts[empB.id] ?? 0,
-      });
-    }
-    const keep = keepId === empA.id ? empA : empB;
-    const drop = keepId === empA.id ? empB : empA;
-    const merged = mergeEmployerFields(keep, drop);
+  const confirmMerge = async () => {
+    if (!mergeDraft) return;
+    const { a: empA, b: empB, plan } = mergeDraft;
+    const keep = plan.keepId === empA.id ? empA : empB;
+    const drop = plan.keepId === empA.id ? empB : empA;
+    const merged = applyMergePlan(empA, empB, plan);
     const nextKeep: Employer = {
       ...keep,
+      name: merged.name,
       homepage: merged.homepage,
       careersUrl: merged.careersUrl,
+      method: (merged.method as DiscoveredMethod) || keep.method,
       careersUrl2: merged.careersUrl2 || undefined,
       method2: (merged.method2 as DiscoveredMethod | undefined) || undefined,
       region: merged.region || undefined,
@@ -1717,20 +1713,14 @@ export function AdminExplorer() {
       enabled: merged.enabled,
       notes: merged.notes || undefined,
     };
-    const localOnly = mode === "static";
-    const ok = window.confirm(
-      `Fusionner « ${drop.name} » (${drop.id}) dans « ${keep.name} » (${keep.id}) ?\n\n` +
-        `Les offres passent sous ${keep.id}. La fiche ${drop.id} est supprimée.` +
-        (localOnly ? "\n\nMode local : fusion dans ce navigateur seulement (les offres en base ne bougent pas)." : ""),
-    );
-    if (!ok) return;
 
     try {
+      setMergeBusy(true);
       if (mode === "api") {
         const res = await adminFetch(`${API_URL}/admin/employers/merge`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ keepId: keep.id, dropId: drop.id }),
+          body: JSON.stringify({ keepId: keep.id, dropId: drop.id, keep: nextKeep }),
         });
         const d = (await res.json().catch(() => ({}))) as { error?: string; jobsMoved?: number; jobsDropped?: number; keep?: Employer };
         if (!res.ok) throw new Error(d.error ?? `HTTP ${res.status}`);
@@ -1760,16 +1750,21 @@ export function AdminExplorer() {
           tursoUrl,
           tursoToken,
           "UPDATE Job SET sourceId=?, company=? WHERE sourceId=?",
-          [keep.id, keep.name, drop.id],
+          [keep.id, nextKeep.name, drop.id],
         );
+        if (nextKeep.name !== keep.name) {
+          await tursoExec(tursoUrl, tursoToken, "UPDATE Job SET company=? WHERE sourceId=?", [nextKeep.name, keep.id]);
+        }
         await tursoExec(tursoUrl, tursoToken, "UPDATE ScrapeRun SET sourceId=? WHERE sourceId=?", [keep.id, drop.id]);
         const empAffected = await tursoExec(
           tursoUrl,
           tursoToken,
-          `UPDATE Employer SET homepage=?, careersUrl=?, careersUrl2=?, method2=?, region=?, rbq=?, scope=?, sectors=?, verified=?, enabled=?, notes=?, updatedAt=? WHERE id=?`,
+          `UPDATE Employer SET name=?, homepage=?, careersUrl=?, method=?, careersUrl2=?, method2=?, region=?, rbq=?, scope=?, sectors=?, verified=?, enabled=?, notes=?, updatedAt=? WHERE id=?`,
           [
+            nextKeep.name,
             nextKeep.homepage,
             nextKeep.careersUrl,
+            nextKeep.method,
             nextKeep.careersUrl2 ?? null,
             nextKeep.method2 ?? null,
             nextKeep.region ?? null,
@@ -1806,9 +1801,10 @@ export function AdminExplorer() {
       });
       logAudit("merge", {
         targetId: keep.id,
-        targetName: keep.name,
+        targetName: nextKeep.name,
         detail: `absorbé ${drop.id} (${drop.name})`,
       });
+      setMergeDraft(null);
       if (mode === "api" || mode === "turso") {
         notifyJobsChanged();
         await refreshCounts();
@@ -1816,6 +1812,8 @@ export function AdminExplorer() {
       }
     } catch (err) {
       setBulkMsg(`Fusion impossible : ${(err as Error).message}`);
+    } finally {
+      setMergeBusy(false);
     }
   };
   const bulkSetMethod = async (ids: string[], method: DiscoveredMethod) => {
@@ -2057,6 +2055,20 @@ export function AdminExplorer() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
+      {mergeDraft && (
+        <AdminMergeDialog
+          a={mergeDraft.a}
+          b={mergeDraft.b}
+          plan={mergeDraft.plan}
+          jobs={{ a: counts[mergeDraft.a.id] ?? 0, b: counts[mergeDraft.b.id] ?? 0 }}
+          localOnly={mode === "static"}
+          busy={mergeBusy}
+          onChange={(plan) => setMergeDraft({ ...mergeDraft, plan })}
+          onConfirm={() => void confirmMerge()}
+          onCancel={() => setMergeDraft(null)}
+        />
+      )}
+
       <header className="mb-4">
         <h1 className="text-2xl font-bold tracking-tight">Administration des sources</h1>
         <p className="mt-1 text-sm text-slate-600">
@@ -2772,8 +2784,8 @@ export function AdminExplorer() {
                 {(mode === "turso" || mode === "api" || mode === "static") && selected.size === 2 && (
                   <button
                     type="button"
-                    onClick={() => bulkMerge()}
-                    title="Absorber une fiche dans l'autre (offres + historique). On garde le scraper sur mesure, sinon le vérifié, sinon celui qui a le plus d'offres."
+                    onClick={openMergeDialog}
+                    title="Choisir l'id conservé et les infos à garder, puis absorber l'autre fiche."
                     className={actionClass("amber")}
                   >
                     ⚭ Fusionner…
