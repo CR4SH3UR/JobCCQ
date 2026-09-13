@@ -1,5 +1,6 @@
 import type { Job } from "./types.js";
 import { ccqTradeById, ccqTradeOf } from "./ccq.js";
+import { extractRequirements } from "./extract.js";
 import {
   QUEBEC_REGIONS,
   REMOTE_TYPES,
@@ -8,20 +9,45 @@ import {
 } from "./taxonomy.js";
 
 /**
- * Profil métier du visiteur (métiers CCQ, régions, mobilité).
+ * Profil métier du visiteur (métiers CCQ, régions, mobilité, permis).
  * Sert l'accueil personnalisé, l'onboarding et le score d'adéquation.
  */
 export interface JobSeekerProfile {
   trades: string[];
   regions: string[];
   remote: Array<"presentiel" | "hybride" | "teletravail">;
+  /** Permis de conduire QC (`permis-classe-1` / `3` / `5`). */
+  licenses: string[];
 }
 
 export const EMPTY_PROFILE: JobSeekerProfile = {
   trades: [],
   regions: [],
   remote: [],
+  licenses: [],
 };
+
+/** Permis de conduire du Québec sélectionnables dans « Mon profil ». */
+export const PROFILE_LICENSES = [
+  { id: "permis-classe-1", label: "Classe 1", hint: "Ensemble de véhicules routiers" },
+  { id: "permis-classe-3", label: "Classe 3", hint: "Camion / véhicule routier" },
+  { id: "permis-classe-5", label: "Classe 5", hint: "Véhicule de promenade" },
+] as const;
+
+const LICENSE_IDS: ReadonlySet<string> = new Set(PROFILE_LICENSES.map((l) => l.id));
+/** Classe 1 couvre 3 et 5 ; classe 3 couvre 5. */
+const LICENSE_LEVEL: Record<string, number> = {
+  "permis-classe-5": 1,
+  "permis-classe-3": 2,
+  "permis-classe-1": 3,
+};
+
+/** Le profil satisfait-il une exigence de permis (classe supérieure inclusive) ? */
+export function profileCoversLicense(have: readonly string[], requiredId: string): boolean {
+  const need = LICENSE_LEVEL[requiredId];
+  if (need == null) return have.includes(requiredId);
+  return have.some((id) => (LICENSE_LEVEL[id] ?? 0) >= need);
+}
 
 /** Les 17 régions administratives — hors fourre-tout (autre / hors QC / télétravail). */
 export const PROFILE_REGIONS = QUEBEC_REGIONS.filter(
@@ -33,7 +59,12 @@ const REMOTE_IDS: ReadonlySet<string> = new Set(REMOTE_TYPES.map((r) => r.id));
 
 export function profileIsSet(p: JobSeekerProfile | null | undefined): boolean {
   if (!p) return false;
-  return p.trades.length > 0 || p.regions.length > 0 || p.remote.length > 0;
+  return (
+    p.trades.length > 0 ||
+    p.regions.length > 0 ||
+    p.remote.length > 0 ||
+    (p.licenses?.length ?? 0) > 0
+  );
 }
 
 function uniqKnown(ids: unknown, known: (id: string) => boolean): string[] {
@@ -57,6 +88,7 @@ export function parseProfile(raw: unknown): JobSeekerProfile {
     trades: uniqKnown(o.trades, (id) => !!ccqTradeById(id)),
     regions: uniqKnown(o.regions, (id) => REGION_IDS.has(id)),
     remote: uniqKnown(o.remote, (id) => REMOTE_IDS.has(id)) as JobSeekerProfile["remote"],
+    licenses: uniqKnown(o.licenses, (id) => LICENSE_IDS.has(id)),
   };
 }
 
@@ -66,6 +98,7 @@ export function mergeProfiles(a: JobSeekerProfile, b: JobSeekerProfile): JobSeek
     trades: [...a.trades, ...b.trades],
     regions: [...a.regions, ...b.regions],
     remote: [...a.remote, ...b.remote],
+    licenses: [...(a.licenses ?? []), ...(b.licenses ?? [])],
   });
 }
 
@@ -113,7 +146,7 @@ export interface ProfileMatch {
   reasons: string[];
 }
 
-const WEIGHT = { trade: 50, region: 35, remote: 15 } as const;
+const WEIGHT = { trade: 50, region: 35, remote: 15, license: 20 } as const;
 
 /**
  * Score d'adéquation offre ↔ profil. `null` si le profil est vide
@@ -161,6 +194,21 @@ export function matchJobToProfile(
     if (profile.remote.includes(jobRemote)) {
       points += WEIGHT.remote;
       reasons.push(labelForRemote(jobRemote) ?? jobRemote);
+    }
+  }
+
+  if (profile.licenses.length) {
+    const needed = extractRequirements(job.title, job.description)
+      .map((f) => f.id)
+      .filter((id) => LICENSE_IDS.has(id));
+    // Comme le métier CCQ : l'axe ne compte que si l'offre mentionne un permis.
+    if (needed.length) {
+      max += WEIGHT.license;
+      if (needed.every((id) => profileCoversLicense(profile.licenses ?? [], id))) {
+        points += WEIGHT.license;
+        const labels = PROFILE_LICENSES.filter((l) => needed.includes(l.id)).map((l) => l.label);
+        reasons.push(labels.join(", ") || "Permis");
+      }
     }
   }
 

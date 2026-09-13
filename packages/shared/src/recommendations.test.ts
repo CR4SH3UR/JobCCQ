@@ -114,6 +114,7 @@ describe("recommendJobs", () => {
       trades: ["charpentier-menuisier"],
       regions: ["laval"],
       remote: [],
+      licenses: [],
     };
     const recs = recommendJobs(
       catalog,

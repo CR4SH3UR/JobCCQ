@@ -29,7 +29,7 @@ export default function ConfidentialitePage() {
         </li>
         <li>
           <strong>Favoris, profil et alertes</strong> — les offres que vous enregistrez, votre
-          profil métier (métiers, régions, mobilité) et les critères de vos alertes, associés à
+          profil métier (métiers, régions, mobilité, permis) et les critères de vos alertes, associés à
           votre compte pour suivre d'un appareil à l'autre.
         </li>
         <li>

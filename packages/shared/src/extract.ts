@@ -75,6 +75,14 @@ function matchFlags(
   return out;
 }
 
+/** Permis de conduire QC : « classe N », chauffeur / conducteur classe N. */
+function permisClasseRe(n: 1 | 3 | 5): RegExp {
+  return new RegExp(
+    String.raw`permis(?:\s+de\s+conduire)?\s+classe\s*${n}|\bclasse\s*${n}\b.{0,20}permis|(?:chauffeur|chauffeuse|conducteur|conductrice)\w*.{0,40}classe\s*${n}`,
+    "i",
+  );
+}
+
 const REQUIREMENT_PATTERNS: { id: string; label: string; re: RegExp }[] = [
   { id: "asp", label: "ASP Construction", re: /\basp\s*construction\b|\bcsts\b|sant[ée]\s*[\-–]?\s*s[ée]curit[ée]\s+construction/i },
   {
@@ -82,8 +90,9 @@ const REQUIREMENT_PATTERNS: { id: string; label: string; re: RegExp }[] = [
     label: "Carte de compétence",
     re: /carte\s+de\s+comp[ée]tence|certificat\s+de\s+comp[ée]tence|\bccq\b/i,
   },
-  { id: "permis-classe-1", label: "Permis classe 1", re: /permis(?:\s+de\s+conduire)?\s+classe\s*1|\bclasse\s*1\b.{0,20}permis/i },
-  { id: "permis-classe-3", label: "Permis classe 3", re: /permis(?:\s+de\s+conduire)?\s+classe\s*3|\bclasse\s*3\b.{0,20}permis/i },
+  { id: "permis-classe-1", label: "Permis classe 1", re: permisClasseRe(1) },
+  { id: "permis-classe-3", label: "Permis classe 3", re: permisClasseRe(3) },
+  { id: "permis-classe-5", label: "Permis classe 5", re: permisClasseRe(5) },
   { id: "hauteur", label: "Travail en hauteur", re: /travail(?:ler)?\s+en\s+hauteur|harnais|plateforme\s+[ée]l[ée]vatrice/i },
   { id: "simdut", label: "SIMDUT", re: /\bsimdut\b|\bwhmis\b/i },
   { id: "cadenassage", label: "Cadenassage", re: /cadenassage|\blockout\b|\bloto\b/i },

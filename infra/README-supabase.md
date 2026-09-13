@@ -74,7 +74,7 @@ la date de rappel réarme l'envoi.
 
 ### Table du profil métier (« Mon profil »)
 
-Même principe : métiers CCQ, régions et mobilité suivent le compte. Page
+Même principe : métiers CCQ, régions, mobilité et permis suivent le compte. Page
 **« Mon profil »**. Colle et exécute aussi :
 
 ```sql
@@ -83,8 +83,13 @@ create table if not exists public.seeker_profiles (
   trades     jsonb       not null default '[]'::jsonb,
   regions    jsonb       not null default '[]'::jsonb,
   remote     jsonb       not null default '[]'::jsonb,
+  licenses   jsonb       not null default '[]'::jsonb,
   updated_at timestamptz not null default now()
 );
+
+-- Table déjà créée sans permis :
+-- alter table public.seeker_profiles
+--   add column if not exists licenses jsonb not null default '[]'::jsonb;
 
 alter table public.seeker_profiles enable row level security;
 

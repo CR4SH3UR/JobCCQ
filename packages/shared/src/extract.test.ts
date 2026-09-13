@@ -50,6 +50,13 @@ describe("extractRequirements", () => {
     assert.ok(ids.includes("hauteur"));
   });
 
+  it("détecte chauffeur classe 1 et permis classe 5", () => {
+    assert.ok(extractRequirements("Chauffeur Classe 1").map((x) => x.id).includes("permis-classe-1"));
+    assert.ok(
+      extractRequirements("Permis de conduire classe 5 obligatoire.").map((x) => x.id).includes("permis-classe-5"),
+    );
+  });
+
   it("ne flagge rien sans indice", () => {
     assert.deepEqual(extractRequirements("Électricien de chantier à Montréal"), []);
   });
