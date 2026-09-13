@@ -20,6 +20,7 @@ import {
   renameEmployerId as renameTursoEmployerId,
 } from "@/lib/admin-turso";
 import { diffDiscovered, type DiscoveredDiff, type DiffEmployer } from "@/lib/discovered-diff";
+import { isMissingCareersUrl, normalizeCareersUrl } from "@/lib/admin-employer-filters";
 import { Badge } from "./Badge";
 import { AdminMergeDialog } from "./AdminMergeDialog";
 import { AdminOfferEditor, type OfferPatch, type OfferRow, type SaveState } from "./AdminOfferEditor";
@@ -109,7 +110,7 @@ const OFFERS_SQL =
    FROM Job WHERE sourceId=? ORDER BY id DESC LIMIT 60`;
 
 /** Filtres du tableau (persistés dans le navigateur → survivent au rafraîchissement). */
-const FILTER_KEYS = ["all", "active", "unverified", "verified", "customscraper", "generic", "nojobs", "disabled", "duplicates", "errors", "neverrun"] as const;
+const FILTER_KEYS = ["all", "active", "unverified", "verified", "customscraper", "generic", "nojobs", "nourl", "disabled", "duplicates", "errors", "neverrun"] as const;
 type FilterKey = (typeof FILTER_KEYS)[number];
 /** Tri du tableau. */
 const SORT_KEYS = ["name", "jobsDesc", "jobsAsc", "method", "region", "lastRun"] as const;
@@ -399,7 +400,7 @@ function rowToEmployer(r: Record<string, unknown>): Employer {
     id: String(r.id),
     name: String(r.name),
     homepage: String(r.homepage),
-    careersUrl: String(r.careersUrl),
+    careersUrl: normalizeCareersUrl(r.careersUrl),
     method: r.method as DiscoveredMethod,
     careersUrl2: r.careersUrl2 ? String(r.careersUrl2) : undefined,
     method2: r.method2 ? (r.method2 as DiscoveredMethod) : undefined,
@@ -2017,9 +2018,10 @@ export function AdminExplorer() {
       if (filter === "verified" && !e.verified) return false;
       if (filter === "unverified" && e.verified) return false;
       if (filter === "nojobs" && (counts[e.id] ?? 0) > 0) return false;
+      if (filter === "nourl" && !isMissingCareersUrl(e.careersUrl)) return false;
       if (filter === "active" && e.enabled === false) return false;
       if (filter === "disabled" && e.enabled !== false) return false;
-      if (hideDisabled && filter !== "disabled" && filter !== "active" && e.enabled === false) return false;
+      if (hideDisabled && filter !== "disabled" && filter !== "active" && filter !== "nourl" && e.enabled === false) return false;
       if (filter === "duplicates" && !isDup(e)) return false;
       if (filter === "errors" && (lastRuns[e.id]?.status !== "error" || e.enabled === false)) return false;
       if (filter === "neverrun" && lastRuns[e.id]) return false;
@@ -2135,6 +2137,7 @@ export function AdminExplorer() {
 
   const verifiedCount = employers.filter((e) => e.verified).length;
   const noJobsCount = employers.filter((e) => (counts[e.id] ?? 0) === 0).length;
+  const noUrlCount = employers.filter((e) => isMissingCareersUrl(e.careersUrl)).length;
   const disabledCount = employers.filter((e) => e.enabled === false).length;
   const dupCount = employers.filter((e) => isDup(e)).length;
   const errorCount = employers.filter((e) => lastRuns[e.id]?.status === "error" && e.enabled !== false).length;
@@ -2515,7 +2518,7 @@ export function AdminExplorer() {
           )}
 
           {/* Tableau de bord : indicateurs clés cliquables (filtre associé). */}
-          <div className="mb-4 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-9">
+          <div className="mb-4 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
             {[
               { label: "Employeurs", value: employers.length, f: "all" as FilterKey },
               { label: "Actives", value: employers.length - disabledCount, f: "active" as FilterKey },
@@ -2523,6 +2526,7 @@ export function AdminExplorer() {
               { label: "Vérifiés", value: verifiedCount, f: "verified" as FilterKey },
               { label: "Désactivés", value: disabledCount, f: "disabled" as FilterKey },
               { label: "Sans offres", value: noJobsCount, f: "nojobs" as FilterKey },
+              { label: "Sans URL", value: noUrlCount, f: "nourl" as FilterKey },
               { label: "Scrapers perso", value: customScraperCount, f: "customscraper" as FilterKey },
               { label: "Doublons", value: dupCount, f: "duplicates" as FilterKey },
               { label: "En erreur", value: errorCount, f: "errors" as FilterKey },
@@ -2620,6 +2624,7 @@ export function AdminExplorer() {
                 <option value="customscraper">Scraper personnalisé ({customScraperCount})</option>
                 <option value="generic">Scraper générique ({employers.length - customScraperCount})</option>
                 <option value="nojobs">Sans offres ({noJobsCount})</option>
+                <option value="nourl">Sans URL ({noUrlCount})</option>
                 <option value="disabled">Désactivées ({disabledCount})</option>
                 <option value="duplicates">Doublons ({dupCount})</option>
                 <option value="errors">En erreur ({errorCount})</option>
@@ -2661,12 +2666,12 @@ export function AdminExplorer() {
               </select>
               <label
                 className="flex shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
-                title="Masque les fiches désactivées, sauf si le filtre « Désactivées » est choisi."
+                title="Masque les fiches désactivées, sauf si le filtre « Désactivées » ou « Sans URL » est choisi."
               >
                 <input
                   type="checkbox"
-                  checked={hideDisabled && filter !== "disabled"}
-                  disabled={filter === "disabled"}
+                  checked={hideDisabled && filter !== "disabled" && filter !== "nourl"}
+                  disabled={filter === "disabled" || filter === "nourl"}
                   onChange={(e) => changeHideDisabled(e.target.checked)}
                 />
                 Cacher les désactivées
@@ -3243,6 +3248,11 @@ function Row({
             ⚠ doublon
           </button>
         )}
+        {isMissingCareersUrl(url) && (
+          <Badge tone="amber" title="Aucune URL de page carrières">
+            Sans URL
+          </Badge>
+        )}
         <LastRunBadge lastRun={lastRun} />
       </div>
 
@@ -3250,8 +3260,11 @@ function Row({
         <input
           value={url}
           onChange={(ev) => setUrl(ev.target.value)}
+          placeholder="URL carrières (https://…)"
           spellCheck={false}
-          className="min-w-[16rem] flex-1 rounded-lg border border-slate-200 px-2 py-1 font-mono text-xs outline-none focus:border-brand-400"
+          className={`min-w-[16rem] flex-1 rounded-lg border px-2 py-1 font-mono text-xs outline-none focus:border-brand-400 ${
+            isMissingCareersUrl(url) ? "border-amber-300 bg-amber-50/60" : "border-slate-200"
+          }`}
         />
         <input
           value={url2}
