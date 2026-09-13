@@ -23104,12 +23104,14 @@
   {
     "id": "transelec-com",
     "name": "Transelec/Common inc.",
-    "homepage": "https://www.vinci-energies.com",
-    "careersUrl": "https://jobs.vinci.com/en/job/-/-/1440/40973928192",
-    "method": "jsonld",
+    "homepage": "https://www.tciplus.ca",
+    "careersUrl": "https://www.tciplus.ca/accueil-2/nous-rejoindre/nos-offres-demploi/",
+    "method": "html",
+    "careersUrl2": "https://www.jobillico.com/fr/employeurs/tci/voir-liste-emplois",
+    "method2": "jobillico",
     "region": "Laval",
     "rbq": "2623-4039-29",
-    "scope": "Employeur — construction (découverte RBQ)",
+    "scope": "Employeur — construction (TCI+ / VINCI Energies)",
     "sectors": [
       "Construction générale"
     ]

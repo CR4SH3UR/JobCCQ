@@ -80,6 +80,7 @@ export const CUSTOM_SCRAPER_IDS = [
   "cmicotenord-ca",
   "can-inspec-ca",
   "camconstruction-ca",
+  "transelec-com",
   "con-v-air-com",
   "gcbfinc-com",
   "bellemare-njoyn",
