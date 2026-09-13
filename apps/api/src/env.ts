@@ -38,5 +38,5 @@ export const env = {
    */
   SCRAPE_PROXY_HOSTS:
     process.env.SCRAPE_PROXY_HOSTS ??
-    "jobillico.com,desfor.com,alarme-bois-francs.com,ardecconstruction.com",
+    "jobillico.com,desfor.com,alarme-bois-francs.com,ardecconstruction.com,hudl.ca",
 };

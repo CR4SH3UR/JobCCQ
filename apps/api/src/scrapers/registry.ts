@@ -48,6 +48,7 @@ import { gestionAgodinScraper } from "./gestionagodin.js";
 import { baulneScraper } from "./baulne.js";
 import { berardTremblayScraper } from "./berardtremblay.js";
 import { constructionJrsavardScraper } from "./constructionjrsavard.js";
+import { constructionLongerScraper } from "./constructionlonger.js";
 import { bertrandOstiguyScraper } from "./bertrandostiguy.js";
 import { betonBarretteScraper } from "./betonbarrette.js";
 import { brunetScraper } from "./brunet.js";
@@ -138,6 +139,7 @@ const BESPOKE = {
   "baulne-ca": baulneScraper,
   "berardtremblay-com": berardTremblayScraper,
   "constructionjrsavard-ca": constructionJrsavardScraper,
+  "constructionlonger-com": constructionLongerScraper,
   "bertrandostiguy-ca": bertrandOstiguyScraper,
   "betonbarrette-qc-ca": betonBarretteScraper,
   "brunet-cc": brunetScraper,
