@@ -26,17 +26,20 @@ function daysBetween(fromIso: string | null | undefined, now: number): number | 
 /**
  * Sources dont le **dernier** run est en erreur, avec le nombre de jours
  * depuis le dernier succès (ou depuis l'échec s'il n'y a jamais eu de succès).
+ * Les employeurs désactivés (`disabledIds`) sont exclus : plus à traiter.
  */
 export function failingScrapers(
   latest: RunSlice[],
   lastSuccess: Map<string, string>,
   names: Record<string, string> = {},
   now = Date.now(),
+  disabledIds?: ReadonlySet<string>,
 ): FailingSource[] {
   const seen = new Set<string>();
   const out: FailingSource[] = [];
   for (const r of latest) {
     if (r.status !== "error" || seen.has(r.sourceId)) continue;
+    if (disabledIds?.has(r.sourceId)) continue;
     seen.add(r.sourceId);
     const ok = lastSuccess.get(r.sourceId) ?? null;
     out.push({

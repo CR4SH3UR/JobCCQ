@@ -73,6 +73,17 @@ async function main() {
       console.log(`⏭ ${before - ids.length} source(s) retirée(s)/fusionnée(s) ignorée(s).`);
     }
   }
+  const disabled = await prisma.employer
+    .findMany({ where: { enabled: false }, select: { id: true } })
+    .catch(() => [] as { id: string }[]);
+  if (disabled.length) {
+    const skip = new Set(disabled.map((e) => e.id));
+    const before = ids.length;
+    ids = ids.filter((id) => !skip.has(id));
+    if (ids.length < before) {
+      console.log(`⏭ ${before - ids.length} source(s) désactivée(s) ignorée(s).`);
+    }
+  }
   if (!ids.length) {
     console.log("Aucune source à scraper (liste vide ou uniquement des fiches ancrées).");
     return;

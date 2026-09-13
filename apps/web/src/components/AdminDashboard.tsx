@@ -81,7 +81,7 @@ async function loadFromTurso(): Promise<DashData | null> {
           "SELECT id, sourceId, status, found, inserted, updated, error, finishedAt, startedAt FROM ScrapeRun ORDER BY id DESC LIMIT 25",
         ),
       ),
-      tursoRows(creds.url, creds.token, "SELECT id, name FROM Employer"),
+      tursoRows(creds.url, creds.token, "SELECT id, name, enabled FROM Employer"),
       tursoRows(creds.url, creds.token, "SELECT DISTINCT sourceId FROM ScrapeRun"),
       tursoRows(
         creds.url,
@@ -97,6 +97,9 @@ async function loadFromTurso(): Promise<DashData | null> {
       ).catch(() => []),
     ]);
   const nameById = Object.fromEntries(employers.map((e) => [String(e.id), String(e.name)]));
+  const disabledIds = new Set(
+    employers.filter((e) => Number(e.enabled) === 0).map((e) => String(e.id)),
+  );
   const lastSuccess = new Map(
     lastOk
       .filter((r) => r.lastOk)
@@ -120,6 +123,8 @@ async function loadFromTurso(): Promise<DashData | null> {
       })),
       lastSuccess,
       nameById,
+      Date.now(),
+      disabledIds,
     ),
     topSources: bySource.map((s) => ({
       id: String(s.sourceId),

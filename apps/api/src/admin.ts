@@ -263,7 +263,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       prisma.employer.count({ where: { verified: true } }),
       prisma.job.groupBy({ by: ["sourceId"], _count: true }),
       prisma.scrapeRun.findMany({ orderBy: { id: "desc" }, take: 25 }),
-      prisma.employer.findMany({ select: { id: true, name: true } }),
+      prisma.employer.findMany({ select: { id: true, name: true, enabled: true } }),
       prisma.scrapeRun.findMany({ distinct: ["sourceId"], select: { sourceId: true } }),
       prisma.scrapeRun.groupBy({ by: ["sourceId"], _max: { id: true } }),
       prisma.scrapeRun.groupBy({
@@ -294,6 +294,7 @@ export function registerAdminRoutes(app: FastifyInstance): void {
         .filter((r) => r._max.finishedAt)
         .map((r) => [r.sourceId, r._max.finishedAt!.toISOString()]),
     );
+    const disabledIds = new Set(employers.filter((e) => e.enabled === false).map((e) => e.id));
     const failingSources = failingScrapers(
       latestRuns.map((r) => ({
         sourceId: r.sourceId,
@@ -303,6 +304,8 @@ export function registerAdminRoutes(app: FastifyInstance): void {
       })),
       lastSuccess,
       nameById,
+      Date.now(),
+      disabledIds,
     );
     return {
       totalJobs,
