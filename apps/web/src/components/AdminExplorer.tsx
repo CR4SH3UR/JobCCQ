@@ -2021,7 +2021,7 @@ export function AdminExplorer() {
       if (filter === "disabled" && e.enabled !== false) return false;
       if (hideDisabled && filter !== "disabled" && filter !== "active" && e.enabled === false) return false;
       if (filter === "duplicates" && !isDup(e)) return false;
-      if (filter === "errors" && lastRuns[e.id]?.status !== "error") return false;
+      if (filter === "errors" && (lastRuns[e.id]?.status !== "error" || e.enabled === false)) return false;
       if (filter === "neverrun" && lastRuns[e.id]) return false;
       if (filter === "customscraper" && !hasCustomScraper(e.id)) return false;
       if (filter === "generic" && hasCustomScraper(e.id)) return false;
@@ -2137,7 +2137,7 @@ export function AdminExplorer() {
   const noJobsCount = employers.filter((e) => (counts[e.id] ?? 0) === 0).length;
   const disabledCount = employers.filter((e) => e.enabled === false).length;
   const dupCount = employers.filter((e) => isDup(e)).length;
-  const errorCount = employers.filter((e) => lastRuns[e.id]?.status === "error").length;
+  const errorCount = employers.filter((e) => lastRuns[e.id]?.status === "error" && e.enabled !== false).length;
   const neverRunCount = employers.filter((e) => !lastRuns[e.id]).length;
   const customScraperCount = employers.filter((e) => hasCustomScraper(e.id)).length;
   const totalOffers = employers.reduce((s, e) => s + (counts[e.id] ?? 0), 0);
@@ -2719,7 +2719,9 @@ export function AdminExplorer() {
                   <button
                     type="button"
                     onClick={() => {
-                      const ids = employers.filter((e) => lastRuns[e.id]?.status === "error").map((e) => e.id);
+                      const ids = employers
+                        .filter((e) => lastRuns[e.id]?.status === "error" && e.enabled !== false)
+                        .map((e) => e.id);
                       void bulkRescrape(ids);
                     }}
                     title="Relancer uniquement les sources dont le dernier scrape a échoué"

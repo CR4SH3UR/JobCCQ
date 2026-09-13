@@ -137,6 +137,9 @@ async function fetchWithRetry(
  */
 export async function fetchHtml(url: string, opts: FetchOptions = {}): Promise<string> {
   const { retries = 2, timeoutMs = 20_000, userAgent = env.USER_AGENT } = opts;
+  if (!url.trim()) {
+    throw Object.assign(new Error("URL carrières vide"), { fatal: true });
+  }
 
   const viaProxy = proxied(url); // non-null si l'hôte est déjà routé via le proxy
   const target = viaProxy ?? url;

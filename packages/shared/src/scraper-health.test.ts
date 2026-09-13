@@ -35,4 +35,18 @@ describe("failingScrapers", () => {
       [],
     );
   });
+
+  it("ignore les employeurs désactivés", () => {
+    const out = failingScrapers(
+      [
+        { sourceId: "off", status: "error", at: "2026-08-20T12:00:00.000Z", error: "Missing ?url=" },
+        { sourceId: "on", status: "error", at: "2026-09-04T12:00:00.000Z", error: "403" },
+      ],
+      new Map(),
+      { off: "Bourcier", on: "Acme" },
+      NOW,
+      new Set(["off"]),
+    );
+    assert.deepEqual(out.map((s) => s.sourceId), ["on"]);
+  });
 });
