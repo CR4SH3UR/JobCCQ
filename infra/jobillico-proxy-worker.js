@@ -54,7 +54,7 @@ export default {
     // Hôtes toujours relayés : le dashboard Cloudflare peut garder une
     // ALLOW_HOSTS restrictive qui ignore wrangler.toml (`*`). Sans ça, le
     // repli proxy du scrape CI répond « Host not allowed » (ex. hudl.ca).
-    const extra = ["hudl.ca"];
+    const extra = ["hudl.ca", "jobs.vinci.com", "tciplus.ca"];
     const hostOk = (h) => t.hostname === h || t.hostname.endsWith(`.${h}`);
     const ok = allow.includes("*") || extra.some(hostOk) || allow.some(hostOk);
     if (!ok) return new Response("Host not allowed", { status: 403 });

@@ -79,6 +79,7 @@ import { convairScraper } from "./convair.js";
 import { gcbfincScraper } from "./gcbfinc.js";
 import { canInspecScraper } from "./caninspec.js";
 import { camConstructionScraper } from "./camconstruction.js";
+import { transelecScraper } from "./transelec.js";
 import { cdPeintreScraper } from "./cdpeintre.js";
 import { casParCasScraper } from "./casparcas.js";
 import { buildDiscoveredScraper } from "./discovered.js";
@@ -167,6 +168,7 @@ const BESPOKE = {
   "cmicotenord-ca": cmiCoteNordScraper,
   "can-inspec-ca": canInspecScraper,
   "camconstruction-ca": camConstructionScraper,
+  "transelec-com": transelecScraper,
   "con-v-air-com": convairScraper,
   "gcbfinc-com": gcbfincScraper,
   "bellemare-njoyn": bellemareScraper,

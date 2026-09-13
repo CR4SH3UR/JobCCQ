@@ -133,7 +133,7 @@ utile si un jour Cloudflare est bloqué à son tour.
 | --------------------- | ----------------------------------------------- | ----------------------------------------------------------- |
 | `SCRAPE_PROXY_URL`    | *(vide)*                                        | endpoint proxy ; vide = aucun proxy (comportement actuel)   |
 | `SCRAPE_PROXY_TOKEN`  | *(vide)*                                        | jeton partagé, ajouté en `?token=` (ou `{token}`)           |
-| `SCRAPE_PROXY_HOSTS`  | `jobillico.com,desfor.com,alarme-bois-francs.com,ardecconstruction.com,hudl.ca` | hôtes **toujours** routés via le proxy (CSV) ; `*` ou vide = tous |
+| `SCRAPE_PROXY_HOSTS`  | `jobillico.com,desfor.com,alarme-bois-francs.com,ardecconstruction.com,hudl.ca,jobs.vinci.com,tciplus.ca` | hôtes **toujours** routés via le proxy (CSV) ; `*` ou vide = tous |
 
 Seuls les hôtes listés passent **d'emblée** par le proxy ; les autres sites
 continuent en direct (rapide, pas de quota consommé) et ne basculent sur le
