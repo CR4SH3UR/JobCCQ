@@ -31,6 +31,7 @@ const electricienMtl: JobSeekerProfile = {
   trades: ["electricien"],
   regions: ["montreal"],
   remote: ["presentiel"],
+  licenses: [],
 };
 
 describe("parseProfile", () => {
@@ -39,10 +40,12 @@ describe("parseProfile", () => {
       trades: ["electricien", "electricien", "licorne"],
       regions: ["montreal", "mars"],
       remote: ["presentiel", "soucoupe"],
+      licenses: ["permis-classe-1", "permis-classe-1", "classe-8"],
     });
     assert.deepEqual(p.trades, ["electricien"]);
     assert.deepEqual(p.regions, ["montreal"]);
     assert.deepEqual(p.remote, ["presentiel"]);
+    assert.deepEqual(p.licenses, ["permis-classe-1"]);
   });
 
   it("profileIsSet est faux si tout est vide", () => {
@@ -54,12 +57,13 @@ describe("parseProfile", () => {
 describe("mergeProfiles + decideProfileSync", () => {
   it("fusionne sans doublon", () => {
     const m = mergeProfiles(
-      { trades: ["electricien"], regions: ["montreal"], remote: [] },
-      { trades: ["electricien", "plombier"], regions: ["laval"], remote: ["presentiel"] },
+      { trades: ["electricien"], regions: ["montreal"], remote: [], licenses: ["permis-classe-5"] },
+      { trades: ["electricien", "plombier"], regions: ["laval"], remote: ["presentiel"], licenses: ["permis-classe-1"] },
     );
     assert.deepEqual(m.trades, ["electricien", "plombier"]);
     assert.deepEqual(m.regions, ["montreal", "laval"]);
     assert.deepEqual(m.remote, ["presentiel"]);
+    assert.deepEqual(m.licenses, ["permis-classe-5", "permis-classe-1"]);
   });
 
   it("pousse le local s'il n'y a rien en remote", () => {
@@ -84,7 +88,7 @@ describe("mergeProfiles + decideProfileSync", () => {
   });
 
   it("la dernière écriture gagne", () => {
-    const older = { trades: ["plombier"], regions: [], remote: [] as JobSeekerProfile["remote"] };
+    const older = { trades: ["plombier"], regions: [], remote: [] as JobSeekerProfile["remote"], licenses: [] };
     const newer = electricienMtl;
     const localWins = decideProfileSync({
       local: newer,
@@ -108,9 +112,9 @@ describe("mergeProfiles + decideProfileSync", () => {
 
   it("sans horodatage, fusionne pour ne rien perdre", () => {
     const d = decideProfileSync({
-      local: { trades: ["electricien"], regions: [], remote: [] },
+      local: { trades: ["electricien"], regions: [], remote: [], licenses: [] },
       localAt: 0,
-      remote: { trades: [], regions: ["montreal"], remote: [] },
+      remote: { trades: [], regions: ["montreal"], remote: [], licenses: [] },
       remoteAt: 0,
     });
     assert.equal(d.action, "merge");
@@ -136,7 +140,7 @@ describe("matchJobToProfile", () => {
   });
 
   it("ne pénalise pas un axe non renseigné", () => {
-    const onlyTrade: JobSeekerProfile = { trades: ["electricien"], regions: [], remote: [] };
+    const onlyTrade: JobSeekerProfile = { trades: ["electricien"], regions: [], remote: [], licenses: [] };
     const m = matchJobToProfile(job("Électricien", { regionId: "gaspesie-iles-de-la-madeleine" }), onlyTrade);
     assert.equal(m?.score, 100);
   });
@@ -159,13 +163,25 @@ describe("matchJobToProfile", () => {
   });
 
   it("une offre hors métiers CCQ n'affiche pas 0 % si seul le métier est au profil", () => {
-    const onlyTrade: JobSeekerProfile = { trades: ["electricien"], regions: [], remote: [] };
+    const onlyTrade: JobSeekerProfile = { trades: ["electricien"], regions: [], remote: [], licenses: [] };
     assert.equal(matchJobToProfile(job("Préventionniste SSE"), onlyTrade), null);
   });
 
   it("détecte un contremaître", () => {
-    const p: JobSeekerProfile = { trades: ["contremaitre"], regions: [], remote: [] };
+    const p: JobSeekerProfile = { trades: ["contremaitre"], regions: [], remote: [], licenses: [] };
     assert.equal(matchJobToProfile(job("CONTREMAITRE"), p)?.score, 100);
+  });
+
+  it("un permis classe 1 matche chauffeur classe 1 et couvre classe 3", () => {
+    const p: JobSeekerProfile = { trades: [], regions: [], remote: [], licenses: ["permis-classe-1"] };
+    assert.equal(matchJobToProfile(job("Chauffeur Classe 1"), p)?.score, 100);
+    assert.equal(matchJobToProfile(job("Chauffeur classe 3"), p)?.score, 100);
+    assert.equal(matchJobToProfile(job("Électricien de chantier"), p), null);
+  });
+
+  it("une classe 5 ne suffit pas pour une offre classe 1", () => {
+    const p: JobSeekerProfile = { trades: [], regions: [], remote: [], licenses: ["permis-classe-5"] };
+    assert.equal(matchJobToProfile(job("Chauffeur Classe 1"), p)?.score, 0);
   });
 });
 

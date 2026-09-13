@@ -11,7 +11,7 @@ import {
 import { supabase } from "./supabase";
 
 /**
- * Profil métier — métiers, régions, mobilité.
+ * Profil métier — métiers, régions, mobilité, permis.
  *
  * - **Anonyme / Supabase non configuré** : stocké dans ce navigateur.
  * - **Connecté** : table `seeker_profiles` (RLS, une ligne par compte).
@@ -86,6 +86,7 @@ function persistRemote(profile: JobSeekerProfile, updatedAt: number): void {
         trades: profile.trades,
         regions: profile.regions,
         remote: profile.remote,
+        licenses: profile.licenses,
         updated_at: new Date(updatedAt).toISOString(),
       },
       { onConflict: "user_id" },
@@ -133,7 +134,7 @@ async function onLogin(uid: string): Promise<void> {
   if (!supabase) return;
   const { data, error } = await supabase
     .from("seeker_profiles")
-    .select("trades, regions, remote, updated_at")
+    .select("trades, regions, remote, licenses, updated_at")
     .eq("user_id", uid)
     .maybeSingle();
   if (error) {

@@ -8,7 +8,7 @@ import { dismissOnboarding, useOnboardingDismissed, useProfileIsSet } from "@/li
 import { filtersToQueryString, profileToFilters } from "@/lib/search-url";
 
 /**
- * Bannière d'accueil : métier, région, mobilité → profil + filtres pré-remplis.
+ * Bannière d'accueil : métier, région, mobilité, permis → profil + filtres pré-remplis.
  * Masquée une fois le profil rempli ou si le visiteur a choisi « plus tard ».
  * Affichée seulement après montage (le profil vit dans localStorage).
  */

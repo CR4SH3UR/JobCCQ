@@ -22,6 +22,7 @@ import {
   extractBenefits,
   summarizeDescription,
   matchJobToProfile,
+  profileCoversLicense,
   ccqWageForJob,
   formatCcqHourly,
   CCQ_SALARY_URL,
@@ -58,6 +59,7 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
   const [error, setError] = useState(false);
   const [showEn, setShowEn] = useState(false);
   const lastApplyClickAt = useLastApplyClickAt(id);
+  const profile = useProfile();
 
   const load = useCallback(async () => {
     try {
@@ -305,7 +307,16 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
                     <ul className="mt-2 flex flex-wrap gap-1.5">
                       {requirements.map((r) => (
                         <li key={r.id}>
-                          <Badge>{r.label}</Badge>
+                          <Badge
+                            tone={profileCoversLicense(profile.licenses, r.id) ? "green" : "slate"}
+                            title={
+                              profileCoversLicense(profile.licenses, r.id)
+                                ? "Ton profil couvre cette exigence"
+                                : undefined
+                            }
+                          >
+                            {r.label}
+                          </Badge>
                         </li>
                       ))}
                     </ul>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   CCQ_TRADES,
+  PROFILE_LICENSES,
   PROFILE_REGIONS,
   REMOTE_TYPES,
   type JobSeekerProfile,
@@ -11,7 +12,7 @@ import { cn } from "@/lib/format";
 import { saveProfile, useProfile } from "@/lib/profile";
 
 /**
- * Formulaire de profil (métiers CCQ, régions, mobilité). Réutilisé par
+ * Formulaire de profil (métiers CCQ, régions, mobilité, permis). Réutilisé par
  * l'onboarding accueil et la page « Mon profil ».
  */
 export function ProfileForm({
@@ -27,22 +28,24 @@ export function ProfileForm({
   const [trades, setTrades] = useState<string[]>(stored.trades);
   const [regions, setRegions] = useState<string[]>(stored.regions);
   const [remote, setRemote] = useState<JobSeekerProfile["remote"]>(stored.remote);
+  const [licenses, setLicenses] = useState<string[]>(stored.licenses ?? []);
 
   // Resync si le profil est vidé / modifié ailleurs (même onglet).
-  const storedKey = `${stored.trades.join(",")}|${stored.regions.join(",")}|${stored.remote.join(",")}`;
+  const storedKey = `${stored.trades.join(",")}|${stored.regions.join(",")}|${stored.remote.join(",")}|${stored.licenses.join(",")}`;
   const [prevKey, setPrevKey] = useState(storedKey);
   if (prevKey !== storedKey) {
     setPrevKey(storedKey);
     setTrades(stored.trades);
     setRegions(stored.regions);
     setRemote(stored.remote);
+    setLicenses(stored.licenses ?? []);
   }
 
   const toggle = (list: string[], id: string): string[] =>
     list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
 
   const save = () => {
-    const next = saveProfile({ trades, regions, remote });
+    const next = saveProfile({ trades, regions, remote, licenses });
     onSaved?.(next);
   };
 
@@ -78,6 +81,14 @@ export function ProfileForm({
         onToggle={(id) =>
           setRemote((cur) => toggle(cur, id) as JobSeekerProfile["remote"])
         }
+        compact={compact}
+      />
+      <ChipField
+        title="Permis"
+        hint="Permis de conduire du Québec (classe 1, 3 ou 5)."
+        options={PROFILE_LICENSES.map((l) => ({ id: l.id, label: l.label }))}
+        selected={licenses}
+        onToggle={(id) => setLicenses((cur) => toggle(cur, id))}
         compact={compact}
       />
       <div className="flex flex-wrap items-center gap-2">
