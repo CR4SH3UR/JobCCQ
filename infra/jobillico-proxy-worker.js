@@ -44,19 +44,21 @@ export default {
       return new Response("Bad scheme", { status: 400 });
     }
     // 3) Allowlist d'hôtes (anti relais ouvert). « * » = tous les hôtes
-    //    (le jeton reste obligatoire → ce n'est pas un relais ouvert). Pratique
-    //    quand beaucoup de sites bloquent les IP de CI : on évite d'ajouter
-    //    chaque hôte à la main des deux côtés.
+    //    (le jeton reste obligatoire → ce n'est pas un relais ouvert).
+    //    Si PROXY_TOKEN est configuré, il a déjà été vérifié plus haut : on
+    //    relaie tout hôte. Le dashboard CF ignore souvent wrangler.toml
+    //    (`ALLOW_HOSTS=*`) et renvoyait sinon « Host not allowed ».
     const allow = (env.ALLOW_HOSTS || "jobillico.com")
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-    // Hôtes toujours relayés : le dashboard Cloudflare peut garder une
-    // ALLOW_HOSTS restrictive qui ignore wrangler.toml (`*`). Sans ça, le
-    // repli proxy du scrape CI répond « Host not allowed » (ex. hudl.ca).
-    const extra = ["hudl.ca", "jobs.vinci.com", "tciplus.ca"];
+    const extra = ["hudl.ca", "jobs.vinci.com", "tciplus.ca", "agmconstruction.ca"];
     const hostOk = (h) => t.hostname === h || t.hostname.endsWith(`.${h}`);
-    const ok = allow.includes("*") || extra.some(hostOk) || allow.some(hostOk);
+    const ok =
+      Boolean(env.PROXY_TOKEN) ||
+      allow.includes("*") ||
+      extra.some(hostOk) ||
+      allow.some(hostOk);
     if (!ok) return new Response("Host not allowed", { status: 403 });
 
     // 4) Récupère la cible avec un User-Agent de navigateur.
