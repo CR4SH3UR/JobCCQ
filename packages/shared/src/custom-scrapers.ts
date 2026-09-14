@@ -7,6 +7,7 @@
  */
 export const CUSTOM_SCRAPER_IDS = [
   "ccq-construction",
+  "agmconstruction-ca",
   "cdpeintre-com",
   "casparcas-ca",
   "atwill-morin",
