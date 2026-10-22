@@ -1,0 +1,7 @@
+User-Agent: *
+Allow: /
+
+User-Agent: *
+Disallow: /embed/
+
+Sitemap: https://jobccqc.ca/sitemap.xml
