@@ -57,37 +57,12 @@ function decodeDeep(s: string, max = 3): string {
 }
 
 /**
- * Convertit un fragment HTML en texte en PRÉSERVANT les sauts de ligne de bloc
- * (`<br>`, fins de `<p>`/`<li>`/`<div>`/titres). Le `htmlToText` partagé écrase
- * tous les blancs en une espace ; ici on garde la structure (sections, puces)
- * pour une description lisible. Tronque sur une frontière de mot/ligne.
- */
-function richHtmlToText(html: string, maxLen = 2000): string | undefined {
-  if (!html) return undefined;
-  const withBreaks = html
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/(p|div|li|h[1-6]|tr)>/gi, "\n");
-  const raw = cheerio.load(`<div>${withBreaks}</div>`)("div").text();
-  const cleaned = raw
-    .split("\n")
-    .map((line) => line.replace(/[^\S\n]+/g, " ").trim()) // espaces/tabs/nbsp intra-ligne
-    .join("\n")
-    .replace(/\n{3,}/g, "\n\n") // au plus une ligne vide
-    .replace(/^\s+|\s+$/g, "");
-  if (!cleaned) return undefined;
-  if (cleaned.length <= maxLen) return cleaned;
-  const cut = cleaned.slice(0, maxLen);
-  const boundary = Math.max(cut.lastIndexOf("\n"), cut.lastIndexOf(" "));
-  const end = boundary >= maxLen * 0.6 ? boundary : maxLen - 1;
-  return `${cut.slice(0, end).trimEnd()}…`;
-}
-
-/**
  * Description lisible depuis le corps HTML de la page : Quantum conserve la
  * vraie mise en forme dans `.post-content` (sauts de ligne, puces « - »), alors
  * que la description du JSON-LD est aplatie sans séparateur (mots collés
  * « RigaudTu… »). On retient le `.post-content` le plus long (le corps de
  * l'offre) ; repli sur le JSON-LD si le bloc est absent ou trop court.
+ * `htmlToText` (partagé) préserve désormais les sauts de bloc.
  */
 function descriptionFromBody($: cheerio.CheerioAPI): string | undefined {
   let html = "";
@@ -95,7 +70,7 @@ function descriptionFromBody($: cheerio.CheerioAPI): string | undefined {
     const h = $(el).html() ?? "";
     if (h.length > html.length) html = h;
   });
-  const text = richHtmlToText(html);
+  const text = htmlToText(html, 2000);
   return text && text.length >= 120 ? text : undefined;
 }
 
