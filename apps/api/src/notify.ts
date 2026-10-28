@@ -264,7 +264,9 @@ async function main() {
     console.log("Resend absent : pas de courriels (webhooks d'alerte toujours envoyés).");
   }
   const supa = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
-  const reminderSent = await notifyApplicationReminders(supa as NotifySupabase);
+  // Double cast via `unknown` : comparer le type (profond) du client Supabase
+  // à `NotifySupabase` dépasse la limite d'instanciation de TS (TS2589).
+  const reminderSent = await notifyApplicationReminders(supa as unknown as NotifySupabase);
 
   const { data: alerts, error } = await supa.from("job_alerts").select("id,user_id,label,query,last_notified_at");
   if (error) {
