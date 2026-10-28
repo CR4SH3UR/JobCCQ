@@ -52,6 +52,37 @@ import { CompanyAvatar } from "./CompanyAvatar";
 
 const REMOTE_TONE = { teletravail: "green", hybride: "violet", presentiel: "slate" } as const;
 
+/**
+ * Rend une description texte en préservant sa structure : les lignes qui sont
+ * des titres de section (courtes, se terminant par « : ») passent en gras ;
+ * les lignes vides deviennent de l'espacement. Les sauts de ligne viennent de
+ * la normalisation (`stripHtmlKeepLines`), qui conserve la mise en forme.
+ */
+function JobDescription({ text }: { text: string }) {
+  const lines = text.split("\n");
+  return (
+    <div className="mt-3 text-sm leading-relaxed text-slate-600">
+      {lines.map((line, i) => {
+        const l = line.trim();
+        if (!l) return <div key={i} className="h-2.5" aria-hidden />;
+        const isHeading = l.length <= 70 && /[:：]$/.test(l);
+        if (isHeading) {
+          return (
+            <p key={i} className="mt-3 font-semibold text-slate-800">
+              {l}
+            </p>
+          );
+        }
+        return (
+          <p key={i} className="mt-0.5">
+            {l}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job | null }) {
   const [job, setJob] = useState<Job | null>(initialJob ?? null);
   const [similar, setSimilar] = useState<Job[]>([]);
@@ -280,9 +311,7 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
               </>
             )}
             {job.description ? (
-              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-slate-600">
-                {job.description}
-              </p>
+              <JobDescription text={job.description} />
             ) : (
               <p className="mt-3 text-sm leading-relaxed text-slate-500">
                 Le résumé complet de cette offre est disponible sur le site de la source.{" "}

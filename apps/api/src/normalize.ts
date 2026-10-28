@@ -1,6 +1,14 @@
 import { createHash } from "node:crypto";
-import { decodeHtmlEntities, isLandscapingOrSnow } from "@jobccq/shared";
+import { ccqWageForJob, decodeHtmlEntities, isLandscapingOrSnow } from "@jobccq/shared";
 import type { Job, RawJob } from "@jobccq/shared";
+
+/**
+ * L'offre indique que le salaire suit la grille CCQ (ex. « Salaire selon les
+ * taux de la CCQ »). Exige un mot « salaire/taux/rémunération/grille… » à
+ * proximité de « CCQ » pour ne pas confondre avec « vacances selon la CCQ ».
+ */
+const CCQ_SALARY_RE =
+  /(salaire|taux|r[ée]mun[ée]ration|paie|gages?|grille|[ée]chelle|bar[èe]me)[^.!?\n]{0,40}\bc\.?\s?c\.?\s?q\b/i;
 
 /** Retire les accents et met en minuscules (comparaisons tolérantes). */
 function fold(s: string): string {
@@ -260,6 +268,17 @@ export function normalizeRawJob(raw: RawJob, now = new Date()): Job {
   const salaryFromText =
     raw.salaryMin == null && raw.salaryMax == null ? parseSalary(raw.description) : undefined;
 
+  // Salaire « selon la CCQ » : à défaut de montant explicite ou détecté, on
+  // pose le taux compagnon ICI de la CCQ quand le métier en a un (sinon rien —
+  // on n'invente pas de chiffre, ex. un contremaître n'a pas de taux unique).
+  const ccqWage =
+    raw.salaryMin == null &&
+    raw.salaryMax == null &&
+    !salaryFromText &&
+    CCQ_SALARY_RE.test(text)
+      ? ccqWageForJob(raw.title, { regionId: region })
+      : undefined;
+
   let postedAt: string | undefined;
   if (raw.postedAt) {
     const t = Date.parse(raw.postedAt);
@@ -278,9 +297,9 @@ export function normalizeRawJob(raw: RawJob, now = new Date()): Job {
     remote,
     categoryId: inferCategory(raw.title, tags),
     employmentType: raw.employmentType,
-    salaryMin: raw.salaryMin ?? salaryFromText?.salaryMin,
-    salaryMax: raw.salaryMax ?? salaryFromText?.salaryMax,
-    salaryPeriod: raw.salaryPeriod ?? salaryFromText?.salaryPeriod,
+    salaryMin: raw.salaryMin ?? salaryFromText?.salaryMin ?? ccqWage?.hourly,
+    salaryMax: raw.salaryMax ?? salaryFromText?.salaryMax ?? ccqWage?.hourly,
+    salaryPeriod: raw.salaryPeriod ?? salaryFromText?.salaryPeriod ?? (ccqWage ? "heure" : undefined),
     currency: "CAD",
     description: raw.description ? stripHtmlKeepLines(raw.description) || undefined : undefined,
     tags,

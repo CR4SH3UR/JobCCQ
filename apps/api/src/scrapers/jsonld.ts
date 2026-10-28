@@ -2,16 +2,31 @@ import * as cheerio from "cheerio";
 import type { RawJob } from "@jobccq/shared";
 import { slugify } from "./util.js";
 
-/** Nettoie un fragment HTML en texte simple tronqué. */
+/**
+ * Nettoie un fragment HTML en texte lisible tronqué, en PRÉSERVANT la structure :
+ * les sauts de bloc (`<br>`, fins de `<p>`/`<li>`/`<div>`/titres) deviennent des
+ * retours à la ligne (le détail du site les rend en `whitespace-pre-line`). Les
+ * blancs intra-ligne sont compactés, au plus une ligne vide consécutive. La
+ * troncature se fait sur une frontière de mot/ligne pour ne pas couper un mot.
+ */
 export function htmlToText(html?: string, maxLen = 600): string | undefined {
   if (!html) return undefined;
-  const text = cheerio
-    .load(`<div>${html}</div>`)("div")
-    .text()
-    .replace(/\s+/g, " ")
-    .trim();
-  if (!text) return undefined;
-  return text.length > maxLen ? `${text.slice(0, maxLen - 1)}…` : text;
+  const withBreaks = html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|li|h[1-6]|tr|blockquote)>/gi, "\n");
+  const raw = cheerio.load(`<div>${withBreaks}</div>`)("div").text();
+  const cleaned = raw
+    .split("\n")
+    .map((line) => line.replace(/[^\S\n]+/g, " ").trim()) // espaces/tabs/nbsp intra-ligne
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n") // au plus une ligne vide
+    .replace(/^\s+|\s+$/g, "");
+  if (!cleaned) return undefined;
+  if (cleaned.length <= maxLen) return cleaned;
+  const cut = cleaned.slice(0, maxLen);
+  const boundary = Math.max(cut.lastIndexOf("\n"), cut.lastIndexOf(" "));
+  const end = boundary >= maxLen * 0.6 ? boundary : maxLen - 1;
+  return `${cut.slice(0, end).trimEnd()}…`;
 }
 
 const EMPLOYMENT_MAP: Record<string, RawJob["employmentType"]> = {
