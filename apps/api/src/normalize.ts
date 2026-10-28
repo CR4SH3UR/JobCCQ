@@ -11,13 +11,31 @@ function fold(s: string): string {
     .trim();
 }
 
-/** Retire les balises HTML résiduelles d'un texte (descriptions, titres). */
+/** Retire les balises HTML résiduelles d'un texte (titres). Aplatit les blancs. */
 function stripHtml(s?: string | null): string {
   return (s ?? "")
     .replace(/<[^>]+>/g, " ")
     .replace(/&nbsp;/gi, " ")
     .replace(/&amp;/gi, "&")
     .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Comme `stripHtml` mais PRÉSERVE les sauts de ligne — pour les descriptions,
+ * que le détail du site rend en `whitespace-pre-line`. Les scrapers qui
+ * structurent leur texte (puces, sections séparées par `\n`) gardent ainsi leur
+ * mise en forme ; ceux qui émettent une seule ligne sont inchangés (aucun `\n`).
+ * Compacte les blancs intra-ligne et limite à une ligne vide consécutive.
+ */
+function stripHtmlKeepLines(s?: string | null): string {
+  return (s ?? "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/[^\S\n]+/g, " ") // espaces/tabs, mais pas les \n
+    .replace(/[ \t]*\n[ \t]*/g, "\n") // coupe les blancs autour des sauts
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
 
@@ -264,7 +282,7 @@ export function normalizeRawJob(raw: RawJob, now = new Date()): Job {
     salaryMax: raw.salaryMax ?? salaryFromText?.salaryMax,
     salaryPeriod: raw.salaryPeriod ?? salaryFromText?.salaryPeriod,
     currency: "CAD",
-    description: raw.description ? stripHtml(raw.description) || undefined : undefined,
+    description: raw.description ? stripHtmlKeepLines(raw.description) || undefined : undefined,
     tags,
     languages: detectLanguages(text),
     postedAt,
