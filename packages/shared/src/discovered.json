@@ -27395,5 +27395,18 @@
       "Génie civil et voirie"
     ],
     "verified": false
+  },
+  {
+    "id": "quantum-ca",
+    "name": "Quantum",
+    "homepage": "https://quantum.ca",
+    "careersUrl": "https://quantum.ca/jobs/1002981-Contremaitre-de-chantier-travaux-civil-/",
+    "method": "jsonld",
+    "region": "Montérégie",
+    "scope": "Agence de recrutement — offre construction / génie civil (scraper JSON-LD de description)",
+    "sectors": [
+      "Génie civil et voirie"
+    ],
+    "verified": true
   }
 ]
