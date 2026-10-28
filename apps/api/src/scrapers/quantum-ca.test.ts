@@ -24,6 +24,33 @@ const FIXTURE = `<!doctype html><html><head>
 </script>
 </head><body></body></html>`;
 
+// Page complète : le corps `.post-content` porte la vraie mise en forme
+// (<br>, <strong>, puces « - »). La description du JSON-LD y est volontairement
+// aplatie (« RigaudTu ») pour vérifier que le corps HTML est bien préféré.
+const FIXTURE_BODY = `<!doctype html><html><head>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "JobPosting",
+  "title": "Contremaitre de chantier – travaux civil ",
+  "datePosted": "2026-10-15T00:00:00.000Z",
+  "hiringOrganization": { "@type": "Organization" },
+  "jobLocation": { "@type": "Place", "address": { "@type": "PostalAddress", "addressRegion": "Rigaud, QC" } },
+  "description": "Poste : contremaitre de chantier travaux civils Lieu de travail : RigaudTu as de l'exp&amp;#233;rience ?"
+}
+</script>
+</head><body>
+<div class="post-content"><h3>explore what's possible</h3></div>
+<div class="post-content">
+  <p><span><strong>Poste :</strong> contremaitre de chantier – travaux civils&nbsp;</span><br>
+  <span><strong>Lieu de travail : </strong>Rigaud</span><br><br>
+  <span>Tu as de l'expérience en travaux civils ?</span><br>
+  <span><strong>Tes principales responsabilités :</strong></span><br>
+  <span>- Superviser et coordonner les activités du chantier.</span><br>
+  <span>- Mobiliser les équipes et répartir les tâches.</span></p>
+</div>
+</body></html>`;
+
 describe("parseQuantum", () => {
   it("extrait l'offre depuis le JSON-LD JobPosting", () => {
     const jobs = parseQuantum(FIXTURE, BASE);
@@ -37,7 +64,8 @@ describe("parseQuantum", () => {
     assert.equal(job.postedAt, "2026-10-15T00:00:00.000Z");
   });
 
-  it("décode la description double-échappée (entités CP1252)", () => {
+  it("décode la description double-échappée en repli JSON-LD (entités CP1252)", () => {
+    // Pas de .post-content ici → repli sur la description du JSON-LD.
     const { description } = parseQuantum(FIXTURE, BASE)[0]!;
     assert.ok(description, "description présente");
     assert.ok(description!.includes("travaux civils"), "texte lisible");
@@ -55,5 +83,24 @@ describe("parseQuantum", () => {
 
   it("renvoie [] si la page n'expose aucun JobPosting", () => {
     assert.deepEqual(parseQuantum("<html><body>Aucune offre</body></html>", BASE), []);
+  });
+});
+
+describe("parseQuantum — description depuis le corps .post-content", () => {
+  it("préfère le corps HTML lisible au JSON-LD aplati", () => {
+    const { description } = parseQuantum(FIXTURE_BODY, BASE)[0]!;
+    assert.ok(description, "description présente");
+    // Le corps structuré gagne : les sections sont séparées, pas de mots collés.
+    assert.ok(description!.includes("\n"), "des sauts de ligne sont conservés");
+    assert.ok(!description!.includes("RigaudTu"), "pas de mots collés du JSON-LD");
+    assert.ok(/Rigaud\s*\n/.test(description!), "« Rigaud » suivi d'un retour à la ligne");
+    assert.ok(description!.includes("- Superviser"), "les puces sont préservées");
+    assert.ok(description!.includes("Tes principales responsabilités :"), "les titres de section restent");
+  });
+
+  it("choisit le .post-content le plus long (corps de l'offre)", () => {
+    const { description } = parseQuantum(FIXTURE_BODY, BASE)[0]!;
+    // Le bloc « explore what's possible » (court) est ignoré.
+    assert.ok(!description!.includes("explore what's possible"), "ignore le bloc décoratif court");
   });
 });

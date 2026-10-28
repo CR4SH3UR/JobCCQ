@@ -56,6 +56,49 @@ function decodeDeep(s: string, max = 3): string {
   return out;
 }
 
+/**
+ * Convertit un fragment HTML en texte en PRÉSERVANT les sauts de ligne de bloc
+ * (`<br>`, fins de `<p>`/`<li>`/`<div>`/titres). Le `htmlToText` partagé écrase
+ * tous les blancs en une espace ; ici on garde la structure (sections, puces)
+ * pour une description lisible. Tronque sur une frontière de mot/ligne.
+ */
+function richHtmlToText(html: string, maxLen = 2000): string | undefined {
+  if (!html) return undefined;
+  const withBreaks = html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|li|h[1-6]|tr)>/gi, "\n");
+  const raw = cheerio.load(`<div>${withBreaks}</div>`)("div").text();
+  const cleaned = raw
+    .split("\n")
+    .map((line) => line.replace(/[^\S\n]+/g, " ").trim()) // espaces/tabs/nbsp intra-ligne
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n") // au plus une ligne vide
+    .replace(/^\s+|\s+$/g, "");
+  if (!cleaned) return undefined;
+  if (cleaned.length <= maxLen) return cleaned;
+  const cut = cleaned.slice(0, maxLen);
+  const boundary = Math.max(cut.lastIndexOf("\n"), cut.lastIndexOf(" "));
+  const end = boundary >= maxLen * 0.6 ? boundary : maxLen - 1;
+  return `${cut.slice(0, end).trimEnd()}…`;
+}
+
+/**
+ * Description lisible depuis le corps HTML de la page : Quantum conserve la
+ * vraie mise en forme dans `.post-content` (sauts de ligne, puces « - »), alors
+ * que la description du JSON-LD est aplatie sans séparateur (mots collés
+ * « RigaudTu… »). On retient le `.post-content` le plus long (le corps de
+ * l'offre) ; repli sur le JSON-LD si le bloc est absent ou trop court.
+ */
+function descriptionFromBody($: cheerio.CheerioAPI): string | undefined {
+  let html = "";
+  $(".post-content").each((_, el) => {
+    const h = $(el).html() ?? "";
+    if (h.length > html.length) html = h;
+  });
+  const text = richHtmlToText(html);
+  return text && text.length >= 120 ? text : undefined;
+}
+
 /** Aplati @graph / tableaux / ItemList pour retrouver tous les JobPosting. */
 function collectNodes(data: unknown, out: Record<string, unknown>[], depth = 0): void {
   if (depth > 8) return;
@@ -86,6 +129,8 @@ export function parseQuantum(html: string, baseUrl = CAREERS_URL): RawJob[] {
   const jobs: RawJob[] = [];
   const seen = new Set<string>();
   const strip = (u: string) => u.replace(/#.*$/, "").replace(/\/+$/, "");
+  // Une page Quantum = une offre : la description du corps vaut pour le poste.
+  const bodyDescription = descriptionFromBody($);
 
   $('script[type="application/ld+json"]').each((_, el) => {
     const raw = $(el).contents().text();
@@ -159,7 +204,8 @@ export function parseQuantum(html: string, baseUrl = CAREERS_URL): RawJob[] {
         salaryMin,
         salaryMax,
         salaryPeriod,
-        description: htmlToText(decodeDeep(asString(node.description) ?? ""), 1200),
+        // Corps HTML lisible en priorité ; repli sur le JSON-LD (double-décodé).
+        description: bodyDescription ?? htmlToText(decodeDeep(asString(node.description) ?? ""), 2000),
         postedAt: asString(node.datePosted),
         tags: [],
       });
