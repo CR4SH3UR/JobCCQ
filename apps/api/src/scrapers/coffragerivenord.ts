@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import type { Element } from "domhandler";
 import type { RawJob } from "@jobccq/shared";
 import type { Scraper, ScrapeContext, ScrapeParams } from "./types.js";
 import { cleanText, slugify } from "./util.js";
@@ -19,7 +20,7 @@ const BROWSER_UA =
 const SKIP =
   /^(offres?\s+d['’]?emplois?|carri[eè]res?|faites partie|contact(\s+us)?|nous joindre|estimation|candidature)$/i;
 
-function bulletsFrom($: cheerio.CheerioAPI, $h3: cheerio.Cheerio<cheerio.Element>): string | undefined {
+function bulletsFrom($: cheerio.CheerioAPI, $h3: cheerio.Cheerio<Element>): string | undefined {
   const $group = $h3.closest(".flex-element.group");
   const items = $group
     .find("li")
