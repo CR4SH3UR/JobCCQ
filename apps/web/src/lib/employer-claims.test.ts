@@ -16,12 +16,12 @@ describe("employer-claims", () => {
   it("préfère le courriel de l'annuaire admin", () => {
     const emails = new Map([["u1", "marie@hamel.ca"]]);
     const [got] = withLookupEmails([claim({ email: "old@x.ca" })], emails);
-    assert.equal(got.email, "marie@hamel.ca");
+    assert.equal(got!.email, "marie@hamel.ca");
   });
 
   it("garde le courriel déjà stocké si l'annuaire n'a pas l'id", () => {
     const [got] = withLookupEmails([claim({ email: "deja@hamel.ca" })], new Map());
-    assert.equal(got.email, "deja@hamel.ca");
+    assert.equal(got!.email, "deja@hamel.ca");
   });
 
   it("retire une demande de la file", () => {

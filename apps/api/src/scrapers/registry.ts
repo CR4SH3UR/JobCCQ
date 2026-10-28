@@ -55,6 +55,7 @@ import { brunetScraper } from "./brunet.js";
 import { betonFondationPlusScraper } from "./betonfondationplus.js";
 import { betonSurfaceScraper } from "./betonsurface.js";
 import { bousadaScraper } from "./bousada.js";
+import { quantumScraper } from "./quantum-ca.js";
 import { bellemareScraper, groupebellemareScraper } from "./bellemare.js";
 import { betonGlScraper } from "./betongl.js";
 import { boismassifquebecScraper } from "./boismassifquebec.js";
@@ -148,6 +149,7 @@ const BESPOKE = {
   "betonfondationplus-com": betonFondationPlusScraper,
   "betonsurface-ca": betonSurfaceScraper,
   "bousada-com": bousadaScraper,
+  "quantum-ca": quantumScraper,
   "betongl-com": betonGlScraper,
   "boismassifquebec-com": boismassifquebecScraper,
   "boless-com": bolessScraper,

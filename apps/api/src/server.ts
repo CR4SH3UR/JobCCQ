@@ -1,4 +1,4 @@
-import Fastify, { type FastifyInstance } from "fastify";
+import Fastify, { type FastifyError, type FastifyInstance } from "fastify";
 import cors from "@fastify/cors";
 import {
   EMPLOYMENT_TYPES,
@@ -61,7 +61,8 @@ function parseJobQuery(raw: Record<string, unknown>): JobQuery {
 export function buildServer(): FastifyInstance {
   const app = Fastify({ logger: true });
   app.register(cors, { origin: true });
-  app.setErrorHandler((err, req, reply) => {
+  // Fastify 5 type `error` à `unknown` par défaut : on fixe `FastifyError`.
+  app.setErrorHandler((err: FastifyError, req, reply) => {
     void reportToSentry(process.env.SENTRY_DSN, err, { app: "api" });
     req.log.error(err);
     const status = err.statusCode && err.statusCode >= 400 ? err.statusCode : 500;
