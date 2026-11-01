@@ -9,6 +9,7 @@ import { AdminDashboard } from "@/components/AdminDashboard";
 import { AdminJobs } from "@/components/AdminJobs";
 import { AdminReports } from "@/components/AdminReports";
 import { AdminEmployerSpace } from "@/components/AdminEmployerSpace";
+import { AdminBanner } from "@/components/AdminBanner";
 
 type AdminModuleKey =
   | "overview"
@@ -18,6 +19,7 @@ type AdminModuleKey =
   | "reports"
   | "employers"
   | "sponsors"
+  | "banner"
   | "regions";
 
 const MODULES: Array<{
@@ -69,6 +71,12 @@ const MODULES: Array<{
     action: "Gérer",
   },
   {
+    key: "banner",
+    title: "Bandeau",
+    description: "Le bandeau d'annonce en haut du site (« beta »).",
+    action: "Gérer",
+  },
+  {
     key: "regions",
     title: "Régions & municipalités",
     description: "Associer une ville à sa région administrative.",
@@ -87,7 +95,7 @@ export function AdminModules() {
           Centre de contrôle JobCCQc
         </h1>
         <p className="mt-1 max-w-2xl text-sm text-slate-600 dark:text-slate-300">
-          Modules : tableau de bord, comptes, sources, offres, signalements, employeurs, commandites et régions.
+          Modules : tableau de bord, comptes, sources, offres, signalements, employeurs, commandites, bandeau et régions.
         </p>
       </header>
 
@@ -121,6 +129,7 @@ export function AdminModules() {
       <div hidden={active !== "sponsors"}>
         <AdminSponsors />
       </div>
+      {active === "banner" ? <AdminBanner /> : null}
       {active === "regions" ? <AdminRegions /> : null}
     </div>
   );

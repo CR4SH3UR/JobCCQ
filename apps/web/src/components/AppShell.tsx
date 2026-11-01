@@ -9,6 +9,7 @@ import { ScrollToTop } from "./ScrollToTop";
 import { CompareBar } from "./CompareBar";
 import { OfflineBanner } from "./OfflineBanner";
 import { hydrateSponsors } from "@/lib/sponsors-live";
+import { hydrateBanner } from "@/lib/banner-live";
 
 /**
  * Chrome du site. Le widget `/embed/…` (iframe chez un employeur) n'affiche
@@ -19,6 +20,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const embed = path.startsWith("/embed");
   useEffect(() => {
     void hydrateSponsors();
+    void hydrateBanner();
   }, []);
 
   if (embed) {
