@@ -64,6 +64,17 @@ function proxied(rawUrl: string, force = false): string | null {
   return proxyUrlFor(rawUrl);
 }
 
+/**
+ * L'erreur vient-elle de la **configuration du proxy** (et non de la cible) ?
+ * Le Worker répond « Host not allowed » (hôte hors ALLOW_HOSTS), « Forbidden »
+ * (jeton refusé) ou « Bad url / Bad scheme / Missing ?url= » (requête mal
+ * formée). Dans ces cas, le proxy ne peut pas aider : on tente la cible en
+ * direct, et on ne laisse jamais ce message masquer le vrai échec de la source.
+ */
+export function isProxyConfigError(message: string): boolean {
+  return /host not allowed|missing \?url|bad url|bad scheme|—\s*forbidden\b/i.test(message);
+}
+
 export interface FetchOptions {
   retries?: number;
   timeoutMs?: number;
@@ -142,19 +153,39 @@ export async function fetchHtml(url: string, opts: FetchOptions = {}): Promise<s
   }
 
   const viaProxy = proxied(url); // non-null si l'hôte est déjà routé via le proxy
-  const target = viaProxy ?? url;
 
+  // Hôte routé d'office via le proxy. Si le proxy **refuse l'hôte** (config :
+  // « Host not allowed », jeton refusé…), on retente la cible EN DIRECT plutôt
+  // que de faire échouer la source — c'est le cas typique de « Host not allowed ».
+  if (viaProxy) {
+    try {
+      return await fetchWithRetry(viaProxy, url, retries, timeoutMs, userAgent);
+    } catch (proxyErr) {
+      const msg = proxyErr instanceof Error ? proxyErr.message : String(proxyErr);
+      if (isProxyConfigError(msg)) {
+        return await fetchWithRetry(url, url, retries, timeoutMs, userAgent);
+      }
+      throw proxyErr;
+    }
+  }
+
+  // Sinon : direct d'abord, puis repli proxy (rattrape les blocages par IP).
   try {
-    return await fetchWithRetry(target, url, retries, timeoutMs, userAgent);
-  } catch (err) {
-    // Repli proxy : uniquement si on n'y est pas déjà passé et qu'un proxy existe.
-    if (!viaProxy) {
-      const forced = proxied(url, true);
-      if (forced) {
+    return await fetchWithRetry(url, url, retries, timeoutMs, userAgent);
+  } catch (directErr) {
+    const forced = proxied(url, true);
+    if (forced) {
+      try {
         return await fetchWithRetry(forced, url, retries, timeoutMs, userAgent);
+      } catch (proxyErr) {
+        // Repli proxy échoué : si c'est une erreur de config proxy (« Host not
+        // allowed »…), on remonte l'erreur DIRECTE — le vrai blocage de la
+        // cible — au lieu de noyer le diagnostic sous un souci de proxy.
+        const msg = proxyErr instanceof Error ? proxyErr.message : String(proxyErr);
+        throw isProxyConfigError(msg) ? directErr : proxyErr;
       }
     }
-    throw err;
+    throw directErr;
   }
 }
 

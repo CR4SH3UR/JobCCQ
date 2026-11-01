@@ -8,7 +8,8 @@
  *
  * Sécurité : le Worker n'est PAS un relais ouvert.
  *  - il exige un jeton partagé (secret PROXY_TOKEN) ;
- *  - il ne relaie que les hôtes autorisés (ALLOW_HOSTS, défaut « jobillico.com »).
+ *  - il relaie tout hôte par défaut (ALLOW_HOSTS=« * »), le jeton faisant foi ;
+ *    on peut restreindre en listant des hôtes dans ALLOW_HOSTS.
  *
  * Déploiement : voir infra/README-proxy.md.
  *
@@ -43,22 +44,17 @@ export default {
     if (t.protocol !== "http:" && t.protocol !== "https:") {
       return new Response("Bad scheme", { status: 400 });
     }
-    // 3) Allowlist d'hôtes (anti relais ouvert). « * » = tous les hôtes
-    //    (le jeton reste obligatoire → ce n'est pas un relais ouvert).
-    //    Si PROXY_TOKEN est configuré, il a déjà été vérifié plus haut : on
-    //    relaie tout hôte. Le dashboard CF ignore souvent wrangler.toml
-    //    (`ALLOW_HOSTS=*`) et renvoyait sinon « Host not allowed ».
-    const allow = (env.ALLOW_HOSTS || "jobillico.com")
+    // 3) Allowlist d'hôtes (anti relais ouvert). Défaut « * » = tous les hôtes :
+    //    la sécurité repose sur le jeton PROXY_TOKEN (recommandé). On ne restreint
+    //    QUE si ALLOW_HOSTS est défini explicitement à autre chose que « * ».
+    //    Si PROXY_TOKEN est configuré, il a déjà été vérifié plus haut → on relaie
+    //    tout hôte de toute façon (le dashboard CF ignore souvent wrangler.toml).
+    const allow = (env.ALLOW_HOSTS || "*")
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
-    const extra = ["hudl.ca", "jobs.vinci.com", "tciplus.ca", "agmconstruction.ca"];
     const hostOk = (h) => t.hostname === h || t.hostname.endsWith(`.${h}`);
-    const ok =
-      Boolean(env.PROXY_TOKEN) ||
-      allow.includes("*") ||
-      extra.some(hostOk) ||
-      allow.some(hostOk);
+    const ok = Boolean(env.PROXY_TOKEN) || allow.includes("*") || allow.some(hostOk);
     if (!ok) return new Response("Host not allowed", { status: 403 });
 
     // 4) Récupère la cible avec un User-Agent de navigateur.
