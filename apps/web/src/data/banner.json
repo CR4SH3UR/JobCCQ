@@ -1,10 +1,10 @@
 {
-  "enabled": true,
+  "enabled": false,
   "id": "beta-2026",
   "emoji": "🚧",
   "title": "Version beta",
   "message": "— les offres sont mises à jour 2×/semaine. Une idée ou un problème ?",
-  "tone": "amber",
+  "tone": "green",
   "dismissible": true,
   "link": {
     "kind": "contact",
