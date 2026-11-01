@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "id": "beta-2026",
+  "emoji": "🚧",
+  "title": "Version beta",
+  "message": "— les offres sont mises à jour 2×/semaine. Une idée ou un problème ?",
+  "tone": "amber",
+  "dismissible": true,
+  "link": {
+    "kind": "contact",
+    "label": "Écris-nous",
+    "subject": "Retour beta — JobCCQc"
+  }
+}
