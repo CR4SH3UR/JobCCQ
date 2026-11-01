@@ -108,8 +108,15 @@ curl "https://jobccq.xxx.workers.dev/?url=https%3A%2F%2Fwww.jobillico.com%2Fvoir
 
 Une page HTML (statut 200) = OK. `403 Forbidden` = jeton absent/incorrect.
 `Host not allowed` = l'hôte n'est pas dans `ALLOW_HOSTS` **et** le Worker
-n'a pas de `PROXY_TOKEN` (sans jeton, l'allowlist reste obligatoire). Avec
-un jeton valide, tous les hôtes sont relayés.
+n'a pas de `PROXY_TOKEN`. **Le défaut est désormais `ALLOW_HOSTS = «*»`** (tout
+hôte relayé, le jeton faisant foi) : ce message n'apparaît donc que si tu as
+défini `ALLOW_HOSTS` sur une liste restreinte. Pour le régler : redéploie le
+Worker (`npx wrangler deploy`, qui pousse `ALLOW_HOSTS=*`), ou mets un
+`PROXY_TOKEN`, ou ajoute l'hôte à `ALLOW_HOSTS`.
+
+> Côté scraper, un « Host not allowed » du proxy ne fait plus échouer la source :
+> l'API retente automatiquement **en direct**, et ne reporte jamais ce message
+> à la place du vrai diagnostic de la cible (voir `apps/api/src/scrapers/http.ts`).
 
 ---
 

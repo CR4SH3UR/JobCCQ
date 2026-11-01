@@ -1,6 +1,22 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { withFetchErrorSignal } from "./http.js";
+import { isProxyConfigError, withFetchErrorSignal } from "./http.js";
+
+describe("isProxyConfigError", () => {
+  it("reconnaît les refus de configuration du proxy", () => {
+    assert.equal(isProxyConfigError("HTTP 403 sur https://x.ca/ — Host not allowed"), true);
+    assert.equal(isProxyConfigError("HTTP 403 sur https://x.ca/ — Forbidden"), true);
+    assert.equal(isProxyConfigError("HTTP 400 sur https://x.ca/ — Bad url"), true);
+    assert.equal(isProxyConfigError("HTTP 400 sur https://x.ca/ — Bad scheme"), true);
+    assert.equal(isProxyConfigError("HTTP 400 sur https://x.ca/ — Missing ?url="), true);
+  });
+  it("laisse passer un vrai blocage de la cible ou une erreur réseau", () => {
+    assert.equal(isProxyConfigError("HTTP 403 sur https://x.ca/ — <html>Accès interdit</html>"), false);
+    assert.equal(isProxyConfigError("HTTP 503 sur https://x.ca/"), false);
+    assert.equal(isProxyConfigError("coupure réseau"), false);
+    assert.equal(isProxyConfigError("HTTP 502 sur https://x.ca/ — Upstream error: fetch failed"), false);
+  });
+});
 
 describe("withFetchErrorSignal", () => {
   it("signale un succès (undefined) sans erreur", async () => {
