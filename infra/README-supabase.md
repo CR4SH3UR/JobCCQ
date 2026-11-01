@@ -682,3 +682,47 @@ create policy "employers read own apply_clicks" on public.apply_clicks
   );
 ```
 
+
+---
+
+# Journal de connexions (IP + géoIP)
+
+La console `/admin` (onglet **« Utilisateurs »** → **Détails** d'un compte) affiche les
+**dernières connexions** d'un compte : **IP** et **géolocalisation** (ville / région /
+pays). Les lignes sont écrites par l'**API** (service_role) à chaque connexion : le site
+appelle `POST /activity/login` après un `SIGNED_IN`, l'API lit l'IP réelle de la requête,
+résout la géoIP (service public, sans clé) et insère une ligne. **Rien n'est capté
+rétroactivement** : l'historique commence une fois la table créée et la nouvelle version
+déployée.
+
+- **Aucune lecture publique** : seul le service_role écrit et lit (RLS active sans
+  politique `select`/`insert` → tout est refusé côté navigateur, l'API passe outre).
+- Anti-doublon : pas de nouvelle ligne si la même IP a déjà été vue dans les 10 min.
+
+## Table + RLS (SQL, une seule fois)
+
+**SQL Editor → New query**, colle et exécute :
+
+```sql
+create table if not exists public.user_login_activity (
+  id         uuid        primary key default gen_random_uuid(),
+  user_id    uuid        not null references auth.users (id) on delete cascade,
+  ip         text,
+  country    text,
+  region     text,
+  city       text,
+  user_agent text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists user_login_activity_user_idx
+  on public.user_login_activity (user_id, created_at desc);
+
+-- RLS activée, SANS politique : seul le service_role (API) y accède.
+alter table public.user_login_activity enable row level security;
+```
+
+> Vie privée : une IP et une géolocalisation sont des **données personnelles**. Ne les
+> collecte que si tu en as l'usage, informe tes utilisateurs (politique de
+> confidentialité), et purge les anciennes lignes si tu n'en as plus besoin — par ex.
+> un cron SQL `delete from public.user_login_activity where created_at < now() - interval '180 days';`.

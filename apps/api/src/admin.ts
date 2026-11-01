@@ -14,6 +14,13 @@ import { rowToJob, reassignJobsToEmployer, restoreJobs } from "./repository.js";
 import { clearEmployerTombstone, recordEmployerTombstone } from "./employer-tombstones.js";
 import { fetchHtml, createHttpContext } from "./scrapers/http.js";
 import { toPreviewSample, fixtureFilename } from "./preview.js";
+import {
+  banDurationFromHours,
+  clientIpFromHeaders,
+  isPrivateIp,
+  parseGeo,
+  type GeoInfo,
+} from "./user-admin.js";
 
 /**
  * Routes de la **console d'administration** (usage local, API branchée).
@@ -44,11 +51,17 @@ type Employer = DiscoveredEmployer & { verified?: boolean; notes?: string };
 type AdminUserRow = {
   id: string;
   email: string;
+  phone?: string | null;
+  displayName?: string | null;
   createdAt: string | null;
+  updatedAt?: string | null;
   lastSignInAt: string | null;
   confirmedAt: string | null;
   providers: string[];
   bannedUntil?: string | null;
+  isAnonymous?: boolean;
+  mfaFactors?: number;
+  role?: string | null;
 };
 
 /** Ligne Prisma Employer → forme DiscoveredEmployer de l'API. */
@@ -94,14 +107,27 @@ function userToRow(user: User): AdminUserRow {
   if (Array.isArray(appProviders)) appProviders.forEach((p) => providers.add(String(p)));
   user.identities?.forEach((identity) => providers.add(identity.provider));
   const bannedUntil = (user as User & { banned_until?: string | null }).banned_until ?? null;
+  const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+  const displayName =
+    (typeof meta.full_name === "string" && meta.full_name.trim()) ||
+    (typeof meta.name === "string" && meta.name.trim()) ||
+    (typeof meta.user_name === "string" && meta.user_name.trim()) ||
+    null;
+  const factors = (user as User & { factors?: unknown[] }).factors;
   return {
     id: user.id,
     email: user.email ?? user.phone ?? "(sans courriel)",
+    phone: user.phone || null,
+    displayName,
     createdAt: user.created_at ?? null,
+    updatedAt: user.updated_at ?? null,
     lastSignInAt: user.last_sign_in_at ?? null,
     confirmedAt: user.email_confirmed_at ?? user.confirmed_at ?? null,
     providers: [...providers].sort(),
     bannedUntil,
+    isAnonymous: (user as User & { is_anonymous?: boolean }).is_anonymous ?? false,
+    mfaFactors: Array.isArray(factors) ? factors.length : 0,
+    role: (user as User & { role?: string | null }).role ?? null,
   };
 }
 
@@ -111,6 +137,58 @@ function normalizeEmail(value: unknown): string {
 
 function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+/** Client Supabase service_role (écritures/lectures admin). */
+function adminClient() {
+  return createClient(SUPABASE_URL!, SUPABASE_ADMIN_KEY!, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+}
+
+/**
+ * Valide un jeton Supabase et renvoie l'utilisateur (sans exiger le rôle admin).
+ * Sert à l'enregistrement d'activité : chaque personne connectée enregistre la
+ * sienne. Renvoie `{ error }` (et pose le code) si le jeton est absent/invalide.
+ */
+async function requireUser(
+  req: { headers: { authorization?: string } },
+  reply: { code: (statusCode: number) => void },
+): Promise<{ userId: string; email: string } | { error: string }> {
+  const token = req.headers.authorization?.match(/^Bearer\s+(.+)$/i)?.[1]?.trim();
+  if (!token) {
+    reply.code(401);
+    return { error: "Connexion requise." };
+  }
+  if (!SUPABASE_URL || !SUPABASE_VERIFY_KEY || !SUPABASE_ADMIN_KEY) {
+    reply.code(503);
+    return { error: "Supabase serveur non configuré." };
+  }
+  const verifier = createClient(SUPABASE_URL, SUPABASE_VERIFY_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  const { data, error } = await verifier.auth.getUser(token);
+  if (error || !data.user) {
+    reply.code(401);
+    return { error: "Session Supabase invalide." };
+  }
+  return { userId: data.user.id, email: data.user.email?.trim().toLowerCase() ?? "" };
+}
+
+/** Résolution géoIP d'une IP publique (service public sans clé). Dégrade à null. */
+async function geoLookup(ip: string): Promise<GeoInfo | null> {
+  if (isPrivateIp(ip)) return null;
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 2500);
+    const res = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`, { signal: ctrl.signal }).finally(
+      () => clearTimeout(timer),
+    );
+    if (!res.ok) return null;
+    return parseGeo(await res.json());
+  } catch {
+    return null; // service indisponible / bloqué : on n'empêche jamais l'enregistrement
+  }
 }
 
 async function requireAdminUser(req: { headers: { authorization?: string } }, reply: { code: (statusCode: number) => void }) {
@@ -202,20 +280,52 @@ export function registerAdminRoutes(app: FastifyInstance): void {
   });
 
   // Bannir / débannir un compte Auth (ban_duration côté Supabase).
-  app.post<{ Body: { userId?: string; ban?: boolean } }>("/admin/users/ban", async (req, reply) => {
+  // `durationHours` : durée du ban (ex. 24, 168). Absent/0 ⇒ permanent.
+  app.post<{ Body: { userId?: string; ban?: boolean; durationHours?: number } }>(
+    "/admin/users/ban",
+    async (req, reply) => {
+      const denied = await requireAdminUser(req, reply);
+      if ("error" in denied) return denied;
+
+      const userId = String(req.body?.userId ?? "").trim();
+      const ban = req.body?.ban !== false;
+      if (!userId) {
+        reply.code(400);
+        return { error: "Identifiant manquant." };
+      }
+
+      const admin = adminClient();
+      const { data: existing, error: lookupError } = await admin.auth.admin.getUserById(userId);
+      if (lookupError || !existing.user) {
+        reply.code(404);
+        return { error: lookupError?.message ?? "Compte introuvable." };
+      }
+      const targetEmail = existing.user.email?.trim().toLowerCase() ?? "";
+      if (targetEmail && ADMIN_EMAILS.includes(targetEmail)) {
+        reply.code(400);
+        return { error: "On ne bannit pas un administrateur." };
+      }
+
+      const duration = ban ? banDurationFromHours(req.body?.durationHours) : "none";
+      const { error } = await admin.auth.admin.updateUserById(userId, { ban_duration: duration });
+      if (error) {
+        reply.code(502);
+        return { error: error.message };
+      }
+      return { banned: ban, userId, email: targetEmail, duration };
+    },
+  );
+
+  // Supprimer définitivement un compte Auth.
+  app.post<{ Body: { userId?: string } }>("/admin/users/delete", async (req, reply) => {
     const denied = await requireAdminUser(req, reply);
     if ("error" in denied) return denied;
-
     const userId = String(req.body?.userId ?? "").trim();
-    const ban = req.body?.ban !== false;
     if (!userId) {
       reply.code(400);
       return { error: "Identifiant manquant." };
     }
-
-    const admin = createClient(SUPABASE_URL!, SUPABASE_ADMIN_KEY!, {
-      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-    });
+    const admin = adminClient();
     const { data: existing, error: lookupError } = await admin.auth.admin.getUserById(userId);
     if (lookupError || !existing.user) {
       reply.code(404);
@@ -224,17 +334,141 @@ export function registerAdminRoutes(app: FastifyInstance): void {
     const targetEmail = existing.user.email?.trim().toLowerCase() ?? "";
     if (targetEmail && ADMIN_EMAILS.includes(targetEmail)) {
       reply.code(400);
-      return { error: "On ne bannit pas un administrateur." };
+      return { error: "On ne supprime pas un administrateur." };
     }
-
-    const { error } = await admin.auth.admin.updateUserById(userId, {
-      ban_duration: ban ? "876000h" : "none",
-    });
+    const { error } = await admin.auth.admin.deleteUser(userId);
     if (error) {
       reply.code(502);
       return { error: error.message };
     }
-    return { banned: ban, userId, email: targetEmail };
+    return { deleted: true, userId, email: targetEmail };
+  });
+
+  // Forcer la confirmation du courriel (sans clic de l'utilisateur).
+  app.post<{ Body: { userId?: string } }>("/admin/users/confirm-email", async (req, reply) => {
+    const denied = await requireAdminUser(req, reply);
+    if ("error" in denied) return denied;
+    const userId = String(req.body?.userId ?? "").trim();
+    if (!userId) {
+      reply.code(400);
+      return { error: "Identifiant manquant." };
+    }
+    const admin = adminClient();
+    const { error } = await admin.auth.admin.updateUserById(userId, { email_confirm: true });
+    if (error) {
+      reply.code(502);
+      return { error: error.message };
+    }
+    return { confirmed: true, userId };
+  });
+
+  // Générer un lien d'action (récupération de mot de passe ou lien magique).
+  // Renvoie le lien : l'admin peut le copier/transmettre même sans SMTP.
+  app.post<{ Body: { userId?: string; kind?: "recovery" | "magiclink" } }>(
+    "/admin/users/action-link",
+    async (req, reply) => {
+      const denied = await requireAdminUser(req, reply);
+      if ("error" in denied) return denied;
+      const userId = String(req.body?.userId ?? "").trim();
+      const kind = req.body?.kind === "magiclink" ? "magiclink" : "recovery";
+      if (!userId) {
+        reply.code(400);
+        return { error: "Identifiant manquant." };
+      }
+      const admin = adminClient();
+      const { data: existing, error: lookupError } = await admin.auth.admin.getUserById(userId);
+      const email = existing?.user?.email?.trim().toLowerCase() ?? "";
+      if (lookupError || !email) {
+        reply.code(404);
+        return { error: lookupError?.message ?? "Compte sans courriel." };
+      }
+      const { data, error } = await admin.auth.admin.generateLink({
+        type: kind,
+        email,
+        options: { redirectTo: `${SITE_URL}/favoris` },
+      });
+      if (error) {
+        reply.code(502);
+        return { error: error.message };
+      }
+      return { kind, email, link: data.properties?.action_link ?? null };
+    },
+  );
+
+  // Dernières connexions (IP + géoIP) d'un compte, depuis user_login_activity.
+  app.get<{ Params: { id: string } }>("/admin/users/:id/activity", async (req, reply) => {
+    const denied = await requireAdminUser(req, reply);
+    if ("error" in denied) return denied;
+    const userId = String(req.params.id ?? "").trim();
+    if (!userId) {
+      reply.code(400);
+      return { error: "Identifiant manquant." };
+    }
+    const admin = adminClient();
+    const { data, error } = await admin
+      .from("user_login_activity")
+      .select("ip, country, region, city, user_agent, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(10);
+    if (error) {
+      // Table absente (migration non installée) : on dégrade proprement.
+      return { activity: [], note: error.message };
+    }
+    return {
+      activity: (data ?? []).map((r) => ({
+        ip: r.ip ?? null,
+        country: r.country ?? null,
+        region: r.region ?? null,
+        city: r.city ?? null,
+        userAgent: r.user_agent ?? null,
+        at: r.created_at ?? null,
+      })),
+    };
+  });
+
+  // Enregistre une connexion (IP + géoIP) pour la personne connectée.
+  // Appelé par le site après un SIGNED_IN. Non réservé aux admins.
+  app.post("/activity/login", async (req, reply) => {
+    const who = await requireUser(req, reply);
+    if ("error" in who) return who;
+
+    const ip = clientIpFromHeaders(req.headers as Record<string, string | string[] | undefined>, req.ip);
+    const userAgent = String((req.headers["user-agent"] as string | undefined) ?? "").slice(0, 400) || null;
+    const admin = adminClient();
+
+    // Anti-doublon léger : pas de nouvelle ligne si même IP dans les 10 min.
+    try {
+      const { data: last } = await admin
+        .from("user_login_activity")
+        .select("ip, created_at")
+        .eq("user_id", who.userId)
+        .order("created_at", { ascending: false })
+        .limit(1);
+      const prev = last?.[0];
+      if (prev && prev.ip === ip && prev.created_at) {
+        const age = Date.now() - new Date(prev.created_at).getTime();
+        if (age >= 0 && age < 10 * 60 * 1000) return { recorded: false, reason: "dedup" };
+      }
+    } catch {
+      /* table absente : l'insert ci-dessous renverra l'erreur réelle */
+    }
+
+    const geo = ip ? await geoLookup(ip) : null;
+    const { error } = await admin.from("user_login_activity").insert({
+      user_id: who.userId,
+      ip: ip ?? null,
+      country: geo?.country ?? null,
+      region: geo?.region ?? null,
+      city: geo?.city ?? null,
+      user_agent: userAgent,
+    });
+    if (error) {
+      // Migration non installée ou RLS : on ne casse pas la connexion du visiteur.
+      reply.code(200);
+      return { recorded: false, note: error.message };
+    }
+    return { recorded: true };
   });
 
   // Liste de tous les employeurs découverts (données fraîches du fichier).

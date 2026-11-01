@@ -11,6 +11,27 @@ import { supabase, supabaseEnabled } from "./supabase";
  * magique ; `updatePassword` (dé)définit le mot de passe une fois connecté ;
  * `signOut` déconnecte. Tout est no-op si Supabase n'est pas configuré.
  */
+/**
+ * Enregistre la connexion (IP + géoIP, calculés côté serveur) via l'API, pour
+ * que la console admin puisse les afficher. Fire-and-forget : n'affecte jamais
+ * la connexion. No-op si aucune API n'est configurée (`NEXT_PUBLIC_API_URL`).
+ */
+function recordLoginActivity(accessToken?: string): void {
+  const api = process.env.NEXT_PUBLIC_API_URL;
+  if (!api || !accessToken) return;
+  try {
+    void fetch(`${api}/activity/login`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}` },
+      keepalive: true,
+    }).catch(() => {
+      /* API injoignable : sans importance */
+    });
+  } catch {
+    /* no-op */
+  }
+}
+
 export function useAuth(): { user: User | null; loading: boolean; enabled: boolean } {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(supabaseEnabled);
@@ -24,8 +45,9 @@ export function useAuth(): { user: User | null; loading: boolean; enabled: boole
       setUser(data.session?.user ?? null);
       setLoading(false);
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
+      if (event === "SIGNED_IN") recordLoginActivity(session?.access_token);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
