@@ -3,11 +3,27 @@
 export type AdminUserRow = {
   id: string;
   email: string;
+  phone?: string | null;
+  displayName?: string | null;
   createdAt: string | null;
+  updatedAt?: string | null;
   lastSignInAt: string | null;
   confirmedAt: string | null;
   providers: string[];
   bannedUntil?: string | null;
+  isAnonymous?: boolean;
+  mfaFactors?: number;
+  role?: string | null;
+};
+
+/** Une connexion enregistrée (IP + géoIP), renvoyée par l'API. */
+export type UserLoginActivity = {
+  ip: string | null;
+  country: string | null;
+  region: string | null;
+  city: string | null;
+  userAgent: string | null;
+  at: string | null;
 };
 
 export type UserFilter = "all" | "admin" | "confirmed" | "unconfirmed" | "recent" | "never" | "banned";
