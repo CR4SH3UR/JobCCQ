@@ -129,21 +129,21 @@ export function HomeView() {
           aria-hidden
           className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-brand-500/10 blur-3xl"
         />
-        <div className="relative mx-auto max-w-4xl px-4 py-7 text-center sm:py-20">
-          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-brand-200 bg-white/70 px-2.5 py-0.5 text-[11px] font-medium text-brand-700 shadow-sm backdrop-blur sm:px-3 sm:py-1 sm:text-xs">
+        <div className="relative mx-auto max-w-4xl px-3 py-5 text-center sm:px-4 sm:py-20">
+          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-brand-200 bg-white/70 px-2.5 py-0.5 text-[10px] font-medium text-brand-700 shadow-sm backdrop-blur sm:px-3 sm:py-1 sm:text-xs">
             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-green-500" />
             <span className="truncate">Le portail de la construction et des métiers au Québec</span>
           </span>
 
-          <h1 className="mt-3 text-[1.55rem] font-extrabold leading-tight tracking-tight text-slate-900 sm:mt-5 sm:text-5xl">
+          <h1 className="mt-2 text-[1.4rem] font-extrabold leading-tight tracking-tight text-slate-900 sm:mt-5 sm:text-5xl">
             Qui recrute au <span className="text-brand-600">Québec</span> ?
           </h1>
-          <p className="mx-auto mt-2 max-w-2xl text-sm leading-snug text-slate-600 sm:mt-4 sm:text-lg sm:leading-normal">
+          <p className="mx-auto mt-1.5 max-w-2xl text-[13px] leading-snug text-slate-600 sm:mt-4 sm:text-lg sm:leading-normal">
             JobCCQc regroupe les offres d'emploi de centaines d'entreprises québécoises. Trouvez qui
             embauche, pour quels postes, et postulez directement à la source.
           </p>
 
-          <form onSubmit={submit} className="mx-auto mt-4 flex max-w-xl flex-col gap-2 sm:mt-8 sm:flex-row">
+          <form onSubmit={submit} className="mx-auto mt-3 flex max-w-xl flex-col gap-2 sm:mt-8 sm:flex-row">
             <div className="relative flex-1">
               <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 sm:left-4">
                 🔎

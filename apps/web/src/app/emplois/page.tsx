@@ -11,12 +11,12 @@ export default function EmploisPage() {
   return (
     <div>
       <div className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-6">
-          <h1 className="text-2xl font-bold tracking-tight">Offres d'emploi</h1>
-          <p className="mt-1 text-slate-600">
+        <div className="mx-auto max-w-6xl px-3 py-3 sm:px-4 sm:py-6">
+          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Offres d'emploi</h1>
+          <p className="mt-0.5 text-sm text-slate-600 sm:mt-1 sm:text-base">
             Recherchez, filtrez et triez parmi toutes les offres agrégées.
           </p>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-1.5 text-xs text-slate-500 sm:mt-2 sm:text-sm">
             Parcourir{" "}
             <Link href="/emplois/region/" className="font-medium text-brand-700 hover:underline">
               par région
