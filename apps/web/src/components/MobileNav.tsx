@@ -61,19 +61,22 @@ export function MobileNav() {
   return (
     <nav
       aria-label="Navigation principale"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-brand-800/40 bg-brand-700 text-white shadow-[0_-8px_24px_rgba(26,52,216,0.18)] md:hidden dark:border-brand-900/60 dark:bg-brand-900"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-brand-700/65 text-white shadow-[0_-10px_28px_rgba(26,52,216,0.22)] backdrop-blur-2xl backdrop-saturate-150 supports-[backdrop-filter]:bg-brand-700/55 md:hidden dark:border-white/5 dark:bg-brand-950/55 dark:supports-[backdrop-filter]:bg-brand-950/45"
+      style={{
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        WebkitBackdropFilter: "blur(20px) saturate(1.5)",
+      }}
     >
-      <ul className="mx-auto grid max-w-lg grid-cols-4 px-1 pb-0.5 pt-1">
+      <ul className="mx-auto grid max-w-lg grid-cols-4 px-0.5 pb-0.5 pt-1">
         {tabs.map((t) => {
           const active = t.match(pathname);
           return (
-            <li key={t.href}>
+            <li key={t.href} className="min-w-0">
               <Link
                 href={t.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1 text-[10px] font-semibold tracking-tight transition-colors",
+                  "relative flex min-h-11 w-full min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 py-1 text-[10px] font-semibold leading-tight tracking-tight transition-colors",
                   active
                     ? "bg-white/15 text-white"
                     : "text-brand-100/85 active:bg-white/10 active:text-white",

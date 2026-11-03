@@ -88,18 +88,18 @@ export function CompaniesExplorer() {
   }, [query]);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
-      <div className="card flex flex-col gap-2 p-3 sm:flex-row sm:p-4">
+    <div className="mx-auto max-w-6xl min-w-0 overflow-x-hidden px-3 py-4 sm:px-4 sm:py-6">
+      <div className="card flex min-w-0 flex-col gap-2 p-2.5 sm:flex-row sm:flex-wrap sm:p-4">
         <input
           value={company}
           onChange={(e) => setCompany(e.target.value)}
           placeholder="Rechercher une entreprise…"
-          className="flex-1 rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+          className="min-w-0 w-full flex-1 rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 sm:min-w-[12rem]"
         />
         <select
           value={region}
           onChange={(e) => setRegion(e.target.value)}
-          className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400 sm:w-56"
+          className="min-w-0 w-full max-w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400 sm:w-56"
         >
           <option value="">Toutes les régions</option>
           {QUEBEC_REGIONS.map((r) => (
@@ -111,7 +111,7 @@ export function CompaniesExplorer() {
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400 sm:w-56"
+          className="min-w-0 w-full max-w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400 sm:w-56"
         >
           <option value="">Tous les domaines</option>
           {JOB_CATEGORIES.map((c) => (
@@ -120,7 +120,7 @@ export function CompaniesExplorer() {
             </option>
           ))}
         </select>
-        <label className="flex shrink-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700">
+        <label className="flex min-w-0 items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 sm:shrink-0">
           <input
             type="checkbox"
             checked={hideDisabled}
@@ -134,7 +134,7 @@ export function CompaniesExplorer() {
               }
             }}
           />
-          Cacher les désactivées
+          <span className="min-w-0 truncate">Cacher les désactivées</span>
         </label>
         <button
           type="button"
@@ -142,7 +142,7 @@ export function CompaniesExplorer() {
           disabled={refreshing}
           title="Recharger les entreprises (vide le cache et récupère les derniers changements)"
           aria-label="Rafraîchir les entreprises"
-          className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 sm:shrink-0"
         >
           <span className={refreshing ? "inline-block animate-spin" : "inline-block"}>↻</span>
           <span className="ml-1 hidden sm:inline">{refreshing ? "Rafraîchissement…" : "Rafraîchir"}</span>
@@ -186,10 +186,10 @@ export function CompaniesExplorer() {
 function CompanyCard({ company: c }: { company: HiringCompany }) {
   const latest = timeAgo(c.latestPostedAt);
   return (
-    <article className="card flex flex-col p-4">
-      <div className="flex items-center gap-3">
+    <article className="card flex min-w-0 flex-col overflow-hidden p-3.5 sm:p-4">
+      <div className="flex min-w-0 items-center gap-3">
         <CompanyAvatar name={c.company} logo={logoForHiringCompany(c)} size={44} />
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h3 className="truncate font-semibold">{c.company}</h3>
           <p className="text-sm text-brand-700">
             {c.openings} poste{c.openings > 1 ? "s" : ""} ouvert{c.openings > 1 ? "s" : ""}
@@ -197,24 +197,26 @@ function CompanyCard({ company: c }: { company: HiringCompany }) {
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-1.5">
+      <div className="mt-3 flex min-w-0 flex-wrap gap-1.5">
         {c.categories.slice(0, 3).map((cat) => (
-          <Badge key={cat} tone="brand">
+          <Badge key={cat} tone="brand" className="max-w-full truncate">
             {labelForCategory(cat)}
           </Badge>
         ))}
       </div>
-      <div className="mt-1.5 flex flex-wrap gap-1.5">
+      <div className="mt-1.5 flex min-w-0 flex-wrap gap-1.5">
         {c.regions.slice(0, 3).map((r) => (
-          <Badge key={r}>{labelForRegion(r)}</Badge>
+          <Badge key={r} className="max-w-full truncate">
+            {labelForRegion(r)}
+          </Badge>
         ))}
       </div>
 
-      <div className="mt-auto flex items-center justify-between pt-3 text-xs text-slate-400">
-        {latest ? <span>Dernière offre {latest}</span> : <span />}
+      <div className="mt-auto flex min-w-0 items-center justify-between gap-2 pt-3 text-xs text-slate-400">
+        {latest ? <span className="min-w-0 truncate">Dernière offre {latest}</span> : <span />}
         <Link
           href={c.sources[0] ? `/entreprises/${c.sources[0]}/` : "/emplois"}
-          className="font-semibold text-brand-600 hover:underline"
+          className="shrink-0 font-semibold text-brand-600 hover:underline"
         >
           Voir la fiche →
         </Link>
