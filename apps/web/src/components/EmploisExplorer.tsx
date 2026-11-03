@@ -447,8 +447,8 @@ export function EmploisExplorer() {
     <div className="mx-auto max-w-6xl px-4 py-6">
       {/* Barre de recherche + tri */}
       <div className="card p-3 sm:p-4">
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="flex-1">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <div className="flex-1 sm:min-w-[12rem]">
             <SearchAutocomplete
               value={q}
               onChange={(v) => {
@@ -459,7 +459,7 @@ export function EmploisExplorer() {
               placeholder="Poste, métier, entreprise…"
               icon="🔎"
               ariaLabel="Poste, métier ou entreprise"
-              className="w-full rounded-lg border border-slate-200 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+              className="min-h-11 w-full rounded-lg border border-slate-200 py-2.5 pl-9 pr-3 text-base outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 sm:text-sm"
             />
           </div>
           <div className="sm:w-56">
@@ -472,68 +472,72 @@ export function EmploisExplorer() {
               entries={cityEntries}
               placeholder="Ville (ex. Montréal)"
               ariaLabel="Ville"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+              className="min-h-11 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-base outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 sm:text-sm"
             />
           </div>
-          <select
-            value={sort}
-            onChange={(e) => {
-              setSort(e.target.value as SortOption);
-              setPage(1);
-            }}
-            className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400"
-          >
-            {SORT_OPTIONS.map((s) => (
-              <option key={s} value={s}>
-                {SORT_LABELS[s]}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            onClick={forceRefresh}
-            disabled={refreshing}
-            title="Recharger les offres (vide le cache et récupère les derniers changements)"
-            aria-label="Rafraîchir les offres"
-            className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-          >
-            <span className={refreshing ? "inline-block animate-spin" : "inline-block"}>↻</span>
-            <span className="ml-1 hidden sm:inline">{refreshing ? "Rafraîchissement…" : "Rafraîchir"}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => void onDownloadRss()}
-            title="Télécharger un flux RSS de cette recherche (50 offres)"
-            className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-          >
-            RSS
-          </button>
-          <button
-            type="button"
-            onClick={onSaveSearch}
-            disabled={!hasActiveFilters(currentFilters)}
-            title="Enregistrer cette combinaison de filtres (dans ce navigateur)"
-            className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-          >
-            💾<span className="ml-1 hidden sm:inline">Enregistrer</span>
-          </button>
-          {authEnabled && (
+          <div className="grid grid-cols-2 gap-2 sm:contents">
+            <select
+              value={sort}
+              onChange={(e) => {
+                setSort(e.target.value as SortOption);
+                setPage(1);
+              }}
+              className="min-h-11 rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-brand-400"
+            >
+              {SORT_OPTIONS.map((s) => (
+                <option key={s} value={s}>
+                  {SORT_LABELS[s]}
+                </option>
+              ))}
+            </select>
             <button
               type="button"
-              onClick={onCreateAlert}
-              title="Recevoir un courriel quand de nouvelles offres correspondent à cette recherche"
-              className="rounded-lg border border-brand-300 px-3 py-2.5 text-sm font-medium text-brand-700 hover:bg-brand-50"
+              onClick={() => setShowFilters((v) => !v)}
+              className="min-h-11 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2.5 text-sm font-semibold text-brand-800 lg:hidden"
             >
-              🔔 Créer une alerte
+              Filtres{activeCount > 0 ? ` (${activeCount})` : ""}
             </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setShowFilters((v) => !v)}
-            className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium lg:hidden"
-          >
-            Filtres{activeCount > 0 ? ` (${activeCount})` : ""}
-          </button>
+          </div>
+          <div className="hidden gap-2 sm:flex">
+            <button
+              type="button"
+              onClick={forceRefresh}
+              disabled={refreshing}
+              title="Recharger les offres (vide le cache et récupère les derniers changements)"
+              aria-label="Rafraîchir les offres"
+              className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            >
+              <span className={refreshing ? "inline-block animate-spin" : "inline-block"}>↻</span>
+              <span className="ml-1">{refreshing ? "Rafraîchissement…" : "Rafraîchir"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => void onDownloadRss()}
+              title="Télécharger un flux RSS de cette recherche (50 offres)"
+              className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              RSS
+            </button>
+            <button
+              type="button"
+              onClick={onSaveSearch}
+              disabled={!hasActiveFilters(currentFilters)}
+              title="Enregistrer cette combinaison de filtres (dans ce navigateur)"
+              className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            >
+              💾 Enregistrer
+            </button>
+            {authEnabled && (
+              <button
+                type="button"
+                onClick={onCreateAlert}
+                title="Recevoir un courriel quand de nouvelles offres correspondent à cette recherche"
+                className="rounded-lg border border-brand-300 px-3 py-2.5 text-sm font-medium text-brand-700 hover:bg-brand-50"
+              >
+                🔔 Créer une alerte
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Chips de filtres actifs */}
@@ -631,20 +635,53 @@ export function EmploisExplorer() {
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[260px_1fr]">
-        {/* Colonne filtres */}
-        <aside className={cn("lg:block", showFilters ? "block" : "hidden")}>
-          <div className="card p-3">
+        {/* Filtres : colonne sticky desktop ; tiroir plein écran sur mobile */}
+        {showFilters && (
+          <button
+            type="button"
+            aria-label="Fermer les filtres"
+            className="fixed inset-0 z-40 bg-slate-900/40 lg:hidden"
+            onClick={() => setShowFilters(false)}
+          />
+        )}
+        <aside
+          className={cn(
+            // Desktop : toujours visible en colonne. Mobile : tiroir bas si ouvert.
+            "lg:relative lg:z-auto lg:block",
+            showFilters
+              ? "fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] overflow-y-auto rounded-t-2xl shadow-2xl lg:static lg:max-h-none lg:overflow-visible lg:rounded-none lg:shadow-none"
+              : "hidden",
+          )}
+          style={
+            showFilters
+              ? { paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }
+              : undefined
+          }
+        >
+          <div className="card rounded-t-2xl border-0 p-3 lg:rounded-xl lg:border">
             <div className="mb-1 flex items-center justify-between">
-              <h3 className="text-sm font-semibold">Filtrer</h3>
-              {activeCount > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="block h-1 w-10 rounded-full bg-slate-300 lg:hidden" aria-hidden />
+                <h3 className="text-sm font-semibold">Filtrer</h3>
+              </div>
+              <div className="flex items-center gap-3">
+                {activeCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={resetAll}
+                    className="text-xs text-brand-600 hover:underline"
+                  >
+                    Réinitialiser
+                  </button>
+                )}
                 <button
                   type="button"
-                  onClick={resetAll}
-                  className="text-xs text-brand-600 hover:underline"
+                  onClick={() => setShowFilters(false)}
+                  className="rounded-lg px-2 py-1 text-sm font-medium text-slate-600 hover:bg-slate-100 lg:hidden"
                 >
-                  Réinitialiser
+                  Fermer
                 </button>
-              )}
+              </div>
             </div>
 
             {/* Métiers CCQ */}
@@ -804,6 +841,14 @@ export function EmploisExplorer() {
                 <FacetGroup title="Source" options={facets.sources} selected={sel.sources} onToggle={(id) => toggle("sources", id)} />
               </>
             )}
+
+            <button
+              type="button"
+              onClick={() => setShowFilters(false)}
+              className="sticky bottom-0 mt-3 w-full rounded-xl bg-brand-600 px-4 py-3.5 text-sm font-semibold text-white shadow-lg lg:hidden"
+            >
+              Voir les résultats{result ? ` (${result.total})` : ""}
+            </button>
           </div>
         </aside>
 

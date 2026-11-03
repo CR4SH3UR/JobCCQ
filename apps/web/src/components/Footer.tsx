@@ -6,7 +6,7 @@ const adminEnabled = process.env.NEXT_PUBLIC_ENABLE_ADMIN === "1";
 export function Footer() {
   const year = new Date().getFullYear();
   return (
-    <footer className="border-t border-slate-200 bg-white">
+    <footer className="hidden border-t border-slate-200 bg-white md:block">
       <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-slate-500">
         <p className="font-semibold text-slate-700">
           Job<span className="text-brand-600">CCQc</span>

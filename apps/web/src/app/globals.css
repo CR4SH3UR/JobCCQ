@@ -21,6 +21,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* Évite le zoom iOS sur les champs < 16px (on force text-base sur mobile). */
+  -webkit-text-size-adjust: 100%;
 }
 
 :root {
@@ -31,6 +33,17 @@ body {
   background-color: var(--color-slate-50);
   color: var(--color-slate-900);
   -webkit-font-smoothing: antialiased;
+  /* Encoches / home indicator : le chrome (header, onglets) gère le padding. */
+  min-height: 100dvh;
+}
+
+/* Cibles tactiles confortables sur téléphone */
+@media (max-width: 767px) {
+  button,
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 /* Petites classes utilitaires réutilisées */

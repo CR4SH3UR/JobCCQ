@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AppShell } from "@/components/AppShell";
 import { SentryBoot } from "@/components/SentryBoot";
@@ -19,11 +19,30 @@ export const metadata: Metadata = {
   },
   description:
     "Agrégateur d'offres d'emploi du Québec et du Canada. Découvrez quelles entreprises recrutent, pour quels postes, et filtrez par région, domaine, salaire et plus.",
+  appleWebApp: {
+    capable: true,
+    title: "JobCCQc",
+    statusBarStyle: "default",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   alternates: {
     types: {
       "application/rss+xml": siteUrl("/emplois.rss"),
     },
   },
+};
+
+/** Viewport mobile : safe-areas (encoche) + thème barre d'état. */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b1120" },
+  ],
 };
 
 // Applique le thème avant le premier rendu (évite le flash clair→sombre).

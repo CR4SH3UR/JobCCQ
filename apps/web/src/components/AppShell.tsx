@@ -8,12 +8,16 @@ import { BetaBanner } from "./BetaBanner";
 import { ScrollToTop } from "./ScrollToTop";
 import { CompareBar } from "./CompareBar";
 import { OfflineBanner } from "./OfflineBanner";
+import { MobileNav } from "./MobileNav";
 import { hydrateSponsors } from "@/lib/sponsors-live";
 import { hydrateBanner } from "@/lib/banner-live";
 
 /**
  * Chrome du site. Le widget `/embed/…` (iframe chez un employeur) n'affiche
  * ni en-tête, ni pied, ni barre de comparaison.
+ *
+ * Sur téléphone : barre d'onglets fixe en bas + marge basse pour ne pas
+ * masquer le contenu. Le pied de page reste visible (version compacte).
  */
 export function AppShell({ children }: { children: ReactNode }) {
   const path = usePathname() ?? "";
@@ -33,9 +37,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       <BetaBanner />
       <OfflineBanner />
       <Header />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))] md:pb-0">
+        {children}
+      </main>
       <CompareBar />
       <Footer />
+      <MobileNav />
     </>
   );
 }
