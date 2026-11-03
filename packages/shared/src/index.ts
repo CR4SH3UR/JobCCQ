@@ -17,6 +17,8 @@ export * from "./rss.js";
 export * from "./csv.js";
 export * from "./ics.js";
 export * from "./completeness.js";
+export * from "./seo-cities.js";
+export * from "./daily-scrape.js";
 export * from "./salary.js";
 export * from "./extract.js";
 export * from "./closes-at.js";

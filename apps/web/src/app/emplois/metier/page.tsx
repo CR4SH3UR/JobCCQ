@@ -44,6 +44,10 @@ export default function MetierIndexPage() {
           Ou parcourez{" "}
           <Link href="/emplois/region/" className="font-medium text-brand-700 hover:underline">
             par région
+          </Link>{" "}
+          ou{" "}
+          <Link href="/emplois/ville/" className="font-medium text-brand-700 hover:underline">
+            par ville
           </Link>
           .
         </p>

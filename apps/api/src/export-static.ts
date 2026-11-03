@@ -8,7 +8,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { buildWeeklyReport, effectiveRegionId, jobsToRss, type HiringHistory, type Job } from "@jobccq/shared";
-import { inferCategory } from "./normalize.js";
+import { extractCity, inferCategory } from "./normalize.js";
 import { SEED_JOBS } from "./seed-data.js";
 import { seedToJob } from "./seed-transform.js";
 import { writeJobShards } from "./write-job-shards.js";
@@ -53,11 +53,22 @@ async function main() {
   // construction, « Déneigement commercial » ≠ vente) prennent effet au prochain
   // déploiement.
   let recategorized = 0;
+  let citiesFilled = 0;
   for (const job of jobs) {
-    const cat = inferCategory(job.title, job.tags);
+    const cat =
+      inferCategory(job.title, job.tags) ??
+      (job.description ? inferCategory(job.description, job.tags) : undefined);
     if (cat !== job.categoryId) {
       job.categoryId = cat;
       recategorized++;
+    }
+    // Ville extraite du lieu / de la description (pages `/emplois/ville/…`).
+    if (!job.city) {
+      const city = extractCity(job.location, job.description);
+      if (city) {
+        job.city = city;
+        citiesFilled++;
+      }
     }
   }
 
@@ -117,6 +128,7 @@ async function main() {
   );
   console.log(`📝 Descriptions : ${withDesc}/${jobs.length} renseignées.`);
   console.log(`🏷️  Catégories : ${recategorized} recalculées depuis l'intitulé.`);
+  console.log(`🏙️  Villes : ${citiesFilled} extraites du lieu/description.`);
 }
 
 main().catch((err) => {

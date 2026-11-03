@@ -1,4 +1,5 @@
 import type { RawJob } from "@jobccq/shared";
+import { enrichMissingDetails } from "./enrich-details.js";
 import type { Scraper, ScrapeContext, ScrapeParams } from "./types.js";
 import { cleanText } from "./util.js";
 
@@ -120,6 +121,8 @@ export function makeUltiProScraper(config: UltiProConfig): Scraper {
       }
       const seen = new Set<string>();
       const jobs = all.filter((j) => (seen.has(j.url) ? false : seen.add(j.url)));
+      // Liste UltiPro = titre + lieu ; la fiche HTML porte souvent du JSON-LD.
+      await enrichMissingDetails(jobs, config.id, ctx, { userAgent: BROWSER_UA });
       ctx.log(`${config.id} — ${jobs.length} poste(s) trouvé(s)`);
       return jobs;
     },

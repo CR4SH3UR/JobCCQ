@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
+import { GUIDES } from "@/data/guides";
 import {
   allJobs,
+  citiesWithCounts,
   employerIdsWithJobs,
   regionsWithCounts,
   salaryGuide,
@@ -21,6 +23,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: siteUrl("/emplois/carte/"), changeFrequency: "daily", priority: 0.7 },
     { url: siteUrl("/emplois/region/"), changeFrequency: "weekly", priority: 0.6 },
     { url: siteUrl("/emplois/metier/"), changeFrequency: "weekly", priority: 0.6 },
+    { url: siteUrl("/emplois/ville/"), changeFrequency: "weekly", priority: 0.65 },
+    { url: siteUrl("/guides/"), changeFrequency: "monthly", priority: 0.7 },
     { url: siteUrl("/entreprises/"), changeFrequency: "weekly", priority: 0.7 },
     { url: siteUrl("/entreprises/pres-de-moi/"), changeFrequency: "weekly", priority: 0.65 },
     { url: siteUrl("/entreprises/region/"), changeFrequency: "weekly", priority: 0.6 },
@@ -73,6 +77,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: "weekly",
     priority: 0.55,
   }));
+  const villes: MetadataRoute.Sitemap = citiesWithCounts().map((c) => ({
+    url: siteUrl(`/emplois/ville/${c.id}/`),
+    changeFrequency: "daily",
+    priority: 0.65,
+  }));
+  const guides: MetadataRoute.Sitemap = GUIDES.map((g) => ({
+    url: siteUrl(`/guides/${g.slug}/`),
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
 
-  return [...pages, ...regions, ...hiringRegions, ...trades, ...hiringTrades, ...salaires, ...jobs, ...employers];
+  return [
+    ...pages,
+    ...regions,
+    ...hiringRegions,
+    ...trades,
+    ...hiringTrades,
+    ...villes,
+    ...salaires,
+    ...guides,
+    ...jobs,
+    ...employers,
+  ];
 }

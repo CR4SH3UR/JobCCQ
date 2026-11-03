@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { normalizeRawJob } from "./normalize.js";
+import { extractCity, normalizeRawJob } from "./normalize.js";
 import type { RawJob } from "@jobccq/shared";
 
 const raw = (over: Partial<RawJob> = {}): RawJob => ({
@@ -42,6 +42,31 @@ describe("normalizeRawJob — salaire « selon la CCQ »", () => {
   it("laisse la priorité au salaire explicite", () => {
     const job = normalizeRawJob(raw({ description: "Salaire 30 $/h, aussi selon la CCQ." }));
     assert.equal(job.salaryMin, 30);
+  });
+});
+
+describe("extractCity", () => {
+  it("prend le premier segment de la localisation", () => {
+    assert.equal(extractCity("Laval, QC"), "Laval");
+    assert.equal(extractCity("Sherbrooke (Québec)"), "Sherbrooke");
+  });
+
+  it("repère « Lieu : … » dans la description", () => {
+    assert.equal(extractCity(undefined, "Lieu : Gatineau\nSalaire selon CCQ."), "Gatineau");
+  });
+});
+
+describe("normalizeRawJob — ville + salaire depuis le texte", () => {
+  it("renseigne city depuis location", () => {
+    const job = normalizeRawJob(raw({ location: "Lévis, QC" }));
+    assert.equal(job.city, "Lévis");
+    assert.equal(job.regionId, "chaudiere-appalaches");
+  });
+
+  it("extrait un salaire du titre si la description est vide", () => {
+    const job = normalizeRawJob(raw({ title: "Manœuvre 28 $/h", description: undefined }));
+    assert.equal(job.salaryMin, 28);
+    assert.equal(job.salaryPeriod, "heure");
   });
 });
 

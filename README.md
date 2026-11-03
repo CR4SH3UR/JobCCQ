@@ -365,9 +365,9 @@ Backlog d'idées d'ajout, classées par thème — **les mêmes axes que le prod
 ### 💬 Communauté & contenu
 
 - [ ] 97. Avis/évaluations d'employeurs modérés (Glassdoor allégé)
-- [ ] 98. Q&R par métier (« comment devenir grutier au QC ? ») — contenu SEO evergreen
-- [ ] 99. Guides carrière par métier (parcours, carte de compétence, apprentissage CCQ)
-- [ ] 100. Pages « ville » (offres + employeurs + salaire médian par ville)
+- [x] 98. Q&R par métier (« comment devenir grutier au QC ? ») — contenu SEO evergreen
+- [x] 99. Guides carrière par métier (parcours, carte de compétence, apprentissage CCQ)
+- [x] 100. Pages « ville » (offres + employeurs + salaire médian par ville)
 - [ ] 101. Témoignages / parcours de travailleurs (contenu éditorial)
 
 ### 🔭 Observabilité, fiabilité & DX

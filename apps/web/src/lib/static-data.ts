@@ -21,10 +21,13 @@ import {
   ccqTradeOf,
   DISABLED_SOURCE_IDS,
   getEmployer,
+  jobMatchesSeoCity,
   labelForRegion,
   QUEBEC_REGIONS,
   rankHiringCompanies,
   salaryGuideByTrade,
+  SEO_CITIES,
+  seoCityById,
   tensionPer1000,
   workforceFor,
   type DiscoveredEmployer,
@@ -33,6 +36,7 @@ import {
   type HiringPoint,
   type Job,
   type SalaryGuideRow,
+  type SeoCity,
   type WeeklyReport,
 } from "@jobccq/shared";
 
@@ -74,6 +78,33 @@ export function jobsByTrade(tradeId: string): Job[] {
   return allJobs()
     .filter((j) => ccqTradeOf(j.title)?.id === tradeId)
     .sort(byRecent);
+}
+
+/** Offres d'une ville SEO (id de SEO_CITIES), les plus récentes d'abord. */
+export function jobsByCity(cityId: string): Job[] {
+  const city = seoCityById(cityId);
+  if (!city) return [];
+  return allJobs()
+    .filter((j) => jobMatchesSeoCity(j, city))
+    .sort(byRecent);
+}
+
+/** Villes SEO ayant au moins une offre (pour index + generateStaticParams). */
+export function citiesWithCounts(): FacetLink[] {
+  const counts = new Map<string, number>();
+  for (const city of SEO_CITIES) {
+    let n = 0;
+    for (const j of allJobs()) if (jobMatchesSeoCity(j, city)) n++;
+    if (n > 0) counts.set(city.id, n);
+  }
+  return SEO_CITIES.filter((c) => counts.has(c.id))
+    .map((c) => ({ id: c.id, label: c.label, count: counts.get(c.id)! }))
+    .sort((a, b) => b.count - a.count);
+}
+
+/** Ville SEO par slug (ou undefined). */
+export function cityById(id: string): SeoCity | undefined {
+  return seoCityById(id);
 }
 
 export interface FacetLink {

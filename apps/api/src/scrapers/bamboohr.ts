@@ -1,4 +1,5 @@
 import type { RawJob } from "@jobccq/shared";
+import { parseBambooHrDetail } from "./enrich-details.js";
 import type { Scraper, ScrapeContext, ScrapeParams } from "./types.js";
 import { cleanText, mapEmploymentType } from "./util.js";
 
@@ -85,6 +86,36 @@ export function makeBambooHrScraper(config: BambooHrConfig): Scraper {
         return [];
       }
       const jobs = parseBambooHrList(json, config.id, config.company, base);
+
+      // Fiches individuelles : BambooHR expose `/careers/{id}/detail` en JSON
+      // (description HTML + lieu). Sans ça, on n'aurait que le titre — inutile
+      // pour Google for Jobs.
+      const DETAIL_CAP = Number(process.env.SCRAPE_DETAIL_CAP ?? 40);
+      let enriched = 0;
+      for (const job of jobs) {
+        if (enriched >= DETAIL_CAP) break;
+        if (job.description && job.description.length >= 80) continue;
+        const m = job.url.match(/\/careers\/(\d+)\/?$/);
+        if (!m) continue;
+        enriched++;
+        try {
+          const detailJson = await ctx.fetchHtml(`${base}/careers/${m[1]}/detail`);
+          const detail = parseBambooHrDetail(detailJson);
+          if (!detail) continue;
+          if (detail.description) job.description = detail.description;
+          if (!job.location && detail.location) job.location = detail.location;
+          if (!job.employmentType && detail.employmentTypeLabel) {
+            job.employmentType = mapEmploymentType(detail.employmentTypeLabel);
+          }
+        } catch {
+          /* fiche inaccessible */
+        }
+      }
+      if (enriched > 0) {
+        const n = jobs.filter((j) => j.description).length;
+        ctx.log(`${config.id} — descriptions BambooHR : ${n}/${jobs.length}`);
+      }
+
       ctx.log(`${config.id} — ${jobs.length} poste(s) trouvé(s)`);
       return jobs;
     },
