@@ -159,9 +159,9 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
       : (job.city ?? region);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      {/* Fil d'Ariane */}
-      <nav className="mb-4 text-sm text-slate-500">
+    <div className="mx-auto max-w-5xl px-4 py-5 sm:py-8">
+      {/* Fil d'Ariane — masqué sur très petit écran (gagne de la place) */}
+      <nav className="mb-3 hidden text-sm text-slate-500 sm:mb-4 sm:block">
         <Link href="/emplois" className="hover:text-brand-700">
           Emplois
         </Link>
@@ -179,11 +179,11 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         {/* Colonne principale */}
         <div className="min-w-0">
-          <div className="card p-6">
-            <div className="flex gap-4">
+          <div className="card p-4 sm:p-6">
+            <div className="flex gap-3 sm:gap-4">
               <CompanyAvatar name={job.company} logo={logoForJob(job)} size={56} />
               <div className="min-w-0">
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+                <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
                   {showEn && gloss.changed ? gloss.text : displayJobTitle(job.title)}
                 </h1>
                 {gloss.changed && (
@@ -264,13 +264,20 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
               </div>
             )}
 
-            <div className="mt-6 flex flex-wrap gap-3">
+            {/* Actions desktop / tablette — sur mobile le CTA sticky en bas prend le relais */}
+            <div className="mt-6 hidden flex-wrap gap-3 sm:flex">
               <ApplyLink
                 job={job}
                 className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700"
               >
                 Postuler sur {sourceName(job.sourceId)} →
               </ApplyLink>
+              <AppliedButton id={job.id} />
+              <FavoriteButton id={job.id} />
+              <CompareDetailButton id={job.id} />
+              <ReportJobButton job={job} />
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2 sm:hidden">
               <AppliedButton id={job.id} />
               <FavoriteButton id={job.id} />
               <CompareDetailButton id={job.id} />
@@ -467,6 +474,24 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
           </div>
         </section>
       )}
+
+      {/* CTA sticky mobile — au-dessus de la barre d'onglets */}
+      <div
+        className="fixed inset-x-0 z-30 border-t border-slate-200 bg-white/95 p-3 backdrop-blur sm:hidden"
+        style={{ bottom: "calc(3.75rem + env(safe-area-inset-bottom, 0px))" }}
+      >
+        <div className="mx-auto flex max-w-lg items-center gap-2">
+          <ApplyLink
+            job={job}
+            className="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white shadow-sm active:bg-brand-700"
+          >
+            Postuler →
+          </ApplyLink>
+          <FavoriteButton id={job.id} />
+        </div>
+      </div>
+      {/* Espace pour ne pas masquer la fin de page sous le CTA + onglets */}
+      <div className="h-20 sm:hidden" aria-hidden />
 
       {/* Données structurées Google for Jobs */}
       <script

@@ -64,7 +64,7 @@ export function JobCard({ job }: { job: Job }) {
   return (
     <article
       className={cn(
-        "card group p-4 transition-shadow hover:shadow-md",
+        "card group relative p-3.5 transition-shadow active:bg-slate-50/80 sm:p-4 sm:hover:shadow-md",
         // Offre déjà postulée : contour vert (prioritaire sur le liseré
         // « commandité » ambre). Sinon, liseré ambre pour les commandités.
         applied ? "ring-2 ring-green-400" : pinned ? "ring-2 ring-orange-400" : sponsored && "ring-2 ring-amber-300",
@@ -74,12 +74,15 @@ export function JobCard({ job }: { job: Job }) {
         <CompanyAvatar name={job.company} logo={logoForJob(job)} size={44} />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
-            <h3 className="font-semibold leading-snug">
-              <Link href={jobDetailHref(job.id)} className="text-slate-900 hover:text-brand-700">
+            <h3 className="relative z-[1] font-semibold leading-snug">
+              <Link
+                href={jobDetailHref(job.id)}
+                className="text-slate-900 after:absolute after:inset-0 hover:text-brand-700 sm:after:hidden"
+              >
                 {displayJobTitle(job.title)}
               </Link>
             </h3>
-            <div className="flex shrink-0 items-center gap-1.5">
+            <div className="relative z-[1] flex shrink-0 items-center gap-1.5">
               {posted && <span className="text-xs text-slate-400">{posted}</span>}
               <AppliedCheck id={job.id} />
               <CompareButton id={job.id} />
@@ -87,7 +90,7 @@ export function JobCard({ job }: { job: Job }) {
             </div>
           </div>
 
-          <p className="mt-0.5 text-sm text-slate-600">
+          <p className="relative z-[1] mt-0.5 text-sm text-slate-600">
             <Link
               href={`/entreprises/${job.sourceId}/`}
               className="font-medium text-slate-800 hover:text-brand-700"
@@ -163,7 +166,7 @@ export function JobCard({ job }: { job: Job }) {
             <p className="mt-2 line-clamp-4 text-sm text-slate-500">{job.description}</p>
           )}
 
-          <div className="mt-3 flex items-center justify-between">
+          <div className="relative z-[1] mt-3 flex items-center justify-between">
             <span className="flex items-center gap-2 text-xs text-slate-400">
               <CompletenessDots job={job} />
               <span>

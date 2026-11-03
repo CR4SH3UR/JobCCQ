@@ -36,7 +36,7 @@ const BADGE: Record<Tone, string> = {
   amber: "bg-amber-500 text-white",
 };
 
-/** Menu latéral de l'espace utilisateur (candidatures, favoris, alertes). */
+/** Menu de l'espace utilisateur : puces horizontales sur mobile, colonne sticky sur desktop. */
 export function AccountSidebar() {
   const pathname = usePathname();
   const { user, enabled } = useAuth();
@@ -48,14 +48,50 @@ export function AccountSidebar() {
 
   return (
     <aside className="md:sticky md:top-20 md:w-72 md:shrink-0">
-      <div className="card overflow-hidden">
+      {/* Mobile : pastilles scrollables */}
+      <nav
+        aria-label="Mon espace"
+        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:hidden"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+        {NAV.map((item) => {
+          const active = pathname.startsWith(item.href);
+          const count = counts[item.href] ?? 0;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold",
+                active
+                  ? "border-brand-300 bg-brand-50 text-brand-700"
+                  : "border-slate-200 bg-white text-slate-700",
+              )}
+            >
+              <span aria-hidden>{ICON[item.href]}</span>
+              {item.label.replace(/^Mes?\s+/i, "")}
+              {count > 0 && (
+                <span className={cn("rounded-full px-1.5 text-[10px] font-bold", BADGE[item.tone])}>
+                  {count}
+                </span>
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Desktop : carte latérale */}
+      <div className="card hidden overflow-hidden md:block">
         <div className="border-b border-slate-200 bg-gradient-to-br from-brand-50 to-white px-4 py-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">Mon espace</p>
           {enabled ? (
             user ? (
               <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-600">
                 <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
-                <span className="truncate" title={user.email ?? ""}>{user.email}</span>
+                <span className="truncate" title={user.email ?? ""}>
+                  {user.email}
+                </span>
               </p>
             ) : (
               <p className="mt-1 text-sm text-slate-500">
