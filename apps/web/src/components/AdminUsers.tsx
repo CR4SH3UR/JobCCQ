@@ -387,25 +387,61 @@ export function AdminUsers() {
     }
   };
 
+  const loadActivityFromApi = async (userId: string, token: string) => {
+    const res = await fetch(`${API_URL}/admin/users/${userId}/activity`, {
+      cache: "no-store",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const body = (await res.json().catch(() => ({}))) as {
+      activity?: UserLoginActivity[];
+      note?: string;
+      error?: string;
+    };
+    if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
+    return body;
+  };
+
+  /** Repli Edge Function quand l'API Fastify est injoignable (Pages statique). */
+  const loadActivityFromEdge = async (userId: string) => {
+    const { data, error } = await supabase!.functions.invoke<{
+      activity?: UserLoginActivity[];
+      note?: string;
+      error?: string;
+    }>("login-activity", {
+      method: "POST",
+      body: { userId },
+    });
+    if (error) throw new Error(error.message);
+    if (data?.error) throw new Error(data.error);
+    return data ?? {};
+  };
+
   const loadActivity = async (userId: string) => {
     setActivity((a) => ({ ...a, [userId]: { loading: true, rows: a[userId]?.rows ?? [] } }));
     try {
       const { data } = await supabase!.auth.getSession();
       const token = data.session?.access_token;
       if (!token) throw new Error("Session absente.");
-      const res = await fetch(`${API_URL}/admin/users/${userId}/activity`, {
-        cache: "no-store",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const body = (await res.json().catch(() => ({}))) as {
-        activity?: UserLoginActivity[];
-        note?: string;
-        error?: string;
-      };
-      if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
-      setActivity((a) => ({ ...a, [userId]: { loading: false, rows: body.activity ?? [], note: body.note } }));
+
+      let body: { activity?: UserLoginActivity[]; note?: string };
+      try {
+        body = await loadActivityFromApi(userId, token);
+      } catch (apiError) {
+        try {
+          body = await loadActivityFromEdge(userId);
+        } catch (edgeError) {
+          throw new Error(`${(edgeError as Error).message} (${(apiError as Error).message})`);
+        }
+      }
+      setActivity((a) => ({
+        ...a,
+        [userId]: { loading: false, rows: body.activity ?? [], note: body.note },
+      }));
     } catch (error) {
-      setActivity((a) => ({ ...a, [userId]: { loading: false, rows: [], note: (error as Error).message } }));
+      setActivity((a) => ({
+        ...a,
+        [userId]: { loading: false, rows: [], note: (error as Error).message },
+      }));
     }
   };
 

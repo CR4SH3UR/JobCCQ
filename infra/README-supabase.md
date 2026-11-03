@@ -690,10 +690,12 @@ create policy "employers read own apply_clicks" on public.apply_clicks
 La console `/admin` (onglet **« Utilisateurs »** → **Détails** d'un compte) affiche les
 **dernières connexions** d'un compte : **IP** et **géolocalisation** (ville / région /
 pays). Les lignes sont écrites par l'**API** (service_role) à chaque connexion : le site
-appelle `POST /activity/login` après un `SIGNED_IN`, l'API lit l'IP réelle de la requête,
-résout la géoIP (service public, sans clé) et insère une ligne. **Rien n'est capté
-rétroactivement** : l'historique commence une fois la table créée et la nouvelle version
-déployée.
+appelle `POST /activity/login` après un `SIGNED_IN` (avec repli Edge Function
+`login-activity` si l'API Fastify est injoignable — cas GitHub Pages). Le serveur lit
+l'IP réelle de la requête, résout la géoIP (service public, sans clé) et insère une
+ligne. **Rien n'est capté rétroactivement** : l'historique commence une fois la table
+créée et la nouvelle version déployée. La lecture admin (`GET /admin/users/:id/activity`)
+a le même repli via `login-activity` (POST `{ userId }`).
 
 - **Aucune lecture publique** : seul le service_role écrit et lit (RLS active sans
   politique `select`/`insert` → tout est refusé côté navigateur, l'API passe outre).

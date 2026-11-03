@@ -25,14 +25,14 @@ export function OnboardingCard() {
   if (!mounted || dismissed || hasProfile) return null;
 
   return (
-    <section className="mx-auto max-w-6xl px-4 pt-8">
-      <div className="card border-brand-100 bg-gradient-to-br from-brand-50/70 to-white p-5 dark:border-brand-500/30 dark:from-brand-500/10 dark:to-slate-900">
-        <div className="mb-3 flex items-start justify-between gap-3">
+    <section className="mx-auto max-w-6xl px-3 pt-4 sm:px-4 sm:pt-8">
+      <div className="card border-brand-100 bg-gradient-to-br from-brand-50/70 to-white p-3.5 dark:border-brand-500/30 dark:from-brand-500/10 dark:to-slate-900 sm:p-5">
+        <div className="mb-2 flex items-start justify-between gap-3 sm:mb-3">
           <div>
-            <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50">
+            <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-lg">
               En 30 secondes : ton métier, ta région
             </h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+            <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-300 sm:mt-1 sm:text-sm">
               On pré-remplit la recherche et on classe les offres selon ton profil. Rien n'est
               envoyé : ça reste dans ce navigateur.
             </p>

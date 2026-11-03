@@ -12,21 +12,35 @@ import { supabase, supabaseEnabled } from "./supabase";
  * `signOut` déconnecte. Tout est no-op si Supabase n'est pas configuré.
  */
 /**
- * Enregistre la connexion (IP + géoIP, calculés côté serveur) via l'API, pour
- * que la console admin puisse les afficher. Fire-and-forget : n'affecte jamais
- * la connexion. No-op si aucune API n'est configurée (`NEXT_PUBLIC_API_URL`).
+ * Enregistre la connexion (IP + géoIP, calculés côté serveur) pour la console
+ * admin. Essaie l'API Fastify puis la Edge Function `login-activity` (Pages
+ * statique). Fire-and-forget : n'affecte jamais la connexion.
  */
 function recordLoginActivity(accessToken?: string): void {
+  if (!accessToken) return;
   const api = process.env.NEXT_PUBLIC_API_URL;
-  if (!api || !accessToken) return;
+  const tryEdge = () => {
+    if (!supabase) return;
+    void supabase.functions
+      .invoke("login-activity", { method: "POST", body: {} })
+      .catch(() => {
+        /* Edge injoignable : sans importance */
+      });
+  };
   try {
-    void fetch(`${api}/activity/login`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${accessToken}` },
-      keepalive: true,
-    }).catch(() => {
-      /* API injoignable : sans importance */
-    });
+    if (api) {
+      void fetch(`${api}/activity/login`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}` },
+        keepalive: true,
+      })
+        .then((res) => {
+          if (!res.ok) tryEdge();
+        })
+        .catch(() => tryEdge());
+      return;
+    }
+    tryEdge();
   } catch {
     /* no-op */
   }

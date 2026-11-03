@@ -15,7 +15,7 @@ export function CompareBar() {
     <>
       <div className="h-16" aria-hidden />
       {/* Sur mobile : au-dessus de la barre d'onglets ; desktop : collée en bas. */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom,0px))] z-30 p-3 md:bottom-0">
+      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(3.25rem+env(safe-area-inset-bottom,0px))] z-30 p-2 md:bottom-0 md:p-3">
         <div className="pointer-events-auto mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-2 rounded-xl border border-brand-200 bg-white px-4 py-2.5 shadow-lg">
           <p className="text-sm text-slate-700">
             <span className="font-semibold text-slate-900">{ids.length}</span> / {COMPARE_MAX} offre

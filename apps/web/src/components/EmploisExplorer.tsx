@@ -444,9 +444,9 @@ export function EmploisExplorer() {
   }, [result, page, pinnedJobs, pinnedIds, sponsorCfg]);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
+    <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
       {/* Barre de recherche + tri */}
-      <div className="card p-3 sm:p-4">
+      <div className="card p-2.5 sm:p-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <div className="flex-1 sm:min-w-[12rem]">
             <SearchAutocomplete
@@ -649,12 +649,12 @@ export function EmploisExplorer() {
             // Desktop : toujours visible en colonne. Mobile : tiroir bas si ouvert.
             "lg:relative lg:z-auto lg:block",
             showFilters
-              ? "fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] overflow-y-auto rounded-t-2xl shadow-2xl lg:static lg:max-h-none lg:overflow-visible lg:rounded-none lg:shadow-none"
+              ? "fixed inset-x-0 bottom-[calc(3.25rem+env(safe-area-inset-bottom,0px))] z-50 max-h-[78dvh] overflow-y-auto rounded-t-2xl shadow-2xl lg:static lg:bottom-auto lg:max-h-none lg:overflow-visible lg:rounded-none lg:shadow-none"
               : "hidden",
           )}
           style={
             showFilters
-              ? { paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }
+              ? { paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom, 0px))" }
               : undefined
           }
         >
