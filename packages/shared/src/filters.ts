@@ -27,6 +27,7 @@ import { expandSemantic } from "./synonyms.js";
 import { detectShift } from "./extract.js";
 import { closesAtSortValue, extractClosesAt } from "./closes-at.js";
 import { annualizedSalary } from "./salary.js";
+import { jobCompleteness } from "./completeness.js";
 import { collapseDuplicates } from "./duplicates.js";
 import { coordsForJob, haversineKm, originFromNear } from "./geo.js";
 
@@ -152,10 +153,15 @@ function compareBySort(sort: SortOption): (a: Job, b: Job) => number {
     case "recent":
     case "relevance":
     default:
+      // Fraîcheur d'abord ; à date égale (ou proche), on **recule les fiches
+      // vides** via le score de complétude (salaire, lieu, description…).
       return (a, b) => {
         const ta = Date.parse(a.postedAt ?? a.scrapedAt);
         const tb = Date.parse(b.postedAt ?? b.scrapedAt);
-        return (Number.isNaN(tb) ? 0 : tb) - (Number.isNaN(ta) ? 0 : ta);
+        const da = Number.isNaN(ta) ? 0 : ta;
+        const db = Number.isNaN(tb) ? 0 : tb;
+        if (db !== da) return db - da;
+        return jobCompleteness(b).score - jobCompleteness(a).score;
       };
   }
 }
@@ -173,6 +179,8 @@ function relevanceScore(job: Job, q: string): number {
     if (title.includes(word)) score += 8;
     if ((job.tags ?? []).some((t) => norm(t).includes(word))) score += 4;
   }
+  // Bonus complétude : une fiche titre-only descend derrière les fiches riches.
+  score += jobCompleteness(job).score * 3;
   // Bonus fraîcheur
   const d = daysSince(job.postedAt);
   if (d != null) score += Math.max(0, 10 - d / 3);

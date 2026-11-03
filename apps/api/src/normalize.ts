@@ -137,6 +137,32 @@ export function detectRegion(location?: string): string | undefined {
   return undefined;
 }
 
+/**
+ * Extrait le nom de ville depuis une localisation (« Laval, QC », « Montréal
+ * (Québec) ») ou, à défaut, depuis le texte d'une description (« Lieu : Lévis »).
+ * Sert le champ `city` (pages SEO /emplois/ville/…, carte, Google for Jobs).
+ */
+export function extractCity(
+  location?: string | null,
+  description?: string | null,
+): string | undefined {
+  const fromLoc = location?.split(/[,(]/)[0]?.trim();
+  if (fromLoc && fromLoc.length >= 2 && fromLoc.length <= 60 && !/^\d+$/.test(fromLoc)) {
+    // Évite les libellés génériques (« Québec » seul = province ambiguë sauf
+    // quand c'est clairement la ville — on le garde ; « Canada », « Remote » non).
+    if (!/^(canada|remote|télétravail|teletravail|hybride|n\/?a|partout)$/i.test(fromLoc)) {
+      return fromLoc;
+    }
+  }
+  const text = description ?? "";
+  const m = text.match(
+    /(?:lieu|ville|localisation|location|chantier)\s*[:\-–]\s*([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ '\-]{1,40})/i,
+  );
+  const raw = m?.[1]?.split(/\n|,/)[0]?.trim().replace(/\s+/g, " ");
+  if (raw && raw.length >= 2 && raw.length <= 50) return raw;
+  return undefined;
+}
+
 export function detectRemote(text: string): Job["remote"] | undefined {
   if (/hybride|hybrid/i.test(text)) return "hybride";
   if (/télétravail|teletravail|à distance|a distance|100%\s*remote|full remote|entièrement à distance/i.test(text))
@@ -258,15 +284,21 @@ export function parseSalary(text?: string):
 
 /** Transforme une offre brute (scraper) en offre normalisée et enrichie. */
 export function normalizeRawJob(raw: RawJob, now = new Date()): Job {
-  const text = `${raw.title} ${raw.description ?? ""} ${raw.location ?? ""}`;
+  const title = cleanTitle(raw.title);
+  const description = raw.description ? stripHtmlKeepLines(raw.description) || undefined : undefined;
+  const text = `${title} ${description ?? ""} ${raw.location ?? ""}`;
   const tags = raw.tags ?? [];
 
-  const region = detectRegion(raw.location);
+  const city = extractCity(raw.location, description);
+  const region = detectRegion(raw.location) ?? (city ? detectRegion(city) : undefined);
   const remote =
     raw.remote ?? (REMOTE_HINT.test(text) ? detectRemote(text) : undefined) ?? undefined;
 
+  // Salaire : description d'abord, sinon titre (souvent « Électricien 45 $/h »).
   const salaryFromText =
-    raw.salaryMin == null && raw.salaryMax == null ? parseSalary(raw.description) : undefined;
+    raw.salaryMin == null && raw.salaryMax == null
+      ? parseSalary(description) ?? parseSalary(title)
+      : undefined;
 
   // Salaire « selon la CCQ » : à défaut de montant explicite ou détecté, on
   // pose le taux compagnon ICI de la CCQ quand le métier en a un (sinon rien —
@@ -276,7 +308,7 @@ export function normalizeRawJob(raw: RawJob, now = new Date()): Job {
     raw.salaryMax == null &&
     !salaryFromText &&
     CCQ_SALARY_RE.test(text)
-      ? ccqWageForJob(raw.title, { regionId: region })
+      ? ccqWageForJob(title, { regionId: region })
       : undefined;
 
   let postedAt: string | undefined;
@@ -285,23 +317,29 @@ export function normalizeRawJob(raw: RawJob, now = new Date()): Job {
     if (!Number.isNaN(t)) postedAt = new Date(t).toISOString();
   }
 
+  // Métier / domaine : titre + tags, puis repli sur la description (ex. titre
+  // générique « Poste ouvert » mais corps « … charpentier-menuisier … »).
+  const categoryId =
+    inferCategory(title, tags) ?? (description ? inferCategory(description, tags) : undefined);
+
   return {
     id: jobId(raw.sourceId, raw.url),
     sourceId: raw.sourceId,
     url: raw.url,
-    title: cleanTitle(raw.title),
+    title,
     company: raw.company.trim(),
     companyLogoUrl: raw.companyLogoUrl,
     location: raw.location?.trim(),
     regionId: region,
+    city,
     remote,
-    categoryId: inferCategory(raw.title, tags),
+    categoryId,
     employmentType: raw.employmentType,
     salaryMin: raw.salaryMin ?? salaryFromText?.salaryMin ?? ccqWage?.hourly,
     salaryMax: raw.salaryMax ?? salaryFromText?.salaryMax ?? ccqWage?.hourly,
     salaryPeriod: raw.salaryPeriod ?? salaryFromText?.salaryPeriod ?? (ccqWage ? "heure" : undefined),
     currency: "CAD",
-    description: raw.description ? stripHtmlKeepLines(raw.description) || undefined : undefined,
+    description,
     tags,
     languages: detectLanguages(text),
     postedAt,

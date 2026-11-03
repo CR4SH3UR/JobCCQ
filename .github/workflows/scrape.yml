@@ -1,10 +1,10 @@
 name: Scraper les offres
 
-# Deux déclenchements :
+# Trois déclenchements :
 #  - manuel (onglet Actions ou console admin) : un employeur, une liste
 #    `id1,id2,id3` (un seul run), ou tous (champ vide) ;
-#  - planifié (2×/semaine, lundi + jeudi) : re-scrape tous les sites pour
-#    garder l'instantané frais (évite les offres périmées / manquantes).
+#  - planifié quotidien (gros employeurs : Pomerleau, Broccolini, EBC, CCQ…) ;
+#  - planifié 2×/semaine (lundi + jeudi) : re-scrape de **tous** les sites.
 #
 # Dans tous les cas on repart de l'instantané en ligne (jobs.json), puis le
 # scraping se fait en mode « sync » : il retire les postes comblés MAIS ne
@@ -27,7 +27,9 @@ on:
         required: false
         default: ""
   schedule:
-    # Lundi et jeudi à 08:00 UTC (~3–4 h du matin, heure du Québec).
+    # Gros employeurs : tous les jours à 12:00 UTC (~7–8 h, heure du Québec).
+    - cron: "0 12 * * *"
+    # Tous les sites : lundi et jeudi à 08:00 UTC (~3–4 h du matin, QC).
     - cron: "0 8 * * 1,4"
 
 permissions:
@@ -99,16 +101,25 @@ jobs:
           npm run export:employers -w @jobccq/api
 
       # Scraping en mode « sync » (retire les postes comblés, jamais sur échec).
-      # sourceId vide (planifié ou champ vide) = tous les sites.
+      # - workflow_dispatch avec sourceId → ciblé
+      # - cron quotidien (0 12 * * *) → gros employeurs seulement
+      # - cron 2×/semaine ou champ vide → tous les sites
       - name: Scraper
         env:
           SID: ${{ github.event.inputs.sourceId }}
           MP: ${{ github.event.inputs.maxPages || '2' }}
           FORCE: ${{ github.event.inputs.force }}
+          SCHEDULE: ${{ github.event.schedule }}
         run: |
+          # Ids des gros employeurs (doit rester aligné avec
+          # packages/shared/src/daily-scrape.ts).
+          DAILY_IDS="pomerleau,broccolini-com,ebc,ccq-construction,magil-construction,aecon-group-inc"
           if [ -n "$SID" ]; then
             echo "Scraping ciblé : $SID (maxPages=$MP, force='$FORCE')"
             SCRAPE_IDS="$SID" SCRAPE_MAX_PAGES="$MP" SCRAPE_FORCE="$FORCE" npm run scrape -w @jobccq/api
+          elif [ "$SCHEDULE" = "0 12 * * *" ]; then
+            echo "Scraping quotidien (gros employeurs) : $DAILY_IDS"
+            SCRAPE_IDS="$DAILY_IDS" SCRAPE_MAX_PAGES="$MP" SCRAPE_FORCE="$FORCE" npm run scrape -w @jobccq/api
           else
             echo "Scraping de toutes les sources (maxPages=$MP, force='$FORCE')"
             SCRAPE_MAX_PAGES="$MP" SCRAPE_FORCE="$FORCE" npm run scrape -w @jobccq/api

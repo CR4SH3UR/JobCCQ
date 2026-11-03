@@ -40,6 +40,10 @@ export default function RegionIndexPage() {
           Ou parcourez{" "}
           <Link href="/emplois/metier/" className="font-medium text-brand-700 hover:underline">
             par métier
+          </Link>{" "}
+          ou{" "}
+          <Link href="/emplois/ville/" className="font-medium text-brand-700 hover:underline">
+            par ville
           </Link>
           .
         </p>

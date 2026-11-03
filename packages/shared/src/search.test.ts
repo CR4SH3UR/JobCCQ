@@ -215,4 +215,29 @@ describe("filtres — salaire renseigné et date", () => {
     assert.equal(r.items[1]?.closesAt, "2026-12-30");
     assert.equal(r.items[2]?.closesAt, undefined);
   });
+
+  it("à date égale, recule les fiches vides (score de complétude)", () => {
+    const when = "2026-06-01T12:00:00.000Z";
+    const rich = job("Électricien complet", {
+      postedAt: when,
+      scrapedAt: when,
+      salaryMin: 45,
+      city: "Laval",
+      description: "x".repeat(100),
+      employmentType: "temps-plein",
+    });
+    const empty = job("Électricien titre seul", {
+      postedAt: when,
+      scrapedAt: when,
+    });
+    const r = applyQuery([empty, rich], {
+      sort: "recent",
+      page: 1,
+      pageSize: 50,
+    });
+    assert.deepEqual(r.items.map((j) => j.title), [
+      "Électricien complet",
+      "Électricien titre seul",
+    ]);
+  });
 });

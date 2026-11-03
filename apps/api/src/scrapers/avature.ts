@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio";
 import type { RawJob } from "@jobccq/shared";
+import { enrichMissingDetails } from "./enrich-details.js";
 import type { Scraper, ScrapeContext, ScrapeParams } from "./types.js";
 import { cleanText, parseFrenchDate } from "./util.js";
 
@@ -97,6 +98,9 @@ export function makeAvatureScraper(config: AvatureConfig): Scraper {
       }
 
       const list = [...all.values()].slice(0, maxJobs);
+      // Les cartes Avature n'ont que titre + lieu : on complète depuis chaque
+      // fiche (JSON-LD / contenu) pour Google for Jobs.
+      await enrichMissingDetails(list, config.id, ctx, { userAgent: BROWSER_UA });
       ctx.log(`${config.id} — ${list.length} poste(s) retenus`);
       return list;
     },

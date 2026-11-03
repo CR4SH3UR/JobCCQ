@@ -24,6 +24,12 @@ export function Footer() {
           <Link href="/salaire" className="hover:text-brand-600 hover:underline">
             Guide salarial
           </Link>
+          <Link href="/guides" className="hover:text-brand-600 hover:underline">
+            Guides carrière
+          </Link>
+          <Link href="/emplois/ville" className="hover:text-brand-600 hover:underline">
+            Emplois par ville
+          </Link>
           <Link href="/rapport" className="hover:text-brand-600 hover:underline">
             Rapport hebdo
           </Link>
