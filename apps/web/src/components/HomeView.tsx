@@ -129,36 +129,36 @@ export function HomeView() {
           aria-hidden
           className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-brand-500/10 blur-3xl"
         />
-        <div className="relative mx-auto max-w-4xl px-4 py-10 text-center sm:py-20">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-white/70 px-3 py-1 text-xs font-medium text-brand-700 shadow-sm backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-            Le portail de la construction et des métiers au Québec
+        <div className="relative mx-auto max-w-4xl px-4 py-7 text-center sm:py-20">
+          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-brand-200 bg-white/70 px-2.5 py-0.5 text-[11px] font-medium text-brand-700 shadow-sm backdrop-blur sm:px-3 sm:py-1 sm:text-xs">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-green-500" />
+            <span className="truncate">Le portail de la construction et des métiers au Québec</span>
           </span>
 
-          <h1 className="mt-4 text-[1.85rem] font-extrabold leading-tight tracking-tight text-slate-900 sm:mt-5 sm:text-5xl">
+          <h1 className="mt-3 text-[1.55rem] font-extrabold leading-tight tracking-tight text-slate-900 sm:mt-5 sm:text-5xl">
             Qui recrute au <span className="text-brand-600">Québec</span> ?
           </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-base text-slate-600 sm:mt-4 sm:text-lg">
+          <p className="mx-auto mt-2 max-w-2xl text-sm leading-snug text-slate-600 sm:mt-4 sm:text-lg sm:leading-normal">
             JobCCQc regroupe les offres d'emploi de centaines d'entreprises québécoises. Trouvez qui
             embauche, pour quels postes, et postulez directement à la source.
           </p>
 
-          <form onSubmit={submit} className="mx-auto mt-6 flex max-w-xl flex-col gap-2 sm:mt-8 sm:flex-row">
+          <form onSubmit={submit} className="mx-auto mt-4 flex max-w-xl flex-col gap-2 sm:mt-8 sm:flex-row">
             <div className="relative flex-1">
-              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 sm:left-4">
                 🔎
               </span>
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Ex. charpentier, électricien, estimateur…"
+                placeholder="Ex. charpentier, électricien…"
                 aria-label="Rechercher un poste"
-                className="min-h-12 w-full rounded-xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-base shadow-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 sm:text-sm"
+                className="min-h-11 w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-3 text-base shadow-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 sm:min-h-12 sm:py-3 sm:pl-11 sm:pr-4 sm:text-sm"
               />
             </div>
             <button
               type="submit"
-              className="min-h-12 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 active:bg-brand-800"
+              className="min-h-11 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 active:bg-brand-800 sm:min-h-12 sm:px-6 sm:py-3"
             >
               Rechercher
             </button>
@@ -166,7 +166,7 @@ export function HomeView() {
 
           {/* Ligne de confiance (chiffres réels) */}
           {stats && (
-            <p className="mt-4 text-sm text-slate-500">
+            <p className="mt-3 text-xs text-slate-500 sm:mt-4 sm:text-sm">
               <span className="font-semibold text-slate-700">
                 {stats.totalJobs.toLocaleString("fr-CA")}
               </span>{" "}
@@ -180,12 +180,12 @@ export function HomeView() {
 
           {/* Raccourcis par domaine (dynamiques, avec compte) */}
           {topCategories.length > 0 && (
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5 sm:mt-6 sm:gap-2">
               {topCategories.map((c) => (
                 <Link
                   key={c.id}
                   href={`/emplois?categories=${c.id}`}
-                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 shadow-sm transition-colors hover:border-brand-300 hover:text-brand-700"
+                  className="rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-[11px] font-medium text-slate-600 shadow-sm transition-colors hover:border-brand-300 hover:text-brand-700 sm:px-3 sm:py-1 sm:text-xs"
                 >
                   {labelForCategory(c.id) ?? c.id}
                   <span className="ml-1 text-slate-400">{c.count}</span>
@@ -199,8 +199,8 @@ export function HomeView() {
       <OnboardingCard />
 
       {/* Statistiques */}
-      <section className="mx-auto max-w-6xl px-4 py-10">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <section className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-10">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
           <Stat icon="📋" value={stats ? stats.totalJobs.toLocaleString("fr-CA") : "—"} label="Offres en ligne" />
           <Stat icon="🏗️" value={stats ? stats.totalCompanies.toLocaleString("fr-CA") : "—"} label="Entreprises" />
           <Stat icon="📍" value={stats ? String(realRegions.length) : "—"} label="Régions couvertes" />
@@ -367,12 +367,12 @@ export function HomeView() {
 
 function Stat({ icon, value, label }: { icon: string; value: string; label: string }) {
   return (
-    <div className="card p-4 text-center">
-      <div className="text-lg" aria-hidden>
+    <div className="card p-3 text-center sm:p-4">
+      <div className="text-base sm:text-lg" aria-hidden>
         {icon}
       </div>
-      <p className="mt-1 text-3xl font-extrabold text-brand-600">{value}</p>
-      <p className="mt-1 text-sm text-slate-500">{label}</p>
+      <p className="mt-0.5 text-2xl font-extrabold text-brand-600 sm:mt-1 sm:text-3xl">{value}</p>
+      <p className="mt-0.5 text-xs text-slate-500 sm:mt-1 sm:text-sm">{label}</p>
     </div>
   );
 }

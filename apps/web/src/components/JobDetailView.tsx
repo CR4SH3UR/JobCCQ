@@ -477,13 +477,13 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
 
       {/* CTA sticky mobile — au-dessus de la barre d'onglets */}
       <div
-        className="fixed inset-x-0 z-30 border-t border-slate-200 bg-white/95 p-3 backdrop-blur sm:hidden"
-        style={{ bottom: "calc(3.75rem + env(safe-area-inset-bottom, 0px))" }}
+        className="fixed inset-x-0 z-30 border-t border-slate-200 bg-white/95 px-3 py-2 backdrop-blur sm:hidden"
+        style={{ bottom: "calc(3.25rem + env(safe-area-inset-bottom, 0px))" }}
       >
         <div className="mx-auto flex max-w-lg items-center gap-2">
           <ApplyLink
             job={job}
-            className="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white shadow-sm active:bg-brand-700"
+            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white shadow-sm active:bg-brand-700"
           >
             Postuler →
           </ApplyLink>
@@ -491,7 +491,7 @@ export function JobDetailView({ id, initialJob }: { id: string; initialJob?: Job
         </div>
       </div>
       {/* Espace pour ne pas masquer la fin de page sous le CTA + onglets */}
-      <div className="h-20 sm:hidden" aria-hidden />
+      <div className="h-16 sm:hidden" aria-hidden />
 
       {/* Données structurées Google for Jobs */}
       <script

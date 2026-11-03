@@ -115,10 +115,10 @@ export function Header() {
         )}
         style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 md:py-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-2 md:gap-3 md:px-4 md:py-3">
           <Link href="/" className="flex min-w-0 items-center gap-2" aria-label="JobCCQc — accueil">
             <BrandMark />
-            <span className="truncate text-lg font-bold tracking-tight">
+            <span className="truncate text-base font-bold tracking-tight md:text-lg">
               Job<span className="text-brand-600">CCQc</span>
             </span>
           </Link>
@@ -232,13 +232,13 @@ export function Header() {
           aria-label="Menu"
           className="fixed inset-0 z-50 overflow-y-auto bg-slate-50 md:hidden"
           style={{
-            paddingTop: "calc(3.5rem + env(safe-area-inset-top, 0px))",
-            paddingBottom: "calc(4.5rem + env(safe-area-inset-bottom, 0px))",
+            paddingTop: "calc(3rem + env(safe-area-inset-top, 0px))",
+            paddingBottom: "calc(3.75rem + env(safe-area-inset-bottom, 0px))",
           }}
         >
-          <div className="mx-auto max-w-lg space-y-4 px-4 py-4">
+          <div className="mx-auto max-w-lg space-y-3 px-3 py-3">
             <section className="card overflow-hidden">
-              <p className="border-b border-slate-200 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <p className="border-b border-slate-200 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                 Explorer
               </p>
               <ul>
@@ -249,7 +249,7 @@ export function Header() {
                       <Link
                         href={l.href}
                         className={cn(
-                          "flex items-center justify-between border-b border-slate-100 px-4 py-3.5 text-base font-medium last:border-0",
+                          "flex items-center justify-between border-b border-slate-100 px-3 py-2.5 text-sm font-medium last:border-0",
                           active
                             ? "bg-brand-50 text-brand-700"
                             : "text-slate-800 active:bg-slate-50",
@@ -267,7 +267,7 @@ export function Header() {
             </section>
 
             <section className="card overflow-hidden">
-              <p className="border-b border-slate-200 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <p className="border-b border-slate-200 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                 {L.account}
               </p>
               <ul>
@@ -288,7 +288,7 @@ export function Header() {
                     <Link
                       href={l.href}
                       className={cn(
-                        "flex items-center justify-between border-b border-slate-100 px-4 py-3.5 text-base font-medium last:border-0",
+                        "flex items-center justify-between border-b border-slate-100 px-3 py-2.5 text-sm font-medium last:border-0",
                         pathname.startsWith(l.href)
                           ? "bg-brand-50 text-brand-700"
                           : "text-slate-800 active:bg-slate-50",
@@ -307,13 +307,13 @@ export function Header() {
             {showAdmin && (
               <Link
                 href="/admin"
-                className="flex items-center justify-center rounded-xl bg-brand-600 px-4 py-3.5 text-base font-semibold text-white"
+                className="flex items-center justify-center rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white"
               >
                 Admin
               </Link>
             )}
 
-            <div className="card flex items-center justify-between gap-3 px-4 py-3">
+            <div className="card flex items-center justify-between gap-3 px-3 py-2.5">
               <span className="text-sm font-medium text-slate-600">Préférences</span>
               <div className="flex items-center gap-2">
                 <LangToggle />

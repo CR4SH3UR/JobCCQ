@@ -37,7 +37,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <BetaBanner />
       <OfflineBanner />
       <Header />
-      <main className="flex-1 pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))] md:pb-0">
+      <main className="flex-1 pb-[calc(3.5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
         {children}
       </main>
       <CompareBar />
