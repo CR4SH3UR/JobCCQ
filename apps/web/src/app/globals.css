@@ -129,6 +129,12 @@ body {
 [data-theme="dark"] .bg-white {
   background-color: var(--surface);
 }
+[data-theme="dark"] .bg-white\/70 {
+  background-color: color-mix(in oklab, var(--surface) 72%, transparent);
+}
+[data-theme="dark"] .bg-white\/80 {
+  background-color: color-mix(in oklab, var(--surface) 80%, transparent);
+}
 [data-theme="dark"] .bg-white\/90 {
   background-color: color-mix(in oklab, var(--surface) 88%, transparent);
 }

@@ -126,7 +126,7 @@ function ChipField({
       <div
         className={cn(
           "flex flex-wrap gap-1.5",
-          compact && "max-h-36 overflow-y-auto pr-1",
+          compact && "max-h-36 overflow-x-hidden overflow-y-auto overscroll-contain pr-1",
         )}
       >
         {options.map((o) => {

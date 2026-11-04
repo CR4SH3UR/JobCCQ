@@ -130,8 +130,8 @@ export function HomeView() {
           className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-brand-500/10 blur-3xl"
         />
         <div className="relative mx-auto max-w-4xl px-3 py-5 text-center sm:px-4 sm:py-20">
-          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-brand-200 bg-white/70 px-2.5 py-0.5 text-[10px] font-medium text-brand-700 shadow-sm backdrop-blur sm:px-3 sm:py-1 sm:text-xs">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-green-500" />
+          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-brand-200 bg-white/80 px-2.5 py-0.5 text-[10px] font-medium text-slate-800 shadow-sm backdrop-blur sm:px-3 sm:py-1 sm:text-xs dark:border-brand-400/35 dark:bg-brand-950/75 dark:text-[#d7e4ff]">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-green-500 dark:bg-green-400" />
             <span className="truncate">Le portail de la construction et des métiers au Québec</span>
           </span>
 
