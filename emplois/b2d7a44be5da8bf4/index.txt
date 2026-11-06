@@ -1,0 +1,70 @@
+1:"$Sreact.fragment"
+2:I[1206,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"SentryBoot"]
+3:I[94,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"AppShell"]
+4:I[5341,[],""]
+5:I[25,[],""]
+7:I[5104,[],"OutletBoundary"]
+9:I[7158,[],"AsyncMetadataOutlet"]
+b:I[5104,[],"ViewportBoundary"]
+d:I[5104,[],"MetadataBoundary"]
+e:"$Sreact.suspense"
+10:I[4431,[],""]
+:HL["/_next/static/css/c2a0a2b449f065cf.css","style"]
+0:{"P":null,"b":"IgyTMmMkNYLSNhM-wvXbp","p":"","c":["","emplois","b2d7a44be5da8bf4",""],"i":false,"f":[[["",{"children":["emplois",{"children":[["id","b2d7a44be5da8bf4","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c2a0a2b449f065cf.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"fr-CA","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"!function(){try{var e=localStorage.getItem(\"theme\");e||(e=matchMedia(\"(prefers-color-scheme: dark)\").matches?\"dark\":\"light\"),document.documentElement.dataset.theme=e;var l=localStorage.getItem(\"jobccq:lang\");if(l===\"en\")document.documentElement.lang=\"en-CA\"}catch(t){}}()"}}],"$undefined"]}],["$","body",null,{"className":"min-h-screen flex flex-col","children":[["$","$L2",null,{}],["$","$L3",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]]}]]}]]}],{"children":["emplois",["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["id","b2d7a44be5da8bf4","d"],["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L6",null,["$","$L7",null,{"children":["$L8",["$","$L9",null,{"promise":"$@a"}]]}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,[["$","$Lb",null,{"children":"$Lc"}],null],["$","$Ld",null,{"children":["$","div",null,{"hidden":true,"children":["$","$e",null,{"fallback":null,"children":"$Lf"}]}]}]]}],false]],"m":"$undefined","G":["$10",[]],"s":false,"S":true}
+11:I[2681,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2799","static/chunks/2799-da6ef85c82f8d2cb.js","7410","static/chunks/7410-4278027ce4376811.js","7310","static/chunks/7310-bcfce7710fb79351.js","2681","static/chunks/2681-8b2fc68a69f7aa38.js","3520","static/chunks/app/emplois/%5Bid%5D/page-263dd78dc5013b7a.js"],"JobDetailView"]
+12:Tdcf,Le bon matériel. Au bon endroit. Au bon moment.
+Tu es une personne organisée qui aime que les choses soient bien faites?
+Tu aimes savoir que ton travail contribue directement au succès des opérations?
+Chez Omnifab, le magasinier joue un rôle essentiel dans la fluidité des projets. Grâce à son organisation et à sa rigueur, les équipes disposent des pièces, matériaux et équipements nécessaires pour réaliser leur travail efficacement.
+Si tu aimes coordonner, planifier et garder le contrôle sur l&rsquo;inventaire, ce poste pourrait être fait pour toi.
+Ton rôle chez Omnifab
+À titre de magasinier(ère), tu assureras la gestion des pièces, des matériaux et des approvisionnements nécessaires aux opérations de l&rsquo;entreprise.
+Tu travailleras en étroite collaboration avec les équipes de mécanique industrielle, d&rsquo;usinage, de soudure, de fabrication et d&rsquo;ingénierie afin de soutenir la réalisation des projets.
+Ce que tu feras au quotidien
+
+Effectuer les commandes de pièces, matériaux et fournitures;
+Recevoir, vérifier et enregistrer les marchandises reçues;
+Assurer le rangement et l&rsquo;entreposage adéquat des produits;
+Maintenir l&rsquo;inventaire à jour et effectuer les suivis nécessaires;
+Préparer les pièces et le matériel destinés aux équipes de l&rsquo;atelier et des chantiers;
+Collaborer avec les différents départements pour anticiper les besoins;
+Participer à l&rsquo;amélioration des méthodes de gestion d&rsquo;inventaire;
+Maintenir un environnement de travail propre, organisé et sécuritaire;
+Contribuer à la fluidité des opérations quotidiennes.
+
+Le profil que nous recherchons
+Tu pourrais être un excellent ajout à l&rsquo;équipe si tu possèdes :
+
+Une expérience en gestion d&rsquo;inventaire, en magasin ou dans un environnement industriel (atout);
+Une bonne capacité d&rsquo;organisation et de planification;
+Un souci du détail et une approche rigoureuse;
+De l&rsquo;autonomie et de la débrouillardise;
+Une aisance avec les outils informatiques;
+Une bonne capacité physique;
+Une attitude collaborative et orientée vers le service aux équipes.
+
+Une expérience dans le domaine industriel ou mécanique représente un avantage important.
+Pourquoi joindre Omnifab?
+Parce qu&rsquo;ici, ton rôle a un impact direct sur la réussite des projets.
+Tu travailleras avec des équipes spécialisées qui réalisent quotidiennement des projets en mécanique industrielle, fabrication mécanique, soudure, usinage et automatisation.
+Nous croyons que les meilleures idées peuvent provenir de partout dans l&rsquo;organisation. Les employés sont encouragés à proposer des améliorations et à participer activement à l&rsquo;évolution des méthodes de travail.
+Chaque matin, nos équipes se réunissent lors d&rsquo;un court pit stop afin d&rsquo;aligner les priorités, partager l&rsquo;information et résoudre rapidement les enjeux.
+Tu évolueras dans un environnement où la collaboration, la responsabilisation et l&rsquo;autonomie occupent une place importante.
+Ce que nous offrons
+
+Poste permanent à temps plein;
+Horaire flexible;
+Assurances collectives;
+Salle d&rsquo;entraînement sur place;
+Service de massothérapie gratuit;
+Service de podologie gratuit;
+Service de coiffure sur place;
+Café, fruits et plusieurs commodités offertes aux employés;
+Environnement moderne, propre et climatisé;
+Activités sociales et ambiance conviviale;
+Opportunités de développement professionnel au sein d&rsquo;une entreprise en croissance.6:["$","$L11",null,{"id":"b2d7a44be5da8bf4","initialJob":{"id":"b2d7a44be5da8bf4","sourceId":"omnifab-ca","url":"https://jobdepilote.ca/poste/magasinierere/","title":"Magasinier(ère)","company":"Omnifab","regionId":"mauricie","categoryId":"logistique","employmentType":"temps-plein","currency":"CAD","description":"$12","tags":[],"languages":[],"postedAt":"2026-07-08T16:05:00.000Z","scrapedAt":"2026-08-21T12:51:50.943Z","linkStatus":"ok"}}]
+c:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#ffffff"}],["$","meta","3",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0b1120"}]]
+8:null
+13:I[6505,[],"IconMark"]
+a:{"metadata":[["$","title","0",{"children":"Magasinier(ère) — Omnifab (Mauricie) | JobCCQc"}],["$","meta","1",{"name":"description","content":"Le bon matériel. Au bon endroit. Au bon moment.\nTu es une personne organisée qui aime que les choses soient bien faites?\nTu aimes savoir que ton travail co"}],["$","link","2",{"rel":"canonical","href":"https://jobccqc.ca/emplois/b2d7a44be5da8bf4/"}],["$","meta","3",{"name":"format-detection","content":"telephone=no"}],["$","meta","4",{"name":"mobile-web-app-capable","content":"yes"}],["$","meta","5",{"name":"apple-mobile-web-app-title","content":"JobCCQc"}],["$","meta","6",{"name":"apple-mobile-web-app-status-bar-style","content":"default"}],["$","meta","7",{"property":"og:title","content":"Magasinier(ère) — Omnifab (Mauricie) | JobCCQc"}],["$","meta","8",{"property":"og:description","content":"Le bon matériel. Au bon endroit. Au bon moment.\nTu es une personne organisée qui aime que les choses soient bien faites?\nTu aimes savoir que ton travail co"}],["$","meta","9",{"property":"og:url","content":"https://jobccqc.ca/emplois/b2d7a44be5da8bf4/"}],["$","meta","10",{"property":"og:type","content":"website"}],["$","meta","11",{"name":"twitter:card","content":"summary"}],["$","meta","12",{"name":"twitter:title","content":"Magasinier(ère) — Omnifab (Mauricie) | JobCCQc"}],["$","meta","13",{"name":"twitter:description","content":"Le bon matériel. Au bon endroit. Au bon moment.\nTu es une personne organisée qui aime que les choses soient bien faites?\nTu aimes savoir que ton travail co"}],["$","link","14",{"rel":"icon","href":"/icon.svg?f69bf06df7d0d84d","type":"image/svg+xml","sizes":"any"}],["$","$L13","15",{}]],"error":null,"digest":"$undefined"}
+f:"$a:metadata"

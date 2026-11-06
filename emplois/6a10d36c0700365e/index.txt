@@ -1,0 +1,82 @@
+1:"$Sreact.fragment"
+2:I[1206,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"SentryBoot"]
+3:I[94,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"AppShell"]
+4:I[5341,[],""]
+5:I[25,[],""]
+7:I[5104,[],"OutletBoundary"]
+9:I[7158,[],"AsyncMetadataOutlet"]
+b:I[5104,[],"ViewportBoundary"]
+d:I[5104,[],"MetadataBoundary"]
+e:"$Sreact.suspense"
+10:I[4431,[],""]
+:HL["/_next/static/css/c2a0a2b449f065cf.css","style"]
+0:{"P":null,"b":"IgyTMmMkNYLSNhM-wvXbp","p":"","c":["","emplois","6a10d36c0700365e",""],"i":false,"f":[[["",{"children":["emplois",{"children":[["id","6a10d36c0700365e","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c2a0a2b449f065cf.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"fr-CA","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"!function(){try{var e=localStorage.getItem(\"theme\");e||(e=matchMedia(\"(prefers-color-scheme: dark)\").matches?\"dark\":\"light\"),document.documentElement.dataset.theme=e;var l=localStorage.getItem(\"jobccq:lang\");if(l===\"en\")document.documentElement.lang=\"en-CA\"}catch(t){}}()"}}],"$undefined"]}],["$","body",null,{"className":"min-h-screen flex flex-col","children":[["$","$L2",null,{}],["$","$L3",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]]}]]}]]}],{"children":["emplois",["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["id","6a10d36c0700365e","d"],["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L6",null,["$","$L7",null,{"children":["$L8",["$","$L9",null,{"promise":"$@a"}]]}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,[["$","$Lb",null,{"children":"$Lc"}],null],["$","$Ld",null,{"children":["$","div",null,{"hidden":true,"children":["$","$e",null,{"fallback":null,"children":"$Lf"}]}]}]]}],false]],"m":"$undefined","G":["$10",[]],"s":false,"S":true}
+11:I[2681,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2799","static/chunks/2799-da6ef85c82f8d2cb.js","7410","static/chunks/7410-4278027ce4376811.js","7310","static/chunks/7310-bcfce7710fb79351.js","2681","static/chunks/2681-8b2fc68a69f7aa38.js","3520","static/chunks/app/emplois/%5Bid%5D/page-263dd78dc5013b7a.js"],"JobDetailView"]
+12:T9fa,[vc_row][vc_column][vc_custom_heading text="Candidat à la profession d'ingénieur (CPI)" font_container="tag:h4|text_align:left|color:%23005f4a" use_theme_fonts="yes" css=""][vc_column_text css=""]Description du poste
+
+Sous la supervision de l’équipe de Montréal, le titulaire de ce poste à la responsabilité de supporter l’équipe technique d’Altan Construction sur l’ensemble de ses projets clients. Le CPI sera amené à travailler sur des projets de levage, de conception mécanique, de maintenance et de conception. Un soutien en coordination pour les projets attribués sera aussi nécessaire. Pour assumer ce rôle, vous travaillerez en collaboration avec les chargés de projet d’Altan Construction, les chargés de projet des clients et les sous-traitants attitrés aux projets tout en fournissant un soutien technique de qualité et confidentiel.
+
+Principales responsabilités
+
+Gérer plusieurs projets d’ingénierie mécanique;
+
+Fournir des conseils et une formation complémentaire aux contremaîtres;
+
+Assurer un suivi des projets;
+
+Coordination des projets clients;
+
+Suivi du temps et procédure de révision de la portée du projet;
+
+Visites hebdomadaires des projets clients;
+
+Participation aux réunions de chantier;
+
+Participer aux réunions de l'entreprise;
+
+Apporter un soutien aux examen et inspections de la sécurité de l'entreprise;
+
+Liaison entre le bureau technique et les contremaîtres (projet);
+
+Projets ad hoc.
+
+Expérience, Compétences & Scolarité
+
+Baccalauréat (BAC) en génie mécanique;
+
+Membre de l’Ordre des Ingénieurs du Québec (OIQ)comme CPI;
+
+Carte ASP Construction;
+
+Détenir de l’expérience de terrain (chantier ou industrielle) est un atout;
+
+Démontrer un intérêt et une sensibilité envers la santé et la sécurité au travail;
+
+Maîtrise du français oral et écrit, l’anglais sera un atout;
+
+Posséder un permis de conduire classe 5 valide.
+
+Ce que l’on t’offre
+
+Salaire plus que concurrentiel selon l’expérience;
+
+Possibilité de temps supplémentaires sur plusieurs projets;
+
+Assurances collectives;
+
+Vacances disponibles à l’entrée en poste (3 semaines);
+
+Cellulaire et ordinateur portable fournis;
+
+Horaire de travail conciliant (5-2).
+
+Un défi au sein de notre équipe vous intéresse? Envoyer votre CV à notre équipe au rhgroupealtan@groupealtan.com
+
+Nous vous remercions de l’intérêt que vous nous portez. Seules les candidatures retenues seront contactées.
+
+Le masculin est utilisé afin d’alléger le texte.[/vc_column_text][/vc_column][/vc_row]6:["$","$L11",null,{"id":"6a10d36c0700365e","initialJob":{"id":"6a10d36c0700365e","sourceId":"altanconstruction-com","url":"https://altanconstruction.com/emplois/candidat-profession-ingenieur/","title":"Candidat à la profession d’ingénieur (CPI) Permanent","company":"Altan Construction Industrielle inc.","regionId":"abitibi-temiscamingue","categoryId":"genie","currency":"CAD","description":"$12","tags":[],"languages":["en","fr"],"postedAt":"2024-08-16T19:35:19.000Z","scrapedAt":"2026-09-14T14:39:19.600Z","linkStatus":"ok"}}]
+c:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#ffffff"}],["$","meta","3",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0b1120"}]]
+8:null
+13:I[6505,[],"IconMark"]
+a:{"metadata":[["$","title","0",{"children":"Candidat à la profession d’ingénieur (CPI) Permanent — Altan Construction Industrielle inc. (Abitibi-Témiscamingue) | JobCCQc"}],["$","meta","1",{"name":"description","content":"[vc_row][vc_column][vc_custom_heading text=\"Candidat à la profession d'ingénieur (CPI)\" font_container=\"tag:h4|text_align:left|color:%23005f4a\" use_theme_f"}],["$","link","2",{"rel":"canonical","href":"https://jobccqc.ca/emplois/6a10d36c0700365e/"}],["$","meta","3",{"name":"format-detection","content":"telephone=no"}],["$","meta","4",{"name":"mobile-web-app-capable","content":"yes"}],["$","meta","5",{"name":"apple-mobile-web-app-title","content":"JobCCQc"}],["$","meta","6",{"name":"apple-mobile-web-app-status-bar-style","content":"default"}],["$","meta","7",{"property":"og:title","content":"Candidat à la profession d’ingénieur (CPI) Permanent — Altan Construction Industrielle inc. (Abitibi-Témiscamingue) | JobCCQc"}],["$","meta","8",{"property":"og:description","content":"[vc_row][vc_column][vc_custom_heading text=\"Candidat à la profession d'ingénieur (CPI)\" font_container=\"tag:h4|text_align:left|color:%23005f4a\" use_theme_f"}],["$","meta","9",{"property":"og:url","content":"https://jobccqc.ca/emplois/6a10d36c0700365e/"}],["$","meta","10",{"property":"og:type","content":"website"}],["$","meta","11",{"name":"twitter:card","content":"summary"}],["$","meta","12",{"name":"twitter:title","content":"Candidat à la profession d’ingénieur (CPI) Permanent — Altan Construction Industrielle inc. (Abitibi-Témiscamingue) | JobCCQc"}],["$","meta","13",{"name":"twitter:description","content":"[vc_row][vc_column][vc_custom_heading text=\"Candidat à la profession d'ingénieur (CPI)\" font_container=\"tag:h4|text_align:left|color:%23005f4a\" use_theme_f"}],["$","link","14",{"rel":"icon","href":"/icon.svg?f69bf06df7d0d84d","type":"image/svg+xml","sizes":"any"}],["$","$L13","15",{}]],"error":null,"digest":"$undefined"}
+f:"$a:metadata"

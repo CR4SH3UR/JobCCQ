@@ -1,0 +1,67 @@
+1:"$Sreact.fragment"
+2:I[1206,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"SentryBoot"]
+3:I[94,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"AppShell"]
+4:I[5341,[],""]
+5:I[25,[],""]
+7:I[5104,[],"OutletBoundary"]
+9:I[7158,[],"AsyncMetadataOutlet"]
+b:I[5104,[],"ViewportBoundary"]
+d:I[5104,[],"MetadataBoundary"]
+e:"$Sreact.suspense"
+10:I[4431,[],""]
+:HL["/_next/static/css/c2a0a2b449f065cf.css","style"]
+0:{"P":null,"b":"IgyTMmMkNYLSNhM-wvXbp","p":"","c":["","emplois","3d028fe1efe36060",""],"i":false,"f":[[["",{"children":["emplois",{"children":[["id","3d028fe1efe36060","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c2a0a2b449f065cf.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"fr-CA","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"!function(){try{var e=localStorage.getItem(\"theme\");e||(e=matchMedia(\"(prefers-color-scheme: dark)\").matches?\"dark\":\"light\"),document.documentElement.dataset.theme=e;var l=localStorage.getItem(\"jobccq:lang\");if(l===\"en\")document.documentElement.lang=\"en-CA\"}catch(t){}}()"}}],"$undefined"]}],["$","body",null,{"className":"min-h-screen flex flex-col","children":[["$","$L2",null,{}],["$","$L3",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]]}]]}]]}],{"children":["emplois",["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["id","3d028fe1efe36060","d"],["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L6",null,["$","$L7",null,{"children":["$L8",["$","$L9",null,{"promise":"$@a"}]]}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,[["$","$Lb",null,{"children":"$Lc"}],null],["$","$Ld",null,{"children":["$","div",null,{"hidden":true,"children":["$","$e",null,{"fallback":null,"children":"$Lf"}]}]}]]}],false]],"m":"$undefined","G":["$10",[]],"s":false,"S":true}
+11:I[2681,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2799","static/chunks/2799-da6ef85c82f8d2cb.js","7410","static/chunks/7410-4278027ce4376811.js","7310","static/chunks/7310-bcfce7710fb79351.js","2681","static/chunks/2681-8b2fc68a69f7aa38.js","3520","static/chunks/app/emplois/%5Bid%5D/page-263dd78dc5013b7a.js"],"JobDetailView"]
+12:Td2e,Contribue à rendre l&rsquo;industrie plus sécuritaire, un projet à la fois
+Tu es passionné(e) par la sécurité machine et tu souhaites mettre ton expertise au service de projets industriels variés?
+Chez Omnifab, tu ne seras pas limité à un seul type d&rsquo;équipement ou à un seul secteur d&rsquo;activité. Tu travailleras avec des équipes multidisciplinaires qui réalisent des projets en mécanique industrielle, automatisation, fabrication mécanique et ingénierie partout au Québec.
+Ton rôle chez Omnifab
+Ton rôle aura un impact direct : aider nos clients à améliorer la sécurité de leurs équipements, protéger les travailleurs et assurer la conformité de leurs installations.
+Ce que tu feras au quotidien
+À titre d&rsquo;ingénieur(e) en sécurité machine, tu agiras comme référence technique auprès des clients et des équipes de réalisation.
+Tu seras notamment appelé(e) à :
+
+Réaliser des analyses et évaluations de risques sur des machines et équipements industriels;
+Identifier les dangers potentiels et recommander les mesures correctives appropriées;
+Concevoir et implanter des solutions de sécurité machine adaptées aux besoins des clients;
+Valider la conformité des équipements selon les normes et réglementations applicables;
+Collaborer avec les équipes d&rsquo;ingénierie, d&rsquo;automatisation, de maintenance et de fabrication;
+Effectuer des audits de sécurité et proposer des pistes d&rsquo;amélioration;
+Rédiger la documentation technique, les procédures et les rapports d&rsquo;analyse;
+Développer et animer des formations en sécurité machine;
+Signer et sceller les plans lorsque requis.
+
+Le profil que nous recherchons
+Tu pourrais être un excellent ajout à l&rsquo;équipe si tu possèdes :
+
+Un baccalauréat en génie mécanique, industriel ou dans un domaine connexe;
+Un minimum de 3 années d&rsquo;expérience en sécurité machine;
+Une bonne maîtrise des normes CSA, ISO 13849, ISO 12100 et OSHA;
+De l&rsquo;expérience en analyse de risques et en gestion de projets techniques;
+Une connaissance d&rsquo;Inventor (atout);
+Un bon esprit d&rsquo;analyse et de résolution de problèmes;
+Une approche rigoureuse et structurée;
+Une facilité à collaborer avec différents intervenants.
+
+Pourquoi joindre Omnifab?
+Parce qu&rsquo;ici, ton expertise a un réel impact.
+Nos équipes sont composées de spécialistes qui travaillent ensemble pour résoudre des défis techniques concrets. Nous croyons que les personnes les plus près du travail sont souvent les mieux placées pour contribuer aux décisions et à l&rsquo;amélioration des projets.
+Chaque journée débute par un court « pit stop » d&rsquo;équipe qui permet d&rsquo;aligner les priorités, de résoudre rapidement les enjeux et de favoriser la collaboration.
+Tu évolueras dans un environnement où l&rsquo;autonomie, l&rsquo;initiative et le partage des connaissances sont valorisés.
+Ce que nous offrons
+
+Horaire flexible;
+Assurances collectives;
+Salle d&rsquo;entraînement;
+Service de massothérapie gratuit;
+Service de podologie gratuit;
+Service de coiffure sur place;
+Café, fruits et plusieurs commodités offertes aux employés;
+Environnement de travail moderne, propre et climatisé;
+Activités sociales et ambiance conviviale;
+Opportunités de développement professionnel au sein d&rsquo;une entreprise en croissance.6:["$","$L11",null,{"id":"3d028fe1efe36060","initialJob":{"id":"3d028fe1efe36060","sourceId":"omnifab-ca","url":"https://jobdepilote.ca/poste/ingenieure-en-securite-machine/","title":"Ingénieur(e) en sécurité machine","company":"Omnifab","regionId":"mauricie","categoryId":"genie","employmentType":"temps-plein","currency":"CAD","description":"$12","tags":[],"languages":[],"postedAt":"2026-07-08T16:00:00.000Z","scrapedAt":"2026-08-21T12:51:50.943Z","linkStatus":"ok"}}]
+c:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#ffffff"}],["$","meta","3",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0b1120"}]]
+8:null
+13:I[6505,[],"IconMark"]
+a:{"metadata":[["$","title","0",{"children":"Ingénieur(e) en sécurité machine — Omnifab (Mauricie) | JobCCQc"}],["$","meta","1",{"name":"description","content":"Contribue à rendre l&rsquo;industrie plus sécuritaire, un projet à la fois\nTu es passionné(e) par la sécurité machine et tu souhaites mettre ton expertise "}],["$","link","2",{"rel":"canonical","href":"https://jobccqc.ca/emplois/3d028fe1efe36060/"}],["$","meta","3",{"name":"format-detection","content":"telephone=no"}],["$","meta","4",{"name":"mobile-web-app-capable","content":"yes"}],["$","meta","5",{"name":"apple-mobile-web-app-title","content":"JobCCQc"}],["$","meta","6",{"name":"apple-mobile-web-app-status-bar-style","content":"default"}],["$","meta","7",{"property":"og:title","content":"Ingénieur(e) en sécurité machine — Omnifab (Mauricie) | JobCCQc"}],["$","meta","8",{"property":"og:description","content":"Contribue à rendre l&rsquo;industrie plus sécuritaire, un projet à la fois\nTu es passionné(e) par la sécurité machine et tu souhaites mettre ton expertise "}],["$","meta","9",{"property":"og:url","content":"https://jobccqc.ca/emplois/3d028fe1efe36060/"}],["$","meta","10",{"property":"og:type","content":"website"}],["$","meta","11",{"name":"twitter:card","content":"summary"}],["$","meta","12",{"name":"twitter:title","content":"Ingénieur(e) en sécurité machine — Omnifab (Mauricie) | JobCCQc"}],["$","meta","13",{"name":"twitter:description","content":"Contribue à rendre l&rsquo;industrie plus sécuritaire, un projet à la fois\nTu es passionné(e) par la sécurité machine et tu souhaites mettre ton expertise "}],["$","link","14",{"rel":"icon","href":"/icon.svg?f69bf06df7d0d84d","type":"image/svg+xml","sizes":"any"}],["$","$L13","15",{}]],"error":null,"digest":"$undefined"}
+f:"$a:metadata"
