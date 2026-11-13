@@ -1,0 +1,68 @@
+1:"$Sreact.fragment"
+2:I[1206,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"SentryBoot"]
+3:I[94,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"AppShell"]
+4:I[5341,[],""]
+5:I[25,[],""]
+7:I[5104,[],"OutletBoundary"]
+9:I[7158,[],"AsyncMetadataOutlet"]
+b:I[5104,[],"ViewportBoundary"]
+d:I[5104,[],"MetadataBoundary"]
+e:"$Sreact.suspense"
+10:I[4431,[],""]
+:HL["/_next/static/css/c2a0a2b449f065cf.css","style"]
+0:{"P":null,"b":"20VcJ_xWjiI0D3-bYQnet","p":"","c":["","emplois","c98575f3f041adbd",""],"i":false,"f":[[["",{"children":["emplois",{"children":[["id","c98575f3f041adbd","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c2a0a2b449f065cf.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"fr-CA","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"!function(){try{var e=localStorage.getItem(\"theme\");e||(e=matchMedia(\"(prefers-color-scheme: dark)\").matches?\"dark\":\"light\"),document.documentElement.dataset.theme=e;var l=localStorage.getItem(\"jobccq:lang\");if(l===\"en\")document.documentElement.lang=\"en-CA\"}catch(t){}}()"}}],"$undefined"]}],["$","body",null,{"className":"min-h-screen flex flex-col","children":[["$","$L2",null,{}],["$","$L3",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]]}]]}]]}],{"children":["emplois",["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["id","c98575f3f041adbd","d"],["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L6",null,["$","$L7",null,{"children":["$L8",["$","$L9",null,{"promise":"$@a"}]]}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,[["$","$Lb",null,{"children":"$Lc"}],null],["$","$Ld",null,{"children":["$","div",null,{"hidden":true,"children":["$","$e",null,{"fallback":null,"children":"$Lf"}]}]}]]}],false]],"m":"$undefined","G":["$10",[]],"s":false,"S":true}
+11:I[2681,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2799","static/chunks/2799-da6ef85c82f8d2cb.js","7410","static/chunks/7410-4278027ce4376811.js","7310","static/chunks/7310-bcfce7710fb79351.js","2681","static/chunks/2681-8b2fc68a69f7aa38.js","3520","static/chunks/app/emplois/%5Bid%5D/page-263dd78dc5013b7a.js"],"JobDetailView"]
+12:Td00,Développe une expertise recherchée dans le monde des équipements rotatifs
+Chez Omnifab, nous aidons les entreprises manufacturières et industrielles à maintenir leurs opérations grâce à notre expertise en mécanique industrielle, maintenance, usinage, soudure, fabrication mécanique et automatisation.
+Nous sommes à la recherche d&rsquo;un(e) technicien(ne) en réparation de pompes industrielles qui aime comprendre le fonctionnement des équipements, analyser les défaillances et remettre en service des composantes essentielles aux opérations de nos clients.
+Ton rôle chez Omnifab
+Tu travailleras principalement sur des pompes industrielles, tout en ayant l&rsquo;occasion de participer à la réparation d&rsquo;autres équipements rotatifs comme des moteurs, ventilateurs et réducteurs.
+Chaque équipement représente un défi différent. Chaque réparation est l&rsquo;occasion d&rsquo;apprendre et de développer une expertise spécialisée.
+Ce que tu feras au quotidien
+Au quotidien, tu seras appelé(e) à :
+
+Démonter, inspecter et évaluer différents types de pompes industrielles;
+Diagnostiquer les causes de défaillance mécanique;
+Effectuer le remplacement de roulements, joints mécaniques, garnitures et autres composantes;
+Réaliser les inspections dimensionnelles et contrôles requis;
+Effectuer le remontage selon les tolérances et spécifications applicables;
+Participer aux essais et validations des équipements réparés;
+Rédiger les rapports d&rsquo;inspection et de réparation;
+Collaborer avec les équipes d&rsquo;usinage, de soudure et de mécanique industrielle;
+Maintenir un environnement de travail propre, organisé et sécuritaire;
+Contribuer à l&rsquo;amélioration continue des méthodes de travail.
+
+Le profil recherché
+
+DEP en mécanique industrielle ou formation pertinente;
+Expérience en réparation d&rsquo;équipements mécaniques industriels;
+Bonne compréhension des composantes mécaniques et des systèmes rotatifs;
+Capacité à utiliser les instruments de mesure usuels;
+Aptitude à lire des plans et dessins techniques;
+Bon esprit d&rsquo;analyse et de résolution de problèmes;
+Souci du détail et du travail bien fait;
+Autonomie et sens des responsabilités;
+Esprit d&rsquo;équipe.
+
+Une expérience en réparation de pompes industrielles constitue un atout majeur.
+Pourquoi joindre Omnifab?
+Chez Omnifab, nous croyons que les personnes les plus près du travail sont souvent les mieux placées pour contribuer aux décisions et aux améliorations. Les membres de l&rsquo;équipe sont encouragé(es) à partager leurs idées, développer leur expertise et participer activement à la performance de leur équipe.
+Nos équipes fonctionnent de manière autonome et collaborent étroitement afin de résoudre rapidement les défis techniques rencontrés. Chaque matin, un court pit stop permet d&rsquo;aligner les priorités et de maintenir une communication efficace.
+Ce que nous offrons
+
+Poste permanent à temps plein;
+Horaire de jour;
+Assurances collectives;
+Salle d&rsquo;entraînement;
+Service de massothérapie gratuit;
+Service de podologie gratuit;
+Service de coupe de cheveux gratuit;
+Café et fruits frais;
+Activités sociales organisées par l&rsquo;entreprise;
+Environnement de travail moderne et collaboratif;
+Développement professionnel continu.6:["$","$L11",null,{"id":"c98575f3f041adbd","initialJob":{"id":"c98575f3f041adbd","sourceId":"omnifab-ca","url":"https://jobdepilote.ca/poste/technicienne-en-reparation-de-pompes-industrielles/","title":"Technicien(ne) en réparation de pompes industrielles","company":"Omnifab","regionId":"mauricie","categoryId":"genie","employmentType":"temps-plein","currency":"CAD","description":"$12","tags":[],"languages":[],"postedAt":"2026-07-08T16:17:00.000Z","scrapedAt":"2026-08-21T12:51:50.943Z","linkStatus":"ok"}}]
+c:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#ffffff"}],["$","meta","3",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0b1120"}]]
+8:null
+13:I[6505,[],"IconMark"]
+a:{"metadata":[["$","title","0",{"children":"Technicien(ne) en réparation de pompes industrielles — Omnifab (Mauricie) | JobCCQc"}],["$","meta","1",{"name":"description","content":"Développe une expertise recherchée dans le monde des équipements rotatifs\nChez Omnifab, nous aidons les entreprises manufacturières et industrielles à main"}],["$","link","2",{"rel":"canonical","href":"https://jobccqc.ca/emplois/c98575f3f041adbd/"}],["$","meta","3",{"name":"format-detection","content":"telephone=no"}],["$","meta","4",{"name":"mobile-web-app-capable","content":"yes"}],["$","meta","5",{"name":"apple-mobile-web-app-title","content":"JobCCQc"}],["$","meta","6",{"name":"apple-mobile-web-app-status-bar-style","content":"default"}],["$","meta","7",{"property":"og:title","content":"Technicien(ne) en réparation de pompes industrielles — Omnifab (Mauricie) | JobCCQc"}],["$","meta","8",{"property":"og:description","content":"Développe une expertise recherchée dans le monde des équipements rotatifs\nChez Omnifab, nous aidons les entreprises manufacturières et industrielles à main"}],["$","meta","9",{"property":"og:url","content":"https://jobccqc.ca/emplois/c98575f3f041adbd/"}],["$","meta","10",{"property":"og:type","content":"website"}],["$","meta","11",{"name":"twitter:card","content":"summary"}],["$","meta","12",{"name":"twitter:title","content":"Technicien(ne) en réparation de pompes industrielles — Omnifab (Mauricie) | JobCCQc"}],["$","meta","13",{"name":"twitter:description","content":"Développe une expertise recherchée dans le monde des équipements rotatifs\nChez Omnifab, nous aidons les entreprises manufacturières et industrielles à main"}],["$","link","14",{"rel":"icon","href":"/icon.svg?f69bf06df7d0d84d","type":"image/svg+xml","sizes":"any"}],["$","$L13","15",{}]],"error":null,"digest":"$undefined"}
+f:"$a:metadata"

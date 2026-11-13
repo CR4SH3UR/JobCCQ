@@ -1,0 +1,68 @@
+1:"$Sreact.fragment"
+2:I[1206,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"SentryBoot"]
+3:I[94,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"AppShell"]
+4:I[5341,[],""]
+5:I[25,[],""]
+7:I[5104,[],"OutletBoundary"]
+9:I[7158,[],"AsyncMetadataOutlet"]
+b:I[5104,[],"ViewportBoundary"]
+d:I[5104,[],"MetadataBoundary"]
+e:"$Sreact.suspense"
+10:I[4431,[],""]
+:HL["/_next/static/css/c2a0a2b449f065cf.css","style"]
+0:{"P":null,"b":"20VcJ_xWjiI0D3-bYQnet","p":"","c":["","emplois","0ef691cffa64f10e",""],"i":false,"f":[[["",{"children":["emplois",{"children":[["id","0ef691cffa64f10e","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c2a0a2b449f065cf.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"fr-CA","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"!function(){try{var e=localStorage.getItem(\"theme\");e||(e=matchMedia(\"(prefers-color-scheme: dark)\").matches?\"dark\":\"light\"),document.documentElement.dataset.theme=e;var l=localStorage.getItem(\"jobccq:lang\");if(l===\"en\")document.documentElement.lang=\"en-CA\"}catch(t){}}()"}}],"$undefined"]}],["$","body",null,{"className":"min-h-screen flex flex-col","children":[["$","$L2",null,{}],["$","$L3",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]]}]]}]]}],{"children":["emplois",["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["id","0ef691cffa64f10e","d"],["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L6",null,["$","$L7",null,{"children":["$L8",["$","$L9",null,{"promise":"$@a"}]]}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,[["$","$Lb",null,{"children":"$Lc"}],null],["$","$Ld",null,{"children":["$","div",null,{"hidden":true,"children":["$","$e",null,{"fallback":null,"children":"$Lf"}]}]}]]}],false]],"m":"$undefined","G":["$10",[]],"s":false,"S":true}
+11:I[2681,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2799","static/chunks/2799-da6ef85c82f8d2cb.js","7410","static/chunks/7410-4278027ce4376811.js","7310","static/chunks/7310-bcfce7710fb79351.js","2681","static/chunks/2681-8b2fc68a69f7aa38.js","3520","static/chunks/app/emplois/%5Bid%5D/page-263dd78dc5013b7a.js"],"JobDetailView"]
+12:Te02,Tu aimes quand les projets avancent parce que tout est bien organisé?
+Derrière chaque projet réussi, il y a souvent une personne qui s&rsquo;assure que l&rsquo;information circule, que les suivis sont faits et que rien n&rsquo;est laissé au hasard.
+Chez Omnifab, l&rsquo;adjoint(e) au département d&rsquo;ingénierie joue un rôle clé dans la coordination et le soutien des équipes techniques. Tu contribueras directement à la réalisation de projets industriels variés en collaborant avec des ingénieurs, concepteurs, chargés de projets et spécialistes de différents départements.
+Ton rôle chez Omnifab
+Tu seras le point d&rsquo;appui administratif du département d&rsquo;ingénierie en assurant l&rsquo;organisation, la coordination et le suivi de plusieurs dossiers techniques.
+Ton travail permettra aux équipes de demeurer efficaces, structurées et concentrées sur la réalisation des projets.
+Ce que tu feras au quotidien
+
+Assurer le suivi administratif des projets d&rsquo;ingénierie;
+Organiser, classer et maintenir à jour la documentation technique;
+Soutenir la gestion des dessins, plans et documents de projet;
+Participer à la mise à jour de plans et documents techniques (AutoCAD constitue un atout);
+Coordonner la circulation de l&rsquo;information entre les différents départements;
+Effectuer le suivi des échéanciers et relancer les intervenants lorsque nécessaire;
+Rédiger des rapports, comptes rendus, procédures et documents administratifs;
+Effectuer certaines demandes d&rsquo;achats et assurer les suivis associés;
+Participer à l&rsquo;amélioration continue des méthodes et outils de travail.
+
+Le profil que nous recherchons
+Tu pourrais être la personne idéale si tu possèdes :
+
+Une formation ou une expérience pertinente en administration, bureautique ou dans un domaine connexe;
+Une excellente maîtrise de la suite Microsoft Office;
+Une grande capacité d&rsquo;organisation et de gestion des priorités;
+Un souci du détail et une approche rigoureuse;
+Une facilité à communiquer avec différents intervenants;
+Un intérêt marqué pour les environnements techniques et industriels;
+Une attitude collaborative et proactive.
+
+Une connaissance d&rsquo;AutoCAD ou une expérience dans un environnement d&rsquo;ingénierie représente un atout.
+Pourquoi joindre Omnifab?
+Parce qu&rsquo;ici, tu ne seras pas simplement responsable de documents et de suivis.
+Tu contribueras à des projets industriels concrets réalisés par des équipes multidisciplinaires spécialisées en ingénierie, automatisation, fabrication mécanique, mécanique industrielle et usinage.
+Nous favorisons l&rsquo;autonomie, la collaboration et l&rsquo;amélioration continue. Les idées sont encouragées et chacun peut contribuer à faire évoluer les méthodes de travail.
+Chaque matin, nos équipes se réunissent lors d&rsquo;un court pit stop afin d&rsquo;aligner les priorités, résoudre rapidement les enjeux et assurer une communication efficace.
+Tu évolueras dans un environnement où ton sens de l&rsquo;organisation aura un impact réel sur la réussite des projets.
+Ce que nous offrons
+
+Poste permanent à temps plein;
+Horaire flexible;
+Assurances collectives;
+Salle d&rsquo;entraînement sur place;
+Service de massothérapie gratuit;
+Service de podologie gratuit;
+Service de coiffure sur place;
+Café, fruits et plusieurs commodités offertes aux employés;
+Environnement moderne, propre et climatisé;
+Activités sociales et ambiance conviviale;
+Opportunités de développement professionnel au sein d&rsquo;une entreprise en croissance.6:["$","$L11",null,{"id":"0ef691cffa64f10e","initialJob":{"id":"0ef691cffa64f10e","sourceId":"omnifab-ca","url":"https://jobdepilote.ca/poste/adjointe-au-departement-dingenierie/","title":"Adjoint(e) au département d’ingénierie","company":"Omnifab","regionId":"mauricie","categoryId":"genie","employmentType":"temps-plein","currency":"CAD","description":"$12","tags":[],"languages":[],"postedAt":"2026-07-08T16:02:00.000Z","scrapedAt":"2026-08-21T12:51:50.943Z","linkStatus":"ok"}}]
+c:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#ffffff"}],["$","meta","3",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0b1120"}]]
+8:null
+13:I[6505,[],"IconMark"]
+a:{"metadata":[["$","title","0",{"children":"Adjoint(e) au département d’ingénierie — Omnifab (Mauricie) | JobCCQc"}],["$","meta","1",{"name":"description","content":"Tu aimes quand les projets avancent parce que tout est bien organisé?\nDerrière chaque projet réussi, il y a souvent une personne qui s&rsquo;assure que l&r"}],["$","link","2",{"rel":"canonical","href":"https://jobccqc.ca/emplois/0ef691cffa64f10e/"}],["$","meta","3",{"name":"format-detection","content":"telephone=no"}],["$","meta","4",{"name":"mobile-web-app-capable","content":"yes"}],["$","meta","5",{"name":"apple-mobile-web-app-title","content":"JobCCQc"}],["$","meta","6",{"name":"apple-mobile-web-app-status-bar-style","content":"default"}],["$","meta","7",{"property":"og:title","content":"Adjoint(e) au département d’ingénierie — Omnifab (Mauricie) | JobCCQc"}],["$","meta","8",{"property":"og:description","content":"Tu aimes quand les projets avancent parce que tout est bien organisé?\nDerrière chaque projet réussi, il y a souvent une personne qui s&rsquo;assure que l&r"}],["$","meta","9",{"property":"og:url","content":"https://jobccqc.ca/emplois/0ef691cffa64f10e/"}],["$","meta","10",{"property":"og:type","content":"website"}],["$","meta","11",{"name":"twitter:card","content":"summary"}],["$","meta","12",{"name":"twitter:title","content":"Adjoint(e) au département d’ingénierie — Omnifab (Mauricie) | JobCCQc"}],["$","meta","13",{"name":"twitter:description","content":"Tu aimes quand les projets avancent parce que tout est bien organisé?\nDerrière chaque projet réussi, il y a souvent une personne qui s&rsquo;assure que l&r"}],["$","link","14",{"rel":"icon","href":"/icon.svg?f69bf06df7d0d84d","type":"image/svg+xml","sizes":"any"}],["$","$L13","15",{}]],"error":null,"digest":"$undefined"}
+f:"$a:metadata"

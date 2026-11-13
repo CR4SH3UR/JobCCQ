@@ -1,0 +1,138 @@
+1:"$Sreact.fragment"
+2:I[1206,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"SentryBoot"]
+3:I[94,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"AppShell"]
+4:I[5341,[],""]
+5:I[25,[],""]
+7:I[5104,[],"OutletBoundary"]
+9:I[7158,[],"AsyncMetadataOutlet"]
+b:I[5104,[],"ViewportBoundary"]
+d:I[5104,[],"MetadataBoundary"]
+e:"$Sreact.suspense"
+10:I[4431,[],""]
+:HL["/_next/static/css/c2a0a2b449f065cf.css","style"]
+0:{"P":null,"b":"20VcJ_xWjiI0D3-bYQnet","p":"","c":["","emplois","c9440db89f246d1b",""],"i":false,"f":[[["",{"children":["emplois",{"children":[["id","c9440db89f246d1b","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c2a0a2b449f065cf.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"fr-CA","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"!function(){try{var e=localStorage.getItem(\"theme\");e||(e=matchMedia(\"(prefers-color-scheme: dark)\").matches?\"dark\":\"light\"),document.documentElement.dataset.theme=e;var l=localStorage.getItem(\"jobccq:lang\");if(l===\"en\")document.documentElement.lang=\"en-CA\"}catch(t){}}()"}}],"$undefined"]}],["$","body",null,{"className":"min-h-screen flex flex-col","children":[["$","$L2",null,{}],["$","$L3",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]]}]]}]]}],{"children":["emplois",["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["id","c9440db89f246d1b","d"],["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L6",null,["$","$L7",null,{"children":["$L8",["$","$L9",null,{"promise":"$@a"}]]}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,[["$","$Lb",null,{"children":"$Lc"}],null],["$","$Ld",null,{"children":["$","div",null,{"hidden":true,"children":["$","$e",null,{"fallback":null,"children":"$Lf"}]}]}]]}],false]],"m":"$undefined","G":["$10",[]],"s":false,"S":true}
+11:I[2681,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2799","static/chunks/2799-da6ef85c82f8d2cb.js","7410","static/chunks/7410-4278027ce4376811.js","7310","static/chunks/7310-bcfce7710fb79351.js","2681","static/chunks/2681-8b2fc68a69f7aa38.js","3520","static/chunks/app/emplois/%5Bid%5D/page-263dd78dc5013b7a.js"],"JobDetailView"]
+12:T102d,Sommaire du poste
+
+Sous la responsabilité du Directeur développement des affaires et bureau de projets, le chargé de projet planifie, organise et coordonne l’exécution des travaux afin de respecter le calendrier d’exécution, les plans et les devis, selon les normes et règlements en vigueur, tout en respectant les budgets.
+
+Prêt à faire le saut ?
+
+Si vous êtes une personne organisée, enthousiaste et désireuse de faire la différence, nous avons hâte de vous rencontrer !
+
+Rejoignez-nous et donnez un nouvel élan à votre carrière !
+
+Responsabilités et tâches spécifiques
+
+Coordonner le projet à l’interne (soumission / exécution);
+
+Planifier et suivre l’avancement des travaux (échéanciers);
+
+Créer, planifier, coordonner et effectuer le montage des dossiers de projets;
+
+Préparer les budgets, les bons de commande, les contrats de sous-traitance;
+
+Analyser, comparer les plans et devis émis pour soumission versus émis pour construction;
+
+Interpréter, comprendre et respecter les plans et devis;
+
+Visiter les chantiers et élaborer des stratégies contractuelles;
+
+Planifier le matériel et les achats spécifiques aux chantiers;
+
+Préparer, négocier et approuver tous documents en lien aux projets;
+
+Planifier, coordonner et céduler les sous-traitants et les étapes de construction;
+
+Traiter et approuver les factures des fournisseurs et sous-traitants du projet;
+
+Analyser l’avancement des travaux, quantifier les bordereaux, effectuer les demandes de paiements et en faire le suivi;
+
+Analyser et respecter les coûts et l’avancement des projets;
+
+Veiller au respect des normes et lois en vigueur (permis, sous-traitants, acceptation provisoire et fin de contrat);
+
+Finaliser administrativement les projets;
+
+Élaborer les différents plans de projets (communication, gestion du changement, etc.) et s’assurer de leur application;
+
+Bâtir les échéanciers de projet et les maintenir à jour;
+
+Bâtir les courbes de main-d’œuvre et les maintenir à jour;
+
+Établir les besoins en ressources humaines et matérielles;
+
+Procéder aux demandes des différents départements de l’entreprise;
+
+Coordonner les opérations de terrain, mobilisation et la production avec les surintendants et les contremaîtres;
+
+Rapporter tout événement (incident, accident, infractions, etc.) immédiatement à son supérieur, et ce, avant de quitter les lieux de travail;
+
+Participer aux enquêtes et analyse d’événements accidentels auxquels il est impliqué;
+
+Respecter les politiques, procédures et les instructions de LEG, ainsi que ses clients;
+
+Signer un engagement annuel à respecter des dites politiques et procédures;
+
+Faire tout ce qui est en son pouvoir pour protéger les équipements, la réputation et l’intégrité de LEG ainsi que ses clients;
+
+Toutes autres tâches connexes.
+
+Responsabilités hiérarchiques
+
+Chef d’équipe
+
+Surintendant/Chef de groupe
+
+Formation académique
+
+Baccalauréat en génie;
+
+Membre de l’OIQ;
+
+Toute formation pertinente en lien avec le poste ou expérience équivalente sera considérée.
+
+Expérience requise
+
+7 ans et +
+
+Habiletés et compétences techniques requises
+
+Maîtrise des techniques de gestion de projets
+
+Bonne maîtrise de l’outil informatique et en particulier des logiciels de gestion de projets
+
+Connaissance technique, réglementaire et économique du secteur de l’énergie
+
+Capacité de persuasion et bonne capacité de communication écrite et orale
+
+Autonomie dans la gestion des missions
+
+Capacité à gérer une équipe et de superviser le travail
+
+Bonne maîtrise de l’anglais
+
+Discrétion
+
+Intègre et honnête
+
+Ordonné et structuré
+
+Être respectueux
+
+Maîtrise de MS Office avec une expertise en Microsoft Word, PowerPoint et Excel
+
+Pourquoi choisir notre entreprise ?AVANTAGES
+
+Environnement stimulant : Évoluez dans un cadre dynamique et coopératif avec des collègues passionnés.
+
+Rémunération attractive : Profitez d’un salaire compétitif et d’avantages sociaux qui vous soutiennent.
+
+Horaire flexible : Travaillez seulement 4 jours par semaine et profitez de weekends prolongés !
+
+Conciliation…6:["$","$L11",null,{"id":"c9440db89f246d1b","initialJob":{"id":"c9440db89f246d1b","sourceId":"groupeleg-ca","url":"https://groupeleg.ca/carriere/ingenieure-chargee-de-projet","title":"Chargé(e) de projet Construction Déplacement 14/14","company":"Les Équipements Gaétan inc.","location":"Lac-aux-Sables, QC","regionId":"autre","city":"Lac-aux-Sables","categoryId":"construction","employmentType":"temps-plein","currency":"CAD","description":"$12","tags":[],"languages":["en"],"postedAt":"2025-04-29T00:00:00.000Z","scrapedAt":"2026-09-14T15:33:08.086Z","linkStatus":"ok"}}]
+c:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#ffffff"}],["$","meta","3",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0b1120"}]]
+8:null
+13:I[6505,[],"IconMark"]
+a:{"metadata":[["$","title","0",{"children":"Chargé(e) de projet Construction Déplacement 14/14 — Les Équipements Gaétan inc. (Autre / non précisé) | JobCCQc"}],["$","meta","1",{"name":"description","content":"Sommaire du poste\n\nSous la responsabilité du Directeur développement des affaires et bureau de projets, le chargé de projet planifie, organise et coordonne"}],["$","link","2",{"rel":"canonical","href":"https://jobccqc.ca/emplois/c9440db89f246d1b/"}],["$","meta","3",{"name":"format-detection","content":"telephone=no"}],["$","meta","4",{"name":"mobile-web-app-capable","content":"yes"}],["$","meta","5",{"name":"apple-mobile-web-app-title","content":"JobCCQc"}],["$","meta","6",{"name":"apple-mobile-web-app-status-bar-style","content":"default"}],["$","meta","7",{"property":"og:title","content":"Chargé(e) de projet Construction Déplacement 14/14 — Les Équipements Gaétan inc. (Autre / non précisé) | JobCCQc"}],["$","meta","8",{"property":"og:description","content":"Sommaire du poste\n\nSous la responsabilité du Directeur développement des affaires et bureau de projets, le chargé de projet planifie, organise et coordonne"}],["$","meta","9",{"property":"og:url","content":"https://jobccqc.ca/emplois/c9440db89f246d1b/"}],["$","meta","10",{"property":"og:type","content":"website"}],["$","meta","11",{"name":"twitter:card","content":"summary"}],["$","meta","12",{"name":"twitter:title","content":"Chargé(e) de projet Construction Déplacement 14/14 — Les Équipements Gaétan inc. (Autre / non précisé) | JobCCQc"}],["$","meta","13",{"name":"twitter:description","content":"Sommaire du poste\n\nSous la responsabilité du Directeur développement des affaires et bureau de projets, le chargé de projet planifie, organise et coordonne"}],["$","link","14",{"rel":"icon","href":"/icon.svg?f69bf06df7d0d84d","type":"image/svg+xml","sizes":"any"}],["$","$L13","15",{}]],"error":null,"digest":"$undefined"}
+f:"$a:metadata"

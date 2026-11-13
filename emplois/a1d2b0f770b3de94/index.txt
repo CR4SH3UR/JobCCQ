@@ -1,0 +1,78 @@
+1:"$Sreact.fragment"
+2:I[1206,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"SentryBoot"]
+3:I[94,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"AppShell"]
+4:I[5341,[],""]
+5:I[25,[],""]
+7:I[5104,[],"OutletBoundary"]
+9:I[7158,[],"AsyncMetadataOutlet"]
+b:I[5104,[],"ViewportBoundary"]
+d:I[5104,[],"MetadataBoundary"]
+e:"$Sreact.suspense"
+10:I[4431,[],""]
+:HL["/_next/static/css/c2a0a2b449f065cf.css","style"]
+0:{"P":null,"b":"20VcJ_xWjiI0D3-bYQnet","p":"","c":["","emplois","a1d2b0f770b3de94",""],"i":false,"f":[[["",{"children":["emplois",{"children":[["id","a1d2b0f770b3de94","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c2a0a2b449f065cf.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"fr-CA","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"!function(){try{var e=localStorage.getItem(\"theme\");e||(e=matchMedia(\"(prefers-color-scheme: dark)\").matches?\"dark\":\"light\"),document.documentElement.dataset.theme=e;var l=localStorage.getItem(\"jobccq:lang\");if(l===\"en\")document.documentElement.lang=\"en-CA\"}catch(t){}}()"}}],"$undefined"]}],["$","body",null,{"className":"min-h-screen flex flex-col","children":[["$","$L2",null,{}],["$","$L3",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]]}]]}]]}],{"children":["emplois",["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["id","a1d2b0f770b3de94","d"],["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L6",null,["$","$L7",null,{"children":["$L8",["$","$L9",null,{"promise":"$@a"}]]}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,[["$","$Lb",null,{"children":"$Lc"}],null],["$","$Ld",null,{"children":["$","div",null,{"hidden":true,"children":["$","$e",null,{"fallback":null,"children":"$Lf"}]}]}]]}],false]],"m":"$undefined","G":["$10",[]],"s":false,"S":true}
+11:I[2681,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2799","static/chunks/2799-da6ef85c82f8d2cb.js","7410","static/chunks/7410-4278027ce4376811.js","7310","static/chunks/7310-bcfce7710fb79351.js","2681","static/chunks/2681-8b2fc68a69f7aa38.js","3520","static/chunks/app/emplois/%5Bid%5D/page-263dd78dc5013b7a.js"],"JobDetailView"]
+12:Tca5,Company Information
+
+Hobart is the leading supplier of equipment, systems and service in the food industry. Hobart offers the broadest line of equipment including cooking, food preparation, refrigeration, bakery systems, warewashing and waste systems, and weighing, wrapping and labeling systems.
+
+Headquartered in Toronto, Ontario with branch offices in Halifax, Nova Scotia, Montreal, Quebec, Toronto, Ontario, Edmonton, Alberta, and Vancouver, British Columbia. The company employs more than 240 people. Included in this number are over 125 service technicians providing nationwide service, effectively making Hobart Canada the industry’s largest service organization.
+
+Hobart Food Equipment Group Canada is looking for an Appliance Repair Technician for GTA and surrounding area. Hobart is a well-established company providing competitive wages and benefits.
+
+Responsibilities:
+
+This position is for a commercial appliance repair technician, Previous experience in appliance repair industry residential / commercial a definite asset. This technician will perform field service consisting of adjusting, aligning, assembling, calibrating, inspecting, lubricating and testing of commercial food prep/kitchen equipment. Having a strong electrical knowledge and able to read wiring diagrams an asset as well as good troubleshooting skills and mechanical knowledge. The candidate would be required to work with limited supervision. An outgoing personality with strong communication skills and a desire to succeed in a customer focused environment would be an asset.
+
+Other duties include:
+
+Assisting others in equipment installations or in performing major repairs
+
+Attending, completing service training schools and audiovisual field training, as required
+
+Assisting in obtaining service/preventative maintenance contracts
+
+Assisting in product demonstrations
+
+Skills/abilities:
+
+High school diploma (minimum)
+
+College graduate of a Mechanical – Electrical – Electronic course would be an asset
+
+Excellent mechanical/electrical/electronic aptitude
+
+2-3 years of relative experience is an asset
+
+Ability to learn new technology
+
+Valid driver’s license with acceptable driving record
+
+Able to travel to the USA and attend training schools
+
+Excellent verbal, written and interpersonal communication skills
+
+Be organized, accountable and self motivated
+
+Excellent customer service skills
+
+Preference will be given to those with a valid G2 gas certificate
+
+We Offer:
+
+Compensation $25.00 – $38.00+ per hour + applicable premiums base on relevant experience, technical competencies, certifications, etc.
+
+Competitive Group Insurance Benefit Plans
+
+Company Pension Plan/ with Company Match RSP
+
+Company Provided: Service Vehicle, Laptop, Tablet, Cell phone
+
+Please note: Criminal background and reference checks will be completed as a condition of employment.
+
+We value diversity in our workforce and encourage all qualified candidates to apply. Disability related accommodation during the recruitment process is available upon request. We appreciate all responses and advise that only those candidates selected for an interview will be contacted. This posting for a current vacancy. AI will not be used to screen or assess applicants.6:["$","$L11",null,{"id":"a1d2b0f770b3de94","initialJob":{"id":"a1d2b0f770b3de94","sourceId":"hobart-ca","url":"https://www.hobart.ca/job/service-technician-toronto-on/","title":"Service Technician – Toronto (GTA), ON Hobart Canada Toronto, ON Posted 3 months ago","company":"ITW Canada inc.","categoryId":"genie","currency":"CAD","description":"$12","tags":[],"languages":[],"postedAt":"2026-08-20T19:24:15.000Z","scrapedAt":"2026-09-14T15:38:48.087Z","linkStatus":"ok","history":[{"at":"2026-09-21T15:51:27.868Z","field":"title","from":"Service Technician – Toronto (GTA), ON Hobart Canada Toronto, ON Posted 4 weeks ago","to":"Service Technician – Toronto (GTA), ON Hobart Canada Toronto, ON Posted 1 month ago"},{"at":"2026-10-05T17:41:02.704Z","field":"title","from":"Service Technician – Toronto (GTA), ON Hobart Canada Toronto, ON Posted 1 month ago","to":"Service Technician – Toronto (GTA), ON Hobart Canada Toronto, ON Posted 2 months ago"},{"at":"2026-11-05T17:17:25.799Z","field":"title","from":"Service Technician – Toronto (GTA), ON Hobart Canada Toronto, ON Posted 2 months ago","to":"Service Technician – Toronto (GTA), ON Hobart Canada Toronto, ON Posted 3 months ago"}]}}]
+c:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#ffffff"}],["$","meta","3",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0b1120"}]]
+8:null
+13:I[6505,[],"IconMark"]
+a:{"metadata":[["$","title","0",{"children":"Service Technician – Toronto (GTA), ON Hobart Canada Toronto, ON Posted 3 months ago — ITW Canada inc. | JobCCQc"}],["$","meta","1",{"name":"description","content":"Company Information\n\nHobart is the leading supplier of equipment, systems and service in the food industry. Hobart offers the broadest line of equipment in"}],["$","link","2",{"rel":"canonical","href":"https://jobccqc.ca/emplois/a1d2b0f770b3de94/"}],["$","meta","3",{"name":"format-detection","content":"telephone=no"}],["$","meta","4",{"name":"mobile-web-app-capable","content":"yes"}],["$","meta","5",{"name":"apple-mobile-web-app-title","content":"JobCCQc"}],["$","meta","6",{"name":"apple-mobile-web-app-status-bar-style","content":"default"}],["$","meta","7",{"property":"og:title","content":"Service Technician – Toronto (GTA), ON Hobart Canada Toronto, ON Posted 3 months ago — ITW Canada inc. | JobCCQc"}],["$","meta","8",{"property":"og:description","content":"Company Information\n\nHobart is the leading supplier of equipment, systems and service in the food industry. Hobart offers the broadest line of equipment in"}],["$","meta","9",{"property":"og:url","content":"https://jobccqc.ca/emplois/a1d2b0f770b3de94/"}],["$","meta","10",{"property":"og:type","content":"website"}],["$","meta","11",{"name":"twitter:card","content":"summary"}],["$","meta","12",{"name":"twitter:title","content":"Service Technician – Toronto (GTA), ON Hobart Canada Toronto, ON Posted 3 months ago — ITW Canada inc. | JobCCQc"}],["$","meta","13",{"name":"twitter:description","content":"Company Information\n\nHobart is the leading supplier of equipment, systems and service in the food industry. Hobart offers the broadest line of equipment in"}],["$","link","14",{"rel":"icon","href":"/icon.svg?f69bf06df7d0d84d","type":"image/svg+xml","sizes":"any"}],["$","$L13","15",{}]],"error":null,"digest":"$undefined"}
+f:"$a:metadata"

@@ -1,0 +1,62 @@
+1:"$Sreact.fragment"
+2:I[1206,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"SentryBoot"]
+3:I[94,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"AppShell"]
+4:I[5341,[],""]
+5:I[25,[],""]
+7:I[5104,[],"OutletBoundary"]
+9:I[7158,[],"AsyncMetadataOutlet"]
+b:I[5104,[],"ViewportBoundary"]
+d:I[5104,[],"MetadataBoundary"]
+e:"$Sreact.suspense"
+10:I[4431,[],""]
+:HL["/_next/static/css/c2a0a2b449f065cf.css","style"]
+0:{"P":null,"b":"20VcJ_xWjiI0D3-bYQnet","p":"","c":["","emplois","39c253a8ae87d0c3",""],"i":false,"f":[[["",{"children":["emplois",{"children":[["id","39c253a8ae87d0c3","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c2a0a2b449f065cf.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"fr-CA","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"!function(){try{var e=localStorage.getItem(\"theme\");e||(e=matchMedia(\"(prefers-color-scheme: dark)\").matches?\"dark\":\"light\"),document.documentElement.dataset.theme=e;var l=localStorage.getItem(\"jobccq:lang\");if(l===\"en\")document.documentElement.lang=\"en-CA\"}catch(t){}}()"}}],"$undefined"]}],["$","body",null,{"className":"min-h-screen flex flex-col","children":[["$","$L2",null,{}],["$","$L3",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]]}]]}]]}],{"children":["emplois",["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["id","39c253a8ae87d0c3","d"],["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L6",null,["$","$L7",null,{"children":["$L8",["$","$L9",null,{"promise":"$@a"}]]}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,[["$","$Lb",null,{"children":"$Lc"}],null],["$","$Ld",null,{"children":["$","div",null,{"hidden":true,"children":["$","$e",null,{"fallback":null,"children":"$Lf"}]}]}]]}],false]],"m":"$undefined","G":["$10",[]],"s":false,"S":true}
+11:I[2681,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2799","static/chunks/2799-da6ef85c82f8d2cb.js","7410","static/chunks/7410-4278027ce4376811.js","7310","static/chunks/7310-bcfce7710fb79351.js","2681","static/chunks/2681-8b2fc68a69f7aa38.js","3520","static/chunks/app/emplois/%5Bid%5D/page-263dd78dc5013b7a.js"],"JobDetailView"]
+12:Teb3,Transforme les idées en réalisations concrètes
+Tu aimes coordonner plusieurs intervenants, résoudre des problèmes et voir des projets prendre vie?
+Tu es à l&rsquo;aise autant avec les clients qu&rsquo;avec les équipes techniques?
+Chez Omnifab, chaque projet est unique. Nos chargés de projets jouent un rôle central dans la réussite des mandats en assurant la planification, la coordination et le suivi des différentes étapes de réalisation.
+Si tu aimes les environnements dynamiques où les journées ne se ressemblent pas et où ton leadership a un impact direct sur les résultats, ce poste est pour toi.
+Ton rôle chez Omnifab
+À titre de chargé(e) de projets, tu seras responsable de la planification, du suivi et du contrôle de plusieurs projets simultanément.
+Tu assureras le respect des échéanciers, des budgets et des objectifs tout en maintenant une communication constante avec les clients et les équipes internes.
+Tu participeras également à notre pit stop quotidien afin de partager l&rsquo;avancement des projets, identifier les enjeux et coordonner efficacement les actions à entreprendre.
+Ce que tu feras au quotidien
+
+Planifier, organiser et coordonner les activités liées aux projets;
+Assurer le suivi des échéanciers, des budgets et de la portée des mandats;
+Coordonner les activités entre les départements d&rsquo;ingénierie, fabrication, usinage, automatisation et mécanique industrielle;
+Participer aux rencontres de démarrage, de suivi et de clôture des projets;
+Assurer une communication proactive avec les clients tout au long des mandats;
+Identifier les risques et mettre en place des solutions pour assurer le succès des projets;
+Effectuer le suivi des coûts et recommander les ajustements nécessaires;
+Utiliser les outils de gestion et systèmes ERP pour assurer un suivi rigoureux des dossiers;
+Produire les rapports d&rsquo;avancement et rendre compte de l&rsquo;évolution des projets à la direction;
+Contribuer à l&rsquo;amélioration continue des processus de gestion de projets.
+
+Le profil que nous recherchons
+Tu pourrais être un excellent ajout à l&rsquo;équipe si tu possèdes :
+
+Une formation en génie mécanique, production automatisée, technologie du génie mécanique ou toute combinaison équivalente de formation et d&rsquo;expérience;
+Une expérience en gestion ou coordination de projets industriels;
+Une capacité à gérer plusieurs projets simultanément;
+Un excellent sens de l&rsquo;organisation et des priorités;
+Une approche proactive orientée vers les solutions;
+Un leadership mobilisateur;
+Une capacité à communiquer efficacement avec différents intervenants;
+Un bon esprit de synthèse et d&rsquo;analyse;
+De l&rsquo;autonomie et un grand sens des responsabilités.
+
+Une expérience avec un système ERP constitue un atout important.
+Une expérience dans les domaines manufacturiers, mécaniques ou industriels est également un avantage.
+Pourquoi joindre Omnifab?
+Parce qu&rsquo;ici, tu participeras à des projets concrets qui passent de l&rsquo;idée à la réalisation.
+Tu travailleras avec des équipes multidisciplinaires regroupant des experts en ingénierie, automatisation, usinage, soudure, fabrication mécanique et mécanique industrielle.
+Tu seras impliqué dans toutes les étapes des projets et tu pourras voir directement le résultat de ton travail chez nos clients.
+Chaque matin, nos équipes se réunissent lors d&rsquo;un court pit stop afin d&rsquo;aligner les priorités, partager les avancées et résoudre rapidement les enjeux. Cette proximité favorise la collaboration et accélère la prise de décision.
+Nous valorisons l&rsquo;autonomie, la responsabilisation et l&rsquo;amélioration continue. Les idées sont encouragées et…6:["$","$L11",null,{"id":"39c253a8ae87d0c3","initialJob":{"id":"39c253a8ae87d0c3","sourceId":"omnifab-ca","url":"https://jobdepilote.ca/poste/chargee-de-projets/","title":"Chargé(e) de projets","company":"Omnifab","regionId":"mauricie","categoryId":"direction","employmentType":"temps-plein","currency":"CAD","description":"$12","tags":[],"languages":[],"postedAt":"2026-07-08T16:15:00.000Z","scrapedAt":"2026-08-21T12:51:50.943Z","linkStatus":"ok"}}]
+c:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#ffffff"}],["$","meta","3",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0b1120"}]]
+8:null
+13:I[6505,[],"IconMark"]
+a:{"metadata":[["$","title","0",{"children":"Chargé(e) de projets — Omnifab (Mauricie) | JobCCQc"}],["$","meta","1",{"name":"description","content":"Transforme les idées en réalisations concrètes\nTu aimes coordonner plusieurs intervenants, résoudre des problèmes et voir des projets prendre vie?\nTu es à "}],["$","link","2",{"rel":"canonical","href":"https://jobccqc.ca/emplois/39c253a8ae87d0c3/"}],["$","meta","3",{"name":"format-detection","content":"telephone=no"}],["$","meta","4",{"name":"mobile-web-app-capable","content":"yes"}],["$","meta","5",{"name":"apple-mobile-web-app-title","content":"JobCCQc"}],["$","meta","6",{"name":"apple-mobile-web-app-status-bar-style","content":"default"}],["$","meta","7",{"property":"og:title","content":"Chargé(e) de projets — Omnifab (Mauricie) | JobCCQc"}],["$","meta","8",{"property":"og:description","content":"Transforme les idées en réalisations concrètes\nTu aimes coordonner plusieurs intervenants, résoudre des problèmes et voir des projets prendre vie?\nTu es à "}],["$","meta","9",{"property":"og:url","content":"https://jobccqc.ca/emplois/39c253a8ae87d0c3/"}],["$","meta","10",{"property":"og:type","content":"website"}],["$","meta","11",{"name":"twitter:card","content":"summary"}],["$","meta","12",{"name":"twitter:title","content":"Chargé(e) de projets — Omnifab (Mauricie) | JobCCQc"}],["$","meta","13",{"name":"twitter:description","content":"Transforme les idées en réalisations concrètes\nTu aimes coordonner plusieurs intervenants, résoudre des problèmes et voir des projets prendre vie?\nTu es à "}],["$","link","14",{"rel":"icon","href":"/icon.svg?f69bf06df7d0d84d","type":"image/svg+xml","sizes":"any"}],["$","$L13","15",{}]],"error":null,"digest":"$undefined"}
+f:"$a:metadata"

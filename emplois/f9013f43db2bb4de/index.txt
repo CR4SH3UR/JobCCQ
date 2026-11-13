@@ -1,0 +1,86 @@
+1:"$Sreact.fragment"
+2:I[1206,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"SentryBoot"]
+3:I[94,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2130","static/chunks/2130-72e2135a0f1bd618.js","6060","static/chunks/6060-18b6bd6c1d7685ee.js","7177","static/chunks/app/layout-c4170d42fc80b6fc.js"],"AppShell"]
+4:I[5341,[],""]
+5:I[25,[],""]
+7:I[5104,[],"OutletBoundary"]
+9:I[7158,[],"AsyncMetadataOutlet"]
+b:I[5104,[],"ViewportBoundary"]
+d:I[5104,[],"MetadataBoundary"]
+e:"$Sreact.suspense"
+10:I[4431,[],""]
+:HL["/_next/static/css/c2a0a2b449f065cf.css","style"]
+0:{"P":null,"b":"20VcJ_xWjiI0D3-bYQnet","p":"","c":["","emplois","f9013f43db2bb4de",""],"i":false,"f":[[["",{"children":["emplois",{"children":[["id","f9013f43db2bb4de","d"],{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c2a0a2b449f065cf.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"fr-CA","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"!function(){try{var e=localStorage.getItem(\"theme\");e||(e=matchMedia(\"(prefers-color-scheme: dark)\").matches?\"dark\":\"light\"),document.documentElement.dataset.theme=e;var l=localStorage.getItem(\"jobccq:lang\");if(l===\"en\")document.documentElement.lang=\"en-CA\"}catch(t){}}()"}}],"$undefined"]}],["$","body",null,{"className":"min-h-screen flex flex-col","children":[["$","$L2",null,{}],["$","$L3",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]]}]]}]]}],{"children":["emplois",["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["id","f9013f43db2bb4de","d"],["$","$1","c",{"children":[null,["$","$L4",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$L6",null,["$","$L7",null,{"children":["$L8",["$","$L9",null,{"promise":"$@a"}]]}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,[["$","$Lb",null,{"children":"$Lc"}],null],["$","$Ld",null,{"children":["$","div",null,{"hidden":true,"children":["$","$e",null,{"fallback":null,"children":"$Lf"}]}]}]]}],false]],"m":"$undefined","G":["$10",[]],"s":false,"S":true}
+11:I[2681,["5385","static/chunks/75504863-977881e2f85bcd11.js","9664","static/chunks/9664-af80478aa73ba424.js","9046","static/chunks/9046-421583590595a7cf.js","1435","static/chunks/1435-ed284f3488f07aa6.js","3435","static/chunks/3435-9601bde508f538f9.js","2799","static/chunks/2799-da6ef85c82f8d2cb.js","7410","static/chunks/7410-4278027ce4376811.js","7310","static/chunks/7310-bcfce7710fb79351.js","2681","static/chunks/2681-8b2fc68a69f7aa38.js","3520","static/chunks/app/emplois/%5Bid%5D/page-263dd78dc5013b7a.js"],"JobDetailView"]
+12:Tccb,Innovation
+Chez OMNIFAB, nous aimons les gens qui se demandent constamment : « Est-ce qu’on pourrait faire ça autrement — ou encore mieux? »
+La personne sera donc encouragée à :
+
+proposer de nouvelles idées;
+demeurer à l’affût des tendances, outils et nouvelles façons de faire;
+participer aux réflexions créatives;
+contribuer à faire évoluer les projets;
+trouver des solutions lorsqu’un défi se présente;
+transformer les idées retenues en actions concrètes.
+
+TES PRINCIPALES RESPONSABILITÉS
+
+Créativité
+Selon les projets, la personne pourra contribuer à différentes initiatives liées au rayonnement d’OMNIFAB :
+
+Collaborer à la coordination de projets de communication et de marketing;
+Participer au déploiement de campagnes et d’initiatives de marque employeur;
+Coordonner certains événements, partenariats ou activations;
+Effectuer les suivis avec les agences, fournisseurs et autres collaborateurs externes;
+Participer à la préparation des contenus et outils nécessaires aux différents projets;
+Veiller au respect des orientations et de l’image de marque.
+
+Gestion et coordination de projets
+
+Prendre en charge différents projets et en assurer le suivi, de la planification jusqu’à la livraison;
+Transformer les orientations reçues en étapes et actions concrètes;
+Préparer les échéanciers, identifier les priorités et coordonner les différentes ressources nécessaires;
+Effectuer les suivis auprès des équipes, partenaires et fournisseurs;
+S’assurer que les livrables avancent selon les échéanciers établis;
+Identifier rapidement les enjeux pouvant ralentir un projet et proposer des solutions;
+Anticiper les prochaines étapes et les besoins à venir;
+Organiser et documenter l’information nécessaire à la bonne réalisation des projets;
+Maintenir une vue d’ensemble sur plusieurs projets simultanément;
+Effectuer les suivis nécessaires jusqu’à la réalisation complète des mandats.
+
+Développement et amélioration
+
+Contribuer au développement et à la mise en œuvre de nouvelles initiatives;
+Participer aux rencontres d’idéation et de développement de projets;
+Effectuer des recherches et recueillir l’information nécessaire à la prise de décision;
+Identifier des occasions d’améliorer les façons de faire;
+Proposer des solutions pratiques et créatives;
+
+LE PROFIL QU’ON RECHERCHE
+Nous recherchons d’abord et avant tout une personne avec d’excellentes aptitudes en gestion de projet .
+Tu es reconnu(e) pour être :
+
+organisé(e) et structuré(e);
+autonome;
+proactif(ve);
+débrouillard(e);
+rigoureux(se) dans tes suivis;
+orienté(e) vers les solutions;
+capable de gérer plusieurs priorités simultanément;
+créatif(ve) et curieux(se);
+à l’aise dans un environnement dynamique où les projets peuvent évoluer rapidement.
+
+EXPÉRIENCE ET COMPÉTENCES
+
+Expérience en gestion, coordination ou réalisation de projets;
+Excellentes capacités d’organisation et de priorisation;
+Très bonnes aptitudes relationnelles et communicationnelles;
+Capacité à gérer plusieurs dossiers simultanément;
+Aisance avec les outils numériques de gestion et de collaboration;
+
+Chez OMNIFAB, les idées ne manquent pas. On cherche quelqu’un qui aime les transformer en résultats.6:["$","$L11",null,{"id":"f9013f43db2bb4de","initialJob":{"id":"f9013f43db2bb4de","sourceId":"omnifab-ca","url":"https://jobdepilote.ca/poste/chargee-de-projets-innovation-et-creativite/","title":"Chargé(e) de projets – Innovation et créativité","company":"Omnifab","regionId":"mauricie","categoryId":"direction","employmentType":"temps-plein","currency":"CAD","description":"$12","tags":[],"languages":[],"postedAt":"2026-08-12T14:52:09.000Z","scrapedAt":"2026-08-21T12:51:50.942Z","linkStatus":"ok"}}]
+c:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#ffffff"}],["$","meta","3",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0b1120"}]]
+8:null
+13:I[6505,[],"IconMark"]
+a:{"metadata":[["$","title","0",{"children":"Chargé(e) de projets – Innovation et créativité — Omnifab (Mauricie) | JobCCQc"}],["$","meta","1",{"name":"description","content":"Innovation\nChez OMNIFAB, nous aimons les gens qui se demandent constamment : « Est-ce qu’on pourrait faire ça autrement — ou encore mieux? »\nLa personne se"}],["$","link","2",{"rel":"canonical","href":"https://jobccqc.ca/emplois/f9013f43db2bb4de/"}],["$","meta","3",{"name":"format-detection","content":"telephone=no"}],["$","meta","4",{"name":"mobile-web-app-capable","content":"yes"}],["$","meta","5",{"name":"apple-mobile-web-app-title","content":"JobCCQc"}],["$","meta","6",{"name":"apple-mobile-web-app-status-bar-style","content":"default"}],["$","meta","7",{"property":"og:title","content":"Chargé(e) de projets – Innovation et créativité — Omnifab (Mauricie) | JobCCQc"}],["$","meta","8",{"property":"og:description","content":"Innovation\nChez OMNIFAB, nous aimons les gens qui se demandent constamment : « Est-ce qu’on pourrait faire ça autrement — ou encore mieux? »\nLa personne se"}],["$","meta","9",{"property":"og:url","content":"https://jobccqc.ca/emplois/f9013f43db2bb4de/"}],["$","meta","10",{"property":"og:type","content":"website"}],["$","meta","11",{"name":"twitter:card","content":"summary"}],["$","meta","12",{"name":"twitter:title","content":"Chargé(e) de projets – Innovation et créativité — Omnifab (Mauricie) | JobCCQc"}],["$","meta","13",{"name":"twitter:description","content":"Innovation\nChez OMNIFAB, nous aimons les gens qui se demandent constamment : « Est-ce qu’on pourrait faire ça autrement — ou encore mieux? »\nLa personne se"}],["$","link","14",{"rel":"icon","href":"/icon.svg?f69bf06df7d0d84d","type":"image/svg+xml","sizes":"any"}],["$","$L13","15",{}]],"error":null,"digest":"$undefined"}
+f:"$a:metadata"
